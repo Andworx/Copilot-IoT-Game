@@ -6,8 +6,8 @@ These instructions apply to everything under `3d Models/`.
 
 - This directory owns the physical APACHE-case chassis for the portable
   Copilot-IoT-Game demonstration system.
-- Treat `codex apache case/model_params.scad` as the authoritative production
-  dimensions and `codex apache case/apache_3800_chassis.scad` as the
+- Treat `apache case/model_params.scad` as the authoritative production
+  dimensions and `apache case/apache_3800_chassis.scad` as the
   authoritative production geometry.
 - Fit-test directories are calibration tools, not production geometry. Do not
   copy a candidate measurement into the production model until the user
@@ -54,4 +54,3 @@ following are true:
 3. The production parameters are updated from those confirmed values.
 4. All regenerated production STLs pass build-volume validation and slicer
    inspection.
-

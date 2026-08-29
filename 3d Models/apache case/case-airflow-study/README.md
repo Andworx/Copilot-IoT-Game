@@ -1,5 +1,10 @@
 # APACHE 3800 case and airflow study
 
+See [the complete engineering design document](../DESIGN_DOCUMENT.md) for the
+mechanical history, airflow analysis, decision log, risks, and validation plan.
+Document revisions are recorded in
+[the design changelog](../DESIGN_CHANGELOG.md).
+
 This is a separate planning model for the complete APACHE 3800 enclosure. It
 does not modify the production chassis and is not a drilling template.
 

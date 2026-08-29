@@ -1,5 +1,10 @@
 # APACHE 3800 Parametric IoT Chassis — Structural Iteration 1
 
+The consolidated engineering rationale, diagrams, calculations, validation
+gates, and current design status are in [DESIGN_DOCUMENT.md](DESIGN_DOCUMENT.md).
+Its human-maintained revision record is in
+[DESIGN_CHANGELOG.md](DESIGN_CHANGELOG.md).
+
 This project is a mechanically focused foundation for a portable IoT demo
 console. It intentionally leaves the electronics layout and control cut-outs
 blank. The source is OpenSCAD, so every important case, panel, hinge, insert,
