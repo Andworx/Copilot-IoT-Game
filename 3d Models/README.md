@@ -13,6 +13,9 @@ case, designed as split parts that fit a Bambu Lab X1 Carbon build volume.
 - `codex apache case/length-fit-test/` — low-material depth calibration gauges.
 - `codex apache case/final-fit-test/` — labeled four-quadrant frame used to
   prove the final width, depth, corner, and lower-bevel fit before production.
+- `codex apache case/case-airflow-study/` — complete APACHE case reference
+  envelope, thermal estimate, component mockups, and proposed fan/power/dial
+  placement study. It is not a drilling template.
 
 ## Current physical-fit status
 
@@ -38,4 +41,3 @@ configured 256 x 256 x 256 mm build volume before slicing.
 
 See `codex apache case/README.md` for the production model, measurement method,
 hardware assumptions, print settings, and assembly sequence.
-
