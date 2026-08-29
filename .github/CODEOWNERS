@@ -1,0 +1,20 @@
+# CODEOWNERS
+# https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# All files — default reviewer
+* @YOUR_GITHUB_ORG/power-platform-team
+
+# Deployment scripts — require technical review
+scripts/ @YOUR_GITHUB_ORG/power-platform-team
+
+# Workflow files — require security review
+.github/workflows/ @YOUR_GITHUB_ORG/power-platform-team
+
+# Copilot agent topics — require editorial review
+copilot agents/ @YOUR_GITHUB_ORG/power-platform-team
+
+# Dataverse schema — require data model review
+tables/ @YOUR_GITHUB_ORG/power-platform-team
+
+# Plugin assemblies — require architecture review
+plugins/ @YOUR_GITHUB_ORG/power-platform-team

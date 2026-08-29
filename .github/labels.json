@@ -1,0 +1,127 @@
+[
+  {
+    "name": "YOUR_PROJECT_LABEL",
+    "color": "0075ca",
+    "description": "Tracks work items on the project board"
+  },
+  {
+    "name": "status:backlog",
+    "color": "7057ff",
+    "description": "Ready to start"
+  },
+  {
+    "name": "status:in-progress",
+    "color": "fbca04",
+    "description": "Work is actively in progress"
+  },
+  {
+    "name": "status:in-review",
+    "color": "e4a015",
+    "description": "Work is in PR review"
+  },
+  {
+    "name": "status:done",
+    "color": "0e8a16",
+    "description": "Work is complete"
+  },
+  {
+    "name": "type:epic",
+    "color": "b60205",
+    "description": "Large initiative spanning multiple tasks"
+  },
+  {
+    "name": "type:feature",
+    "color": "0052cc",
+    "description": "New capability or enhancement"
+  },
+  {
+    "name": "type:task",
+    "color": "bfd4f2",
+    "description": "Implementation task"
+  },
+  {
+    "name": "type:bug",
+    "color": "d73a4a",
+    "description": "Defect or regression"
+  },
+  {
+    "name": "type:chore",
+    "color": "cfd3d7",
+    "description": "Maintenance and non-feature work"
+  },
+  {
+    "name": "type:docs",
+    "color": "0075ca",
+    "description": "Documentation updates"
+  },
+  {
+    "name": "type:refactor",
+    "color": "5319e7",
+    "description": "Internal code restructuring"
+  },
+  {
+    "name": "type:security",
+    "color": "b60205",
+    "description": "Security hardening or remediation"
+  },
+  {
+    "name": "type:test",
+    "color": "1d76db",
+    "description": "Testing and quality automation"
+  },
+  {
+    "name": "area:dataverse",
+    "color": "f9d0c4",
+    "description": "Dataverse schema and data"
+  },
+  {
+    "name": "area:flows",
+    "color": "c2e0c6",
+    "description": "Power Automate flows"
+  },
+  {
+    "name": "area:agents",
+    "color": "c5def5",
+    "description": "Copilot Studio agents"
+  },
+  {
+    "name": "area:plugins",
+    "color": "e99695",
+    "description": "Dataverse plugins"
+  },
+  {
+    "name": "area:pages",
+    "color": "d4c5f9",
+    "description": "Power Pages and model-driven UI"
+  },
+  {
+    "name": "area:reporting",
+    "color": "fef2c0",
+    "description": "Power BI reports and models"
+  },
+  {
+    "name": "area:automation",
+    "color": "0e8a16",
+    "description": "CI/CD and GitHub automation"
+  },
+  {
+    "name": "priority:high",
+    "color": "d93f0b",
+    "description": "High priority"
+  },
+  {
+    "name": "priority:medium",
+    "color": "fbca04",
+    "description": "Medium priority"
+  },
+  {
+    "name": "priority:low",
+    "color": "0e8a16",
+    "description": "Low priority"
+  },
+  {
+    "name": "blocked",
+    "color": "ee0701",
+    "description": "Blocked by a dependency"
+  }
+]

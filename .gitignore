@@ -1,0 +1,70 @@
+# Environment files
+.env
+.env.*
+!.env.template
+!.env.example
+!.env.*.template
+!.env.*.example
+
+# Certificates and private keys
+*.pem
+*.key
+*.pfx
+*.p12
+*.cer
+*.crt
+*.jks
+*.keystore
+
+# App config files that may contain secrets
+appsettings.Development.json
+appsettings.Staging.json
+appsettings.Production.json
+*.secrets.json
+serviceAccountKey.json
+credentials.json
+
+# Secret directories
+secrets/
+# Local notes and scratch files
+.notes/
+
+
+# Export outputs
+scripts/exports/
+solutions/**/*.zip
+solutions/**/*.zip.bak
+
+# PAC CLI internal files
+**/.portalconfig/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# VS Code workspace defaults
+.vscode/launch.json
+
+# Node / Playwright
+node_modules/
+playwright-report/
+playwright-report-live/
+test-results/
+test-results-*/
+blob-report/
+
+# .NET / Dataverse plugins
+**/bin/
+**/obj/
+
+# Project-specific generated data
+project.tokens.json
+project.tokens.applied.json
+scripts/data/
+
+# Power BI local/generated artifacts
+**/.pbi/
+**/*.pbix
+**/*.abf
+**/*localSettings.json
+logs/

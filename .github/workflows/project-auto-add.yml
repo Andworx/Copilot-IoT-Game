@@ -1,0 +1,41 @@
+name: Project Auto-Add
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'YOUR_PROJECT_LABEL')
+    steps:
+      - name: Normalize status label to backlog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          TARGET_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          CURRENT_LABELS=$(gh api "repos/${TARGET_REPO}/issues/${ISSUE_NUMBER}" --jq '.labels[].name' || true)
+          FILTERED=$(printf '%s\n' "$CURRENT_LABELS" | grep -Ev '^status:(backlog|in-progress|in-review|done)$' || true)
+          LABELS_JSON=$(printf '%s\n' "$FILTERED" | sed '/^$/d' | jq -R . | jq -s .)
+          LABELS_JSON=$(echo "$LABELS_JSON" | jq '. + ["status:backlog"] | unique')
+
+          gh api --method PATCH "repos/${TARGET_REPO}/issues/${ISSUE_NUMBER}" --input <(
+            jq -n --argjson labels "$LABELS_JSON" '{labels: $labels}'
+          ) >/dev/null
+
+      - name: Add issue to project board
+        env:
+          # Use PAT_PROJECT secret if available; fall back to GITHUB_TOKEN
+          GH_TOKEN: ${{ secrets.PAT_PROJECT || secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+        run: |
+          # Add issue to org-level project (number: YOUR_PROJECT_NUMBER)
+          # Note: Requires PAT_PROJECT secret with 'read:project' scope for org-level projects
+          gh project item-add YOUR_PROJECT_NUMBER --owner YOUR_ORG_NAME --url "$ISSUE_URL" || echo "Failed to add to project. See .github/PROJECT_BOARD_GUIDE.md for setup."

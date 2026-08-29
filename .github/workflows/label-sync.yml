@@ -1,0 +1,55 @@
+name: Label Sync
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/labels.json
+      - .github/workflows/label-sync.yml
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Create or update repository labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LABEL_FILE: .github/labels.json
+        run: |
+          set -euo pipefail
+
+          if [ ! -f "$LABEL_FILE" ]; then
+            echo "Label file not found: $LABEL_FILE"
+            exit 1
+          fi
+
+          # Fetch all existing label names in one API call instead of one GET per label
+          EXISTING_LABELS=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/labels" --jq '.[].name')
+
+          jq -c '.[]' "$LABEL_FILE" | while read -r label; do
+            NAME=$(echo "$label" | jq -r '.name')
+            COLOR=$(echo "$label" | jq -r '.color')
+            DESCRIPTION=$(echo "$label" | jq -r '.description')
+            ENCODED_NAME=$(jq -rn --arg value "$NAME" '$value | @uri')
+
+            if echo "$EXISTING_LABELS" | grep -qxF "$NAME"; then
+              gh api --method PATCH "repos/${GITHUB_REPOSITORY}/labels/${ENCODED_NAME}" \
+                -f new_name="$NAME" \
+                -f color="$COLOR" \
+                -f description="$DESCRIPTION" >/dev/null
+              echo "Updated label: $NAME"
+            else
+              gh api --method POST "repos/${GITHUB_REPOSITORY}/labels" \
+                -f name="$NAME" \
+                -f color="$COLOR" \
+                -f description="$DESCRIPTION" >/dev/null
+              echo "Created label: $NAME"
+            fi
+          done
