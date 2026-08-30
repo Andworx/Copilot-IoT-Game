@@ -1,15 +1,16 @@
-# APACHE 3800 Parametric IoT Chassis — Structural Iteration 1
+# APACHE 3800 Parametric IoT Chassis — Fixed-Panel Architecture 2.1
 
 The consolidated engineering rationale, diagrams, calculations, validation
 gates, and current design status are in [DESIGN_DOCUMENT.md](DESIGN_DOCUMENT.md).
-Its human-maintained revision record is in
+All purchased, used, planned, and placeholder hardware is tracked in the
+[system bill of materials](BOM.md). The human-maintained revision record is in
 [DESIGN_CHANGELOG.md](DESIGN_CHANGELOG.md).
 
 This project is a mechanically focused foundation for a portable IoT demo
-console. It intentionally leaves the electronics layout and control cut-outs
-blank. The source is OpenSCAD, so every important case, panel, hinge, insert,
-strut, actuator, cable, and print-splitting dimension is editable in one file:
-`model_params.scad`.
+console. The current architecture uses a fixed, removable modular control deck
+rather than a moving panel. The source is OpenSCAD, so every important case,
+panel, module, insert, control cutout, and print-splitting dimension is editable
+in `model_params.scad`.
 
 The default case values are placeholders based on a nominal APACHE 3800-sized
 interior. **Do not print the full chassis until every parameter marked
@@ -27,21 +28,15 @@ precedence over the earlier catalogue-derived clearance calculation while
 
 - Open-centre perimeter chassis with thin walls plus top/bottom structural rails
 - Large unobstructed electronics/service cavity (the case floor remains usable)
-- Separate blank front bezel and blank moving control panel
-- Recessed fixed and moving leaves for a continuous metal hinge
-- M3 heat-set insert bosses for removable hinge mounting
-- Symmetric left/right chassis and panel pads for one or two gas springs
-- Rear-centre chassis and panel pads for a future actuator pivot
-- Broad cable opening at the hinge, with clearance for sleeve or cable chain
-- 30-degree operating view and 80-degree service view
-- Four printable chassis quadrants, two panel halves, two bezel halves, and
+- Full-opening fixed control panel secured by ten perimeter screws
+- Upper-center official Raspberry Pi 7-inch display carrier plus a full-width
+  lower bank of rotary, toggle, and button/status modules
+- M3 heat-set insert interfaces for the removable deck and module plates
+- No active piano hinge, pistons, gas springs, actuator, or moving cable loop
+- Four printable chassis quadrants, two panel halves, four module plates, and
   screw-fastened seam joiners sized for a nominal 256 x 256 mm print bed
-- Four-piece, 16 mm-high full-footprint fit-test frame and a separate
-  hinge/insert coupon for validation before committing to the full chassis
-- Complete closed, open, service, and exploded fit-check assemblies
-
-The represented hinge is a fit-check envelope only; print the plastic parts and
-install a purchased black metal piano hinge.
+- Four-piece, 16 mm-high full-footprint fit-test frame
+- Complete installed, exploded, and top-panel layout previews
 
 ## Measurements to take
 
@@ -61,12 +56,10 @@ Use calipers or a rigid rule and record millimetres.
 | Additional depth correction | `chassis_depth_fit_adjust` | Total depth removed after a physical fit test, independent of width |
 | Interior corner radius | `corner_radius` | Best-fit radius of each tray corner; check all four and use the smallest safe value |
 | Desired wall gap | `chassis_clearance` | Gap per side, normally 1.0–2.0 mm after a corner test fit |
-| Hinge length | `hinge_length` | End-to-end metal leaf length |
-| One hinge leaf width | `hinge_leaf_width` | Pin centreline to outer edge of one leaf |
-| Hinge metal thickness | `hinge_leaf_thickness` | Leaf sheet thickness, excluding knuckle |
-| Hinge knuckle diameter | `hinge_barrel_diameter` | Maximum outside diameter |
 | Insert pilot/outer diameter | `heatset_insert_diameter` | Use insert maker's recommended printed pilot, then validate a coupon |
 | Insert installed length | `heatset_insert_depth` | Brass insert length / recommended installation depth |
+| Touchscreen body and opening | `screen_opening_size`, `screen_rear_keepout` | Measure bezel, active area, fasteners, connector locations, and cable bend |
+| Toggle/rotary/button/LED interfaces | Component hole and keepout parameters | Measure panel cutout, anti-rotation feature, nut stack, body depth, and terminal bend |
 
 Also inspect and note local protrusions. If they cannot be avoided by making
 `usable_case_depth` smaller, add explicit reliefs to `chassis_shell()` rather
@@ -76,43 +69,45 @@ than quietly shrinking unrelated dimensions.
 
 When `use_measured_outer_footprint = true`, the outer chassis dimensions are
 exactly `measured_chassis_outer_width` and `measured_chassis_outer_depth`.
-Panel, bezel, split, and hinge-support dimensions derive from that footprint.
+Panel and split dimensions derive from that footprint.
 
 When the direct override is false, the outer chassis width is:
 
 `case_inner_width - 2 × chassis_clearance`
 
 The working depth uses `min(case_inner_depth, usable_case_depth)`, then subtracts
-the same per-side clearance and any fit adjustments. The panel width is derived from the chassis inner
-opening after subtracting both support ledges and the reveal on both sides:
+the same per-side clearance and any fit adjustments. The fixed panel overlaps
+the perimeter support ledge. Its width and depth are:
 
-`panel_width = chassis_inner_width - 2 × support_ledge_width - 2 × panel_edge_gap`
+`panel_width = chassis_inner_width - 2 × panel_edge_gap`
 
-The panel depth starts behind the bezel and the hinge barrel. Its back edge then
-keeps one support ledge plus one reveal from the rear wall. Change
-`panel_edge_gap` to tune the visible reveal; PETG prototypes typically need at
-least 1.0–1.5 mm per moving edge at this size.
+`panel_depth = chassis_inner_depth - 2 × panel_edge_gap`
 
-## Hinge setup
+## Fixed modular panel
 
-Measure the purchased hinge and edit the five hinge parameters in
-`model_params.scad`. `hinge_leaf_thickness` plus `hinge_pocket_clearance`
-controls pocket depth. `hinge_offset` moves the complete hinge rearward from the
-fixed bezel. The pin axis and panel start are derived automatically.
+Ten perimeter holes fasten the panel to inserts in the chassis top rail. Four
+module openings accept independently printable plates. The 220 x 146 mm
+display carrier is centered across the upper panel and is sized around the
+original official Raspberry Pi 7-inch Touch Display's 192.96 x 110.76 mm outer
+envelope and 154.08 x 85.92 mm viewable area. Three equal 90 x 74 mm modules
+form a full-width lower control bank with four rotary controls, six toggles,
+four pushbuttons, and eight indicators. Recessed labels identify every module.
 
-The fixed-leaf insert pilots are in the chassis hinge rail. The moving-leaf
-clearance holes pass through the panel skin into underside bosses with insert
-pilots. Insert size is intentionally exposed because M3 heat-set inserts are not
-dimensionally standardized. Verify insertion direction and pilot size on a
-small coupon before committing to the panel.
+`screen_model` defaults to `official_touch_display_7_original`. If the actual
+part is the newer 7-inch Touch Display 2, set it to `touch_display_2_7`; the
+same carrier supports its 189.5 x 120 mm landscape envelope and changes the
+view opening and rear-depth assumption. Confirm the generation before printing
+the display plate.
 
-## Opening angles
+All component openings are placeholders. Select and measure the exact screen,
+switches, rotary controls, buttons, indicators, washers, and knobs before using
+the module plates as production parts. The 16–20 mm rear keepout allowances in
+the airflow study are packaging limits that must be checked against actual
+hardware.
 
-Set `panel_deploy_angle` for the normal assembly view (default 30 degrees). Set
-`panel_service_angle` for disconnected-strut maintenance (default 80 degrees).
-These values only position the fit-check assembly in this iteration; they do not
-pretend to solve a gas-spring or actuator linkage. Final pivot locations, stroke,
-forces, collision checks, and hard stops belong in the next mechanism iteration.
+Service access is obtained by removing the ten perimeter screws and lifting the
+panel. Use labeled removable connectors and enough harness slack to reach those
+connectors without loading conductors or terminals.
 
 ## Bambu Lab X1 Carbon split plan
 
@@ -123,14 +118,15 @@ intended to print as one object. Use these production files:
 |---|---|---|
 | Front chassis | `chassis_front_left` + `chassis_front_right` | 153.1 x 110.0 mm each |
 | Rear chassis | `chassis_rear_left` + `chassis_rear_right` | 153.1 x 124.9 mm each |
-| Control panel | `panel_left` + `panel_right` | 141.5 x 159.1 mm each |
-| Front bezel | `front_bezel_left` + `front_bezel_right` | 150.0 x 32.0 mm each |
+| Fixed control panel | `panel_left` + `panel_right` | About 148.5 x 225.6 mm each |
+| Touchscreen module | `screen_module_provisional` | 220 x 146 mm |
+| Rotary module | `rotary_module_provisional` | 90 x 74 mm |
+| Toggle module | `switch_module_provisional` | 90 x 74 mm |
+| Button/status module | `utility_module_provisional` | 90 x 74 mm |
 | Chassis seams | `chassis_joiner_x` and `chassis_joiner_y`; print two of each | About 50 x 24 mm |
-| Panel seam | `panel_joiner`; print two | About 50 x 24 mm |
-| Bezel seam | `bezel_joiner`; print one | About 50 x 24 mm |
 
-The assertions in `model_params.scad` stop a render if a quadrant, panel half,
-or bezel half exceeds the configured X1 Carbon bed dimensions after parameter
+The assertions in `model_params.scad` stop a render if a quadrant or panel half
+exceeds the configured X1 Carbon bed dimensions after parameter
 changes. Still verify slicer orientation, skirt/brim space, and build-plate
 exclusions in Bambu Studio before sending a job.
 
@@ -138,9 +134,9 @@ exclusions in Bambu Studio before sending a job.
 
 Use a staged fit validation rather than printing a production quadrant first.
 
-1. Print `hinge_insert_coupon.stl`. Confirm the actual hinge leaf sits flush,
-   the barrel clears, M3 screws pass correctly, and the chosen heat-set inserts
-   install without splitting or spinning. Adjust the hinge/insert parameters.
+1. Print a small representative insert coupon before the structural panel.
+   Confirm the chosen heat-set inserts install without splitting or spinning
+   and that the selected screws repeatedly assemble without pull-out.
 2. Print the four `fit_test_front/rear_*.stl` parts plus two each of
    `fit_test_pin_joiner_x.stl` and `fit_test_pin_joiner_y.stl`. Press the pins
    into the existing boss holes to lock all four seams. No inserts or screws are
@@ -150,18 +146,22 @@ Use a staged fit validation rather than printing a production quadrant first.
    is inset by `case_bottom_bevel_inset` and follows a rounded, six-stage eased
    transition over `case_bottom_bevel_height`. Confirm the complete lower edge
    bears on the flat floor rather than rocking on the molded bevel. Then check every wall, corner,
-   rib, latch/hinge obstruction, and removal path. It should insert and lift out
+   rib, case-hinge/latch obstruction, and removal path. It should insert and lift out
    without bowing or force.
 4. Target a repeatable 2–3 mm gap per side for the next validation print. If a corner binds, correct
    `case_inner_width`, `case_inner_depth`, `usable_case_depth`, `corner_radius`,
    `case_bottom_bevel_height`, `case_bottom_bevel_inset`, or
    `chassis_clearance`, regenerate, and repeat the sample—not the full print.
-5. Only after the fit frame and hardware coupon pass should the production
-   chassis quadrants, bezel, and panel be printed.
+5. Print one provisional module or a thin hole-pattern coupon after selecting
+   its real controls. Verify every nut, washer, anti-rotation feature, body,
+   terminal, and cable bend.
+6. Only after the fit frame, insert test, control coupons, and closed-lid height
+   test pass should the production chassis and fixed panel be printed.
 
 The low frame validates the footprint but not lid closure. Before production,
-also compare `chassis_height` plus the panel/hinge envelope against the measured
-closed-case height using a rigid depth gauge or a simple foam/clay witness.
+also compare `chassis_height` plus the fixed panel, module plates, controls, and
+screen bezel against the measured closed-case height using a rigid depth gauge
+or a simple clay witness after the lid foam is removed.
 
 ### Physical fit-test revision notes
 
@@ -174,8 +174,8 @@ quadrants—the seams must be locked before checking fit.
 
 Revision 3 replaces the estimated outer footprint with the measured target
 12-1/16 x 9-1/4 inch finished size. The validated bevel and corner treatment are
-unchanged. Because the panel became narrower, the unpurchased hinge placeholder
-was reduced to 250 mm; measure the actual hinge before production.
+unchanged. Architecture 2.0 retires the former hinge and moving-panel mechanism
+in favor of the screw-fastened modular deck.
 
 ## Printing and assembly
 
@@ -195,10 +195,13 @@ are designed to avoid major supports; inspect every slice before printing.
 
 Use four chassis quadrants and the joiner plates. Install inserts in the molded
 seam pads, then fasten joiners from the accessible cavity side with M3 screws.
-The split panel uses two `panel_joiner` bars (one at each prepared Y station).
-The split bezel uses its dedicated underside `bezel_joiner` and heat-set insert
-bosses, so its centre seam is mechanically fastened. Do not glue the primary
-service joints.
+Install the ten chassis-rail inserts, place both panel halves, and fasten the
+fixed panel around its perimeter. The centered touchscreen plate and centered
+toggle plate each span the X seam and mechanically tie the two halves together;
+therefore the active design no longer needs separate panel joiner bars. Install
+all four independently removable module plates. Do not glue primary service
+joints. Use labeled plug connectors and enough slack to lift the unscrewed deck
+for service.
 
 The design does not require holes through the waterproof shell. Retention can be
 by tuned friction, removable edge shims, existing case geometry, or later
@@ -209,14 +212,17 @@ corner/rail fit test.
 
 1. All case-interface measurements and the lowest usable width/depth caused by
    wall draft or molded ribs.
-2. `chassis_height` against the closed lid and any lid foam retained.
+2. `chassis_height` plus panel modules and controls against the closed lid after
+   the lid foam is removed.
 3. Corner radius and per-side chassis clearance.
-4. Purchased hinge dimensions, screw-hole pattern, and barrel clearance through
-   the full 0–80 degree motion.
-5. Actual M3 insert pilot diameter/depth and screw-head/countersink choice.
-6. Printer's true usable bed dimensions and slicer orientation of every split
+4. Exact touchscreen, toggle, rotary, button, indicator, washer, knob, and rear
+   body/cable envelopes.
+5. Actual M3 insert pilot diameter/depth and screw-head/countersink choice for
+   both the deck and its modules.
+6. Panel deflection and insert retention after repeated removal/reinstallation.
+7. Printer's true usable bed dimensions and slicer orientation of every split
    component.
-7. Cable sleeve/chain envelope at both 30 and 80 degrees.
+8. Harness strain relief, connector labeling, and safe lift-out service slack.
 
-The gas-spring and actuator pads are reinforced placeholders, not validated
-linkages. Do not buy springs or drill their brackets from these coordinates yet.
+The active model contains no piston, gas-spring, actuator, or moving-panel
+mounting features.

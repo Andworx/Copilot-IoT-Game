@@ -14,6 +14,7 @@ $Views = @{
     "assembly_open"   = "58,0,54,62,0,25,700"
     "assembly_closed" = "58,0,54,62,0,25,720"
     "airflow_section" = "52,0,74,68,0,28,620"
+    "electronics_layout" = "0,0,42,0,0,0,520"
     "port_layout"     = "72,0,42,66,0,24,690"
     "rear_port_layout"= "72,0,42,66,0,204,690"
 }

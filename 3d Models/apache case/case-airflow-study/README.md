@@ -2,6 +2,8 @@
 
 See [the complete engineering design document](../DESIGN_DOCUMENT.md) for the
 mechanical history, airflow analysis, decision log, risks, and validation plan.
+All purchased, selected, and required mechanical, electrical, and cooling
+components are tracked in [the system bill of materials](../BOM.md).
 Document revisions are recorded in
 [the design changelog](../DESIGN_CHANGELOG.md).
 
@@ -71,6 +73,61 @@ template or adapter plate.
 
 Product reference: <https://www.amazon.com/dp/B0F9KTRGV5?th=1>
 
+## DC distribution and revised component layout
+
+The selected low-voltage distribution part is the Blue Sea Systems 5025 ST
+Blade Fuse Block with negative bus, Amazon ASIN `B000THQ0CQ`. It provides six
+ATO/ATC fused circuits and is rated by the manufacturer for 32 V DC maximum,
+100 A maximum for the block, and 30 A maximum per circuit. Its manufacturer
+drawing gives a 124.31 x 84.20 x 38.57 mm overall envelope, 98.58 x 63.50 mm
+mounting centers, and M4/#8 mounting holes.
+
+Manufacturer reference: <https://www.bluesea.com/products/5025/ST_Blade_Fuse_Block>
+
+Amazon reference: <https://www.amazon.com/dp/B000THQ0CQ>
+
+Each used fused branch then feeds one PlusRoc `PR4A070` waterproof buck
+converter, Amazon ASIN `B0FD735LFG`. The listing specifies 8–32 V DC input and
+5 V/5 A, 25 W maximum USB-C output. The listed body is approximately 46 x 32 x
+18 mm; the study deliberately reserves 68 x 32 x 18 mm per module for mounting
+ears and lead exits until a delivered module is measured. Six envelopes are
+shown as three vertically separated front pairs; populate only the number of
+branches actually required. Three two-packs supply six modules.
+
+Product reference: <https://www.amazon.com/dp/B0FD735LFG>
+
+The safe functional order is:
+
+`C14 AC inlet -> AC/DC supply -> 12/24 V DC -> Blue Sea 5025 -> branch fuse -> PlusRoc converter -> 5 V USB-C load`
+
+The 5025 is DC-only and must never receive mains voltage. Each branch fuse must
+be selected for its converter, conductor, connector, and load; 30 A is the
+fuse block's circuit limit, not the correct converter fuse value.
+
+The collision-checked study layout places the rotated fuse block at the rear
+left, the power supply at the rear right, three stacked converter pairs toward
+the front, and both Pi envelopes on the floor behind the converter bank. The
+old generic terminal-block envelope is removed because
+the 5025 now provides the DC positive distribution and negative bus. Any mains
+terminal/barrier hardware remains a separate selection.
+
+OpenSCAD assertions now check that all rectangular component envelopes stay
+inside the nominal chassis-rail boundary and retain at least 4 mm pairwise
+clearance. These checks do not include rounded-corner detail, mounting
+fasteners, connector access, wiring bend radius, cover removal, or a component
+service path, so the delivered hardware still requires a physical mockup.
+
+The control deck is fixed and removable rather than hinged. A 220 x 146 mm
+official Raspberry Pi 7-inch display carrier is centered in the upper panel;
+three 90 x 74 mm rotary, toggle, and button/status modules form the lower bank.
+The study reserves a 192.96 x 110.76 x 20 mm rear envelope for the original
+official display without a Pi mounted to its rear standoffs, plus 18, 16, and
+16 mm rear envelopes for the three control modules. These remain physical-test
+limits. The panel is removed by ten perimeter screws and serviced with labeled
+disconnectable harnesses; no gas spring, actuator, or moving cable loop remains.
+
+![Collision-checked electronics layout](exports/electronics_layout.png)
+
 ## Preliminary thermal estimate
 
 The placeholder heat load is 30 W. At a 10 C permitted temperature rise, the
@@ -78,6 +135,12 @@ ideal airflow is about 5.3 CFM. Applying a 1.75 design margin gives 9.2 CFM.
 Assuming filters and guards deliver only 60 percent of free-air rating, each fan
 station should use a fan rated for at least about 15.4 CFM; the model uses a
 20 CFM nominal target.
+
+At six simultaneous 25 W converter outputs, the converters would deliver 150 W
+total. At the provisional 90 percent efficiency assumption, converter loss
+alone is approximately 16.7 W. The 30 W total heat placeholder therefore
+requires replacement with measured worst-case losses for the complete supply,
+converters, computers, display, fans, and wiring before fan selection is final.
 
 Opposing fans act primarily as a pressure-supporting series path, so do not add
 their two free-air CFM ratings together. Verify airflow after assembly with the
@@ -90,13 +153,22 @@ worst-case load. Run `python estimate_airflow.py` to repeat the calculation.
 2. Wall thickness and local double-wall/rib structure at all four proposed
    ports.
 3. Flat mounting area around each port, including the exterior corner bumpers.
-4. Hinge, latch, handle, pressure-valve, padlock, and gasket keepouts.
+4. Case hinge, latch, handle, pressure-valve, padlock, and gasket keepouts.
 5. Clearance behind each 60 x 60 x 25 mm fan for wiring, guards, and service.
 6. Exact Mean Well model, worst-case AC input, output load, and measured loss.
 7. Exact fan model, voltage, current, free-air CFM, pressure curve, and noise.
 8. Exact power inlet flange, cutout, fuse, switch, terminals, and strain relief.
 9. Exact dial body depth, anti-rotation feature, terminal clearance, and knob.
-10. Closed-lid clearance above the control panel and all moving wiring.
+10. Closed-lid clearance above the fixed control panel, touchscreen bezel,
+    switches, knobs, and indicators after lid-foam removal.
+11. Blue Sea 5025 envelope, mounting centers, cover-removal space, terminals,
+    wire sizes, bend radii, and tool access.
+12. PlusRoc converter mounting-ear span, lead exits, lead lengths, USB-C cable
+    clearance, sustained output, and measured temperature at the intended load.
+13. Touchscreen opening, mounting holes, connector positions, rear depth, and
+    cable bend.
+14. Every toggle, rotary, button, and indicator cutout, anti-rotation feature,
+    nut/washer stack, body depth, and terminal bend.
 
 ## Safety and sealing
 
@@ -124,6 +196,6 @@ bed and inherit unmeasured catalogue/placeholder dimensions. They must not be
 used as manufacturing or drilling masters.
 
 OpenSCAD selectors include `assembly_open`, `assembly_closed`,
-`airflow_section`, `port_layout`, `rear_port_layout`,
+`airflow_section`, `electronics_layout`, `port_layout`, `rear_port_layout`,
 `case_lower_reference`, and `case_lid_reference`. Use the dedicated rear view
 to judge power/dial spacing below the hinge before choosing hardware.

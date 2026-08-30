@@ -1,12 +1,13 @@
 # APACHE 3800 Portable IoT Demonstration System
 
-**Engineering design document — version 1.0.0**
+**Engineering design document — version 2.1.0**
 
 **Document status:** Active working design record
 
 **Last updated:** 2026-08-29
 
-**Companion history:** [DESIGN_CHANGELOG.md](DESIGN_CHANGELOG.md)
+**Companion records:** [BOM.md](BOM.md) ·
+[DESIGN_CHANGELOG.md](DESIGN_CHANGELOG.md)
 
 ## 1. Purpose
 
@@ -17,7 +18,8 @@ tests changed the design, and what remains unverified.
 
 The design consists of two related but deliberately separate models:
 
-1. A removable, split, 3D-printed electronics chassis and moving control panel.
+1. A removable, split, 3D-printed electronics chassis with a fixed modular
+   control panel.
 2. A planning model of the complete APACHE enclosure used to study airflow,
    heat, fan openings, AC power entry, and a six-position control selector.
 
@@ -34,7 +36,10 @@ The system must:
 - break into parts that fit a Bambu Lab X1 Carbon 256 x 256 x 256 mm build
   volume;
 - provide a removable structural chassis with a large electronics cavity;
-- support a hinged control surface and later gas-spring or actuator work;
+- provide a rigid, removable, screw-fastened control deck with independently
+  replaceable touchscreen and control modules;
+- remove the lid foam and verify the newly exposed lid/rib clearance without
+  placing heat-producing equipment outside the forced-air lower cavity;
 - allow inexpensive fit testing before long production prints;
 - move cooling air across the electronics rather than short-circuiting between
   adjacent vents;
@@ -66,6 +71,10 @@ The system must:
 | Rear service-panel size | 176 x 68 mm estimated | Photo-derived envelope | Must be measured |
 | Power inlet | FILSHU C14/fuse/switch, ASIN B0FZQ866Z3 | Listing dimensions | Ordered; measure on arrival |
 | Control selector | FOCMKEAS RS26 2P6T, ASIN B0F9KTRGV5 | Listing/common RS26 dimensions | Ordered; measure on arrival |
+| DC distribution | Blue Sea Systems 5025, six circuits with negative bus | Manufacturer drawing/specification | Selected; acquisition and measurements unconfirmed |
+| Branch conversion | Up to six PlusRoc PR4A070 5 V/5 A USB-C converters | Product-listing dimensions | Selected; acquisition and measurements unconfirmed |
+| Panel architecture | Fixed 296.9875 x 225.55 x 5 mm split deck, ten chassis screws | Parametric CAD | Replaces moving panel; exact depth follows current Rev 3 production source |
+| Display/control modules | Upper-center official 7-inch Pi display carrier; three lower control plates | Official screen envelope plus parametric control placeholders | Screen generation, mounting, cables, and all control interfaces must be physically verified |
 
 ### Evidence hierarchy
 
@@ -80,6 +89,21 @@ When values conflict, use this order:
 
 No lower class of evidence may silently overwrite a higher one.
 
+### Bill of materials control
+
+Every enclosure, fabricated assembly, mechanical component, electronic device,
+cooling component, and electrical-safety item named by this design is tracked
+in the [system bill of materials](BOM.md). BOM status distinguishes parts in
+hand or ordered from planning envelopes and optional placeholders. Listing or
+catalogue dimensions remain unverified until the delivered item is measured.
+
+The BOM IDs provide stable references as selections mature. In particular,
+`ELEC-001` is the ordered fused C14 inlet, `ELEC-002` is the ordered RS26
+selector, `ELEC-010` is the selected Blue Sea 5025 DC fuse block, `ELEC-007`
+is the selected PlusRoc converter family, `THM-001` and `THM-002` are the
+unselected intake and exhaust fans. `MEC-001` records the retired hinge, while
+`MEC-002` and `MEC-003` track the active heat-set inserts and M3 fasteners.
+
 ## 4. Development process
 
 ```mermaid
@@ -93,7 +117,7 @@ flowchart TD
     G --> H[Print labeled low-material gauge]
     H --> E
     E -- Yes --> I[Promote confirmed values to production model]
-    I --> J[Verify lid, hinge, inserts and motion]
+    I --> J[Verify lid clearance, fixed-panel inserts and module coupons]
     J --> K[Print production chassis]
     K --> L[Install electronics and measure heat]
     L --> M[Validate airflow and temperature]
@@ -124,8 +148,9 @@ independent parts from drifting out of alignment when the footprint changes.
 ### 5.2 Printer-driven part splitting
 
 The 306 mm-class chassis cannot fit on a 256 mm bed as one part. The chassis is
-therefore split into four quadrants. The panel and bezel are split into two
-halves, and joints use dedicated joiners rather than permanent glue.
+therefore split into four quadrants. The fixed panel is split into two halves,
+each replaceable module fits separately, and joints use dedicated joiners
+rather than permanent glue.
 
 ```mermaid
 flowchart LR
@@ -135,11 +160,14 @@ flowchart LR
       FR --- RR[Rear right]
       RL --- RR
     end
-    subgraph Panel[Moving control panel]
+    subgraph Panel[Fixed removable panel]
       PL[Panel left] --- PR[Panel right]
     end
-    subgraph Bezel[Front bezel]
-      BL[Bezel left] --- BR[Bezel right]
+    subgraph Modules[Replaceable modules]
+      TS[Touchscreen]
+      RT[Four rotary]
+      SW[Six toggle]
+      UT[Buttons and indicators]
     end
 ```
 
@@ -218,19 +246,56 @@ joined corrected final-fit frame:
 ```mermaid
 flowchart TB
     Case[APACHE 3800 lower shell] --> Frame[Four-part removable chassis]
-    Frame --> Bezel[Two-part fixed front bezel]
-    Frame --> Hinge[Purchased continuous hinge]
-    Hinge --> Moving[Two-part moving control panel]
+    Frame --> Inserts[Ten perimeter heat-set inserts]
+    Inserts --> Fixed[Two-part fixed removable panel]
+    Fixed --> Screen[Upper-center official 7-inch display module]
+    Fixed --> Rotary[Four-position rotary-control module]
+    Fixed --> Toggle[Six-toggle module]
+    Fixed --> Utility[Four-button and eight-indicator module]
     Frame --> Electronics[Under-panel electronics cavity]
-    Frame --> Future[Gas-spring and actuator placeholders]
-    Moving --> Cable[Hinge-side protected cable route]
+    Fixed --> Looms[Labeled removable wiring looms]
 ```
 
 The open-center frame minimizes material and preserves access. Mechanical
-service joints use screws and heat-set inserts instead of glue. Hinge, insert,
-gas-spring, and actuator values remain placeholders until the exact hardware is
-measured and motion is checked through both the 30-degree operating angle and
-80-degree service angle.
+service joints use screws and heat-set inserts instead of glue. The former
+front bezel, piano hinge, gas-spring pads, actuator pads, hinge cable route, and
+moving/service-angle assemblies are retired. Ten accessible perimeter screws
+retain the deck. Removing those screws and disconnecting labeled harnesses
+allows the complete panel to lift out for service.
+
+The fixed base panel is split into X1C-printable left and right halves. Four
+module plates sit over openings in the base:
+
+- a 220 x 146 mm upper-center display carrier with a 156 x 88 mm viewing
+  opening for the original official Raspberry Pi 7-inch Touch Display profile;
+- a 90 x 74 mm lower-left plate with four provisional 9.8 mm rotary holes;
+- a 90 x 74 mm lower-center plate with six provisional 12 mm toggle holes; and
+- a 90 x 74 mm lower-right plate with four provisional 16 mm button holes and eight
+  provisional 5 mm indicator holes.
+
+Every module uses four screws into panel bosses. This lets a measured module
+plate be reprinted without reprinting the structural deck. All control openings
+remain `MEASURE_BEFORE_PRINT` until exact components are selected and measured.
+The centered screen and toggle plates cross the panel split and serve as two
+widely separated seam bridges, so separate panel joiner bars are no longer part
+of the active export set.
+
+The CAD defaults to the original official 800 x 480 Touch Display. Raspberry
+Pi specifies a 192.96 x 110.76 mm outer envelope, a 154.08 x 85.92 mm viewable
+area, and 200 mA at 5 V typical at maximum brightness. The same carrier can be
+switched to the newer 7-inch Touch Display 2 profile, whose official landscape
+envelope is 189.5 x 120 x 15 mm. Because the screen generation is not yet
+confirmed, `screen_model` is an explicit selection gate and the plate remains
+provisional until rear geometry, mounting, connector, and cable bend are checked.
+
+The lid foam is removed. The exposed lid is treated first as clearance above
+the screen, switches, and knobs—not as an assumed electronics bay. Powered
+hardware placed in the lid would sit outside the lower side-to-side fan path and
+would require a separate airflow, wiring-flex, retention, and lid-load analysis.
+Until then, keep the lid volume empty or use only a shallow nonpowered holder
+that clears the controls when the case closes.
+
+![Fixed modular panel layout](exports/preview/panel_layout.png)
 
 ## 7. Complete case and airflow study
 
@@ -238,33 +303,62 @@ The airflow study is a separate non-production model. Its case shell is an
 approximate reference envelope and its large STLs are explicitly named
 `REFERENCE_DO_NOT_PRINT`.
 
+The fixed panel is 296.9875 x 225.55 mm in the current Rev 3 production source
+because that source still uses 234.95 mm chassis depth. The airflow study uses
+a 296.9875 x 220.05 mm panel derived from the unpromoted 229.45 mm chassis
+candidate. This difference is intentional and must disappear only when the
+physical final-fit result is explicitly promoted to production.
+
 ![Open enclosure study](case-airflow-study/exports/assembly_open.png)
 
 ### 7.1 Electronics envelopes
 
-The present mock layout includes planning blocks for:
+The revised mock layout includes planning blocks for BOM items `ELEC-004`,
+`ELEC-005`, `ELEC-007`, and `ELEC-010`:
 
-- one 159 x 97 x 30 mm power supply;
-- two 85 x 56 x 22 mm Raspberry Pi-class devices;
-- one 52 x 32 x 18 mm DC converter; and
-- one 90 x 24 x 22 mm terminal/distribution block.
+- one 159 x 97 x 30 mm power supply at `[40, 44, 11]`;
+- one Blue Sea 5025 fuse block, rotated in plan to an 84.20 x 124.31 x
+  38.57 mm envelope at `[-100, 44, 7]`;
+- six conservative 68 x 32 x 18 mm converter envelopes in three front stacks
+  of two; and
+- two 85 x 56 x 22 mm Raspberry Pi-class envelopes on the floor immediately
+  behind the converter bank.
 
-These blocks study congestion and airflow only. Hole patterns, connector
-locations, cable bend radii, and service-removal paths are not yet designed.
+The fuse block replaces the former generic DC terminal-block mockup. The power
+supply moved leftward enough to clear the chassis perimeter rail, and the fuse
+block and converter bank no longer intersect it. Named OpenSCAD positions now
+feed automatic rectangular-boundary and pairwise 4 mm AABB clearance checks.
+The collision list now includes downward keepout envelopes for the centered
+official-display body, rotary, toggle, and utility modules. The modeled screen
+rear allowance is 20 mm without a Raspberry Pi attached to the display's rear
+standoffs; the other module-body allowances are 18, 16, and 16 mm. Those control
+depths are strict provisional maxima imposed by the packed layout, not assumed
+properties of future hardware. Deeper parts require moving floor electronics,
+raising the deck after a lid-clearance test, or revising the module layout.
+The fuse block now sits directly at the modeled case-floor datum and both
+converter tiers were lowered 4 mm to preserve the automatic 4 mm clearance
+under the centered controls.
+
+The checks prevent the previous PSU/terminal-block collision, but they do not
+prove clearance at rounded case corners, connectors, fasteners, wire bends,
+tool access, or service-removal paths.
+
+![Collision-checked electronics layout](case-airflow-study/exports/electronics_layout.png)
 
 ### 7.2 Airflow arrangement
 
-The selected arrangement uses a filtered intake on the left short wall and an
-exhaust on the right short wall. The intake is lower/front-biased and the
-exhaust is higher/rear-biased, producing a diagonal sweep through the
-under-panel electronics volume.
+The selected arrangement uses BOM item `THM-001`, a filtered intake on the left
+short wall, and `THM-002`, an exhaust on the right short wall. The intake is
+lower/front-biased and the exhaust is higher/rear-biased, producing a diagonal
+sweep through the under-panel electronics volume.
 
 ```mermaid
 flowchart LR
     Ambient[Room air] --> Filter[Replaceable intake filter]
     Filter --> Intake[Left 60 mm intake]
-    Intake --> Pi[Pi and low-voltage devices]
-    Pi --> PSU[Power supply and converters]
+    Intake --> Conv[Six fused converter branches]
+    Conv --> Pi[Pi and low-voltage devices]
+    Pi --> PSU[Power supply and fuse block]
     PSU --> Exhaust[Right 60 mm exhaust]
     Exhaust --> Room[Heated exhaust air]
 ```
@@ -296,6 +390,12 @@ The calculations are:
 
 A nominal 20 CFM fan derates to approximately 12 CFM under the assumed factor,
 which clears the preliminary 9.23 CFM target. This is not a thermal validation.
+Six converters delivering their full 25 W outputs would provide 150 W total;
+at the provisional 90 percent efficiency assumption, converter loss alone is
+approximately 16.7 W. That value does not include the AC/DC supply, computers,
+display, fans, wiring, or other loads, so the present 30 W total heat input must
+not be treated as a demonstrated worst case. The selected AC/DC supply must
+also support the simultaneous branch load with appropriate margin.
 The final test must use the closed case, actual filters and grilles, final wire
 routing, maximum sustained compute load, and measured ambient and internal
 temperatures.
@@ -322,8 +422,8 @@ estimated panel height and improves clearance below the hinge.
 
 ### 8.1 Ordered power inlet
 
-The selected part is a FILSHU IEC320 C14 inlet module with a fuse holder,
-rocker switch, and preattached leads, Amazon ASIN `B0FZQ866Z3`.
+The selected part, BOM item `ELEC-001`, is a FILSHU IEC320 C14 inlet module with
+a fuse holder, rocker switch, and preattached leads, Amazon ASIN `B0FZQ866Z3`.
 
 Listing/drawing values currently modeled:
 
@@ -339,8 +439,8 @@ are measured.
 
 ### 8.2 Ordered six-position selector
 
-The selected control is a FOCMKEAS RS26 2P6T rotary band switch, Amazon ASIN
-`B0F9KTRGV5`.
+The selected control, BOM item `ELEC-002`, is a FOCMKEAS RS26 2P6T rotary band
+switch, Amazon ASIN `B0F9KTRGV5`.
 
 | Feature | Current model |
 |---|---:|
@@ -359,6 +459,27 @@ mains power or high-current fans.
 
 ## 9. Electrical, thermal, and enclosure safety
 
+The intended power architecture is:
+
+```mermaid
+flowchart LR
+    AC[Detachable AC cord] --> C14[Fused switched C14 inlet]
+    C14 --> PSU[Mean Well AC/DC supply]
+    PSU --> DC[12 or 24 V DC output]
+    DC --> FUSE[Blue Sea 5025 DC fuse block]
+    FUSE --> B1[Branch fuse 1] --> C1[PlusRoc converter 1] --> L1[5 V USB-C load 1]
+    FUSE --> B2[Branch fuse 2] --> C2[PlusRoc converter 2] --> L2[5 V USB-C load 2]
+    FUSE --> BN[Branches 3–6] --> CN[One PlusRoc per used branch] --> LN[5 V loads 3–6]
+    PE[Protective earth, where required] --> PSU
+```
+
+The Blue Sea 5025 is a maximum-32 V **DC** fuse block. Mains power must never
+be connected to it. AC enters only through the fused C14 module and feeds the
+AC/DC supply; the supply's low-voltage DC output then feeds the fuse block.
+Each populated branch receives an individually selected ATO/ATC fuse before
+its converter. Fuse values must protect the converter, branch wiring, and
+connectors—not merely match the fuse block's 30 A per-circuit maximum rating.
+
 Cutting fan and connector openings invalidates the original enclosure rating
 unless the finished system is independently sealed and tested. The design must
 include:
@@ -370,7 +491,8 @@ include:
 - insulated mains terminals and physical segregation from low voltage;
 - wire gauges and fusing sized for the actual load;
 - guarded fuse replacement and switch access;
-- no cable contact with fan blades, hinge motion, or sharp cut edges; and
+- no cable contact with fan blades, case-hinge hardware, or sharp cut edges;
+  and
 - review of the final mains implementation by a qualified person before use.
 
 The rotary selector belongs on the isolated low-voltage control side. Fan power
@@ -399,9 +521,12 @@ flowchart TD
 3. Confirm continuous floor bearing and no rocking.
 4. Confirm no visible rail bowing and no spring-back when released.
 5. Confirm repeatable insertion and removal without force.
-6. Check all ribs, corners, hinge/latch structures, and the retained foam.
+6. Check all ribs, corners, case hinge/latch structures, and removed-foam areas.
 7. Verify chassis plus panel height using the closed lid.
-8. Test the actual hinge and heat-set inserts with the hardware coupon.
+8. Verify all ten panel screws engage inserts without pulling the split deck
+   out of plane.
+9. Lift the unscrewed panel using its intended service harness slack and verify
+   that every connector can be reached without stressing wiring.
 
 ### 10.2 Port and hardware acceptance tests
 
@@ -411,9 +536,18 @@ flowchart TD
    radii, rear depth, and cable exit envelope.
 3. Measure the selector bushing diameter, usable thread length, nut/washer,
    anti-rotation feature, body depth, terminal envelope, and knob.
-4. Create and print a thin, labeled rear-panel drill-template coupon.
-5. Test both components in the coupon before modifying the case.
-6. Verify plug insertion/removal and knob use with the lid fully open.
+4. Measure the 5025 overall envelope, mounting centers, terminal hardware,
+   cover-removal space, and wire-bend/service envelope.
+5. Measure a PlusRoc converter body, mounting ears, lead exits, lead lengths,
+   and connector insertion/removal envelope.
+6. Measure the touchscreen bezel, active area, body, mounting holes, connector
+   positions, rear depth, and cable bend.
+7. Measure every toggle, rotary, button, and indicator cutout, anti-rotation
+   feature, nut/washer stack, rear depth, and terminal bend envelope.
+8. Create and print thin labeled module/drill-template coupons.
+9. Test the rear-panel components and control modules before modifying the case
+   or printing the full structural panel.
+10. Verify plug insertion/removal and knob use with the lid fully open.
 
 ### 10.3 Thermal acceptance tests
 
@@ -439,6 +573,17 @@ Fill this table when the ordered parts arrive.
 | Selector usable thread length | TBD | Calipers | — | No |
 | Selector rear body/terminal depth | TBD | Calipers | — | No |
 | Selector knob diameter/depth | TBD | Calipers | — | No |
+| Blue Sea 5025 overall envelope | TBD | Calipers | — | No |
+| Blue Sea 5025 mounting centers | TBD | Calipers | — | No |
+| Blue Sea 5025 cover and wire service envelope | TBD | Physical mock wiring | — | No |
+| PlusRoc converter ear-to-ear envelope | TBD | Calipers | — | No |
+| PlusRoc lead and USB-C service envelope | TBD | Physical mock wiring | — | No |
+| Touchscreen visible opening and bezel | TBD | Calipers/template | — | No |
+| Touchscreen rear depth and cable bend | TBD | Calipers/mock wiring | — | No |
+| Toggle body, cutout, and rear depth | TBD | Calipers/coupon | — | No |
+| Additional rotary body, cutout, and rear depth | TBD | Calipers/coupon | — | No |
+| Pushbutton and indicator interfaces | TBD | Calipers/coupon | — | No |
+| Fixed-panel screw/insert pull-down test | TBD | Physical assembly | — | No |
 | Final joined frame 306.3875 x 229.45 fit | TBD | Physical case test | — | No |
 
 ## 12. Decision log
@@ -456,6 +601,14 @@ Fill this table when the ordered parts arrive.
 | D-009 | Put power and selector in rear center recess | Protected, accessible surface away from side fans | Recess measurements or hinge conflict |
 | D-010 | Mount the C14 module horizontally | Fits the low rear panel with better vertical margin | Delivered module or recess does not fit |
 | D-011 | Use RS26 only as low-current selector | Six discrete modes; insufficient rating for direct power control | Controller architecture changes |
+| D-012 | Use the Blue Sea 5025 for low-voltage branch distribution | Six fused positive branches and a negative bus match the six-mode/branch planning architecture | Measured space, current, or wiring tests fail |
+| D-013 | Put one PlusRoc converter after each populated fuse-block branch | Provides per-load branch protection and local 5 V USB-C conversion | Fewer loads are installed or a centralized converter architecture proves preferable |
+| D-014 | Retire the moving-panel mechanism | A fixed deck is simpler, more rigid, provides more control area, and removes hinge/strut/actuator clearance and failure modes | A later requirement demands frequent tool-free under-panel access |
+| D-015 | Use four replaceable control modules | Exact controls can change without reprinting the full structural panel | A measured integrated commercial panel is selected |
+| D-016 | Retain the fixed deck with ten perimeter screws | Distributed pull-down resists bowing while keeping the complete electronics bay serviceable | Insert pull-out, panel deflection, or access testing fails |
+| D-017 | Stack converter envelopes in three front pairs | Frees floor area for both Pi envelopes while maintaining modeled clearance to panel controls | Converter temperature or service testing rejects stacked mounting |
+| D-018 | Center the official 7-inch Pi display at the upper middle | Improves visibility and produces a symmetric console layout with controls below | Closed-lid, mounting, cable, or human-factors testing fails |
+| D-019 | Use the centered screen and toggle plates as panel-seam bridges | Avoids joiner collisions inside the large centered display opening and reduces hardware | Module fastener or panel-deflection testing fails |
 
 ## 13. Open risks and unresolved work
 
@@ -467,16 +620,19 @@ Fill this table when the ordered parts arrive.
 | Ordered component dimensions may differ from listings | Incorrect openings or retention | Caliper measurement and coupon |
 | Fan model and pressure curve unknown | Inadequate flow/noise | Select fan and test with actual filter/grille |
 | Heat load is a placeholder | Thermal estimate may be wrong | Measure input/output losses at worst load |
+| Six converters and their leads are not physically measured | Mounting ears or cable bends may collide despite clear body envelopes | Measure one delivered module and update the conservative CAD envelope |
+| Fuse-block cover and terminal service clearance are unverified | Cover removal or safe wiring may be obstructed | Mock up the actual block, largest conductors, and tool access before mounting |
 | Mains wiring design incomplete | Shock/fire hazard | Qualified review, protection, segregation |
-| Hinge and inserts unmeasured | Weak or misaligned moving panel | Hardware coupon and motion test |
-| Gas-spring/actuator pads are placeholders | Excess force or collision | Dedicated linkage analysis before purchase |
+| Fixed-panel inserts and module fasteners are untested | Panel could bow, loosen, or strip during service | Print insert coupon and perform repeated assembly/pull-down test |
+| Control bodies may exceed 16–20 mm provisional rear allowances | Collision with floor electronics | Select and measure controls before final module plates; revise layout if deeper |
+| Stacked converters may retain heat or impede service | Higher converter temperature and difficult wiring | Use ventilated brackets, preserve separation, and test every populated branch at load |
 
 ## 14. File map
 
 | Path | Role |
 |---|---|
 | `model_params.scad` | Authoritative production mechanical parameters |
-| `apache_3800_chassis.scad` | Production chassis, panel, bezel, joints, and assemblies |
+| `apache_3800_chassis.scad` | Production chassis, fixed modular panel, module plates, joints, and assemblies |
 | `export_parts.ps1` | Production STL and preview export |
 | `validate_stl_bounds.py` | X1C build-volume validation |
 | `length-fit-test/` | Standalone low-material depth gauges |
@@ -485,6 +641,7 @@ Fill this table when the ordered parts arrive.
 | `case-airflow-study/apache_3800_airflow_study.scad` | Complete enclosure and airflow visualization |
 | `case-airflow-study/estimate_airflow.py` | Repeatable preliminary airflow calculation |
 | `case-airflow-study/exports/` | Visual evidence and non-printable reference envelopes |
+| `BOM.md` | Controlled purchased, planned, fabricated, safety, and test-item register |
 | `DESIGN_CHANGELOG.md` | Human-maintained document and design-history record |
 
 ## 15. Document maintenance

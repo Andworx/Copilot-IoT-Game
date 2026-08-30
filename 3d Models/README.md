@@ -33,6 +33,8 @@ flat without bowing.
 
 - [Complete design document](apache%20case/DESIGN_DOCUMENT.md) — process,
   diagrams, mechanical and thermal analysis, decisions, risks, and validation.
+- [System bill of materials](apache%20case/BOM.md) — purchased, used, planned,
+  placeholder, fabricated, and test items with selection and verification status.
 - [Design document changelog](apache%20case/DESIGN_CHANGELOG.md) —
   human-readable version history maintained in addition to Git.
 

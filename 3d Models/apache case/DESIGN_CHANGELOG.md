@@ -29,6 +29,163 @@ Use the headings **Added**, **Changed**, **Validated**, **Deferred**, and
 **Safety** as applicable. Do not delete old entries when an assumption is
 superseded.
 
+## [2.1.0] — 2026-08-29
+
+### Added
+
+- Added an explicit `screen_model` selector for the original official
+  Raspberry Pi 7-inch Touch Display and the 7-inch Touch Display 2.
+- Recorded the official original-display outer and viewable dimensions and the
+  Touch Display 2 landscape envelope in the CAD, BOM, and design record.
+
+### Changed
+
+- Moved the display to the upper center and enlarged its carrier to 220 x 146
+  mm; three equal 90 x 74 mm control plates now form the lower bank.
+- Removed the active panel joiner export. The centered screen and toggle plates
+  bridge the two X1C-printable panel halves at two separated locations.
+- Reduced the display-only rear keepout from the former generic 27 mm envelope
+  to a provisional 20 mm original-display allowance, excluding any Pi mounted
+  on the display rear.
+- Lowered the fuse-block datum and both converter tiers 4 mm to retain modeled
+  clearance below the centered controls.
+
+### Validated
+
+- OpenSCAD production assertions report ten perimeter screws and accept both
+  official seven-inch display outer envelopes within the carrier.
+- Airflow-study rectangular-boundary and pairwise-clearance assertions pass
+  with the centered display/control keepouts and revised floor elevations.
+
+### Deferred
+
+- Confirm whether the actual unit is the original 800 x 480 Touch Display or
+  the newer portrait-native Touch Display 2 before printing the carrier.
+- Measure the actual display mounting holes, rear components, FFC connector and
+  bend, and closed-lid clearance; the present plate is not a drilling template.
+
+## [2.0.0] — 2026-08-29
+
+### Added
+
+- Added a fixed 296.9875 x 225.55 x 5 mm removable control deck retained by
+  ten perimeter screws into chassis inserts.
+- Added four independently printable provisional module plates: touchscreen,
+  four rotary controls, six toggles, and four buttons with eight indicators.
+- Added four panel-module rear keepouts to the airflow-study collision system
+  so screen and control depth participates in electronics placement.
+- Added module-specific measurement and acceptance criteria to the design
+  document and BOM.
+
+### Changed
+
+- Advanced the system architecture and design document to version 2.0.0.
+- Replaced the separate front bezel and moving panel with one full-opening
+  fixed deck split into X1C-printable halves.
+- Designated the lid foam for removal and reserved the exposed lid first as
+  control/knob clearance rather than an unventilated electronics bay.
+- Revised the internal layout: PSU and fuse block remain rearward, six
+  converter envelopes form three stacked front pairs, and both Pi envelopes
+  sit on the floor behind the converter bank.
+- Updated the production export set and previews for the fixed panel and four
+  replaceable modules.
+
+### Removed from the active design
+
+- Retired the piano hinge, gas springs, linear actuator, panel-opening angles,
+  moving cable loop, front bezel, manual release, and their active mounting
+  pads/cutouts.
+- Historical source modules and prior generated evidence may remain for design
+  traceability, but they are not part of the current assembly or export set.
+
+### Validated
+
+- OpenSCAD compiled the fixed assembly and provisional panel layout.
+- The revised airflow-study AABB checks pass with floor electronics and all
+  four downward panel keepouts included.
+
+### Deferred
+
+- The touchscreen and all new toggle, rotary, button, and indicator interfaces
+  remain provisional pending exact product selection and physical measurement.
+- Current rear-depth allowances are 27 mm for the screen, 18 mm for the rotary
+  module, and 16 mm each for toggle and utility modules; deeper hardware forces
+  a packaging revision.
+- Converter stacking requires measured thermal and service testing before
+  bracket design or full-load operation.
+
+## [1.2.0] — 2026-08-29
+
+### Added
+
+- Added the selected Blue Sea Systems 5025 six-circuit DC fuse block as BOM
+  item `ELEC-010`, including manufacturer dimensions, ratings, mounting data,
+  terminal types, and the requirement for separately selected ATO/ATC fuses.
+- Added the selected PlusRoc `PR4A070` 8–32 V DC to 5 V/5 A USB-C converter to
+  `ELEC-007`; the layout now reserves one conservative envelope per populated
+  fused circuit and shows six modules.
+- Added a documented power-distribution diagram, part-measurement rows, and
+  automatic OpenSCAD component-boundary and pairwise-clearance assertions.
+
+### Changed
+
+- Revised the airflow-study component layout to remove the PSU/terminal-block
+  intersection and PSU/chassis-rail clip. The fuse block occupies the rear-left
+  floor, the PSU the rear-right floor, converters two front rows, and the Pi
+  envelopes the volume above the converter bank under the control deck.
+- Removed the generic DC terminal-block envelope because the 5025 provides the
+  current DC distribution and negative-bus function; any mains terminal and
+  barrier hardware remains separately required.
+- Lowered the exhaust center from z = 54 mm to z = 50 mm so its 54 mm opening
+  and 50 mm mounting pattern remain at or below the 77 mm panel-deck boundary.
+- Updated the BOM to version 1.1.0 and this design document to version 1.2.0.
+
+### Safety
+
+- Defined the required order as fused switched C14 AC entry, AC/DC supply,
+  low-voltage DC fuse block, individual branch fuse, converter, then 5 V load.
+- Explicitly prohibited applying mains to the 32 V DC fuse block and noted that
+  its 30 A branch limit is not an appropriate default fuse size for a 25 W
+  converter.
+
+### Deferred
+
+- Acquisition status, physical dimensions, cover/tool access, wire bend radii,
+  fuse values, and thermal performance remain unconfirmed for the new parts.
+- The 30 W heat model remains provisional; six converters alone can dissipate
+  approximately 16.7 W at full 150 W output and 90 percent efficiency.
+
+## [1.1.0] — 2026-08-29
+
+### Added
+
+- Added `BOM.md` as the controlled system bill of materials.
+- Assigned stable IDs to the enclosure, printed assemblies, mechanical
+  hardware, electronics, controls, cooling hardware, mains-safety hardware,
+  and development test equipment described by the design.
+- Captured the original project brief's PETG material, touchscreen, toggle
+  switches, push buttons, additional rotary controls, indicator LEDs,
+  USB/service connector, nameplate, manual release, cable protection, and
+  case-supplied foam/hardware even though their final implementations remain
+  deferred.
+- Recorded the ordered FILSHU C14 module and FOCMKEAS RS26 selector separately
+  from unselected fans, electronics, hinge hardware, and future mechanisms.
+- Added procurement and release gates so listing dimensions and planning
+  envelopes cannot be mistaken for measured production interfaces.
+
+### Changed
+
+- Updated the engineering design document to version 1.1.0 and linked the BOM
+  as a companion controlled record.
+- Linked the BOM from the production, airflow-study, and parent 3D-model
+  documentation.
+
+### Deferred
+
+- Exact models, quantities, suppliers, and measured dimensions remain open for
+  every BOM row marked `Planned — select`, `Placeholder only`, or unverified.
+- Receipt and caliper verification remain pending for both ordered controls.
+
 ## [1.0.0] — 2026-08-29
 
 ### Added

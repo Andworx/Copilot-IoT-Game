@@ -8,7 +8,7 @@
 include <airflow_params.scad>
 
 part = "assembly_open";
-// [assembly_open,assembly_closed,airflow_section,port_layout,rear_port_layout,case_lower_reference,case_lid_reference]
+// [assembly_open,assembly_closed,airflow_section,electronics_layout,port_layout,rear_port_layout,case_lower_reference,case_lid_reference]
 
 eps = 0.02;
 
@@ -109,32 +109,95 @@ module chassis_envelope(show_panel = true) {
                       chassis_corner_radius, chassis_rail_width,
                       chassis_floor_z);
     if (show_panel)
-        color([0.14, 0.22, 0.30, 0.28])
-            translate([0, 0, control_panel_z])
-                linear_extrude(height = 5)
-                    rounded_rect_centered(chassis_outer_x - 16,
-                                          chassis_outer_y - 48, 8);
+        fixed_panel_reference();
 }
 
-module component_block(position, size, tint, label = "") {
+module component_block(position, size, tint, label = "", label_size = 7) {
     color(tint)
         translate([position[0] - size[0]/2,
                    position[1] - size[1]/2,
                    position[2]])
             cube(size);
+    if (label != "")
+        color([0.04, 0.04, 0.05, 1.0])
+            translate([position[0], position[1], position[2] + size[2] + 0.05])
+                linear_extrude(height = 0.45)
+                    text(label, size = label_size,
+                         halign = "center", valign = "center");
+}
+
+module electronics_floor_envelopes() {
+    component_block(psu_position, psu_size,
+                    [0.65, 0.65, 0.68, 0.90], "PSU");
+    component_block(fuse_block_position, fuse_block_size,
+                    [0.12, 0.35, 0.82, 0.88], "FUSE6");
+    for (i = [0:len(converter_positions) - 1])
+        component_block(converter_positions[i], converter_size,
+                        [0.85, 0.55, 0.12, 0.90],
+                        i < 3 ? str("DC",i + 1)
+                              : str("DC",i - 2,"/DC",i + 1," STACK"),4);
+}
+
+module pi_envelopes() {
+    for (i = [0:len(pi_positions) - 1])
+        component_block(pi_positions[i], pi_size,
+                        i == 0 ? [0.15, 0.65, 0.25, 0.38]
+                               : [0.15, 0.48, 0.75, 0.38],
+                        str("PI", i + 1));
+}
+
+module panel_keepout_outlines() {
+    keepout_labels = ["SCREEN REAR", "ROTARY REAR",
+                      "SWITCH REAR", "UTILITY REAR"];
+    for (i = [0:len(panel_keepout_positions) - 1]) {
+        tint = i == 0 ? [0.55, 0.20, 0.75, 1.0]
+                      : [0.10, 0.55, 0.75, 1.0];
+        color(tint)
+            translate([panel_keepout_positions[i][0],
+                       panel_keepout_positions[i][1],
+                       control_panel_z + 0.1])
+                linear_extrude(height = 0.8)
+                    difference() {
+                        square([panel_keepout_sizes[i][0],
+                                panel_keepout_sizes[i][1]], center = true);
+                        square([panel_keepout_sizes[i][0] - 2.0,
+                                panel_keepout_sizes[i][1] - 2.0],
+                               center = true);
+                    }
+        color([0.04, 0.04, 0.05, 1.0])
+            translate([panel_keepout_positions[i][0],
+                       panel_keepout_positions[i][1]
+                           + panel_keepout_sizes[i][1]/2 - 6,
+                       control_panel_z + 1.0])
+                linear_extrude(height = 0.45)
+                    text(keepout_labels[i], size = 5,
+                         halign = "center", valign = "center");
+    }
+}
+
+module fixed_panel_reference() {
+    color([0.14, 0.22, 0.30, 0.25])
+        translate([0, 0, control_panel_z-fixed_panel_thickness])
+            linear_extrude(height = fixed_panel_thickness)
+                rounded_rect_centered(fixed_panel_size[0],
+                                      fixed_panel_size[1], 7);
+    for (i = [0:len(panel_module_centers) - 1])
+        color(i == 0 ? [0.40, 0.16, 0.65, 0.72]
+                     : [0.10, 0.48, 0.68, 0.72])
+            translate([panel_module_centers[i][0],
+                       panel_module_centers[i][1],control_panel_z])
+                linear_extrude(height = panel_module_sizes[i][2])
+                    rounded_rect_centered(panel_module_sizes[i][0],
+                                          panel_module_sizes[i][1], 5);
 }
 
 module electronics_envelopes() {
-    component_block([68, 36, chassis_floor_z + 4], psu_size,
-                    [0.65, 0.65, 0.68, 0.90], "PSU");
-    component_block([-82, -42, chassis_floor_z + 5], pi_size,
-                    [0.15, 0.65, 0.25, 0.90], "PI1");
-    component_block([-82, 34, chassis_floor_z + 5], pi_size,
-                    [0.15, 0.48, 0.75, 0.90], "PI2");
-    component_block([5, -62, chassis_floor_z + 5], converter_size,
-                    [0.85, 0.55, 0.12, 0.90], "DC");
-    component_block([20, 81, chassis_floor_z + 5], terminal_size,
-                    [0.75, 0.28, 0.18, 0.90], "TERM");
+    electronics_floor_envelopes();
+    pi_envelopes();
+    for (i = [0:len(panel_keepout_positions) - 1])
+        component_block(panel_keepout_positions[i],panel_keepout_sizes[i],
+                        [0.45, 0.18, 0.72, 0.16],
+                        str("PANEL",i + 1));
 }
 
 module fan_mockup(side = 1, cy = 0, cz = 45, intake = false) {
@@ -254,10 +317,18 @@ echo(str("IDEAL AIRFLOW: ", minimum_ideal_cfm, " CFM"));
 echo(str("DESIGN AIRFLOW: ", design_cfm, " CFM"));
 echo(str("DERATED ", recommended_fan_nominal_cfm, " CFM FAN: ",
          derated_fan_cfm, " CFM"));
+echo(str("SIX CONVERTERS AT 25 W OUTPUT AND 90% EFFICIENCY: ",
+         converter_full_load_loss_watts, " W CONVERTER LOSS"));
 
 if (part == "assembly_open") open_study(true, true);
 else if (part == "assembly_closed") closed_study();
 else if (part == "airflow_section") open_study(false, false);
+else if (part == "electronics_layout") {
+    chassis_envelope(false);
+    electronics_floor_envelopes();
+    pi_envelopes();
+    panel_keepout_outlines();
+}
 else if (part == "port_layout" || part == "rear_port_layout") {
     color([0.10, 0.11, 0.12, 0.58]) lower_case(true);
     fan_mockup(-1, intake_y, intake_z, true);

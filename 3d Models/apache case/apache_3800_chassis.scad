@@ -7,7 +7,7 @@
 include <model_params.scad>
 
 part = "assembly_closed";
-// [assembly_closed,assembly_open,assembly_service,assembly_exploded,chassis_complete,chassis_front_left,chassis_front_right,chassis_rear_left,chassis_rear_right,panel_complete,panel_left,panel_right,front_bezel,front_bezel_left,front_bezel_right,hinge_fitcheck,chassis_joiner_x,chassis_joiner_y,panel_joiner,bezel_joiner,fit_test_frame_complete,fit_test_front_left,fit_test_front_right,fit_test_rear_left,fit_test_rear_right,fit_test_pin_joiner_x,fit_test_pin_joiner_y,hinge_insert_coupon]
+// [assembly_closed,assembly_exploded,panel_layout,chassis_complete,chassis_front_left,chassis_front_right,chassis_rear_left,chassis_rear_right,panel_complete,panel_left,panel_right,screen_module_provisional,rotary_module_provisional,switch_module_provisional,utility_module_provisional,chassis_joiner_x,chassis_joiner_y,fit_test_frame_complete,fit_test_front_left,fit_test_front_right,fit_test_rear_left,fit_test_rear_right,fit_test_pin_joiner_x,fit_test_pin_joiner_y]
 
 eps = 0.02;
 
@@ -108,51 +108,15 @@ module chassis_shell() {
                          chassis_corner_radius,chassis_wall_thickness+support_ledge_width,
                          chassis_height-top_rail_height);
 
-            // Fixed front hinge rail. Bezel remains a separate removable part.
-            translate([-chassis_inner_width/2,front_bezel_depth,chassis_height-top_rail_height])
-                cube([chassis_inner_width,
-                      hinge_offset+hinge_leaf_width+hinge_barrel_diameter/2,
-                      top_rail_height]);
-
-            gas_mounts_chassis_solid();
-            actuator_mount_chassis_solid();
             seam_insert_pads();
         }
 
-        // Recess the fixed hinge leaf so its upper face is flush with the deck.
-        translate([-hinge_length/2-hinge_end_clearance,
-                   front_bezel_depth+hinge_offset,
-                   chassis_height-hinge_leaf_thickness-hinge_pocket_clearance])
-            cube([hinge_length+2*hinge_end_clearance,
-                  hinge_leaf_width+hinge_pocket_clearance,
-                  hinge_leaf_thickness+hinge_pocket_clearance+eps]);
-
-        // Hinge insert pilots, installed from the top after printing.
-        for (x=hinge_fastener_xs())
-            vertical_hole(x,
-                          front_bezel_depth+hinge_offset+hinge_leaf_width/2,
-                          chassis_height-heatset_insert_depth,
-                          heatset_insert_depth+eps,
-                          heatset_insert_diameter);
-
-        // Generous rounded cable pass-through at hinge centreline.
-        translate([-cable_route_width/2,
-                   hinge_pin_y-cable_route_depth/2,
-                   deck_underside_z-cable_bend_clearance])
-            cube([cable_route_width,cable_route_depth,
-                  panel_thickness+cable_bend_clearance+2*eps]);
-
-        gas_mounts_chassis_holes();
-        actuator_mount_chassis_holes();
+        // Ten removable-panel inserts are distributed around the perimeter
+        // rail. No hinge, gas-spring, or actuator hardware is installed.
+        for (p=panel_mount_positions)
+            vertical_hole(p[0],p[1],chassis_height-heatset_insert_depth,
+                          heatset_insert_depth+eps,heatset_insert_diameter);
         seam_insert_holes();
-
-        // Bezel screws pass through the removable bezel into inserts in the
-        // chassis front wall; no fastener is trapped when the panel is open.
-        for (x=[-chassis_inner_width/2+18,chassis_inner_width/2-18])
-            vertical_hole(x,front_bezel_depth/2,
-                          chassis_height-heatset_insert_depth,
-                          heatset_insert_depth+eps,
-                          heatset_insert_diameter);
     }
 }
 
@@ -254,48 +218,23 @@ module front_bezel() {
     }
 }
 
-// ---------- Moving control panel ----------
+// ---------- Fixed removable control panel ----------
 module control_panel() {
     difference() {
         union() {
             rounded_plate(panel_width,panel_depth,panel_thickness,
                           panel_corner_radius,deck_underside_z,panel_front_y);
             panel_ribs();
-            panel_hinge_bosses();
-            gas_mounts_panel_solid();
-            actuator_mount_panel_solid();
-            panel_split_bosses();
+            panel_module_bosses();
         }
 
-        // Moving hinge-leaf recess in the panel top.
-        translate([-hinge_length/2-hinge_end_clearance,
-                   panel_front_y,
-                   chassis_height-hinge_leaf_thickness-hinge_pocket_clearance])
-            cube([hinge_length+2*hinge_end_clearance,
-                  hinge_leaf_width+hinge_pocket_clearance,
-                  hinge_leaf_thickness+hinge_pocket_clearance+eps]);
+        // Panel-to-chassis clearance holes. Inserts live in the chassis rail.
+        for (p=panel_mount_positions)
+            vertical_hole(p[0],p[1],deck_underside_z,
+                          panel_thickness+eps,mounting_screw_diameter);
 
-        // Clearance through the panel skin; insert pilot only in the boss.
-        for (x=hinge_fastener_xs()) {
-            vertical_hole(x,panel_front_y+hinge_leaf_width/2,
-                          deck_underside_z,
-                          panel_thickness+eps,
-                          mounting_screw_diameter);
-            vertical_hole(x,panel_front_y+hinge_leaf_width/2,
-                          deck_underside_z-panel_rib_height-boss_extra_depth,
-                          min(heatset_insert_depth,panel_rib_height+boss_extra_depth)+eps,
-                          heatset_insert_diameter);
-        }
-
-        // Wiring relief opens to the front edge and provides a broad bend radius.
-        translate([-cable_route_width/2,panel_front_y-eps,
-                   deck_underside_z-panel_rib_height-boss_extra_depth-eps])
-            cube([cable_route_width,cable_route_depth,
-                  panel_thickness+panel_rib_height+boss_extra_depth+2*eps]);
-
-        gas_mounts_panel_holes();
-        actuator_mount_panel_holes();
-        panel_split_holes();
+        panel_module_openings();
+        panel_module_insert_holes();
     }
 }
 
@@ -310,12 +249,110 @@ module panel_ribs() {
     for(x=[-panel_width/2+inset,panel_width/2-inset-panel_rib_thickness])
         translate([x,panel_front_y+inset,z0])
             cube([panel_rib_thickness,panel_depth-2*inset,panel_rib_height]);
-    // Longitudinal and transverse ribs; module surface remains blank.
-    for(x=[-panel_width/4,0,panel_width/4])
-        translate([x-panel_rib_thickness/2,panel_front_y+24,z0])
-            cube([panel_rib_thickness,panel_depth-42,panel_rib_height]);
-    translate([-panel_width/2+inset,panel_front_y+panel_depth*0.53,z0])
-        cube([panel_width-2*inset,panel_rib_thickness,panel_rib_height]);
+    // The center remains open for replaceable module plates and wiring.
+}
+
+function panel_module_specs() = [
+    [screen_module_center,screen_module_size,"SCREEN"],
+    [rotary_module_center,rotary_module_size,"ROTARY"],
+    [switch_module_center,switch_module_size,"SWITCH"],
+    [utility_module_center,utility_module_size,"UTILITY"]
+];
+
+function module_fastener_positions(center,size) =
+    [for (dx=[-size[0]/2+module_mount_edge_inset,
+              size[0]/2-module_mount_edge_inset],
+          dy=[-size[1]/2+module_mount_edge_inset,
+              size[1]/2-module_mount_edge_inset])
+        [center[0]+dx,center[1]+dy]];
+
+module panel_module_openings() {
+    for (spec=panel_module_specs())
+        translate([spec[0][0]-spec[1][0]/2+module_plate_lip,
+                   spec[0][1]-spec[1][1]/2+module_plate_lip,
+                   deck_underside_z-eps])
+            cube([spec[1][0]-2*module_plate_lip,
+                  spec[1][1]-2*module_plate_lip,
+                  panel_thickness+2*eps]);
+}
+
+module panel_module_bosses() {
+    z0=deck_underside_z-panel_rib_height;
+    for (spec=panel_module_specs(),
+         p=module_fastener_positions(spec[0],spec[1]))
+        translate([p[0],p[1],z0])
+            cylinder(h=panel_rib_height+panel_thickness,d=boss_outer_diameter);
+}
+
+module panel_module_insert_holes() {
+    for (spec=panel_module_specs(),
+         p=module_fastener_positions(spec[0],spec[1]))
+        vertical_hole(p[0],p[1],chassis_height-heatset_insert_depth,
+                      heatset_insert_depth+eps,heatset_insert_diameter);
+}
+
+module provisional_module_plate(size,label) {
+    difference() {
+        rounded_plate(size[0],size[1],module_plate_thickness,
+                      module_plate_corner_radius,0,-size[1]/2);
+        for (p=module_fastener_positions([0,0],size))
+            vertical_hole(p[0],p[1],0,module_plate_thickness,
+                          mounting_screw_diameter);
+        // Recessed label never changes the plate's seating envelope.
+        translate([0,size[1]/2-5,module_plate_thickness-0.6])
+            linear_extrude(height=0.7)
+                text(label,size=4,halign="center",valign="center");
+    }
+}
+
+module screen_module_provisional() {
+    difference() {
+        provisional_module_plate(screen_module_size,"OFFICIAL PI 7IN - VERIFY GEN");
+        rounded_plate(screen_opening_size[0],screen_opening_size[1],
+                      module_plate_thickness+2*eps,3,-eps,
+                      -screen_opening_size[1]/2);
+    }
+}
+
+module rotary_module_provisional() {
+    difference() {
+        provisional_module_plate(rotary_module_size,"4 ROTARY");
+        for (x=[-20,20],y=[-20,18])
+            vertical_hole(x,y,0,module_plate_thickness,
+                          rotary_hole_diameter);
+    }
+}
+
+module switch_module_provisional() {
+    difference() {
+        provisional_module_plate(switch_module_size,"6 TOGGLE");
+        for (x=[-22,0,22],y=[-18,18])
+            vertical_hole(x,y,0,module_plate_thickness,
+                          toggle_hole_diameter);
+    }
+}
+
+module utility_module_provisional() {
+    difference() {
+        provisional_module_plate(utility_module_size,"BUTTONS / STATUS");
+        for (x=[-27,-9,9,27])
+            vertical_hole(x,10,0,module_plate_thickness,
+                          pushbutton_hole_diameter);
+        for (x=[-31.5,-22.5,-13.5,-4.5,4.5,13.5,22.5,31.5])
+            vertical_hole(x,-18,0,module_plate_thickness,
+                          indicator_hole_diameter);
+    }
+}
+
+module panel_module_layout(exploded=0) {
+    translate([screen_module_center[0],screen_module_center[1],
+               chassis_height+exploded]) screen_module_provisional();
+    translate([rotary_module_center[0],rotary_module_center[1],
+               chassis_height+exploded]) rotary_module_provisional();
+    translate([switch_module_center[0],switch_module_center[1],
+               chassis_height+exploded]) switch_module_provisional();
+    translate([utility_module_center[0],utility_module_center[1],
+               chassis_height+exploded]) utility_module_provisional();
 }
 
 module panel_hinge_bosses() {
@@ -360,14 +397,14 @@ module actuator_mount_panel_holes() {
 
 module panel_split_bosses() {
     z0=deck_underside_z-panel_rib_height-joiner_thickness;
-    for(y=[panel_front_y+panel_depth*0.32,panel_front_y+panel_depth*0.68],
+    for(y=panel_joiner_ys,
         x=[-joiner_hole_spacing/2,joiner_hole_spacing/2])
         translate([x,y,z0]) cylinder(h=joiner_thickness+panel_rib_height,d=boss_outer_diameter);
 }
 
 module panel_split_holes() {
     z0=deck_underside_z-panel_rib_height-joiner_thickness;
-    for(y=[panel_front_y+panel_depth*0.32,panel_front_y+panel_depth*0.68],
+    for(y=panel_joiner_ys,
         x=[-joiner_hole_spacing/2,joiner_hole_spacing/2])
         vertical_hole(x,y,z0,min(heatset_insert_depth,joiner_thickness+panel_rib_height)+eps,
                       heatset_insert_diameter);
@@ -528,9 +565,9 @@ module panel_half(left=true) {
     intersection() {
         control_panel();
         translate([left ? -panel_width/2-20 : 0,panel_front_y-20,
-                   deck_underside_z-panel_rib_height-actuator_pad_thickness-2])
+                   deck_underside_z-panel_rib_height-joiner_thickness-2])
             cube([panel_width/2+20,panel_depth+40,
-                  panel_thickness+panel_rib_height+actuator_pad_thickness+4]);
+                  panel_thickness+panel_rib_height+joiner_thickness+4]);
     }
 }
 
@@ -544,30 +581,25 @@ module bezel_half(left=true) {
     }
 }
 
-// ---------- Assembly transforms ----------
-module moving_panel(angle=0) {
-    translate([0,hinge_pin_y,hinge_axis_z]) rotate([angle,0,0])
-        translate([0,-hinge_pin_y,-hinge_axis_z]) {
-            color("#30343A") control_panel();
-            hinge_moving_leaf();
-        }
-}
-
-module assembly(angle=0, exploded=false) {
+// ---------- Fixed-panel assembly ----------
+module assembly(exploded=false) {
     color("#585D63") chassis_shell();
-    translate([0,exploded ? -18 : 0,exploded ? 22 : 0])
-        color("#1D252C") front_bezel();
-    hinge_fixed_leaf(); hinge_barrel();
-    if(exploded)
-        translate([0,0,55]) moving_panel(angle);
-    else moving_panel(angle);
+    if (exploded) {
+        translate([0,0,28]) color("#30343A") control_panel();
+        panel_module_layout(50);
+    } else {
+        color("#30343A") control_panel();
+        panel_module_layout(0);
+    }
 }
 
 // ---------- Part selector ----------
-if(part=="assembly_closed") assembly(0,false);
-else if(part=="assembly_open") assembly(panel_deploy_angle,false);
-else if(part=="assembly_service") assembly(panel_service_angle,false);
-else if(part=="assembly_exploded") assembly(18,true);
+if(part=="assembly_closed") assembly(false);
+else if(part=="assembly_exploded") assembly(true);
+else if(part=="panel_layout") {
+    color("#30343A") control_panel();
+    panel_module_layout(0);
+}
 else if(part=="chassis_complete") chassis_shell();
 else if(part=="chassis_front_left") chassis_quadrant(true,true);
 else if(part=="chassis_front_right") chassis_quadrant(true,false);
@@ -576,14 +608,12 @@ else if(part=="chassis_rear_right") chassis_quadrant(false,false);
 else if(part=="panel_complete") control_panel();
 else if(part=="panel_left") panel_half(true);
 else if(part=="panel_right") panel_half(false);
-else if(part=="front_bezel") front_bezel();
-else if(part=="front_bezel_left") bezel_half(true);
-else if(part=="front_bezel_right") bezel_half(false);
-else if(part=="hinge_fitcheck") hinge_complete_closed();
+else if(part=="screen_module_provisional") screen_module_provisional();
+else if(part=="rotary_module_provisional") rotary_module_provisional();
+else if(part=="switch_module_provisional") switch_module_provisional();
+else if(part=="utility_module_provisional") utility_module_provisional();
 else if(part=="chassis_joiner_x") joiner_plate(along="x");
 else if(part=="chassis_joiner_y") joiner_plate(along="y");
-else if(part=="panel_joiner") panel_joiner();
-else if(part=="bezel_joiner") bezel_joiner();
 else if(part=="fit_test_frame_complete") fit_test_frame();
 else if(part=="fit_test_front_left") fit_test_quadrant(true,true);
 else if(part=="fit_test_front_right") fit_test_quadrant(true,false);
@@ -591,9 +621,8 @@ else if(part=="fit_test_rear_left") fit_test_quadrant(false,true);
 else if(part=="fit_test_rear_right") fit_test_quadrant(false,false);
 else if(part=="fit_test_pin_joiner_x") fit_test_pin_joiner("x");
 else if(part=="fit_test_pin_joiner_y") fit_test_pin_joiner("y");
-else if(part=="hinge_insert_coupon") hinge_insert_coupon();
 else assert(false,str("Unknown part selector: ",part));
 
 echo(str("CHASSIS: ",chassis_outer_width," x ",chassis_outer_depth," x ",chassis_height," mm"));
 echo(str("PANEL: ",panel_width," x ",panel_depth," x ",panel_thickness," mm"));
-echo(str("HINGE AXIS: Y=",hinge_pin_y," Z=",hinge_axis_z," mm"));
+echo(str("FIXED PANEL: ",len(panel_mount_positions)," CHASSIS SCREWS; FOUR REPLACEABLE MODULES"));
