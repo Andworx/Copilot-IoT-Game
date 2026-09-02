@@ -36,9 +36,13 @@ Before any coding workflow starts (creating/editing files or running build/test/
 
 ## PAC CLI
 
-- Always use `--modelVersion 2` for all power pages commands
-- Upload: `pac pages upload --path "<portal-path>\YOUR_PORTAL_SLUG" --modelVersion 2`
-- Download: `pac pages download --path "<portal-parent-path>" --modelVersion 2`
+`power pages/restore-and-spin` is a **Power Pages Code Site** (React + Vite SPA), not a
+classic Liquid portal — it uses a different PAC CLI command family entirely:
+
+- Build first: `npm run build` (from inside `power pages/restore-and-spin`)
+- Upload: `pac pages upload-code-site --rootPath "."` (run from inside that folder — reads `powerpages.config.json` for the site name and build output path)
+- **Never** use `pac pages upload` / `pac pages download` on it — those target classic portal-studio sites and will corrupt code site metadata
+- First deploy to a new environment also needs: `pac pages activate --webSiteId <WEBSITE_GUID>`
 - Full reference: `PAC_COMMANDS.md`
 
 ## File Organisation
@@ -47,7 +51,7 @@ Before any coding workflow starts (creating/editing files or running build/test/
 YOUR_PROJECT_ID/
 ├── automations/         # Non-flow automation assets
 │   └── emails/          # Managed email templates (templates.json + HTML body files)
-├── power pages/         # Power Pages portal assets (PAC CLI v2 format)
+├── power pages/         # Power Pages Code Site (React + Vite SPA) — see restore-and-spin/
 ├── scripts/             # PowerShell deployment & export scripts
 ├── tables/              # Dataverse table definitions (JSON)
 │   ├── choices/         # Global option sets
@@ -123,7 +127,7 @@ Each subdirectory has its own `CLAUDE.md` loaded automatically when working in t
 | [tables/](tables/CLAUDE.md) | Dataverse schema, column types, deployment order |
 | [plugins/](plugins/CLAUDE.md) | C# plugin architecture, registration docs, ALM |
 | [flows/](flows/CLAUDE.md) | Power Automate ALM, payload contract, change checklist |
-| [power pages/](power%20pages/CLAUDE.md) | PAC CLI v2 format, Liquid templating, portal structure |
+| [power pages/](power%20pages/CLAUDE.md) | Power Pages Code Site (React SPA) conventions, `pac pages upload-code-site` |
 | [copilot agents/](copilot%20agents/CLAUDE.md) | Topic authoring, agent guardrails, pull/push workflow |
 | [reports/](reports/CLAUDE.md) | Power BI PBIP structure, DAX/M organization, and review checklist |
 

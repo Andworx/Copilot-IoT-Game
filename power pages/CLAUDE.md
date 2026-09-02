@@ -1,55 +1,38 @@
-# Power Pages Conventions (PAC CLI v2)
+# Power Pages Conventions (Code Site)
 
-Applies to all files under `power pages/`.
+Applies to `power pages/restore-and-spin` — a **Power Pages Code Site** (React 19 + Vite
+SPA), not a classic Liquid portal. There is no `web-pages/`, `web-templates/`, or Liquid
+content in this project; all UI is React components under `restore-and-spin/src/`.
 
-## Portal Structure
+## Deployment
 
-- Canonical portal folder: `YOUR_PORTAL_FOLDER/`
-- Site content folder (created by PAC): `YOUR_PORTAL_FOLDER/YOUR_PORTAL_SLUG/`
-- Use the site content folder for `pac pages upload`
-- Use the parent folder for `pac pages download` (PAC appends `YOUR_PORTAL_SLUG\` automatically)
-- Always use `--modelVersion 2` with PAC CLI commands
-- Website ID: `YOUR_WEBSITE_ID`
+- Full command reference: `PAC_COMMANDS.md` at the repo root
+- Always build (`npm run build`) before uploading
+- Upload with `pac pages upload-code-site --rootPath "."`, run from inside
+  `power pages/restore-and-spin` — **never** `pac pages upload`, which targets classic
+  portal-studio sites and will corrupt code site metadata
+- Site name and build-output path live in `restore-and-spin/powerpages.config.json`, not
+  passed as CLI flags
 
-## YML File Format
+## App structure
 
-- All portal attributes use the `adx_` prefix (power pages standard)
-- Site settings use hierarchical slash paths: `Authentication/Registration/LocalLoginEnabled`, `Header/OutputCache/Enabled`
-- GUIDs are lowercase, no braces
+See `restore-and-spin/README.md` for the full breakdown. Briefly:
 
-## File Naming
+- `src/App.tsx` — routes: `/kiosk/info`, `/kiosk/:deviceSlug`, `/play-spin`
+- `src/data/deviceProfiles.ts` — the 11 devices (content spec: `GAME_MODE_PLAN.md` /
+  `KIOSK_UI_SPEC.md` in this folder)
+- `src/components/layouts/` — the 5 reusable control-panel layouts; a new device is a data
+  row assigned to one of these, not new component code (see `KIOSK_UI_SPEC.md` §2.6)
+- `src/styles/theme.css` — shared design tokens + all 11 device skins
 
-- Folders: `kebab-case` (e.g., `layout-2-column-wide-left/`, `search-results/`)
-- Web template files: `PascalCase.webtemplate.source.html`
-- Web page files: `PascalCase.webpage.copy.html`, `.webpage.custom_css.css`, `.webpage.custom_javascript.js`
-- Content snippets: `name.en-US.contentsnippet.yml` + `.value.html`
+## Design/architecture docs (this folder)
 
-## Liquid Templating Patterns
+- [`GAME_MODE_PLAN.md`](GAME_MODE_PLAN.md) — architecture, Dataverse schema, dial/win flow
+- [`KIOSK_UI_SPEC.md`](KIOSK_UI_SPEC.md) — visual/interaction spec for every screen
+- [`PRIZE_ENGINE_SPEC.md`](PRIZE_ENGINE_SPEC.md) — prize weighting, schema, claim/redemption workflow
 
-```liquid
-{% extends 'Layout 2 Column Wide Left' %}
-{% block main %}...{% endblock %}
-{% include 'Page Header' title: title %}
-{% assign snippet = snippets["Search/ResultsTitle"] %}
-{% if snippet %}{% assign val = snippet | liquid %}{% endif %}
-```
+## Table permissions
 
-- Use `{% extends %}` for template inheritance with named blocks (`main`, `aside`, `breadcrumbs`, `title`)
-- Reference snippets with hierarchical paths: `snippets["Section/Name"]`
-- Always null-check snippets before use
-
-## CSS Webfile Annotation Bug
-
-PAC CLI v2 does not export `annotationid` for CSS webfiles, but requires it for upload. If adding CSS webfiles, include `annotationid` from a v1 export or the Dataverse record.
-
-## Table Permissions
-
-- Table permissions must be configured through the **power pages admin center**, not via the Dataverse API or PAC CLI
-- Do not create, update, or delete table permission records programmatically
-- When a new table requires portal access, configure its table permissions in the admin center manually
-
-## Web API Query Shape Guidance
-
-- When troubleshooting portal `403`/`404` issues, prefer matching proven query shapes already working on adjacent pages
-- Avoid custom cache-buster query suffixes on power pages Web API GET calls unless validated in that environment
-- If a request detail page fails while list pages work, keep fallback stages but keep each stage on the same permission-safe query pattern
+Unchanged from the platform-wide convention: configure table permissions in the **Power
+Pages admin center**, not via the Dataverse API or PAC CLI. Do not create, update, or
+delete table permission records programmatically.

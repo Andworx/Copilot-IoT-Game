@@ -256,19 +256,16 @@ Deploy-Project.ps1              ← Master orchestrator (entry point)
 
 ---
 
-## power pages (PAC CLI v2)
+## power pages (Code Site)
+
+`power pages/restore-and-spin` is a Power Pages **Code Site** (React + Vite SPA) — it
+deploys with `pac pages upload-code-site`, not the classic `pac pages upload`/
+`pac pages download`:
 
 ```powershell
-# Download portal files
-pac pages download --overwrite \
-  --path "power pages\\\YOUR_PORTAL_FOLDER" \
-  --webSiteId YOUR_WEBSITE_ID \
-  --modelVersion "2"
-
-# Upload portal files
-pac pages upload \
-  --path "power pages\\\YOUR_PORTAL_FOLDER\YOUR_PORTAL_SLUG" \
-  --modelVersion "2"
+cd "power pages\restore-and-spin"
+npm run build
+pac pages upload-code-site --rootPath "."
 ```
 
-See `PAC_COMMANDS.md` for the full reference.
+See `PAC_COMMANDS.md` for the full reference, including first-deploy activation.

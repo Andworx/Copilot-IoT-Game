@@ -1,4 +1,10 @@
-# PAC CLI Commands — YOUR_PROJECT_NAME Portal
+# PAC CLI Commands — Power Pages Code Site
+
+`power pages/restore-and-spin` is a **Power Pages Code Site** (React 19 + Vite SPA), not a
+classic Liquid portal. Code sites use a different PAC CLI command family — mixing in
+classic-portal commands (`pac pages upload` / `pac pages download`) will corrupt the site's
+metadata. See `power pages/restore-and-spin/powerpages.config.json` for the site name and
+build-output path PAC reads for these commands.
 
 ## Authentication
 
@@ -9,41 +15,73 @@ pac auth list
 # Create a new auth profile (interactive login)
 pac auth create --environment "https://YOUR_ORG_URL"
 
+# Or non-interactive, e.g. for CI (service principal)
+pac auth create `
+  --tenant "<TENANT_ID>" `
+  --applicationId "<CLIENT_ID>" `
+  --clientSecret "<CLIENT_SECRET>" `
+  --environment "https://YOUR_ORG_URL"
+
 # Select an existing auth profile by index
 pac auth select --index 1
 ```
 
-## Pages Download
+## Build
+
+Always build before uploading — PAC uploads the compiled `dist/` output, not the source:
 
 ```powershell
-# Download portal files (overwrites local changes)
-# NOTE: PAC creates a subfolder named after the portal. Download into the parent folder;
-# the actual content lands in YOUR_PORTAL_SLUG\ inside it.
-pac pages download --overwrite `
-  --path "power pages\\\YOUR_PORTAL_FOLDER" `
-  --webSiteId YOUR_WEBSITE_ID `
-  --modelVersion "2" `
-  --overwrite true
+cd "power pages\restore-and-spin"
+npm install   # first time only
+npm run build
 ```
 
-## Pages Upload
+## Upload
 
 ```powershell
-# Upload portal files to Dataverse
-pac pages upload `
-  --path "power pages\\\YOUR_PORTAL_FOLDER\YOUR_PORTAL_SLUG" `
-  --modelVersion "2"
+# Run from inside power pages\restore-and-spin — reads powerpages.config.json
+pac pages upload-code-site --rootPath "."
 ```
+
+**Never use `pac pages upload`** on this site — that command targets classic portal-studio
+sites and will corrupt code site metadata.
+
+## First deployment to a new environment
+
+A code site needs to be activated once it has a live website record before it's reachable:
+
+```powershell
+pac pages activate --webSiteId <WEBSITE_GUID>
+```
+
+Or activate via the [Power Pages admin center](https://make.powerpages.microsoft.com).
+
+## Troubleshooting
+
+### Upload fails — `.js` attachments blocked
+
+```
+Error: Unable to upload webfile ... as '.js' type attachments are currently blocked
+```
+
+Remove `js` from the environment's blocked attachment extensions list:
+
+```powershell
+pac env list-settings | Select-String "blockedattachments"
+pac env update-settings --name blockedattachments --value "<current-list-without-js>"
+```
+
+### Upload fails — stale manifest (misleading `.html` error)
+
+If the error mentions `.html` being blocked, the real cause is usually a stale manifest
+file left over from a previous build — delete `dist/` and re-run `npm run build` before
+retrying the upload.
 
 ## Reference
 
 | Parameter | Value |
-|-----------|-------|
-| Website ID | `YOUR_WEBSITE_ID` |
-| Model Version | `2` |
+|---|---|
+| Site | `power pages/restore-and-spin` (config: `powerpages.config.json`) |
+| Build output | `dist/` (Vite default) |
 | Environment | `YOUR_ORG_URL` |
-| Upload Path | `power pages\\\YOUR_PORTAL_FOLDER\YOUR_PORTAL_SLUG` |
-| Download Path | `power pages\\\YOUR_PORTAL_FOLDER` (PAC appends `YOUR_PORTAL_SLUG\` automatically) |
-
-Upload must point to the `YOUR_PORTAL_SLUG\` subfolder — that is where the manifest lives.
-Download should target the parent folder; PAC will create/update `YOUR_PORTAL_SLUG\` inside it.
+| Website ID (for `pac pages activate`) | `YOUR_WEBSITE_ID` |

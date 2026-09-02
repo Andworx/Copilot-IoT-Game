@@ -191,20 +191,15 @@ To add more files or sources, edit `scripts/remote-content.sources.json`.
 
 Each run generates an HTML report that auto-opens in your browser.
 
-## power pages (PAC CLI)
+## power pages (Code Site — restore-and-spin)
 
 ```powershell
-# Download
-pac pages download --overwrite \
-  --path "power pages\\\YOUR_PORTAL_FOLDER" \
-  --webSiteId YOUR_WEBSITE_ID \
-  --modelVersion "2"
-
-# Upload
-pac pages upload \
-  --path "power pages\\\YOUR_PORTAL_FOLDER\YOUR_PORTAL_SLUG" \
-  --modelVersion "2"
+cd "power pages\restore-and-spin"
+npm run build
+pac pages upload-code-site --rootPath "."
 ```
+
+Not the classic `pac pages upload`/`pac pages download` — see `PAC_COMMANDS.md`.
 
 ## Flow Import Modes
 
