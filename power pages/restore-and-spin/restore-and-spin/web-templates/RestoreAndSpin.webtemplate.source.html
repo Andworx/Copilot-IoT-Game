@@ -1,421 +1,430 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Restore &amp; Spin — IoT Game</title>
-  <style>
-    :root {
-      --color-bg: #0d1117;
-      --color-surface: #161b22;
-      --color-border: #30363d;
-      --color-accent: #58a6ff;
-      --color-success: #3fb950;
-      --color-danger: #f85149;
-      --color-warning: #d29922;
-      --color-text: #c9d1d9;
-      --color-muted: #8b949e;
-      --radius: 8px;
-      --spin-duration: 1.2s;
-    }
+<style>
+  /* ── Restore & Spin SPA — scoped under .ras-spa ── */
+  .ras-spa {
+    --ras-bg: #0d1117;
+    --ras-surface: #161b22;
+    --ras-border: #30363d;
+    --ras-accent: #58a6ff;
+    --ras-success: #3fb950;
+    --ras-danger: #f85149;
+    --ras-warning: #d29922;
+    --ras-text: #c9d1d9;
+    --ras-muted: #8b949e;
+    --ras-radius: 8px;
+    --ras-spin-duration: 1.2s;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--ras-text);
+    background: var(--ras-bg);
+    border-radius: var(--ras-radius);
+    overflow: hidden;
+  }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  .ras-spa *, .ras-spa *::before, .ras-spa *::after { box-sizing: inherit; }
 
-    body {
-      background: var(--color-bg);
-      color: var(--color-text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+  /* ── Page header ── */
+  .ras-spa .ras-header {
+    background: var(--ras-surface);
+    border-bottom: 1px solid var(--ras-border);
+    padding: 0.875rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .ras-spa .ras-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ras-accent);
+    margin: 0;
+  }
+  .ras-spa .ras-badge {
+    font-size: 0.68rem;
+    background: var(--ras-border);
+    color: var(--ras-muted);
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 
-    /* ── Header ── */
-    header {
-      background: var(--color-surface);
-      border-bottom: 1px solid var(--color-border);
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    header h1 { font-size: 1.25rem; font-weight: 600; color: var(--color-accent); }
-    header .badge {
-      font-size: 0.7rem;
-      background: var(--color-border);
-      color: var(--color-muted);
-      padding: 2px 8px;
-      border-radius: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
+  /* ── Content grid ── */
+  .ras-spa .ras-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    padding: 1.25rem;
+  }
+  @media (max-width: 640px) { .ras-spa .ras-grid { grid-template-columns: 1fr; } }
 
-    /* ── Layout ── */
-    main {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      padding: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    @media (max-width: 768px) { main { grid-template-columns: 1fr; } }
+  /* ── Card ── */
+  .ras-spa .ras-card {
+    background: var(--ras-surface);
+    border: 1px solid var(--ras-border);
+    border-radius: var(--ras-radius);
+    padding: 1.25rem;
+  }
+  .ras-spa .ras-card-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ras-muted);
+    margin: 0 0 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .ras-spa .ras-card-title svg { width: 14px; height: 14px; flex-shrink: 0; }
 
-    /* ── Card ── */
-    .card {
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-    }
-    .card-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--color-muted);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .card-title svg { width: 16px; height: 16px; }
+  /* ── Device list ── */
+  .ras-spa .ras-device-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+  .ras-spa .ras-device-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--ras-bg);
+    border: 1px solid var(--ras-border);
+    border-radius: var(--ras-radius);
+    padding: 0.6rem 0.875rem;
+    transition: border-color 0.2s;
+  }
+  .ras-spa .ras-device-item:hover { border-color: var(--ras-accent); }
+  .ras-spa .ras-device-name { font-weight: 500; font-size: 0.9rem; }
+  .ras-spa .ras-device-status {
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+  .ras-spa .status-online  { background: rgba(63,185,80,0.15);  color: var(--ras-success); }
+  .ras-spa .status-offline { background: rgba(248,81,73,0.15);  color: var(--ras-danger); }
+  .ras-spa .status-pending { background: rgba(210,153,34,0.15); color: var(--ras-warning); }
 
-    /* ── Device list ── */
-    #device-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
-    .device-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--color-bg);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      padding: 0.75rem 1rem;
-      transition: border-color 0.2s;
-    }
-    .device-item:hover { border-color: var(--color-accent); }
-    .device-name { font-weight: 500; font-size: 0.95rem; }
-    .device-status {
-      font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-    .status-online  { background: rgba(63,185,80,0.15); color: var(--color-success); }
-    .status-offline { background: rgba(248,81,73,0.15); color: var(--color-danger); }
-    .status-pending { background: rgba(210,153,34,0.15); color: var(--color-warning); }
+  /* ── Spinner ── */
+  .ras-spa .ras-spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--ras-border);
+    border-top-color: var(--ras-accent);
+    border-radius: 50%;
+    animation: ras-spin var(--ras-spin-duration) linear infinite;
+    display: none;
+  }
+  .ras-spa .ras-spinner.active { display: inline-block; }
+  @keyframes ras-spin { to { transform: rotate(360deg); } }
 
-    /* ── Spin indicator ── */
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid var(--color-border);
-      border-top-color: var(--color-accent);
-      border-radius: 50%;
-      animation: spin var(--spin-duration) linear infinite;
-      display: none;
-    }
-    .spinner.active { display: inline-block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+  /* ── Actions ── */
+  .ras-spa .ras-action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+  }
+  .ras-spa .ras-btn {
+    cursor: pointer;
+    border: none;
+    border-radius: var(--ras-radius);
+    padding: 0.6rem 0.875rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: opacity 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    line-height: 1;
+  }
+  .ras-spa .ras-btn:hover:not(:disabled) { opacity: 0.82; }
+  .ras-spa .ras-btn:active:not(:disabled) { transform: scale(0.97); }
+  .ras-spa .ras-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .ras-spa .ras-btn-primary { background: var(--ras-accent);   color: #0d1117; }
+  .ras-spa .ras-btn-danger  { background: var(--ras-danger);   color: #fff; }
+  .ras-spa .ras-btn-success { background: var(--ras-success);  color: #0d1117; }
+  .ras-spa .ras-btn-warning { background: var(--ras-warning);  color: #0d1117; }
+  .ras-spa .ras-btn-full    { grid-column: 1 / -1; }
 
-    /* ── Action panel ── */
-    .action-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      margin-top: 0.5rem;
-    }
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: var(--radius);
-      padding: 0.65rem 1rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      transition: opacity 0.15s, transform 0.1s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-    }
-    button:hover:not(:disabled) { opacity: 0.85; }
-    button:active:not(:disabled) { transform: scale(0.97); }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary  { background: var(--color-accent); color: #0d1117; }
-    .btn-danger   { background: var(--color-danger);  color: #fff; }
-    .btn-success  { background: var(--color-success); color: #0d1117; }
-    .btn-warning  { background: var(--color-warning); color: #0d1117; }
-    .btn-full     { grid-column: 1 / -1; }
+  /* ── Activity log ── */
+  .ras-spa .ras-log {
+    background: var(--ras-bg);
+    border: 1px solid var(--ras-border);
+    border-radius: var(--ras-radius);
+    padding: 0.875rem;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.78rem;
+    height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .ras-spa .ras-log-entry { display: flex; gap: 0.6rem; }
+  .ras-spa .ras-log-time  { color: var(--ras-muted); white-space: nowrap; }
+  .ras-spa .ras-log-info  { color: var(--ras-text); }
+  .ras-spa .ras-log-ok    { color: var(--ras-success); }
+  .ras-spa .ras-log-warn  { color: var(--ras-warning); }
+  .ras-spa .ras-log-err   { color: var(--ras-danger); }
 
-    /* ── Log ── */
-    #log {
-      background: var(--color-bg);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      padding: 1rem;
-      font-family: 'SFMono-Regular', Consolas, monospace;
-      font-size: 0.8rem;
-      height: 220px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    .log-entry { display: flex; gap: 0.75rem; }
-    .log-time  { color: var(--color-muted); white-space: nowrap; }
-    .log-info  { color: var(--color-text); }
-    .log-ok    { color: var(--color-success); }
-    .log-warn  { color: var(--color-warning); }
-    .log-err   { color: var(--color-danger); }
+  /* ── Status bar ── */
+  .ras-spa .ras-statusbar {
+    background: var(--ras-surface);
+    border-top: 1px solid var(--ras-border);
+    padding: 0.4rem 1.5rem;
+    font-size: 0.72rem;
+    color: var(--ras-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .ras-spa .ras-conn-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--ras-danger);
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .ras-spa .ras-conn-dot.connected { background: var(--ras-success); }
+  .ras-spa .ras-spacer { flex: 1; }
+</style>
 
-    /* ── Status bar ── */
-    footer {
-      background: var(--color-surface);
-      border-top: 1px solid var(--color-border);
-      padding: 0.5rem 2rem;
-      font-size: 0.75rem;
-      color: var(--color-muted);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    #connection-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--color-danger);
-      transition: background 0.3s;
-    }
-    #connection-dot.connected { background: var(--color-success); }
-    .spacer { flex: 1; }
-  </style>
-</head>
-<body>
+<div class="ras-spa">
 
-<header>
-  <h1>⚙ Restore &amp; Spin</h1>
-  <span class="badge">IoT Game</span>
-</header>
-
-<main>
-  <!-- Device list card -->
-  <div class="card" style="grid-row: span 2;">
-    <div class="card-title">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3zm2-1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H3z"/><path d="M6 6a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/></svg>
-      Registered Devices
-    </div>
-    <ul id="device-list">
-      <li style="color:var(--color-muted); font-size:0.85rem; text-align:center; padding:1rem;">
-        <span class="spinner active"></span>&nbsp; Loading devices…
-      </li>
-    </ul>
+  <!-- Header -->
+  <div class="ras-header">
+    <h2>⚙ Restore &amp; Spin</h2>
+    <span class="ras-badge">IoT Game</span>
   </div>
 
-  <!-- Actions card -->
-  <div class="card">
-    <div class="card-title">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zm8.536 0a.5.5 0 0 1 0 .707l-.915.914a.5.5 0 0 1-.707-.708l.914-.914a.5.5 0 0 1 .708 0zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm-5.464 3.535a.5.5 0 0 1 0-.707l.915-.914a.5.5 0 0 1 .707.707l-.914.915a.5.5 0 0 1-.708 0zm2.12-5.535a.5.5 0 0 1 .707 0l.914.914a.5.5 0 0 1-.707.707l-.914-.914a.5.5 0 0 1 0-.707zM8 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
-      Game Actions
+  <!-- Content grid -->
+  <div class="ras-grid">
+
+    <!-- Device list card -->
+    <div class="ras-card" style="grid-row: span 2;">
+      <div class="ras-card-title">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3zm2-1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H3z"/><path d="M6 6a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/></svg>
+        Registered Devices
+      </div>
+      <ul id="ras-device-list" class="ras-device-list">
+        <li style="color:var(--ras-muted);font-size:0.85rem;text-align:center;padding:1rem;">
+          <span class="ras-spinner active"></span>&nbsp; Loading devices…
+        </li>
+      </ul>
     </div>
-    <div class="action-grid">
-      <button class="btn-success" id="btn-spin"    onclick="handleSpin()">▶ Spin Up</button>
-      <button class="btn-danger"  id="btn-restore" onclick="handleRestore()">↩ Restore</button>
-      <button class="btn-warning" id="btn-reset"   onclick="handleReset()">⟳ Reset Round</button>
-      <button class="btn-primary btn-full" id="btn-refresh" onclick="loadDevices()">↻ Refresh Devices</button>
+
+    <!-- Actions card -->
+    <div class="ras-card">
+      <div class="ras-card-title">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zm8.536 0a.5.5 0 0 1 0 .707l-.915.914a.5.5 0 0 1-.707-.708l.914-.914a.5.5 0 0 1 .708 0zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm-5.464 3.535a.5.5 0 0 1 0-.707l.915-.914a.5.5 0 0 1 .707.707l-.914.915a.5.5 0 0 1-.708 0zm2.12-5.535a.5.5 0 0 1 .707 0l .914.914a.5.5 0 0 1-.707.707l-.914-.914a.5.5 0 0 1 0-.707zM8 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+        Game Actions
+      </div>
+      <div class="ras-action-grid">
+        <button class="ras-btn ras-btn-success" id="ras-btn-spin"    onclick="rasHandleSpin()">▶ Spin Up</button>
+        <button class="ras-btn ras-btn-danger"  id="ras-btn-restore" onclick="rasHandleRestore()">↩ Restore</button>
+        <button class="ras-btn ras-btn-warning" id="ras-btn-reset"   onclick="rasHandleReset()">⟳ Reset Round</button>
+        <button class="ras-btn ras-btn-primary ras-btn-full" id="ras-btn-refresh" onclick="rasLoadDevices()">↻ Refresh Devices</button>
+      </div>
     </div>
+
+    <!-- Activity log card -->
+    <div class="ras-card">
+      <div class="ras-card-title">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z"/></svg>
+        Activity Log
+      </div>
+      <div id="ras-log" class="ras-log"></div>
+    </div>
+
+  </div><!-- /.ras-grid -->
+
+  <!-- Status bar -->
+  <div class="ras-statusbar">
+    <div id="ras-conn-dot" class="ras-conn-dot"></div>
+    <span id="ras-conn-label">Connecting…</span>
+    <span class="ras-spacer"></span>
+    <span id="ras-session-user">—</span>
   </div>
 
-  <!-- Log card -->
-  <div class="card">
-    <div class="card-title">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z"/></svg>
-      Activity Log
-    </div>
-    <div id="log"></div>
-  </div>
-</main>
-
-<footer>
-  <div id="connection-dot"></div>
-  <span id="connection-label">Connecting…</span>
-  <span class="spacer"></span>
-  <span id="session-user">—</span>
-</footer>
+</div><!-- /.ras-spa -->
 
 <script>
 (function () {
   'use strict';
 
   /* ── Helpers ── */
-  const $ = id => document.getElementById(id);
-  const now = () => new Date().toLocaleTimeString('en-US', { hour12: false });
+  const byId = id => document.getElementById(id);
+  const now  = () => new Date().toLocaleTimeString('en-US', { hour12: false });
 
-  function log(msg, type = 'info') {
-    const el = $('log');
-    const entry = document.createElement('div');
-    entry.className = 'log-entry';
-    entry.innerHTML = `<span class="log-time">${now()}</span><span class="log-${type}">${msg}</span>`;
+  function rasLog(msg, type) {
+    type = type || 'info';
+    var el    = byId('ras-log');
+    var entry = document.createElement('div');
+    entry.className = 'ras-log-entry';
+    entry.innerHTML = '<span class="ras-log-time">' + now() + '</span>'
+                    + '<span class="ras-log-' + type + '">' + msg + '</span>';
     el.appendChild(entry);
     el.scrollTop = el.scrollHeight;
   }
 
   /* ── Portal Web API ── */
-  const API_BASE = '/_api';
-  const DEVICE_TABLE = 'YOUR_PUBLISHER_PREFIX_iotdevices';   /* adjust to actual table schema name */
+  var API_BASE    = '/_api';
+  var DEVICE_TABLE = 'YOUR_PUBLISHER_PREFIX_iotdevices'; /* adjust to actual table schema name */
 
-  async function webApiGet(path) {
-    const res = await fetch(`${API_BASE}/${path}`, {
+  function webApiGet(path) {
+    return fetch(API_BASE + '/' + path, {
       headers: { 'OData-MaxVersion': '4.0', 'OData-Version': '4.0', 'Accept': 'application/json' }
+    }).then(function (res) {
+      if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+      return res.json();
     });
-    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    return res.json();
   }
 
-  async function webApiPatch(path, body) {
-    const res = await fetch(`${API_BASE}/${path}`, {
+  function webApiPatch(path, body) {
+    var tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+    return fetch(API_BASE + '/' + path, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'OData-MaxVersion': '4.0',
         'OData-Version': '4.0',
-        '__RequestVerificationToken': getRequestToken()
+        '__RequestVerificationToken': tokenEl ? tokenEl.value : ''
       },
       body: JSON.stringify(body)
+    }).then(function (res) {
+      if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+      return res;
     });
-    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    return res;
-  }
-
-  function getRequestToken() {
-    const el = document.querySelector('input[name="__RequestVerificationToken"]');
-    return el ? el.value : '';
   }
 
   /* ── Session user ── */
-  async function loadCurrentUser() {
-    try {
-      const data = await webApiGet('contacts?$select=fullname&$top=1&$filter=contactid eq {{ user.id }}');
-      if (data && data.value && data.value[0]) {
-        $('session-user').textContent = data.value[0].fullname;
-      }
-    } catch {
-      $('session-user').textContent = 'Anonymous';
-    }
+  function rasLoadCurrentUser() {
+    webApiGet('contacts?$select=fullname&$top=1&$filter=contactid eq {{ user.id }}')
+      .then(function (data) {
+        if (data && data.value && data.value[0]) {
+          byId('ras-session-user').textContent = data.value[0].fullname;
+        }
+      })
+      .catch(function () {
+        byId('ras-session-user').textContent = 'Anonymous';
+      });
   }
 
   /* ── Device list ── */
-  async function loadDevices() {
-    const list = $('device-list');
-    list.innerHTML = '<li style="color:var(--color-muted);font-size:0.85rem;text-align:center;padding:1rem;"><span class="spinner active"></span>&nbsp;Loading…</li>';
-    log('Fetching registered devices…');
+  function rasLoadDevices() {
+    var list = byId('ras-device-list');
+    list.innerHTML = '<li style="color:var(--ras-muted);font-size:0.85rem;text-align:center;padding:1rem;">'
+      + '<span class="ras-spinner active"></span>&nbsp;Loading…</li>';
+    rasLog('Fetching registered devices…');
 
-    try {
-      const data = await webApiGet(
-        `${DEVICE_TABLE}?$select=YOUR_PUBLISHER_PREFIX_name,YOUR_PUBLISHER_PREFIX_status,YOUR_PUBLISHER_PREFIX_deviceid&$orderby=YOUR_PUBLISHER_PREFIX_name asc`
-      );
-      renderDevices(data.value || []);
-      setConnected(true);
-      log(`Loaded ${(data.value || []).length} device(s)`, 'ok');
-    } catch (err) {
-      list.innerHTML = '<li style="color:var(--color-danger);font-size:0.85rem;text-align:center;padding:1rem;">Failed to load devices — check table permissions.</li>';
-      log(`Device fetch error: ${err.message}`, 'err');
-      setConnected(false);
-    }
+    webApiGet(DEVICE_TABLE
+      + '?$select=YOUR_PUBLISHER_PREFIX_name,YOUR_PUBLISHER_PREFIX_status,YOUR_PUBLISHER_PREFIX_deviceid'
+      + '&$orderby=YOUR_PUBLISHER_PREFIX_name asc')
+      .then(function (data) {
+        rasRenderDevices(data.value || []);
+        rasSetConnected(true);
+        rasLog('Loaded ' + (data.value || []).length + ' device(s)', 'ok');
+      })
+      .catch(function (err) {
+        list.innerHTML = '<li style="color:var(--ras-danger);font-size:0.85rem;text-align:center;padding:1rem;">'
+          + 'Failed to load devices — check table permissions.</li>';
+        rasLog('Device fetch error: ' + err.message, 'err');
+        rasSetConnected(false);
+      });
   }
 
-  function statusClass(status) {
+  function rasStatusClass(status) {
     if (!status) return 'status-offline';
-    const s = String(status).toLowerCase();
+    var s = String(status).toLowerCase();
     if (s === 'online'  || s === '1') return 'status-online';
     if (s === 'pending' || s === '2') return 'status-pending';
     return 'status-offline';
   }
 
-  function statusLabel(status) {
+  function rasStatusLabel(status) {
     if (!status) return 'Offline';
-    const s = String(status).toLowerCase();
+    var s = String(status).toLowerCase();
     if (s === 'online'  || s === '1') return 'Online';
     if (s === 'pending' || s === '2') return 'Pending';
     return 'Offline';
   }
 
-  function renderDevices(devices) {
-    const list = $('device-list');
-    if (!devices.length) {
-      list.innerHTML = '<li style="color:var(--color-muted);font-size:0.85rem;text-align:center;padding:1rem;">No devices registered.</li>';
-      return;
-    }
-    list.innerHTML = devices.map(d => `
-      <li class="device-item" data-id="${d.YOUR_PUBLISHER_PREFIX_deviceid || ''}">
-        <span class="device-name">${escHtml(d.YOUR_PUBLISHER_PREFIX_name || 'Unnamed Device')}</span>
-        <span class="device-status ${statusClass(d.YOUR_PUBLISHER_PREFIX_status)}">${statusLabel(d.YOUR_PUBLISHER_PREFIX_status)}</span>
-      </li>`).join('');
+  function rasEscHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
   }
 
-  function escHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function rasRenderDevices(devices) {
+    var list = byId('ras-device-list');
+    if (!devices.length) {
+      list.innerHTML = '<li style="color:var(--ras-muted);font-size:0.85rem;text-align:center;padding:1rem;">No devices registered.</li>';
+      return;
+    }
+    list.innerHTML = devices.map(function (d) {
+      return '<li class="ras-device-item" data-id="' + (d.YOUR_PUBLISHER_PREFIX_deviceid || '') + '">'
+        + '<span class="ras-device-name">' + rasEscHtml(d.YOUR_PUBLISHER_PREFIX_name || 'Unnamed Device') + '</span>'
+        + '<span class="ras-device-status ' + rasStatusClass(d.YOUR_PUBLISHER_PREFIX_status) + '">'
+        + rasStatusLabel(d.YOUR_PUBLISHER_PREFIX_status) + '</span>'
+        + '</li>';
+    }).join('');
   }
 
   /* ── Actions ── */
-  async function withBusy(btnId, fn) {
-    const btn = $(btnId);
+  function rasBusy(btnId, fn) {
+    var btn = byId(btnId);
     btn.disabled = true;
-    try { await fn(); } finally { btn.disabled = false; }
+    fn().finally(function () { btn.disabled = false; });
   }
 
-  async function handleSpin() {
-    await withBusy('btn-spin', async () => {
-      log('Spinning up all offline devices…', 'info');
-      try {
-        /* In production: call a custom API action or Flow HTTP trigger */
-        await new Promise(r => setTimeout(r, 800)); /* simulated latency */
-        log('Spin-up command dispatched', 'ok');
-        await loadDevices();
-      } catch (err) {
-        log(`Spin-up failed: ${err.message}`, 'err');
-      }
+  function rasHandleSpin() {
+    rasBusy('ras-btn-spin', function () {
+      rasLog('Spinning up all offline devices…');
+      return new Promise(function (resolve) { setTimeout(resolve, 800); }) /* simulated latency */
+        .then(function () {
+          rasLog('Spin-up command dispatched', 'ok');
+          rasLoadDevices();
+        })
+        .catch(function (err) { rasLog('Spin-up failed: ' + err.message, 'err'); });
     });
   }
 
-  async function handleRestore() {
-    await withBusy('btn-restore', async () => {
-      log('Restoring last game snapshot…', 'info');
-      try {
-        await new Promise(r => setTimeout(r, 1000)); /* simulated latency */
-        log('Game state restored to last checkpoint', 'ok');
-        await loadDevices();
-      } catch (err) {
-        log(`Restore failed: ${err.message}`, 'err');
-      }
+  function rasHandleRestore() {
+    rasBusy('ras-btn-restore', function () {
+      rasLog('Restoring last game snapshot…');
+      return new Promise(function (resolve) { setTimeout(resolve, 1000); }) /* simulated latency */
+        .then(function () {
+          rasLog('Game state restored to last checkpoint', 'ok');
+          rasLoadDevices();
+        })
+        .catch(function (err) { rasLog('Restore failed: ' + err.message, 'err'); });
     });
   }
 
-  async function handleReset() {
+  function rasHandleReset() {
     if (!confirm('Reset the current round? This cannot be undone.')) return;
-    await withBusy('btn-reset', async () => {
-      log('Resetting round…', 'warn');
-      try {
-        await new Promise(r => setTimeout(r, 600));
-        log('Round reset complete', 'ok');
-        await loadDevices();
-      } catch (err) {
-        log(`Reset failed: ${err.message}`, 'err');
-      }
+    rasBusy('ras-btn-reset', function () {
+      rasLog('Resetting round…', 'warn');
+      return new Promise(function (resolve) { setTimeout(resolve, 600); })
+        .then(function () {
+          rasLog('Round reset complete', 'ok');
+          rasLoadDevices();
+        })
+        .catch(function (err) { rasLog('Reset failed: ' + err.message, 'err'); });
     });
   }
 
   /* ── Connection status ── */
-  function setConnected(on) {
-    $('connection-dot').className = on ? 'connected' : '';
-    $('connection-label').textContent = on ? 'Connected' : 'Disconnected';
+  function rasSetConnected(on) {
+    byId('ras-conn-dot').className   = 'ras-conn-dot' + (on ? ' connected' : '');
+    byId('ras-conn-label').textContent = on ? 'Connected' : 'Disconnected';
   }
 
+  /* ── Expose action handlers to inline onclick ── */
+  window.rasHandleSpin    = rasHandleSpin;
+  window.rasHandleRestore = rasHandleRestore;
+  window.rasHandleReset   = rasHandleReset;
+  window.rasLoadDevices   = rasLoadDevices;
+
   /* ── Boot ── */
-  log('Restore & Spin initialising…');
-  loadCurrentUser();
-  loadDevices();
+  rasLog('Restore & Spin initialising…');
+  rasLoadCurrentUser();
+  rasLoadDevices();
 })();
 </script>
-
-</body>
-</html>
