@@ -1,10 +1,10 @@
 # APACHE 3800 Portable IoT Demonstration System
 
-**Engineering design document — version 2.1.0**
+**Engineering design document — version 2.2.0**
 
 **Document status:** Active working design record
 
-**Last updated:** 2026-08-29
+**Last updated:** 2026-09-01
 
 **Companion records:** [BOM.md](BOM.md) ·
 [DESIGN_CHANGELOG.md](DESIGN_CHANGELOG.md)
@@ -24,8 +24,9 @@ The design consists of two related but deliberately separate models:
    heat, fan openings, AC power entry, and a six-position control selector.
 
 This is the authoritative narrative design record. The authoritative production
-dimensions remain in `model_params.scad`; the airflow-study inputs remain in
-`case-airflow-study/airflow_params.scad`.
+dimensions remain in `model_params.scad`. The airflow study includes those
+production parameters and adds only case-reference, component-layout, port,
+and thermal inputs in `case-airflow-study/airflow_params.scad`.
 
 ## 2. Design objectives
 
@@ -62,19 +63,19 @@ The system must:
 | Lower bevel height | 12 mm | Successful sample geometry | Validated profile |
 | Lower bevel inset | 10 mm | Successful sample geometry | Validated profile |
 | Bevel interpolation | Six-stage smoothstep | Successful sample geometry | Validated profile |
-| Chassis height | 70 mm | Design target | Closed-lid clearance not yet proven |
+| Chassis height | 77 mm | Measured component-stack analysis | Raised from 70 mm for PSU/key-switch separation; closed-lid clearance not yet proven |
 | Case catalogue exterior | 419.1 x 330.2 x 171.45 mm | Manufacturer listing | Reference only |
 | Case catalogue interior | 377.825 x 269.875 x 155.575 mm | Manufacturer listing | Reference only |
 | Airflow heat load | 30 W | Placeholder analysis input | Measure after electronics selection |
 | Allowed temperature rise | 10 C | Design target | Validate thermally |
 | Fan format | Opposed 60 x 60 x 25 mm | Planning envelope | Exact fans not selected |
 | Rear service-panel size | 176 x 68 mm estimated | Photo-derived envelope | Must be measured |
-| Power inlet | FILSHU C14/fuse/switch, ASIN B0FZQ866Z3 | Listing dimensions | Ordered; measure on arrival |
-| Control selector | FOCMKEAS RS26 2P6T, ASIN B0F9KTRGV5 | Listing/common RS26 dimensions | Ordered; measure on arrival |
-| DC distribution | Blue Sea Systems 5025, six circuits with negative bus | Manufacturer drawing/specification | Selected; acquisition and measurements unconfirmed |
-| Branch conversion | Up to six PlusRoc PR4A070 5 V/5 A USB-C converters | Product-listing dimensions | Selected; acquisition and measurements unconfirmed |
+| Power inlet | FILSHU C14/fuse/switch, ASIN B0FZQ866Z3 | Direct caliper measurements | In hand; flange, cutout, depth, and holes promoted to study CAD |
+| Control selector | FOCMKEAS RS26 2P6T, ASIN B0F9KTRGV5 | Direct caliper measurements | In hand; bushing, body, knob, depth, and anti-rotation pin promoted |
+| DC distribution | Blue Sea Systems 5025, six circuits with negative bus | Direct caliper measurements | In hand; 124 x 84 x 40 mm envelope and 63 x 93 mm mounting pattern promoted |
+| Branch conversion | Two PlusRoc USB-C and one Micro-USB converter | Direct caliper measurements | Three initially populated branches modeled; remaining fuse positions stay available |
 | Panel architecture | Fixed 296.9875 x 225.55 x 5 mm split deck, ten chassis screws | Parametric CAD | Replaces moving panel; exact depth follows current Rev 3 production source |
-| Display/control modules | Upper-center official 7-inch Pi display carrier; three lower control plates | Official screen envelope plus parametric control placeholders | Screen generation, mounting, cables, and all control interfaces must be physically verified |
+| Display/control modules | Measured original 7-inch Pi display; two safety toggles; two keys; two rockers; two activity sockets; four colored LEDs | Direct caliper measurements | Cutouts and hard rear envelopes promoted; screen rear clamp and cable strain relief remain to design/test |
 
 ### Evidence hierarchy
 
@@ -249,9 +250,9 @@ flowchart TB
     Frame --> Inserts[Ten perimeter heat-set inserts]
     Inserts --> Fixed[Two-part fixed removable panel]
     Fixed --> Screen[Upper-center official 7-inch display module]
-    Fixed --> Rotary[Four-position rotary-control module]
-    Fixed --> Toggle[Six-toggle module]
-    Fixed --> Utility[Four-button and eight-indicator module]
+    Fixed --> Safety[Two red safety toggles]
+    Fixed --> Keys[Two keyed and two rocker switches]
+    Fixed --> Utility[Two mode sockets, captive plug and four LEDs]
     Frame --> Electronics[Under-panel electronics cavity]
     Fixed --> Looms[Labeled removable wiring looms]
 ```
@@ -266,27 +267,31 @@ allows the complete panel to lift out for service.
 The fixed base panel is split into X1C-printable left and right halves. Four
 module plates sit over openings in the base:
 
-- a 220 x 146 mm upper-center display carrier with a 156 x 88 mm viewing
-  opening for the original official Raspberry Pi 7-inch Touch Display profile;
-- a 90 x 74 mm lower-left plate with four provisional 9.8 mm rotary holes;
-- a 90 x 74 mm lower-center plate with six provisional 12 mm toggle holes; and
-- a 90 x 74 mm lower-right plate with four provisional 16 mm button holes and eight
-  provisional 5 mm indicator holes.
+- a 220 x 146 mm upper-center display carrier with a 157 x 89 mm viewing
+  opening around the measured 155 x 87 mm illuminated area;
+- a 90 x 74 mm lower-left plate for two measured red safety-cover toggles;
+- a 90 x 74 mm lower-center plate for two keyed switches and two circular
+  rocker switches; and
+- a 90 x 74 mm lower-right plate for two four-pin mode sockets, a captive
+  pull-out cable exit, and four colored 5 mm LEDs.
 
 Every module uses four screws into panel bosses. This lets a measured module
 plate be reprinted without reprinting the structural deck. All control openings
-remain `MEASURE_BEFORE_PRINT` until exact components are selected and measured.
+use measured cutouts. The cable grommet, LED retention, terminal bends, and
+screen rear support remain `MEASURE_BEFORE_PRINT` interfaces.
 The centered screen and toggle plates cross the panel split and serve as two
 widely separated seam bridges, so separate panel joiner bars are no longer part
 of the active export set.
 
-The CAD defaults to the original official 800 x 480 Touch Display. Raspberry
-Pi specifies a 192.96 x 110.76 mm outer envelope, a 154.08 x 85.92 mm viewable
-area, and 200 mA at 5 V typical at maximum brightness. The same carrier can be
-switched to the newer 7-inch Touch Display 2 profile, whose official landscape
-envelope is 189.5 x 120 x 15 mm. Because the screen generation is not yet
-confirmed, `screen_model` is an explicit selection gate and the plate remains
-provisional until rear geometry, mounting, connector, and cable bend are checked.
+The delivered screen is the original official 800 x 480 Touch Display with a
+Pi 4B attached. It measures 193 x 110 mm across the glass, 155 x 87 mm across
+the illuminated area, 6.04 mm for the display assembly, and 35 mm from the
+front glass to the rearmost Pi hardware. It has no front mounting holes. The
+module therefore acts as a front bezel and must be paired with a rear support
+that does not load the glass or obstruct the Pi and display cables. The older
+reference bezel STL measured 236 x 120 x 3 mm with a 169 x 104 mm opening and
+a 220 x 60 mm four-hole pattern; those values are retained as design evidence,
+not copied blindly into the smaller modular carrier.
 
 The lid foam is removed. The exposed lid is treated first as clearance above
 the screen, switches, and knobs—not as an assumed electronics bay. Powered
@@ -303,11 +308,10 @@ The airflow study is a separate non-production model. Its case shell is an
 approximate reference envelope and its large STLs are explicitly named
 `REFERENCE_DO_NOT_PRINT`.
 
-The fixed panel is 296.9875 x 225.55 mm in the current Rev 3 production source
-because that source still uses 234.95 mm chassis depth. The airflow study uses
-a 296.9875 x 220.05 mm panel derived from the unpromoted 229.45 mm chassis
-candidate. This difference is intentional and must disappear only when the
-physical final-fit result is explicitly promoted to production.
+The fixed panel and airflow study now derive from the same production source:
+296.9875 x 225.55 mm for the current 234.95 mm production depth. The 229.45 mm
+final-fit candidate remains isolated in `final-fit-test/`; it can no longer
+silently alter the airflow study before promotion.
 
 ![Open enclosure study](case-airflow-study/exports/assembly_open.png)
 
@@ -316,28 +320,24 @@ physical final-fit result is explicitly promoted to production.
 The revised mock layout includes planning blocks for BOM items `ELEC-004`,
 `ELEC-005`, `ELEC-007`, and `ELEC-010`:
 
-- one 159 x 97 x 30 mm power supply at `[40, 44, 11]`;
-- one Blue Sea 5025 fuse block, rotated in plan to an 84.20 x 124.31 x
-  38.57 mm envelope at `[-100, 44, 7]`;
-- six conservative 68 x 32 x 18 mm converter envelopes in three front stacks
-  of two; and
-- two 85 x 56 x 22 mm Raspberry Pi-class envelopes on the floor immediately
-  behind the converter bank.
+- one measured 158 x 97 x 42 mm power supply toward the front-right;
+- one measured Blue Sea 5025 fuse block, rotated to an 84 x 124 x 40 mm
+  rear-left envelope;
+- two measured USB-C converters and one measured Micro-USB converter in a
+  single front-left service bank;
+- one floor Pi 4B with direct GPIO terminal breakout, measured as an
+  88.06 x 61.15 x 25.23 mm assembly; and
+- the measured screen body and its attached Pi as separate rear keepouts.
 
 The fuse block replaces the former generic DC terminal-block mockup. The power
-supply moved leftward enough to clear the chassis perimeter rail, and the fuse
-block and converter bank no longer intersect it. Named OpenSCAD positions now
-feed automatic rectangular-boundary and pairwise 4 mm AABB clearance checks.
-The collision list now includes downward keepout envelopes for the centered
-official-display body, rotary, toggle, and utility modules. The modeled screen
-rear allowance is 20 mm without a Raspberry Pi attached to the display's rear
-standoffs; the other module-body allowances are 18, 16, and 16 mm. Those control
-depths are strict provisional maxima imposed by the packed layout, not assumed
-properties of future hardware. Deeper parts require moving floor electronics,
-raising the deck after a lid-clearance test, or revising the module layout.
-The fuse block now sits directly at the modeled case-floor datum and both
-converter tiers were lowered 4 mm to preserve the automatic 4 mm clearance
-under the centered controls.
+supply and fuse block no longer intersect it. Named OpenSCAD positions feed
+automatic rectangular-boundary and pairwise 2 mm hard-envelope checks. The
+control list uses each measured rear body instead of one placeholder box per
+module. The 42 mm PSU and 25.36 mm keyed-switch stack proved the former 70 mm
+chassis too shallow wherever their plan views overlap; raising the chassis to
+77 mm produces about 4.6 mm vertical separation at the closest planned
+overlap. Closed-lid and case split-line clearance must be physically tested
+before this height is released for a full print.
 
 The checks prevent the previous PSU/terminal-block collision, but they do not
 prove clearance at rounded case corners, connectors, fasteners, wire bends,
@@ -356,7 +356,7 @@ sweep through the under-panel electronics volume.
 flowchart LR
     Ambient[Room air] --> Filter[Replaceable intake filter]
     Filter --> Intake[Left 60 mm intake]
-    Intake --> Conv[Six fused converter branches]
+    Intake --> Conv[Three fused converter branches]
     Conv --> Pi[Pi and low-voltage devices]
     Pi --> PSU[Power supply and fuse block]
     PSU --> Exhaust[Right 60 mm exhaust]
@@ -390,9 +390,9 @@ The calculations are:
 
 A nominal 20 CFM fan derates to approximately 12 CFM under the assumed factor,
 which clears the preliminary 9.23 CFM target. This is not a thermal validation.
-Six converters delivering their full 25 W outputs would provide 150 W total;
-at the provisional 90 percent efficiency assumption, converter loss alone is
-approximately 16.7 W. That value does not include the AC/DC supply, computers,
+Three populated converters delivering their full 25 W outputs would provide
+75 W total; at the provisional 90 percent efficiency assumption, converter
+loss alone is approximately 8.3 W. That value does not include the AC/DC supply, computers,
 display, fans, wiring, or other loads, so the present 30 W total heat input must
 not be treated as a demonstrated worst case. The selected AC/DC supply must
 also support the simultaneous branch load with appropriate margin.
@@ -425,17 +425,18 @@ estimated panel height and improves clearance below the hinge.
 The selected part, BOM item `ELEC-001`, is a FILSHU IEC320 C14 inlet module with
 a fuse holder, rocker switch, and preattached leads, Amazon ASIN `B0FZQ866Z3`.
 
-Listing/drawing values currently modeled:
+Delivered-part measurements currently modeled:
 
 | Feature | Modeled value |
 |---|---:|
-| Face, horizontal orientation | 66.6 x 31.8 mm |
-| Panel cutout | 56.1 x 27.9 mm |
-| Rear body allowance | 30 mm |
+| Face, horizontal orientation | 66.72 x 31.8 mm |
+| Panel body/cutout | 47.38 x 27.56 mm |
+| Rear body depth | 16.62 mm |
+| Mounting holes | Two 2.99 mm holes on 55.09 mm centers |
 
-These are not drilling dimensions until the delivered flange, snap body,
-corner radii, fastener features, fuse access, terminals, and wire bend space
-are measured.
+These values support a thin drilling/template coupon. The case recess, wall
+thickness, fuse access, terminals, wire bend, and strain relief still require
+physical confirmation before the APACHE shell is cut.
 
 ### 8.2 Ordered six-position selector
 
@@ -445,12 +446,13 @@ switch, Amazon ASIN `B0F9KTRGV5`.
 | Feature | Current model |
 |---|---:|
 | Positions | 6 discrete positions |
-| Body diameter | 28.6 mm |
-| Shaft | 6 mm diameter x 20 mm long |
-| Total listed height | 38 mm |
-| Inferred rear body depth | 18 mm |
-| Provisional panel hole | 9.8 mm |
-| Placeholder knob | 18 mm diameter x 14 mm deep |
+| Main body/flange diameter | 27 mm |
+| Rear collar diameter | 17.72 mm |
+| Rear body depth | 16 mm |
+| Panel hole | 9.27 mm |
+| Knob diameter | 26.48 mm |
+| Installed front projection | 21.55 mm |
+| Anti-rotation pin | 2.96 mm diameter, 9.83 mm center offset, 4.67 mm projection |
 
 This is a selector, not a continuous potentiometer. A suitable control scheme
 is six low-current logic modes such as Off, Auto, Low, Medium, High, and Test.
@@ -566,23 +568,23 @@ Fill this table when the ordered parts arrive.
 | Rear recess clear width | TBD | Calipers/rigid rule | — | No |
 | Rear recess clear height | TBD | Calipers/rigid rule | — | No |
 | Rear wall thickness | TBD | Calipers | — | No |
-| C14 face width x height | TBD | Calipers | — | No |
-| C14 required cutout | TBD | Calipers/test coupon | — | No |
-| C14 rear depth and cable bend | TBD | Calipers/mock wiring | — | No |
-| Selector bushing diameter | TBD | Calipers | — | No |
+| C14 face width x height | 66.72 x 31.8 mm | Calipers | 2026-09-01 | Yes |
+| C14 required cutout/body | 47.38 x 27.56 mm | Calipers/test coupon | 2026-09-01 | Yes |
+| C14 rear depth | 16.62 mm plus unmeasured wire bend | Calipers/mock wiring | 2026-09-01 | Yes, hard body only |
+| Selector bushing diameter | 9.27 mm | Calipers | 2026-09-01 | Yes |
 | Selector usable thread length | TBD | Calipers | — | No |
-| Selector rear body/terminal depth | TBD | Calipers | — | No |
-| Selector knob diameter/depth | TBD | Calipers | — | No |
-| Blue Sea 5025 overall envelope | TBD | Calipers | — | No |
-| Blue Sea 5025 mounting centers | TBD | Calipers | — | No |
+| Selector rear body/terminal depth | 16 mm | Calipers | 2026-09-01 | Yes |
+| Selector knob diameter/front projection | 26.48 / 21.55 mm | Calipers | 2026-09-01 | Yes |
+| Blue Sea 5025 overall envelope | 124 x 84 x 40 mm | Calipers | 2026-09-01 | Yes |
+| Blue Sea 5025 mounting centers | 63 x 93 mm; 4.78 mm holes | Calipers | 2026-09-01 | Yes |
 | Blue Sea 5025 cover and wire service envelope | TBD | Physical mock wiring | — | No |
-| PlusRoc converter ear-to-ear envelope | TBD | Calipers | — | No |
+| PlusRoc converter ear-to-ear envelope | 63 x 32 x 19 mm; 52 mm slots | Calipers | 2026-09-01 | Yes |
 | PlusRoc lead and USB-C service envelope | TBD | Physical mock wiring | — | No |
-| Touchscreen visible opening and bezel | TBD | Calipers/template | — | No |
-| Touchscreen rear depth and cable bend | TBD | Calipers/mock wiring | — | No |
-| Toggle body, cutout, and rear depth | TBD | Calipers/coupon | — | No |
-| Additional rotary body, cutout, and rear depth | TBD | Calipers/coupon | — | No |
-| Pushbutton and indicator interfaces | TBD | Calipers/coupon | — | No |
+| Touchscreen visible area / glass | 155 x 87 / 193 x 110 mm | Calipers/template | 2026-09-01 | Yes |
+| Touchscreen display / assembled rear depth | 6.04 / 35 mm | Calipers/mock wiring | 2026-09-01 | Yes, cable bend pending |
+| Safety toggle cutout / rear depth | 11.62 / 14.46 mm | Calipers/coupon | 2026-09-01 | Yes |
+| Key and rocker cutouts | 11.5 / 20.35 mm | Calipers/coupon | 2026-09-01 | Yes |
+| LED and activity-socket interfaces | 5 / 15.6 mm | Calipers/coupon | 2026-09-01 | Yes, holders/grommet pending |
 | Fixed-panel screw/insert pull-down test | TBD | Physical assembly | — | No |
 | Final joined frame 306.3875 x 229.45 fit | TBD | Physical case test | — | No |
 
@@ -606,9 +608,11 @@ Fill this table when the ordered parts arrive.
 | D-014 | Retire the moving-panel mechanism | A fixed deck is simpler, more rigid, provides more control area, and removes hinge/strut/actuator clearance and failure modes | A later requirement demands frequent tool-free under-panel access |
 | D-015 | Use four replaceable control modules | Exact controls can change without reprinting the full structural panel | A measured integrated commercial panel is selected |
 | D-016 | Retain the fixed deck with ten perimeter screws | Distributed pull-down resists bowing while keeping the complete electronics bay serviceable | Insert pull-out, panel deflection, or access testing fails |
-| D-017 | Stack converter envelopes in three front pairs | Frees floor area for both Pi envelopes while maintaining modeled clearance to panel controls | Converter temperature or service testing rejects stacked mounting |
+| D-017 | Use one unstacked front-left bank for two USB-C and one Micro-USB converter | Matches parts in hand, improves cooling and service access, and leaves three fuse circuits available | More branches are populated or wire routing rejects the bank |
 | D-018 | Center the official 7-inch Pi display at the upper middle | Improves visibility and produces a symmetric console layout with controls below | Closed-lid, mounting, cable, or human-factors testing fails |
 | D-019 | Use the centered screen and toggle plates as panel-seam bridges | Avoids joiner collisions inside the large centered display opening and reduces hardware | Module fastener or panel-deflection testing fails |
+| D-020 | Raise chassis height from 70 to 77 mm | Measured 42 mm PSU and 25.36 mm keyed-switch depth require at least 4 mm separation where their plan views overlap | Closed-lid or case split-line test fails |
+| D-021 | Use one captive plug with two mode-dependent sockets | Creates a reusable physical matching activity without loose parts; software determines the correct socket by mode | Connector wear, accessibility, or low-voltage interface testing fails |
 
 ## 13. Open risks and unresolved work
 
@@ -617,15 +621,16 @@ Fill this table when the ordered parts arrive.
 | Final 229.45 mm frame has not been explicitly confirmed | Production chassis may still bow or bind | Complete joined-frame test before Rev 4 |
 | Closed-lid height is unverified | Collision or inability to close | Depth-gauge or foam/clay witness test |
 | Rear panel is photo-derived | Ports may hit ribs or double walls | Measure before any drilling template |
-| Ordered component dimensions may differ from listings | Incorrect openings or retention | Caliper measurement and coupon |
+| Measured controls still lack printed coupons | Incorrect tolerance or retention despite correct nominal openings | Print thin labeled coupons before structural modules |
 | Fan model and pressure curve unknown | Inadequate flow/noise | Select fan and test with actual filter/grille |
 | Heat load is a placeholder | Thermal estimate may be wrong | Measure input/output losses at worst load |
-| Six converters and their leads are not physically measured | Mounting ears or cable bends may collide despite clear body envelopes | Measure one delivered module and update the conservative CAD envelope |
+| Converter leads and connector bends are not measured | Wires may collide despite measured hard bodies | Mock-wire all three converters before designing retainers |
 | Fuse-block cover and terminal service clearance are unverified | Cover removal or safe wiring may be obstructed | Mock up the actual block, largest conductors, and tool access before mounting |
 | Mains wiring design incomplete | Shock/fire hazard | Qualified review, protection, segregation |
 | Fixed-panel inserts and module fasteners are untested | Panel could bow, loosen, or strip during service | Print insert coupon and perform repeated assembly/pull-down test |
-| Control bodies may exceed 16–20 mm provisional rear allowances | Collision with floor electronics | Select and measure controls before final module plates; revise layout if deeper |
-| Stacked converters may retain heat or impede service | Higher converter temperature and difficult wiring | Use ventilated brackets, preserve separation, and test every populated branch at load |
+| New 77 mm chassis height is not physically verified | Panel or tall controls may interfere with lid/ribs | Rigid depth-gauge or foam/clay witness test before full-height print |
+| Screen rear-clamp geometry is not finalized | Screen could move or glass could be point-loaded | Design a broad rear support after recording Pi/cable offsets and print a screen-only fit coupon |
+| Captive cable grommet and stowage are provisional | Cable abrasion, snagging, or strain on solder joints | Select strain relief and verify 152.4 mm pullout/stow cycles |
 
 ## 14. File map
 

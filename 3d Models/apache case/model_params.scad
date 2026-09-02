@@ -33,7 +33,10 @@ measured_chassis_outer_depth = 9.25 * inch;    // 234.9500 mm
 
 // ---------- CHASSIS ----------
 chassis_wall_thickness  = 3.2;
-chassis_height          = 70.0;
+// Raised 7 mm after measuring the 42 mm PSU and 25.36 mm keyed-switch rear
+// depth. This preserves at least 4 mm vertical separation at their closest
+// planned overlap; confirm the case split-line clearance before full printing.
+chassis_height          = 77.0;
 bottom_rail_height      = 8.0;
 top_rail_height         = 8.0;
 support_ledge_width     = 7.0;
@@ -53,28 +56,61 @@ module_plate_corner_radius = 5.0;
 module_plate_lip        = 12.0;
 module_mount_edge_inset = 5.0;
 
-// Four replaceable top modules. The upper-center carrier is sized for the
-// original official Raspberry Pi 7-inch Touch Display (800 x 480). Set the
-// selector to "touch_display_2_7" if the purchased unit is the newer portrait
-// Touch Display 2; both official envelopes fit the same carrier in landscape.
-screen_model            = "official_touch_display_7_original";
-screen_body_size        = screen_model == "touch_display_2_7"
-                            ? [189.5,120.0] : [192.96,110.76];
+// Four replaceable top modules. The installed original official Raspberry Pi
+// 7-inch Touch Display and attached Pi 4B were measured 2026-09-01.
+screen_model            = "official_touch_display_7_original_measured";
+screen_body_size        = [193.0,110.0];
+screen_visible_size     = [155.0,87.0];
 screen_module_center    = [0.0,155.5];
 screen_module_size      = [220.0,146.0];
-screen_opening_size     = screen_model == "touch_display_2_7"
-                            ? [157.0,89.0] : [156.0,88.0];
-screen_rear_keepout     = screen_model == "touch_display_2_7" ? 19.0 : 20.0;
+screen_opening_clearance= 1.0; // per side around the measured illuminated area
+screen_opening_size     = [screen_visible_size[0]+2*screen_opening_clearance,
+                           screen_visible_size[1]+2*screen_opening_clearance];
+screen_display_depth    = 6.04;
+screen_rear_keepout     = 35.0; // front glass to rearmost attached Pi hardware
+screen_old_bezel_size   = [236.0,120.0,3.0];
+screen_old_bezel_opening= [169.0,104.0];
+screen_old_bezel_hole_pitch = [220.0,60.0];
+screen_old_bezel_hole_diameter = 3.3;
 rotary_module_center    = [-98.0,45.0];
 rotary_module_size      = [90.0,74.0];
-rotary_hole_diameter    = 9.8;          // current RS26 clearance assumption
+// Two measured red safety-cover toggles.
+safety_toggle_count     = 2;
+safety_toggle_hole_diameter = 11.62;
+safety_toggle_cover_size = [17.05,40.70];
+safety_toggle_rear_size = [14.63,26.13,14.46];
+safety_toggle_front_projection = 27.89;
 switch_module_center    = [0.0,45.0];
 switch_module_size      = [90.0,74.0];
-toggle_hole_diameter    = 12.0;         // MEASURE_BEFORE_PRINT
+// Two keyed switches above two circular rocker switches.
+key_switch_count        = 2;
+key_switch_hole_diameter= 11.5;
+key_switch_bezel_diameter = 14.82;
+key_switch_rear_size    = [18.08,11.83,25.36];
+key_switch_front_projection = 23.12;
+rocker_switch_count     = 2;
+rocker_hole_diameter    = 20.35;
+rocker_bezel_diameter   = 22.12;
+rocker_body_depth       = 15.07;
+rocker_total_rear_depth = 23.14;
+rocker_front_projection = 6.64;
 utility_module_center   = [98.0,45.0];
 utility_module_size     = [90.0,74.0];
-pushbutton_hole_diameter= 16.0;         // MEASURE_BEFORE_PRINT
-indicator_hole_diameter = 5.0;          // MEASURE_BEFORE_PRINT
+// Mode-dependent plug-in activity: one captive four-pin plug and two sockets.
+activity_socket_count   = 2;
+activity_socket_hole_diameter = 15.6;
+activity_socket_flange_diameter = 18.2;
+activity_socket_rear_depth = 13.3;
+activity_socket_front_projection = 5.19;
+activity_plug_diameter  = 17.81;
+activity_plug_length    = 36.65;
+activity_cable_pullout  = 6*inch;
+activity_cable_exit_diameter = 8.0; // grommet/strain-relief selection pending
+indicator_count         = 4;
+indicator_hole_diameter = 5.0;
+indicator_body_diameter = 5.03;
+indicator_body_length   = 8.19;
+indicator_colors        = ["GREEN","BLUE","ORANGE","RED"];
 
 // ---------- RETIRED MOVING-PANEL REFERENCE ----------
 // Retained only so historical fit-check modules remain readable. The active

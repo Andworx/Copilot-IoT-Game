@@ -127,48 +127,43 @@ module component_block(position, size, tint, label = "", label_size = 7) {
 }
 
 module electronics_floor_envelopes() {
-    component_block(psu_position, psu_size,
-                    [0.65, 0.65, 0.68, 0.90], "PSU");
-    component_block(fuse_block_position, fuse_block_size,
-                    [0.12, 0.35, 0.82, 0.88], "FUSE6");
-    for (i = [0:len(converter_positions) - 1])
-        component_block(converter_positions[i], converter_size,
-                        [0.85, 0.55, 0.12, 0.90],
-                        i < 3 ? str("DC",i + 1)
-                              : str("DC",i - 2,"/DC",i + 1," STACK"),4);
+    for (i = [0:5])
+        component_block(component_positions[i],component_sizes[i],
+                        i == 0 ? [0.65,0.65,0.68,0.90]
+                      : i == 1 ? [0.12,0.35,0.82,0.88]
+                      : i == 2 ? [0.15,0.65,0.25,0.50]
+                               : [0.85,0.55,0.12,0.90],
+                        component_names[i],i >= 3 ? 3.5 : 6);
 }
 
 module pi_envelopes() {
-    for (i = [0:len(pi_positions) - 1])
-        component_block(pi_positions[i], pi_size,
-                        i == 0 ? [0.15, 0.65, 0.25, 0.38]
-                               : [0.15, 0.48, 0.75, 0.38],
-                        str("PI", i + 1));
+    component_block(screen_pi_position,screen_pi_size,
+                    [0.15,0.48,0.75,0.38],"SCREEN PI",4);
 }
 
 module panel_keepout_outlines() {
-    keepout_labels = ["SCREEN REAR", "ROTARY REAR",
-                      "SWITCH REAR", "UTILITY REAR"];
-    for (i = [0:len(panel_keepout_positions) - 1]) {
+    keepout_labels = ["SCREEN", "2 SAFETY",
+                      "2 KEY + 2 ROCKER", "2 SOCKET + 4 LED"];
+    for (i = [0:len(panel_module_centers) - 1]) {
         tint = i == 0 ? [0.55, 0.20, 0.75, 1.0]
                       : [0.10, 0.55, 0.75, 1.0];
         color(tint)
-            translate([panel_keepout_positions[i][0],
-                       panel_keepout_positions[i][1],
-                       control_panel_z + 0.1])
+            translate([panel_module_centers[i][0],
+                       panel_module_centers[i][1],
+                       study_control_panel_z + 0.1])
                 linear_extrude(height = 0.8)
                     difference() {
-                        square([panel_keepout_sizes[i][0],
-                                panel_keepout_sizes[i][1]], center = true);
-                        square([panel_keepout_sizes[i][0] - 2.0,
-                                panel_keepout_sizes[i][1] - 2.0],
+                        square([panel_module_sizes[i][0],
+                                panel_module_sizes[i][1]], center = true);
+                        square([panel_module_sizes[i][0] - 2.0,
+                                panel_module_sizes[i][1] - 2.0],
                                center = true);
                     }
         color([0.04, 0.04, 0.05, 1.0])
-            translate([panel_keepout_positions[i][0],
-                       panel_keepout_positions[i][1]
-                           + panel_keepout_sizes[i][1]/2 - 6,
-                       control_panel_z + 1.0])
+            translate([panel_module_centers[i][0],
+                       panel_module_centers[i][1]
+                           + panel_module_sizes[i][1]/2 - 6,
+                       study_control_panel_z + 1.0])
                 linear_extrude(height = 0.45)
                     text(keepout_labels[i], size = 5,
                          halign = "center", valign = "center");
@@ -177,27 +172,26 @@ module panel_keepout_outlines() {
 
 module fixed_panel_reference() {
     color([0.14, 0.22, 0.30, 0.25])
-        translate([0, 0, control_panel_z-fixed_panel_thickness])
-            linear_extrude(height = fixed_panel_thickness)
+        translate([0, 0, study_control_panel_z-study_fixed_panel_thickness])
+            linear_extrude(height = study_fixed_panel_thickness)
                 rounded_rect_centered(fixed_panel_size[0],
                                       fixed_panel_size[1], 7);
     for (i = [0:len(panel_module_centers) - 1])
         color(i == 0 ? [0.40, 0.16, 0.65, 0.72]
                      : [0.10, 0.48, 0.68, 0.72])
             translate([panel_module_centers[i][0],
-                       panel_module_centers[i][1],control_panel_z])
+                       panel_module_centers[i][1],study_control_panel_z])
                 linear_extrude(height = panel_module_sizes[i][2])
                     rounded_rect_centered(panel_module_sizes[i][0],
                                           panel_module_sizes[i][1], 5);
 }
 
 module electronics_envelopes() {
-    electronics_floor_envelopes();
-    pi_envelopes();
-    for (i = [0:len(panel_keepout_positions) - 1])
-        component_block(panel_keepout_positions[i],panel_keepout_sizes[i],
-                        [0.45, 0.18, 0.72, 0.16],
-                        str("PANEL",i + 1));
+    for (i = [0:len(component_positions) - 1])
+        component_block(component_positions[i],component_sizes[i],
+                        i < 6 ? [0.55,0.55,0.58,0.52]
+                              : [0.45,0.18,0.72,0.20],
+                        component_names[i],i < 6 ? 4 : 3.5);
 }
 
 module fan_mockup(side = 1, cy = 0, cz = 45, intake = false) {
@@ -317,7 +311,8 @@ echo(str("IDEAL AIRFLOW: ", minimum_ideal_cfm, " CFM"));
 echo(str("DESIGN AIRFLOW: ", design_cfm, " CFM"));
 echo(str("DERATED ", recommended_fan_nominal_cfm, " CFM FAN: ",
          derated_fan_cfm, " CFM"));
-echo(str("SIX CONVERTERS AT 25 W OUTPUT AND 90% EFFICIENCY: ",
+echo(str(len(converter_positions),
+         " POPULATED CONVERTERS AT 25 W OUTPUT AND 90% EFFICIENCY: ",
          converter_full_load_loss_watts, " W CONVERTER LOSS"));
 
 if (part == "assembly_open") open_study(true, true);
@@ -325,8 +320,7 @@ else if (part == "assembly_closed") closed_study();
 else if (part == "airflow_section") open_study(false, false);
 else if (part == "electronics_layout") {
     chassis_envelope(false);
-    electronics_floor_envelopes();
-    pi_envelopes();
+    electronics_envelopes();
     panel_keepout_outlines();
 }
 else if (part == "port_layout" || part == "rear_port_layout") {

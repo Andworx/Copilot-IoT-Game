@@ -316,30 +316,35 @@ module screen_module_provisional() {
 
 module rotary_module_provisional() {
     difference() {
-        provisional_module_plate(rotary_module_size,"4 ROTARY");
-        for (x=[-20,20],y=[-20,18])
-            vertical_hole(x,y,0,module_plate_thickness,
-                          rotary_hole_diameter);
+        provisional_module_plate(rotary_module_size,"2 SAFETY TOGGLES");
+        for (x=[-22,22])
+            vertical_hole(x,0,0,module_plate_thickness,
+                          safety_toggle_hole_diameter);
     }
 }
 
 module switch_module_provisional() {
     difference() {
-        provisional_module_plate(switch_module_size,"6 TOGGLE");
-        for (x=[-22,0,22],y=[-18,18])
-            vertical_hole(x,y,0,module_plate_thickness,
-                          toggle_hole_diameter);
+        provisional_module_plate(switch_module_size,"KEY / ROCKER");
+        for (x=[-22,22]) {
+            vertical_hole(x,0,0,module_plate_thickness,
+                          key_switch_hole_diameter);
+            vertical_hole(x,-23,0,module_plate_thickness,
+                          rocker_hole_diameter);
+        }
     }
 }
 
 module utility_module_provisional() {
     difference() {
-        provisional_module_plate(utility_module_size,"BUTTONS / STATUS");
+        provisional_module_plate(utility_module_size,"PLUG MODE / STATUS");
+        for (x=[-22,22])
+            vertical_hole(x,-3,0,module_plate_thickness,
+                          activity_socket_hole_diameter);
+        vertical_hole(0,20,0,module_plate_thickness,
+                      activity_cable_exit_diameter);
         for (x=[-27,-9,9,27])
-            vertical_hole(x,10,0,module_plate_thickness,
-                          pushbutton_hole_diameter);
-        for (x=[-31.5,-22.5,-13.5,-4.5,4.5,13.5,22.5,31.5])
-            vertical_hole(x,-18,0,module_plate_thickness,
+            vertical_hole(x,-25,0,module_plate_thickness,
                           indicator_hole_diameter);
     }
 }

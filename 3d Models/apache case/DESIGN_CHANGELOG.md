@@ -29,6 +29,62 @@ Use the headings **Added**, **Changed**, **Validated**, **Deferred**, and
 **Safety** as applicable. Do not delete old entries when an assumption is
 superseded.
 
+## [2.2.0] — 2026-09-01
+
+### Added
+
+- Recorded caliper measurements for the original Raspberry Pi 7-inch display
+  with its attached Pi 4B, the AC/DC supply, Blue Sea 5025 fuse block, two
+  USB-C converters, one Micro-USB converter, rear C14 inlet, RS26 selector,
+  floor Pi/GPIO-breakout assembly, four LEDs, two safety toggles, two keyed
+  switches, two circular rockers, and the one-plug/two-socket mode interface.
+- Added every in-hand part and quantity to `BOM.md`, including the OONO GPIO
+  breakout and Micro-USB converter.
+- Added measured rear-body keepouts and the captive 152.4 mm mode cable to the
+  panel and airflow analyses.
+
+### Changed
+
+- Replaced the provisional lower control bank with two safety toggles; two key
+  switches plus two rockers; and two mode sockets plus four colored LEDs.
+- Changed the electronics layout from six generic converters to the three
+  actual in-hand units, moved the PSU/fuse/Pi blocks, and set the pairwise hard
+  envelope clearance to 2 mm.
+- Raised the chassis from 70 to 77 mm because the measured 42 mm PSU and
+  25.36 mm keyed-switch rear stack cannot share the former height where their
+  plan envelopes overlap.
+- Made `case-airflow-study/airflow_params.scad` import production chassis and
+  panel parameters from `model_params.scad`. The airflow study now uses the
+  shipped 306.3875 x 234.95 mm footprint; the unconfirmed 229.45 mm fit-test
+  candidate remains isolated and cannot silently become an airflow baseline.
+- Updated the full-load converter example from six branches/150 W output to
+  three branches/75 W output, approximately 8.3 W converter loss at the
+  provisional 90 percent efficiency assumption.
+
+### Validated
+
+- OpenSCAD accepted the measured panel cutout layout and the revised 77 mm
+  chassis without an X1 Carbon build-volume assertion failure.
+- Airflow-study assertions accept the revised rectangular component envelopes
+  inside the chassis rail with the required 2 mm hard-envelope clearance.
+
+### Deferred
+
+- Verify the screen overlay/rear clamp, PSU tab-hole coordinates, LED holders,
+  control nut stacks, connector and wire bends, fuse-cover service path, and
+  captive-cable grommet/strain relief with coupons and a physical mockup.
+- Measure the APACHE case split line and closed-lid clearance before releasing
+  the 77 mm chassis height for a full print.
+- Fans remain provisional 60 x 60 x 25 mm envelopes until the actual fan and
+  filter assemblies are purchased and measured.
+
+### Safety
+
+- The C14 inlet and RS26 rear panel remain planning geometry, not drilling
+  templates. Confirm wall ribs, hinge clearance, sealing, protective earth,
+  fuse selection, finger-safe terminals, and mains/SELV segregation before
+  cutting or energizing the case.
+
 ## [2.1.0] — 2026-08-29
 
 ### Added

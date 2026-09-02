@@ -1,4 +1,4 @@
-# APACHE 3800 Parametric IoT Chassis — Fixed-Panel Architecture 2.1
+# APACHE 3800 Parametric IoT Chassis — Fixed-Panel Architecture 2.2
 
 The consolidated engineering rationale, diagrams, calculations, validation
 gates, and current design status are in [DESIGN_DOCUMENT.md](DESIGN_DOCUMENT.md).
@@ -29,8 +29,8 @@ precedence over the earlier catalogue-derived clearance calculation while
 - Open-centre perimeter chassis with thin walls plus top/bottom structural rails
 - Large unobstructed electronics/service cavity (the case floor remains usable)
 - Full-opening fixed control panel secured by ten perimeter screws
-- Upper-center official Raspberry Pi 7-inch display carrier plus a full-width
-  lower bank of rotary, toggle, and button/status modules
+- Upper-center measured original Raspberry Pi 7-inch display/Pi 4B carrier plus
+  a full-width lower bank of measured switches, indicators, and mode sockets
 - M3 heat-set insert interfaces for the removable deck and module plates
 - No active piano hinge, pistons, gas springs, actuator, or moving cable loop
 - Four printable chassis quadrants, two panel halves, four module plates, and
@@ -88,22 +88,17 @@ the perimeter support ledge. Its width and depth are:
 Ten perimeter holes fasten the panel to inserts in the chassis top rail. Four
 module openings accept independently printable plates. The 220 x 146 mm
 display carrier is centered across the upper panel and is sized around the
-original official Raspberry Pi 7-inch Touch Display's 192.96 x 110.76 mm outer
-envelope and 154.08 x 85.92 mm viewable area. Three equal 90 x 74 mm modules
-form a full-width lower control bank with four rotary controls, six toggles,
-four pushbuttons, and eight indicators. Recessed labels identify every module.
+measured original official Raspberry Pi 7-inch Touch Display: 193 x 110 mm
+glass, 155 x 87 mm active area, and 35 mm total depth with the Pi 4B attached.
+It uses an overlay bezel and rear support because there are no front mounting
+holes. Three equal 90 x 74 mm modules form the lower bank: two safety-cover
+toggles; two keyed switches plus two circular rockers; and two mode sockets,
+four 5 mm LEDs, and a provisional captive-cable exit.
 
-`screen_model` defaults to `official_touch_display_7_original`. If the actual
-part is the newer 7-inch Touch Display 2, set it to `touch_display_2_7`; the
-same carrier supports its 189.5 x 120 mm landscape envelope and changes the
-view opening and rear-depth assumption. Confirm the generation before printing
-the display plate.
-
-All component openings are placeholders. Select and measure the exact screen,
-switches, rotary controls, buttons, indicators, washers, and knobs before using
-the module plates as production parts. The 16–20 mm rear keepout allowances in
-the airflow study are packaging limits that must be checked against actual
-hardware.
+The cutouts derive from the measured hardware in `model_params.scad`. The
+remaining production details are the screen clamp/rear fastener pattern, LED
+holders, captive-cable strain relief, control nut stacks, terminal bends, and
+closed-lid height. Print thin coupons before printing complete module plates.
 
 Service access is obtained by removing the ten perimeter screws and lifting the
 panel. Use labeled removable connectors and enough harness slack to reach those
@@ -119,10 +114,10 @@ intended to print as one object. Use these production files:
 | Front chassis | `chassis_front_left` + `chassis_front_right` | 153.1 x 110.0 mm each |
 | Rear chassis | `chassis_rear_left` + `chassis_rear_right` | 153.1 x 124.9 mm each |
 | Fixed control panel | `panel_left` + `panel_right` | About 148.5 x 225.6 mm each |
-| Touchscreen module | `screen_module_provisional` | 220 x 146 mm |
-| Rotary module | `rotary_module_provisional` | 90 x 74 mm |
-| Toggle module | `switch_module_provisional` | 90 x 74 mm |
-| Button/status module | `utility_module_provisional` | 90 x 74 mm |
+| Touchscreen module | `screen_module_provisional` | 220 x 146 mm, measured screen opening |
+| Safety-switch module | `rotary_module_provisional` | 90 x 74 mm, two safety-cover toggles |
+| Key/rocker module | `switch_module_provisional` | 90 x 74 mm, two keyed and two rocker switches |
+| Plug-mode/status module | `utility_module_provisional` | 90 x 74 mm, two sockets and four LEDs |
 | Chassis seams | `chassis_joiner_x` and `chassis_joiner_y`; print two of each | About 50 x 24 mm |
 
 The assertions in `model_params.scad` stop a render if a quadrant or panel half
@@ -152,8 +147,8 @@ Use a staged fit validation rather than printing a production quadrant first.
    `case_inner_width`, `case_inner_depth`, `usable_case_depth`, `corner_radius`,
    `case_bottom_bevel_height`, `case_bottom_bevel_inset`, or
    `chassis_clearance`, regenerate, and repeat the sample—not the full print.
-5. Print one provisional module or a thin hole-pattern coupon after selecting
-   its real controls. Verify every nut, washer, anti-rotation feature, body,
+5. Print each thin measured hole-pattern coupon before a complete module.
+   Verify every nut, washer, anti-rotation feature, body,
    terminal, and cable bend.
 6. Only after the fit frame, insert test, control coupons, and closed-lid height
    test pass should the production chassis and fixed panel be printed.

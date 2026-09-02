@@ -24,8 +24,10 @@ Harbor Freight lists the APACHE 3800 at approximately:
 
 Source: <https://www.harborfreight.com/3800-weatherproof-protective-case-16-516-in-63927.html>
 
-The study shows the current 306.3875 x 229.45 mm chassis candidate inside a
-tapered lower cavity. The exact case split, floor size, draft, ribs, hinge,
+The study imports the current 306.3875 x 234.95 x 77 mm production chassis
+from `../model_params.scad` and places it inside a tapered lower cavity. The
+separate 229.45 mm final-fit candidate is not used here. The exact case split,
+floor size, draft, ribs, hinge,
 latches, handle, and flat exterior wall areas remain `MEASURE_BEFORE_DRILL`
 parameters.
 
@@ -35,8 +37,8 @@ parameters.
 |---|---|---|
 | Filtered intake | Left short end, front/lower offset | 60 mm fan, 54 mm opening, 50 mm hole pitch |
 | Exhaust | Right short end, rear/upper offset | 60 mm fan, 54 mm opening, 50 mm hole pitch |
-| Fused AC inlet | Left side of the recessed rear-center panel shown in the reference photo | Ordered FILSHU C14/fuse/switch module; modeled horizontally with a 56.1 x 27.9 mm cutout and 66.6 x 31.8 mm face |
-| Six-position control selector | Right side of the same recessed rear-center panel | Ordered FOCMKEAS RS26 2P6T; modeled 9.8 mm panel hole, 28.6 mm rear body, and 6 x 20 mm shaft |
+| Fused AC inlet | Left side of the recessed rear-center panel shown in the reference photo | In-hand FILSHU C14/fuse/switch module; measured 47.38 x 27.56 mm body/cutout, 66.72 x 31.8 mm face, 16.62 mm rear depth, and two 2.99 mm holes on 55.09 mm pitch |
+| Six-position control selector | Right side of the same recessed rear-center panel | In-hand FOCMKEAS RS26 2P6T; measured 9.27 mm panel hole, 27 mm body/flange, 16 mm rear depth, 21.55 mm front projection, and anti-rotation pin |
 
 This diagonal low-to-high path crosses the under-panel electronics cavity. The
 fans stay on the unobstructed left/right ends, while power and the dial share
@@ -46,24 +48,21 @@ photo-derived planning envelope, not measured geometry. Confirm that this area
 is flat and single-wall, and that cords and the knob
 clear the opened lid, hinge hardware, table, and adjacent equipment.
 
-The power inlet now represents the ordered FILSHU IEC320 C14 inlet, fuse holder,
+The power inlet represents the in-hand FILSHU IEC320 C14 inlet, fuse holder,
 and rocker-switch module from Amazon ASIN `B0FZQ866Z3`. It is rotated 90 degrees
-from the listing's vertical drawing so its approximately 66.6 x 31.8 mm face
-fits comfortably within the low rear panel. The modeled opening is 56.1 x 27.9
-mm and the rear body-depth allowance is 30 mm. These values come from the
-listing and drawing, not the delivered component; measure its flange, snap-in
-body, corner radii, mounting holes, and terminal clearance with calipers before
-making a drilling template.
+so its measured 66.72 x 31.8 mm face fits within the low rear panel. The model
+uses the measured 47.38 x 27.56 mm body/cutout, 16.62 mm rear depth, and two
+2.99 mm mounting holes on 55.09 mm pitch. Corner radii, terminal bend, wall
+thickness, and sealing still require a drilling coupon and case measurement.
 
 Product reference: <https://www.amazon.com/dp/B0FZQ866Z3?th=1>
 
-The control is the ordered FOCMKEAS RS26 2P6T rotary band switch from Amazon
+The control is the in-hand FOCMKEAS RS26 2P6T rotary band switch from Amazon
 ASIN `B0F9KTRGV5`. It is a six-position selector, not a continuously variable
-potentiometer. The listing specifies a 28.6 mm body diameter, 38 mm total
-height, 6 mm shaft diameter, 20 mm shaft length, and a 0.3 A rating. The model
-uses a 9.8 mm clearance hole for the commonly documented 3/8-32 RS26 mounting
-bushing and infers an 18 mm rear-body depth from the listed total and shaft
-lengths. The included knob remains an 18 x 14 mm placeholder until measured.
+potentiometer. The model uses the measured 9.27 mm panel hole, 17.72 mm collar,
+27 mm body/flange, 16 mm rear depth, 21.55 mm front projection, and 26.48 mm
+knob. Its 2.96 mm anti-rotation pin is 9.83 mm from the shaft center and projects
+4.67 mm.
 
 Use this switch as a low-current selector input for six controller modes, not
 as a mains-power switch or direct high-current fan control. Confirm the actual
@@ -86,13 +85,13 @@ Manufacturer reference: <https://www.bluesea.com/products/5025/ST_Blade_Fuse_Blo
 
 Amazon reference: <https://www.amazon.com/dp/B000THQ0CQ>
 
-Each used fused branch then feeds one PlusRoc `PR4A070` waterproof buck
+Two fused branches feed PlusRoc `PR4A070` waterproof USB-C buck
 converter, Amazon ASIN `B0FD735LFG`. The listing specifies 8–32 V DC input and
-5 V/5 A, 25 W maximum USB-C output. The listed body is approximately 46 x 32 x
-18 mm; the study deliberately reserves 68 x 32 x 18 mm per module for mounting
-ears and lead exits until a delivered module is measured. Six envelopes are
-shown as three vertically separated front pairs; populate only the number of
-branches actually required. Three two-packs supply six modules.
+5 V/5 A, 25 W maximum USB-C output. Each measured body is 46 x 32 x 19 mm,
+63 mm overall across its tabs, with mounting slots on 52 mm pitch. A third
+fused branch feeds the measured Micro-USB converter, whose body is 47 x 14 x
+14 mm and 64 mm overall across its tabs. The study shows exactly these three
+in-hand converters in a front-left service bank.
 
 Product reference: <https://www.amazon.com/dp/B0FD735LFG>
 
@@ -105,26 +104,27 @@ be selected for its converter, conductor, connector, and load; 30 A is the
 fuse block's circuit limit, not the correct converter fuse value.
 
 The collision-checked study layout places the rotated fuse block at the rear
-left, the power supply at the rear right, three stacked converter pairs toward
-the front, and both Pi envelopes on the floor behind the converter bank. The
+left, the power supply toward the front-right, all three converters in a
+front-left service bank, and the separate Pi 4B/GPIO-breakout assembly near
+the center. The screen-mounted Pi is modeled with the display. The
 old generic terminal-block envelope is removed because
 the 5025 now provides the DC positive distribution and negative bus. Any mains
 terminal/barrier hardware remains a separate selection.
 
 OpenSCAD assertions now check that all rectangular component envelopes stay
-inside the nominal chassis-rail boundary and retain at least 4 mm pairwise
+inside the nominal chassis-rail boundary and retain at least 2 mm pairwise
 clearance. These checks do not include rounded-corner detail, mounting
 fasteners, connector access, wiring bend radius, cover removal, or a component
 service path, so the delivered hardware still requires a physical mockup.
 
 The control deck is fixed and removable rather than hinged. A 220 x 146 mm
-official Raspberry Pi 7-inch display carrier is centered in the upper panel;
-three 90 x 74 mm rotary, toggle, and button/status modules form the lower bank.
-The study reserves a 192.96 x 110.76 x 20 mm rear envelope for the original
-official display without a Pi mounted to its rear standoffs, plus 18, 16, and
-16 mm rear envelopes for the three control modules. These remain physical-test
-limits. The panel is removed by ten perimeter screws and serviced with labeled
-disconnectable harnesses; no gas spring, actuator, or moving cable loop remains.
+carrier centers the measured 193 x 110 mm original Raspberry Pi 7-inch display
+with its attached Pi 4B and 35 mm total depth. Three 90 x 74 mm lower modules
+hold two safety toggles; two key switches plus two circular rockers; and two
+mode sockets plus four bare LEDs. The 77 mm chassis height clears the measured
+rear control bodies in the proposed layout, but closed-lid height still needs
+a physical witness test. The panel is removed by ten perimeter screws and
+serviced with labeled disconnectable harnesses.
 
 ![Collision-checked electronics layout](exports/electronics_layout.png)
 
@@ -136,9 +136,9 @@ Assuming filters and guards deliver only 60 percent of free-air rating, each fan
 station should use a fan rated for at least about 15.4 CFM; the model uses a
 20 CFM nominal target.
 
-At six simultaneous 25 W converter outputs, the converters would deliver 150 W
+At three simultaneous 25 W converter outputs, the converters would deliver 75 W
 total. At the provisional 90 percent efficiency assumption, converter loss
-alone is approximately 16.7 W. The 30 W total heat placeholder therefore
+alone is approximately 8.3 W. The 30 W total heat placeholder therefore
 requires replacement with measured worst-case losses for the complete supply,
 converters, computers, display, fans, and wiring before fan selection is final.
 
@@ -157,18 +157,16 @@ worst-case load. Run `python estimate_airflow.py` to repeat the calculation.
 5. Clearance behind each 60 x 60 x 25 mm fan for wiring, guards, and service.
 6. Exact Mean Well model, worst-case AC input, output load, and measured loss.
 7. Exact fan model, voltage, current, free-air CFM, pressure curve, and noise.
-8. Exact power inlet flange, cutout, fuse, switch, terminals, and strain relief.
-9. Exact dial body depth, anti-rotation feature, terminal clearance, and knob.
+8. Power-inlet corner radii, terminal bend, strain relief, and sealed-wall coupon.
+9. Dial terminal clearance, nut/washer stack, and sealed-wall coupon.
 10. Closed-lid clearance above the fixed control panel, touchscreen bezel,
     switches, knobs, and indicators after lid-foam removal.
-11. Blue Sea 5025 envelope, mounting centers, cover-removal space, terminals,
-    wire sizes, bend radii, and tool access.
-12. PlusRoc converter mounting-ear span, lead exits, lead lengths, USB-C cable
-    clearance, sustained output, and measured temperature at the intended load.
-13. Touchscreen opening, mounting holes, connector positions, rear depth, and
-    cable bend.
-14. Every toggle, rotary, button, and indicator cutout, anti-rotation feature,
-    nut/washer stack, body depth, and terminal bend.
+11. Blue Sea cover-removal space, terminals, wire sizes, bend radii, and tool access.
+12. Converter lead exits, cable clearance, sustained output, and measured
+    temperature at the intended load.
+13. Touchscreen rear attachment/clamp details, connector positions, and cable bend.
+14. Control nut/washer stacks, LED rear holders, terminal bends, and the captive
+    plug cable's grommet, strain relief, and stowage path.
 
 ## Safety and sealing
 
@@ -183,7 +181,8 @@ mains design reviewed by a qualified person before energizing it.
 
 ## Files and views
 
-- `airflow_params.scad` — all envelope, port, component, and thermal inputs.
+- `airflow_params.scad` — study-specific case, port, component, and thermal
+  inputs; it imports production chassis and panel values from `../model_params.scad`.
 - `apache_3800_airflow_study.scad` — case shell, chassis envelope, hardware
   mockups, keepouts, component blocks, and airflow arrows.
 - `estimate_airflow.py` — editable first-pass airflow calculation.
