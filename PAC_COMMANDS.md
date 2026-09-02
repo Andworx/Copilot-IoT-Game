@@ -35,6 +35,27 @@ pac pages upload `
   --modelVersion "2"
 ```
 
+## restore-and-spin Portal
+
+Commands scoped to the **restore-and-spin** portal (`power pages\restore-and-spin\`).
+
+```powershell
+# Download restore-and-spin portal (overwrites local files)
+pac pages download --overwrite `
+  --path "power pages\restore-and-spin" `
+  --webSiteId YOUR_WEBSITE_ID `
+  --modelVersion "2"
+
+# Upload restore-and-spin portal to Dataverse
+pac pages upload `
+  --path "power pages\restore-and-spin\restore-and-spin" `
+  --modelVersion "2"
+```
+
+> **Portal folder:** `power pages\restore-and-spin\`  
+> **Site content folder (upload path):** `power pages\restore-and-spin\restore-and-spin\`  
+> PAC CLI appends the site slug automatically on download; point upload at the site content subfolder where `website.yml` lives.
+
 ## Reference
 
 | Parameter | Value |

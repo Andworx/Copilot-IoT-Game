@@ -44,7 +44,7 @@ Track implementation status in this file as work is added, deployed, and verifie
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| YOUR_POWER_PAGE_ITEM | Portal page / component | ⬜ TODO | Replace with the first Power Pages requirement |
+| Restore & Spin SPA | Portal page / SPA | ⬜ TODO | Full-page SPA scaffold created under `power pages/restore-and-spin/`. Requires `YOUR_WEBSITE_ID` token and table permissions configured in Power Pages admin centre before upload. |
 
 ## Plugins
 

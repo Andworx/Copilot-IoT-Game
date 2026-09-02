@@ -16,7 +16,13 @@ power pages/
         └── website.yml
 ```
 
-## PAC CLI Commands
+## Portals
+
+| Portal | Folder | PAC slug | Description |
+|--------|--------|----------|-------------|
+| Restore & Spin | `restore-and-spin/` | `restore-and-spin` | IoT game SPA — device restore and spin-up dashboard |
+
+
 
 See `PAC_COMMANDS.md` at the repo root for the full download/upload reference.
 
