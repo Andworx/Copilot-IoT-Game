@@ -1,0 +1,21 @@
+{
+  "slug": "smart-lock",
+  "label": "Smart Lock & Security Panel",
+  "dialPosition": 3,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "deadbolt", "label": "Deadbolt Engage" },
+    { "physicalPin": "SW3", "key": "autolock", "label": "Auto-Lock" },
+    { "physicalPin": "SW4", "key": "alarm", "label": "Alarm Arm" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "locked", "label": "Locked", "when": "power and deadbolt" },
+    { "physicalPin": "LED2", "key": "ajar", "label": "Unlocked / Ajar", "when": "power and not deadbolt" },
+    { "physicalPin": "LED3", "key": "lowbatt", "label": "Low Battery", "when": "not win" },
+    { "physicalPin": "LED4", "key": "tamper", "label": "Tamper Alert", "when": "not win" }
+  ],
+  "win": "power and deadbolt and alarm",
+  "faultStartingState": { "power": true, "deadbolt": false, "autolock": true, "alarm": false },
+  "winMessage": "House is secured now."
+}

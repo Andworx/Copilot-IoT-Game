@@ -1,0 +1,16 @@
+{
+  "slug": "demo-info",
+  "label": "Demo / Info",
+  "dialPosition": 1,
+  "isGameDevice": false,
+  "switches": [],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "lamp1", "label": "Lamp 1", "when": "false" },
+    { "physicalPin": "LED2", "key": "lamp2", "label": "Lamp 2", "when": "false" },
+    { "physicalPin": "LED3", "key": "lamp3", "label": "Lamp 3", "when": "false" },
+    { "physicalPin": "LED4", "key": "lamp4", "label": "Lamp 4", "when": "false" }
+  ],
+  "win": "false",
+  "faultStartingState": {},
+  "winMessage": null
+}

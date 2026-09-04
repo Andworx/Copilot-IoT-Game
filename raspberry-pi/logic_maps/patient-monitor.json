@@ -1,0 +1,21 @@
+{
+  "slug": "patient-monitor",
+  "label": "Hospital Patient Monitor",
+  "dialPosition": 10,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "leadscheck", "label": "Leads Check" },
+    { "physicalPin": "SW3", "key": "alarmsilence", "label": "Alarm Silence" },
+    { "physicalPin": "SW4", "key": "backupbattery", "label": "Backup Battery" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "vitalsok", "label": "Vitals OK", "when": "win" },
+    { "physicalPin": "LED2", "key": "leadoff", "label": "Lead-Off", "when": "not leadscheck" },
+    { "physicalPin": "LED3", "key": "batterylow", "label": "Battery Low", "when": "not win" },
+    { "physicalPin": "LED4", "key": "alarmmuted", "label": "Alarm Muted", "when": "alarmsilence" }
+  ],
+  "win": "power and leadscheck and not alarmsilence",
+  "faultStartingState": { "power": true, "leadscheck": false, "alarmsilence": true, "backupbattery": false },
+  "winMessage": "Patient monitor restored — vitals streaming normally."
+}

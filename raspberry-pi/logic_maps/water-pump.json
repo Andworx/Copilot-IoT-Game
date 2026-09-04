@@ -1,0 +1,21 @@
+{
+  "slug": "water-pump",
+  "label": "Water Pump Station Controller",
+  "dialPosition": 5,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "pumpenable", "label": "Pump Enable" },
+    { "physicalPin": "SW3", "key": "relief", "label": "Pressure Relief" },
+    { "physicalPin": "SW4", "key": "remote", "label": "Remote Override" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "running", "label": "Running", "when": "power and pumpenable and not remote" },
+    { "physicalPin": "LED2", "key": "pressureok", "label": "Pressure OK", "when": "true" },
+    { "physicalPin": "LED3", "key": "fault", "label": "Fault", "when": "not win" },
+    { "physicalPin": "LED4", "key": "remoteconn", "label": "Remote-Connected", "when": "remote" }
+  ],
+  "win": "power and pumpenable and relief and not remote",
+  "faultStartingState": { "power": true, "pumpenable": false, "relief": false, "remote": true },
+  "winMessage": "Pump station is back online and operating normally."
+}
