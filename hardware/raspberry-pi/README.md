@@ -232,7 +232,7 @@ Function — see "Known open item" above.
 ## Setup
 
 ```bash
-cd raspberry-pi
+cd hardware/raspberry-pi
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -242,6 +242,29 @@ python3 panel_controller.py
 
 Bench-test without an IoT Hub connection string set — the panel still runs
 the full switch/dial/LED logic and logs what it *would* publish.
+
+### Deploying from a dev machine (scp)
+
+`deploy.ps1` pushes this folder to the Pi over SSH — no `git` on the Pi
+required. It copies everything except `.env`, `.git`, `__pycache__`, and
+`.venv`, so it never clobbers the Pi's real IoT Hub connection string once
+it's set:
+
+```powershell
+.\deploy.ps1 -PiHost pi@<pi-hostname-or-ip>
+```
+
+Add `-RestartService` once the systemd unit (below) is installed, to restart
+the running panel process after pushing an update:
+
+```powershell
+.\deploy.ps1 -PiHost pi@<pi-hostname-or-ip> -RestartService
+```
+
+**First deploy only** — `deploy.ps1` only copies files; it doesn't install
+anything remotely. After the first push, SSH in once and run the `Setup`
+commands above (venv, `pip install`, copy `.env.example` to `.env` and fill
+it in) plus the `Run on boot` steps below.
 
 ### Run on boot
 
