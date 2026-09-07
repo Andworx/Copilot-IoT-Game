@@ -232,13 +232,22 @@ Function — see "Known open item" above.
 ## Setup
 
 ```bash
+sudo apt update
+sudo apt install -y python3-lgpio
 cd hardware/raspberry-pi
-python3 -m venv .venv
+python3 -m venv --system-site-packages .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env   # then fill in AZURE_IOT_CONNECTION_STRING
 python3 panel_controller.py
 ```
+
+`--system-site-packages` matters here: `lgpio` needs `swig` *and*
+`liblgpio-dev` to compile from source via pip, neither of which is installed
+by default. Raspberry Pi OS already ships a working prebuilt `python3-lgpio`
+apt package — `--system-site-packages` just lets the venv see it, so `pip
+install -r requirements.txt` finds it already satisfied instead of trying
+(and failing) to build its own copy.
 
 Bench-test without an IoT Hub connection string set — the panel still runs
 the full switch/dial/LED logic and logs what it *would* publish.
@@ -278,18 +287,27 @@ journalctl -u restore-and-spin-panel.service -f   # tail logs
 Adjust `WorkingDirectory`/`ExecStart`/`EnvironmentFile` in the unit file if
 this repo isn't cloned to `/home/pi/restore-and-spin`.
 
-### Why `lgpio` and not `RPi.GPIO`
+### Why `lgpio` (via apt) and not `RPi.GPIO`
 
-`requirements.txt` installs `lgpio`, not the older `RPi.GPIO`. This isn't
-just a Pi 5 thing — on current Raspberry Pi OS (Bookworm and later, on
-*any* Pi model), `RPi.GPIO`'s edge detection depends on the legacy sysfs
-GPIO interface, which fails there with `RuntimeError: Failed to add edge
-detection` the moment a `Button` (switch/connector) tries to attach a
-callback. `lgpio` uses the modern GPIO character-device interface instead,
-and `gpiozero` auto-detects and prefers it — no code changes needed, just
-make sure it's the one that's actually installed. Pi 5 additionally
-*requires* it, since `RPi.GPIO`'s C extension can't address its GPIO chip
-at all.
+This setup uses `lgpio`, not the older `RPi.GPIO` — and installs it from
+`apt` (`python3-lgpio` + `--system-site-packages`), not from `pip`. Both
+parts matter:
+
+- **Why not `RPi.GPIO` at all:** this isn't just a Pi 5 thing — on current
+  Raspberry Pi OS (Bookworm and later, on *any* Pi model), `RPi.GPIO`'s edge
+  detection depends on the legacy sysfs GPIO interface, which fails there
+  with `RuntimeError: Failed to add edge detection` the moment a `Button`
+  (switch/connector) tries to attach a callback. `lgpio` uses the modern GPIO
+  character-device interface instead, and `gpiozero` auto-detects and
+  prefers it — no code changes needed, just make sure it's the one that's
+  actually installed. Pi 5 additionally *requires* it, since `RPi.GPIO`'s C
+  extension can't address its GPIO chip at all.
+- **Why apt instead of `pip install lgpio`:** the pip package compiles a SWIG
+  wrapper against the system `liblgpio` C library — it needs both `swig` and
+  `liblgpio-dev` installed first, and even then it's rebuilding something
+  Raspberry Pi OS already ships prebuilt. `sudo apt install python3-lgpio`
+  plus a `--system-site-packages` venv gets the same result with no compiler
+  involved.
 
 ## Testing without the real panel
 

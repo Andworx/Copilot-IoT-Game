@@ -1,4 +1,8 @@
+# lgpio is intentionally NOT listed here -- install it via
+# `sudo apt install python3-lgpio` and create the venv with
+# --system-site-packages instead. Building it via pip needs swig and
+# liblgpio-dev, neither present by default; the apt package already works.
+# See README.md's Setup section.
 gpiozero>=2.0
-lgpio>=0.2.2
 azure-iot-device>=2.13.0
 python-dotenv>=1.0.0
