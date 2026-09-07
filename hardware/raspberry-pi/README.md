@@ -278,12 +278,18 @@ journalctl -u restore-and-spin-panel.service -f   # tail logs
 Adjust `WorkingDirectory`/`ExecStart`/`EnvironmentFile` in the unit file if
 this repo isn't cloned to `/home/pi/restore-and-spin`.
 
-### Raspberry Pi 5 note
+### Why `lgpio` and not `RPi.GPIO`
 
-Pi 5 uses a different GPIO chip than earlier models; `RPi.GPIO` doesn't
-support it. Replace `RPi.GPIO` in `requirements.txt` with `rpi-lgpio` (a
-drop-in `RPi.GPIO`-compatible shim over `lgpio`) — no code changes needed,
-since `gpiozero` auto-detects whichever backend is installed.
+`requirements.txt` installs `lgpio`, not the older `RPi.GPIO`. This isn't
+just a Pi 5 thing — on current Raspberry Pi OS (Bookworm and later, on
+*any* Pi model), `RPi.GPIO`'s edge detection depends on the legacy sysfs
+GPIO interface, which fails there with `RuntimeError: Failed to add edge
+detection` the moment a `Button` (switch/connector) tries to attach a
+callback. `lgpio` uses the modern GPIO character-device interface instead,
+and `gpiozero` auto-detects and prefers it — no code changes needed, just
+make sure it's the one that's actually installed. Pi 5 additionally
+*requires* it, since `RPi.GPIO`'s C extension can't address its GPIO chip
+at all.
 
 ## Testing without the real panel
 
