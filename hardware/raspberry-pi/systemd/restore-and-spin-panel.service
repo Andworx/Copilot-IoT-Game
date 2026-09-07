@@ -1,0 +1,16 @@
+[Unit]
+Description=Restore & Spin panel Pi controller
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/restore-and-spin/hardware/raspberry-pi
+EnvironmentFile=/home/pi/restore-and-spin/hardware/raspberry-pi/.env
+ExecStart=/usr/bin/python3 /home/pi/restore-and-spin/hardware/raspberry-pi/panel_controller.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

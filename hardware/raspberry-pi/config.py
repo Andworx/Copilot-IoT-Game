@@ -1,6 +1,6 @@
 """Panel Pi GPIO pin map (BCM numbering).
 
-See raspberry-pi/README.md for the full wiring diagram, parts list, and the
+See hardware/raspberry-pi/README.md for the full wiring diagram, parts list, and the
 reasoning behind each pin choice. Targets a Raspberry Pi 4/400/3B+ using
 gpiozero's default pin factory (RPi.GPIO / lgpio, whichever is installed).
 """

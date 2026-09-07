@@ -162,7 +162,7 @@ debounce (software debounce on both boards is enough for a tabletop build).
 behavior, not one shared `logic_map.json`. Extend the existing "edit in repo, Pi pulls on
 boot" convention rather than replacing it:
 
-- `raspberry-pi/logic_maps/<deviceSlug>.json` — one file per device (5 files, `smart-lock`,
+- `hardware/raspberry-pi/logic_maps/<deviceSlug>.json` — one file per device (5 files, `smart-lock`,
   `thermostat`, etc.), same schema as today's single `logic_map.json`.
 - Since the panel Pi already reads the dial locally (step 1 above), it also decides locally
   which file is active — no extra network round-trip needed. On dial change, it loads

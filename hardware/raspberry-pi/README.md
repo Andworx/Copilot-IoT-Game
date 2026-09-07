@@ -1,7 +1,7 @@
 # Panel Pi — Restore & Spin
 
 Python firmware for the physical control panel that drives the
-[`restore-and-spin`](../power%20pages/restore-and-spin/) kiosk game
+[`restore-and-spin`](../../power%20pages/restore-and-spin/) kiosk game
 (`GAME_MODE_PLAN.md` in that folder's parent — §0, §4, §11). This is the
 **panel Pi**: it reads the 12-position dial, 6 toggle switches, and 4
 connector jacks; drives 4 LEDs; and publishes state to Azure IoT Hub. It does
@@ -12,7 +12,7 @@ in `GAME_MODE_PLAN.md` §4, out of scope here.
 
 `GAME_MODE_PLAN.md` §11 specifies a panel with **4 switches, 4 LEDs**, reused
 across all 11 devices, with device-specific behavior in
-`raspberry-pi/logic_maps/<slug>.json` files. This build adds two things the
+`hardware/raspberry-pi/logic_maps/<slug>.json` files. This build adds two things the
 plan didn't originally call for, per direct request:
 
 - **2 extra switches (SW5, SW6)** — panel utility buttons, not part of any

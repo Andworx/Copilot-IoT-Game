@@ -3,7 +3,7 @@
 
 Reads the 12-position dial, the 6 panel switches, and the 4 connector jacks;
 evaluates the active device's logic_maps/<slug>.json ruleset; drives the 4
-panel LEDs; and publishes state to Azure IoT Hub. See raspberry-pi/README.md
+panel LEDs; and publishes state to Azure IoT Hub. See hardware/raspberry-pi/README.md
 for the full wiring diagram, parts list, and design notes.
 """
 import json
