@@ -1,0 +1,21 @@
+{
+  "name": "restore-and-spin-functions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Azure Functions backend for the Restore & Spin kiosk: mode selection (set-mode/kiosk-state) and the SignalR negotiate endpoint. See GAME_MODE_PLAN.md §4a.",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "prestart": "npm run build",
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.5.1",
+    "@azure/msal-node": "^2.16.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "typescript": "^5.5.4"
+  }
+}
