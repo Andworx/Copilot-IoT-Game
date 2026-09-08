@@ -49,11 +49,22 @@ Sponsorship", `eastus2`):
 | Function App | `func-aw-azcom-copilot-iot-game` (`func-aw-azcom-copilot-iot-game.azurewebsites.net`) |
 | Storage account | `stawazcomiotgame` |
 | SignalR Service | `sigr-aw-azcom-copilot-iot-game` (Free_F1 — fine for dev; upgrade to Standard_S1 before the real booth event, Free tier caps concurrent connections/daily messages) |
-| Entra app registration | `restore-and-spin-function`, App ID `8eb31f00-6f72-4663-8de9-e5290d2a2aa7`, tenant `7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8` — **still needs to be added as a Dataverse Application User** (client secret was generated and set directly as the Function App's `DATAVERSE_CLIENT_SECRET` setting, not committed anywhere) |
+| Entra app registration | `restore-and-spin-function`, App ID `8eb31f00-6f72-4663-8de9-e5290d2a2aa7`, tenant `7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8` — added as a Dataverse Application User (client secret was generated and set directly as the Function App's `DATAVERSE_CLIENT_SECRET` setting, not committed anywhere) |
 
 All 5 app settings (`DATAVERSE_URL`, `DATAVERSE_TENANT_ID`, `DATAVERSE_CLIENT_ID`,
-`DATAVERSE_CLIENT_SECRET`, `AzureSignalRConnectionString`) are already set on the live
-Function App via `az functionapp config appsettings set`.
+`DATAVERSE_CLIENT_SECRET`, `AzureSignalRConnectionString`) are set on the live Function App
+via `az functionapp config appsettings set`. Runtime is `Node|22` — see the Node version
+note under Prerequisites before ever trying Node 24 again.
+
+**CORS:** `az functionapp cors add --allowed-origins <origin>` per origin that needs to call
+these endpoints from a browser (no wildcard). `http://localhost:5173` (the
+`restore-and-spin` dev server) is allowed today; add the real production URL once that site
+is deployed.
+
+**Confirmed working end to end (2026-09-08):** `GET /api/kiosk-state` returns real
+Dataverse data, and a live browser tab running `restore-and-spin` navigated automatically
+in response to an external `POST /api/set-mode` call, via the SignalR broadcast — no
+reload, no polling. See `power pages/restore-and-spin/README.md`.
 
 ## Local setup
 
