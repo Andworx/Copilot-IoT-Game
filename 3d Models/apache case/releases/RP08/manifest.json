@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "revision": "RP08",
+  "status": "current",
+  "source_tag": "model-rp08-source",
+  "source_commit": "f3b6343d16cd2b856c31184948f331f90e86b0d8",
+  "release_tag": "model-rp08",
+  "created_utc": "2026-09-08T11:19:54.0376770Z",
+  "known_validation_notes": [
+    "Rear carrier and paper drill guide retain an outstanding physical case dry-fit note."
+  ],
+  "files": [
+    {
+      "path": "guides/electronics-placement.html",
+      "size_bytes": 16421,
+      "sha256": "495a2bc6a880c0c616b4dc8364f6d6daaebe3205cbed3fc201380bd715d840e4"
+    },
+    {
+      "path": "guides/README.md",
+      "size_bytes": 1353,
+      "sha256": "9d22be31992f451588137c92f96a317f4e51dc98888bcd0794e5762c0b847d2e"
+    },
+    {
+      "path": "guides/rear-drill-guide-geometry.json",
+      "size_bytes": 1334,
+      "sha256": "ed70d64acb9cf485ee0338b211588d439eab534308a582fff3f0bd805b5600bb"
+    },
+    {
+      "path": "guides/rear-drill-guide-letter-render.png",
+      "size_bytes": 213818,
+      "sha256": "082b37a24c29bb4f49da0afb211285e1cc6defac6e14a64132f54f936d14b369"
+    },
+    {
+      "path": "guides/rear-drill-guide-letter.pdf",
+      "size_bytes": 9238,
+      "sha256": "b2c520d1a709ed7b54b9bae56b67fe2c28901bc371d651924a2d25e1a7c381ba"
+    },
+    {
+      "path": "previews/assembly.png",
+      "size_bytes": 68273,
+      "sha256": "e94c8bd768650a25667c3381f3cfeb5b1fef269a5608141c9104e32b4b8f7187"
+    },
+    {
+      "path": "previews/exploded.png",
+      "size_bytes": 101595,
+      "sha256": "3046d6c6e50292ab1e263b49094c6462477b5bcb3cd9c66e9ebdc87abec2882e"
+    },
+    {
+      "path": "previews/rp07_front_controls.png",
+      "size_bytes": 13091,
+      "sha256": "768eaee0e60aa9791e11a892370eb5c62afb1caa6a8c4ae4d0225dce51afceda"
+    },
+    {
+      "path": "previews/rp07_panel_R.png",
+      "size_bytes": 9520,
+      "sha256": "7c28c7ceea039568116745f00aef181a2a9a2e1002238711d8ef615a20fd263f"
+    },
+    {
+      "path": "previews/rp07_tray_underside.png",
+      "size_bytes": 9890,
+      "sha256": "bda2e2e28bfdc95a389957e91a21ea47ff51caf8976c079c8cc17ad2a840108b"
+    },
+    {
+      "path": "previews/rp08_case_template.png",
+      "size_bytes": 9696,
+      "sha256": "d30f5ace05a0f5ec28cd060f4382d2f960d96c02b32652942de0138e41120154"
+    },
+    {
+      "path": "previews/rp08_rear_carrier.png",
+      "size_bytes": 9288,
+      "sha256": "313d34613ed58d93ac0218ff3e917199c23f0e96f411c653ffd48da46ffb401d"
+    },
+    {
+      "path": "previews/rp08_tray_top.png",
+      "size_bytes": 9816,
+      "sha256": "a216aa9d723588b48bfae2d23c0cf5a7684143384dc5a6f8524a3c2fcc35db58"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 1746,
+      "sha256": "fc238cd4f9965751e9b0773b7ae442eb9c49dfb1be57235039ac1e767b3528e4"
+    },
+    {
+      "path": "RELEASE_NOTES.md",
+      "size_bytes": 1127,
+      "sha256": "356630bd2a6af95d21dedd050b4c3239b4d667e82ce436cda2fbd7bfdba0501c"
+    },
+    {
+      "path": "stl/activity_face.stl",
+      "size_bytes": 2432458,
+      "sha256": "6488b1a4c958178f9c52c1824975d4cc8b395c14d0bbd74afdb8982a1028783c"
+    },
+    {
+      "path": "stl/carrier.stl",
+      "size_bytes": 2280647,
+      "sha256": "f447b5adb46b0882b270b21605124576083e66907b14b1600a8cdd94f83d1142"
+    },
+    {
+      "path": "stl/lower_joiner.stl",
+      "size_bytes": 150741,
+      "sha256": "cfb9e73be1a21eed9ea59ce7a6ebfc119d245f2f9c0c3d6ddce7a6e58e8f6f13"
+    },
+    {
+      "path": "stl/panel_L.stl",
+      "size_bytes": 1158129,
+      "sha256": "da352529c5a77b62531846b618dcd76d41a8daa2710c19ff3e38e67a39168acb"
+    },
+    {
+      "path": "stl/panel_R.stl",
+      "size_bytes": 1467445,
+      "sha256": "3e9f5f16328d0f718126253e59d8e574498c4b11138815e54e2a1a9f85c41b11"
+    },
+    {
+      "path": "stl/rear_L.stl",
+      "size_bytes": 1578168,
+      "sha256": "1f4b7bd4cd064197dfba787fb7481ff4911383966062518ff246e435aa1ee72f"
+    },
+    {
+      "path": "stl/rear_R.stl",
+      "size_bytes": 1745540,
+      "sha256": "34d1901c9b8cd33928cd5d43a5f2340ffab2ceaef68174ab0b309ddea9a7fe23"
+    },
+    {
+      "path": "stl/safety_face.stl",
+      "size_bytes": 1126987,
+      "sha256": "186743669022873019de34b81568acc5298cd4ce9901d594a6f8136d09ed7314"
+    },
+    {
+      "path": "stl/screen_face.stl",
+      "size_bytes": 1837170,
+      "sha256": "41d2d451da62fb16f75076bcfeefff3e87110d1e9a3555427a5999ce3cf87a4e"
+    },
+    {
+      "path": "stl/shell_FL.stl",
+      "size_bytes": 1684812,
+      "sha256": "53b82b80a3921242e661aca4a747cd7fe3210791f40e1e51404217f6afe6f59e"
+    },
+    {
+      "path": "stl/shell_FR.stl",
+      "size_bytes": 1982618,
+      "sha256": "a1ee7ee45d757d00a845b1e1c621098ccf7c1dd8127565f939b65873f63e7f3b"
+    },
+    {
+      "path": "stl/shell_joiner_x.stl",
+      "size_bytes": 117737,
+      "sha256": "98edcbece620c3f52b10a37daa2fe1bfba813350767e350b1845d2d06199f043"
+    },
+    {
+      "path": "stl/shell_joiner_y.stl",
+      "size_bytes": 115094,
+      "sha256": "28bc1a7b095f07777de7e3c85a252fc0ca31745cd072a52d0098b4b3dea7cd5d"
+    },
+    {
+      "path": "stl/switch_face.stl",
+      "size_bytes": 1318781,
+      "sha256": "4ef63fb3df2fc572e0d5a3a13331a03ca34ea613df8ac94f4fa5d3ced2e5922f"
+    },
+    {
+      "path": "stl/tray_joiner.stl",
+      "size_bytes": 177830,
+      "sha256": "b40a23936bd48bf2359d9453dc72cb9da7f32ef2867b18e97ada49de125aa94e"
+    },
+    {
+      "path": "stl/tray_L.stl",
+      "size_bytes": 1570686,
+      "sha256": "09722e25c286fb6d085db94fa29255bf6eba9c9430732930d54adec8777ec05b"
+    },
+    {
+      "path": "stl/tray_R.stl",
+      "size_bytes": 1726292,
+      "sha256": "ba407b531faffb4319503569a68289dd661543903ae350296792f66c47335fcc"
+    },
+    {
+      "path": "templates/layout_template.stl",
+      "size_bytes": 2524423,
+      "sha256": "ff520126acb14cba09c564be7fdfb3ec3329db0964ac1f7a92f3900a9145f636"
+    },
+    {
+      "path": "validation/clearances.json",
+      "size_bytes": 4156,
+      "sha256": "53a7a2137033a32e7c2be2d1118f6d264e558abe744a22b37d5d7fee607b79f5"
+    },
+    {
+      "path": "validation/panel_shell_interference.json",
+      "size_bytes": 2964,
+      "sha256": "e893e1fb6d34a0ed849b7cfca2a8f636cb3e843fe4e33e16a725907953aae7a6"
+    },
+    {
+      "path": "validation/rp05_inheritance.json",
+      "size_bytes": 3651,
+      "sha256": "9f430f6e801481b2b5edac94a43633dac8e96366f18e1a5521e1df99656f64c1"
+    },
+    {
+      "path": "validation/validation_rp08.json",
+      "size_bytes": 7124,
+      "sha256": "f8a959b92edbc0fe9804d4767d4c12281488aefa03ffe2d2f95d07e37697ba00"
+    }
+  ]
+}
