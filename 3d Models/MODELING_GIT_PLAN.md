@@ -88,20 +88,20 @@ model: validate RP09 production meshes
 release: promote Apache 2800 RP09
 ```
 
-## Proposed migration from the current tree
+## Completed migration from the legacy tree
 
 See [`MODELING_MIGRATION_DRY_RUN.md`](MODELING_MIGRATION_DRY_RUN.md) for the
 measured path-breakage analysis and recommended curated-release migration.
 
-The existing `full-build-RP02` through `full-build-RP08` folders remain valid and
-must not be deleted until migration parity is proven. Direct moves would break
-their relative source and exporter paths. Build a curated `releases/RP08`
-package from the approved meshes, guides, previews, validation, and notes; use a
-Git source tag for the exact historical source. Add `releases/current.json` with
-RP08 as the current release. RP02 through RP07 may be curated later if immediate
-standalone packages are useful.
+RP08 parity was proven against the legacy working copy, the exact editable
+source was protected by `model-rp08-source`, and the curated package was tagged
+as `model-rp08`. The redundant `full-build-RP02` through `full-build-RP08`
+working copies were then removed from the current tree. Recover them from the
+source tag or Git history if a historical investigation requires them. RP02
+through RP07 may be curated later if standalone historical packages become
+useful.
 
-Move the existing support directories into the new categories:
+The supporting directories are organized as follows:
 
 - Keep `analysis/` and `references/` as top-level supporting directories.
 - Move rear-control, length-fit, final-fit, and shell-pocket coupon work under
@@ -110,19 +110,19 @@ Move the existing support directories into the new categories:
   investigations under `analysis/` unless their final source is already part of
   a released version.
 
-After the migration, create `versions/RP09` from `releases/RP08` when RP09 work
+Create `versions/RP09` from the `model-rp08-source` tag only when RP09 work
 actually begins. Do not create a second permanent copy of RP08 as a working
 version.
 
-Before performing that migration:
+The migration validation established that:
 
-- Verify all internal relative paths and export scripts in the active analysis,
-  calibration, and working-version trees after their proposed moves.
-- Verify that each curated release is self-contained enough to inspect, print,
-  and install while relying on its Git tag for editable historical source.
-- Move the modeling work onto a dedicated modeling branch.
-- Record the outstanding RP08 rear-carrier and paper-drill-guide dry-fit as a
-  validation note; RP08 remains the current release.
+- All internal OpenSCAD references and moved exporter snapshot-helper paths
+  resolve in the active analysis and calibration trees.
+- The curated RP08 release is self-contained for inspection, printing, and
+  installation while its Git tag supplies editable historical source.
+- Modeling work is isolated on a dedicated modeling branch.
+- The outstanding RP08 rear-carrier and paper-drill-guide dry-fit remains a
+  release validation note; RP08 remains the current release.
 
 ## Repository-size policy
 

@@ -6,12 +6,11 @@
 
 ## Distribution alternative under consideration
 
-The [RP02 complete build](full-build-RP02/README.md) now packages ELEC-002/003
-(selector/knob), ELEC-015 (XT60), and ELEC-016 (master rocker) on one rear carrier.
-It supersedes RP01's rear locations. Printed-part quantities and provisional
-M3/M4 fasteners are listed in that release; existing purchased components are
-retained. Dial nut/washer and anti-rotation engagement require a coupon check.
-No alternative distribution board has been purchased or substituted.
+The [current RP08 release](releases/RP08/README.md) packages ELEC-002/003
+(selector/knob), ELEC-015 (XT60), and ELEC-016 (master rocker) on one rear
+carrier. Existing purchased components are retained. The release notes and
+validation records carry the remaining physical-fit gates. No alternative
+distribution board has been purchased or substituted.
 
 Rear hardware is now in hand and dimensioned in the [RP01 record](analysis/rear-power/README.md).
 RP01 adds one exterior printed carrier, four proposed M3 carrier bolts with

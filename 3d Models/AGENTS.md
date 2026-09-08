@@ -38,9 +38,10 @@ These instructions apply to everything under `3d Models/`.
   commit as `model-rpNN`.
 - Never modify an existing release folder after promotion. Any later geometry
   change starts the next RP version, even when the change is small.
-- RP08 is the current release and RP09 is the next version. Until the documented
-  tree migration is complete, do not rename legacy `full-build-RP*` folders or
-  assume their relative paths remain valid after a move.
+- RP08 is the current release. Do not create RP09 until an actual production
+  geometry change begins. The legacy `full-build-RP*` working copies were
+  removed after RP08 parity validation; recover historical editable source from
+  `model-rp08-source` or older Git history rather than recreating those folders.
 
 ## Purpose and authoritative files
 

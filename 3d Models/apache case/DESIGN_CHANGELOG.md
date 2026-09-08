@@ -5,6 +5,18 @@ why the document and design changed, what evidence caused the change, and which
 values remain candidates. It complements Git history rather than duplicating
 commit messages.
 
+## Repository cleanup - 2026-09-08
+
+### Changed
+
+- Published RP08 as the curated, checksummed package under `releases/RP08` and
+  protected its editable source with the `model-rp08-source` Git tag.
+- Organized studies under `analysis/`, physical tests under `calibration/`, and
+  third-party CAD under `references/`.
+- Removed the redundant `full-build-RP02` through `full-build-RP08` working
+  copies after release parity validation. Historical sources remain recoverable
+  from Git rather than duplicated in the active tree.
+
 ## 3.7.0 - 2026-09-05 - RP04 fit corrections and RP05 panel-boss review
 
 ### Added

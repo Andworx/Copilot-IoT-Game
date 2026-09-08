@@ -96,9 +96,8 @@ report = {
     "converter_stagger_mm": max(y for _, y in positions) - min(y for _, y in positions),
     "power_drop_slots_mm": [12, 7],
     "power_drop_slot_count": 3,
-    "unchanged_parts_source": "../full-build-RP02/exports",
+    "unchanged_parts_source": "model-rp08-source:3d Models/apache case/full-build-RP02/exports",
 }
 (ROOT / "exports" / "validation.json").write_text(json.dumps(report, indent=2))
 print("PASS: tray_L_RP03 is closed, consistently oriented, one body;")
 print("three staggered converter envelopes and three two-wire drops validated.")
-

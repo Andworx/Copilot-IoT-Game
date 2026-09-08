@@ -6,7 +6,19 @@
 
 **Last updated:** 2026-09-04
 
-### RP02 installation guides
+### Current RP08 release
+
+The [curated RP08 package](releases/RP08/README.md) is the authoritative print
+and installation set. It includes production meshes, a browser-based electronics
+placement guide, the US Letter rear drill guide, previews, validation records,
+release notes, and a checksummed manifest. Editable source and the complete
+legacy build history are preserved by the `model-rp08-source` Git tag.
+
+The rear carrier and paper drill guide retain the physical case dry-fit gate
+recorded in the release. Cutting does not preserve the case's original
+environmental rating without sealing and testing.
+
+### Historical RP02 installation guides
 
 Version 3.6.1 adds a browser-based electronics placement and wire-routing guide
 plus a true-size US Letter rear drill template. The HTML records the fuse,
@@ -23,15 +35,16 @@ case recess, hinge/ribs, hardware, wire bends and lid clearance must pass a
 paper/printed-carrier dry fit before cutting. Cutting does not preserve the
 case's original environmental rating without sealing and testing.
 
-### RP02 complete build revision
+### Historical RP02 complete build revision
 
-The [RP02 full build](full-build-RP02/README.md) supersedes RP01 for rear
-placement and provides shell, integrated lower supports, tray, top-panel halves,
+RP02 superseded RP01 for rear placement and provided shell, integrated lower
+supports, tray, top-panel halves,
 four module faceplates and the shared rear carrier together. The dial is included:
 centers are X=-30 (dial), +10 (master rocker), +52 (XT60), all at Z45.
 The 144 x 52 x 3 carrier includes the dial's anti-rotation hole; the rear shell
 includes body and provisional wiring clearance for all three components.
-See [RP02 analysis](full-build-RP02/FIT_ANALYSIS.md) for checks and limitations.
+Its source, analysis, checks, and limitations remain available through the
+`model-rp08-source` Git tag.
 The tray retains RF02 perimeter dimensions, so prior binding is still an open
 physical-fit issue. This is a complete CAD/export batch, not a passed fit test.
 Previous source revisions remain intact and version-folder snapshots capture

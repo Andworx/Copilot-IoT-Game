@@ -33,10 +33,8 @@ through the front. The current production hole is at 9.83 mm.
 
 ## Promotion gate
 
-After both results are reported, create full-build RP08 from RP07. Use the
-smallest passing switch opening and replace the calibration slot with a round
-pin hole at the reported offset. The existing shell/case service openings are
-30 x 36 mm for the switch and diameter 31 mm for the dial; retain them if the
-winning geometry remains contained. Regenerate the drill guide and its geometry
-record so the carrier dimensions and pin offset are documented even when the
-case-cut outlines do not change.
+Historical outcome: both results were incorporated into RP08. The smallest
+passing switch opening and selected dial-register offset are documented in the
+current release validation. The approved production meshes and regenerated
+drill-guide records are under `../../../releases/RP08`; this directory remains
+as calibration evidence only.

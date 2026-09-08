@@ -1,10 +1,10 @@
 # APACHE 2800 Parametric IoT Chassis — Fixed-Panel Architecture 3.2
 
-**Latest complete candidate: [RP02 build and print list](full-build-RP02/README.md).**
-Includes rear dial, master switch and XT60 carrier, all four shell corners with
-lower supports, tray, joiners, top-panel halves and four module faceplates.
-Previous RF02/RP01 files remain historical. Read the RP02 fit gates before printing;
-tray binding and actual rear-wall/hinge clearance are still unconfirmed.
+**Current approved package: [RP08 release and print list](releases/RP08/README.md).**
+It contains the production STLs, rear drill guide, electronics-placement guide,
+previews, validation records, release notes, and SHA-256 manifest. Editable RP08
+source is preserved by the `model-rp08-source` Git tag. The rear carrier and
+paper drill guide still require the physical case dry-fit noted by the release.
 
 The consolidated engineering rationale, diagrams, calculations, validation
 gates, and current design status are in [DESIGN_DOCUMENT.md](DESIGN_DOCUMENT.md).

@@ -8,9 +8,11 @@ modification.
 
 ## Print
 
-Print one copy of `exports/tray_L_RP03.stl` at 100% scale in millimetres. Use it
-in place of `full-build-RP02/exports/tray_L.stl`. Continue using every other
-printed part from RP02.
+This is a historical tray-only test. Print one copy of
+`exports/tray_L_RP03.stl` at 100% scale in millimetres only when reproducing the
+RP03 experiment. The original RP02 comparison set is available through the
+`model-rp08-source` Git tag. For the assembled system, use the current
+`releases/RP08` production package instead.
 
 The recessed labels `TRAY-L RP03` and `FRONT`, plus the two seam witness marks,
 identify and orient the replacement part. FRONT is the handle side of the case.
@@ -43,4 +45,3 @@ converter separation, fuse-envelope clearance, stagger, and slot count.
 
 This is not physical-fit approval. Test the replacement left tray with all three
 converters and their actual input leads before final wiring.
-
