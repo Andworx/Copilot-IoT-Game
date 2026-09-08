@@ -56,26 +56,35 @@ export interface GameBoxState {
   deviceName: string | null;
 }
 
+// The andy_activedeviceprofile lookup's OData *navigation property* name is
+// andy_ActiveDeviceProfile -- confirmed against this environment's real
+// EntityDefinitions metadata, not just the (lowercase) attribute logical
+// name. $expand, @odata.bind, and $ref operations all need this exact
+// casing; only plain $select of the raw FK value would use the lowercase
+// attribute name, which this file doesn't currently do.
+const ACTIVE_DEVICE_PROFILE_NAV_PROPERTY = "andy_ActiveDeviceProfile";
+
 /** Reads the andy_gameboxstate singleton row. Throws if the row hasn't been created yet. */
 export async function getGameBoxState(): Promise<GameBoxState> {
   const response = await dataverseFetch(
     "andy_gameboxstates?$top=1&$select=andy_gameboxstateid" +
-      "&$expand=andy_activedeviceprofile($select=andy_deviceslug,andy_name)"
+      `&$expand=${ACTIVE_DEVICE_PROFILE_NAV_PROPERTY}($select=andy_deviceslug,andy_name)`
   );
   const body = (await response.json()) as {
     value: Array<{
       andy_gameboxstateid: string;
-      andy_activedeviceprofile?: { andy_deviceslug?: string; andy_name?: string } | null;
+      [ACTIVE_DEVICE_PROFILE_NAV_PROPERTY]?: { andy_deviceslug?: string; andy_name?: string } | null;
     }>;
   };
   const row = body.value[0];
   if (!row) {
     throw new Error("andy_gameboxstate has no rows -- create the single row before using this API");
   }
+  const activeDevice = row[ACTIVE_DEVICE_PROFILE_NAV_PROPERTY];
   return {
     id: row.andy_gameboxstateid,
-    deviceSlug: row.andy_activedeviceprofile?.andy_deviceslug ?? null,
-    deviceName: row.andy_activedeviceprofile?.andy_name ?? null,
+    deviceSlug: activeDevice?.andy_deviceslug ?? null,
+    deviceName: activeDevice?.andy_name ?? null,
   };
 }
 
@@ -88,13 +97,14 @@ export async function setActiveDeviceProfile(
     await dataverseFetch(`andy_gameboxstates(${gameBoxStateId})`, {
       method: "PATCH",
       body: JSON.stringify({
-        "andy_activedeviceprofile@odata.bind": `/andy_deviceprofiles(${deviceProfileId})`,
+        [`${ACTIVE_DEVICE_PROFILE_NAV_PROPERTY}@odata.bind`]: `/andy_deviceprofiles(${deviceProfileId})`,
       }),
     });
   } else {
     // Clearing a single-valued lookup is a $ref DELETE, not a PATCH-to-null.
-    await dataverseFetch(`andy_gameboxstates(${gameBoxStateId})/andy_activedeviceprofile/$ref`, {
-      method: "DELETE",
-    });
+    await dataverseFetch(
+      `andy_gameboxstates(${gameBoxStateId})/${ACTIVE_DEVICE_PROFILE_NAV_PROPERTY}/$ref`,
+      { method: "DELETE" }
+    );
   }
 }
