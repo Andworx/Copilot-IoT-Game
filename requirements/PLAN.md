@@ -83,7 +83,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| `POST /api/set-mode`, `GET /api/kiosk-state` | Azure Function endpoints | ⬜ TODO | GAME_MODE_PLAN.md §4a, Phase 2a — new as of 2026-09-08 |
+| `POST /api/set-mode`, `GET /api/kiosk-state`, `POST /api/negotiate` | Azure Function endpoints (`azure/`) | ⬜ TODO | GAME_MODE_PLAN.md §4a, Phase 2a — code written and compiles clean 2026-09-08, not yet deployed to a real Function App or exercised against live Dataverse/SignalR resources |
 | Prize claim endpoint (validate token → weighted-pick → atomic decrement → mark claimed) | Azure Function endpoint | ⬜ TODO | GAME_MODE_PLAN.md §7/PRIZE_ENGINE_SPEC.md, Phase 5 — `PlaySpinPage` currently picks client-side as a stand-in |
 
 ## Power Apps
