@@ -3,28 +3,34 @@
 Status: Draft 1
 Scope: `3d Models/apache case`
 
-## Naming model
+## Directory model
 
-Use different names for revision history and the currently approved print pack:
+Use separate locations for in-progress versions, approved releases, and
+supporting material:
 
 ```text
-apache case/
-  source/                 Parametric working sources and shared scripts
-  tests/                  Fit coupons and calibration studies
-  revisions/
-    RP08/                 Immutable, validated version RP08
-    RP09/                 Next immutable version after approval
-  release/                Current approved files to print and install
-    manifest.json         Identifies the source revision, validation, and date
-    stl/                  Production STL files only
-    guides/               Drill guide and electronics-placement guide
-    previews/             Small visual assembly and routing previews
+3d Models/
+  versions/               Local safety snapshots; ignored by Git
+  apache case/
+    releases/
+      current.json        Identifies the currently approved release
+      RP08/               Current immutable release
+      RP09/               Future immutable release after promotion
+    versions/
+      RP09/               Current tracked modeling work
+    analysis/             Fit analysis and design investigations
+    references/           External case models, licenses, and source records
+    calibration/          Fit coupons and physical calibration tests
 ```
 
-`RP08` is the revision name. `release` is a stable location that always contains
-the currently approved printable set. A release manifest must state which
-revision supplied it. The release folder must never contain experimental
-coupons or intermediate export logs.
+`RP08` and `RP09` are version identifiers. `releases` is the collection of
+approved, immutable versions. `versions` contains active, tracked modeling work.
+RP08 is the current release; RP09 will be the next working version.
+
+The top-level `3d Models/versions/` directory has a different purpose: it is the
+existing local safety-snapshot archive and remains ignored by Git. Rename that
+archive to `local-snapshots/` in a later migration to eliminate the naming
+collision, but do not move its 8.85 GB of data during the repository cleanup.
 
 ## Track in Git
 
@@ -48,19 +54,21 @@ coupons or intermediate export logs.
 ## Revision workflow
 
 1. Create a dedicated branch named `modeling/rpNN-short-description`.
-2. Save the required local before-change snapshot. Snapshots remain ignored.
-3. Make source changes and create a small fit coupon when geometry is uncertain.
-4. Commit the source and coupon as a reviewable development commit.
-5. Record the physical test result in the revision notes.
-6. Export every production part and run mesh, envelope, inheritance, clearance,
+2. Copy the current release into `apache case/versions/RPNN`, update its labels,
+   and make that the only working directory for the new version.
+3. Save the required local before-change snapshot. Snapshots remain ignored.
+4. Make source changes and create a small fit coupon under `calibration/` when
+   geometry is uncertain.
+5. Commit the source and coupon as a reviewable development commit.
+6. Record the physical test result in the version notes.
+7. Export every production part and run mesh, envelope, inheritance, clearance,
    and guide validation.
-7. Create `revisions/RPNN` only after the required physical tests pass. Once
-   committed, treat that revision folder as immutable.
-8. Replace the contents of `release/` with the approved production files and
-   update its manifest to identify `RPNN`.
-9. Commit the revision and release promotion together, then tag the commit
+8. After all required physical tests pass, promote the version with a Git-aware
+   move from `versions/RPNN` to `releases/RPNN`.
+9. Update `releases/current.json`, commit the promotion, and tag the commit
    `model-rpNN`.
-10. Merge through a modeling-only pull request. Do not mix Power Pages or other
+10. Treat every committed folder under `releases/` as immutable.
+11. Merge through a modeling-only pull request. Do not mix Power Pages or other
     application changes into the modeling commit.
 
 ## Commit pattern
@@ -68,6 +76,7 @@ coupons or intermediate export logs.
 Use small commits while developing and one explicit promotion commit:
 
 ```text
+model: start Apache 2800 RP09
 model: add RP09 rear-control fit coupon
 model: adjust RP09 switch and dial clearances
 model: validate RP09 production meshes
@@ -77,18 +86,31 @@ release: promote Apache 2800 RP09
 ## Proposed migration from the current tree
 
 The existing `full-build-RP02` through `full-build-RP08` folders remain valid and
-must not be deleted. Migrate them with Git-aware renames into `revisions/RP02`
-through `revisions/RP08` so history remains traceable. Then create the first
-plain `release/` print pack from the validated RP08 exports.
+must not be deleted. Migrate them with Git-aware renames into `releases/RP02`
+through `releases/RP08` so history remains traceable. Add
+`releases/current.json` with RP08 as the current release.
+
+Move the existing support directories into the new categories:
+
+- Keep `analysis/` and `references/` as top-level supporting directories.
+- Move rear-control, length-fit, final-fit, and shell-pocket coupon work under
+  `calibration/` with descriptive subdirectories.
+- Move airflow, recessed-fuse, rear-power, tray-routing, and equipment-tray
+  investigations under `analysis/` unless their final source is already part of
+  a released version.
+
+After the migration, create `versions/RP09` from `releases/RP08` when RP09 work
+actually begins. Do not create a second permanent copy of RP08 as a working
+version.
 
 Before performing that migration:
 
 - Verify all internal relative paths and export scripts after the proposed move.
-- Decide whether historical carried-forward source copies remain inside each
-  revision or are replaced by a manifest pointing to the source commit.
+- Verify that each release is self-contained enough to inspect and print while
+  relying on Git history for earlier intermediate source states.
 - Move the modeling work onto a dedicated modeling branch.
-- Confirm the RP08 rear carrier and paper drill guide with the outstanding case
-  dry-fit before declaring RP08 the current release.
+- Record the outstanding RP08 rear-carrier and paper-drill-guide dry-fit as a
+  validation note; RP08 remains the current release.
 
 ## Repository-size policy
 
