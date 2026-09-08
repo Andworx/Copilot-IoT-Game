@@ -18,10 +18,10 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 1 | 0 | 1 | 1 | 3 |
-| Integration (Azure Functions) | 0 | 1 | 1 | 0 | 2 |
+| Integration (Azure Functions) | 1 | 1 | 1 | 0 | 3 |
 | Power Apps | 0 | 0 | 1 | 0 | 1 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 10 | 3 | 9 | 2 | 24 |
+| Totals | 11 | 3 | 9 | 2 | 25 |
 
 ## Dataverse
 
@@ -83,7 +83,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| `POST /api/set-mode`, `GET /api/kiosk-state`, `POST /api/negotiate` | Azure Function endpoints (`azure/`) | ⬜ Verify | GAME_MODE_PLAN.md §4a, Phase 2a — deployed 2026-09-08 to `func-aw-azcom-copilot-iot-game` (`rg-aw-azcom-copilot-iot-game`) with SignalR (`sigr-aw-azcom-copilot-iot-game`) and the `restore-and-spin-function` app registration wired in; app registration still needs adding as a Dataverse Application User before Dataverse calls will succeed |
+| `GET /api/kiosk-state` | Azure Function endpoint (`azure/`) | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2a — confirmed 2026-09-08 end to end against live Dataverse: `func-aw-azcom-copilot-iot-game` on Node 22, `restore-and-spin-function` added as a Dataverse Application User, `andy_gameboxstate`'s one row created, returns clean `200 {"deviceSlug":null,"deviceName":null}` |
+| `POST /api/set-mode`, `POST /api/negotiate` | Azure Function endpoints (`azure/`) | ⬜ Verify | GAME_MODE_PLAN.md §4a, Phase 2a — deployed alongside `kiosk-state` and share its (now-confirmed) Dataverse auth path, but not yet individually exercised — `set-mode` needs a real `andy_deviceprofile` row to write, `negotiate` needs a SignalR client to call it |
 | Prize claim endpoint (validate token → weighted-pick → atomic decrement → mark claimed) | Azure Function endpoint | ⬜ TODO | GAME_MODE_PLAN.md §7/PRIZE_ENGINE_SPEC.md, Phase 5 — `PlaySpinPage` currently picks client-side as a stand-in |
 
 ## Power Apps
