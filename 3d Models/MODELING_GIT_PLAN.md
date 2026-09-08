@@ -85,10 +85,16 @@ release: promote Apache 2800 RP09
 
 ## Proposed migration from the current tree
 
+See [`MODELING_MIGRATION_DRY_RUN.md`](MODELING_MIGRATION_DRY_RUN.md) for the
+measured path-breakage analysis and recommended curated-release migration.
+
 The existing `full-build-RP02` through `full-build-RP08` folders remain valid and
-must not be deleted. Migrate them with Git-aware renames into `releases/RP02`
-through `releases/RP08` so history remains traceable. Add
-`releases/current.json` with RP08 as the current release.
+must not be deleted until migration parity is proven. Direct moves would break
+their relative source and exporter paths. Build a curated `releases/RP08`
+package from the approved meshes, guides, previews, validation, and notes; use a
+Git source tag for the exact historical source. Add `releases/current.json` with
+RP08 as the current release. RP02 through RP07 may be curated later if immediate
+standalone packages are useful.
 
 Move the existing support directories into the new categories:
 
@@ -105,9 +111,10 @@ version.
 
 Before performing that migration:
 
-- Verify all internal relative paths and export scripts after the proposed move.
-- Verify that each release is self-contained enough to inspect and print while
-  relying on Git history for earlier intermediate source states.
+- Verify all internal relative paths and export scripts in the active analysis,
+  calibration, and working-version trees after their proposed moves.
+- Verify that each curated release is self-contained enough to inspect, print,
+  and install while relying on its Git tag for editable historical source.
 - Move the modeling work onto a dedicated modeling branch.
 - Record the outstanding RP08 rear-carrier and paper-drill-guide dry-fit as a
   validation note; RP08 remains the current release.
