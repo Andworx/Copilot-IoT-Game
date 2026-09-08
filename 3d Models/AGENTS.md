@@ -13,6 +13,35 @@ These instructions apply to everything under `3d Models/`.
   hooks in new exporters too. Never overwrite archived versions.
 - Read VERSIONING.md for manifest, storage, and print-approval semantics.
 
+## Modeling version and release workflow
+
+- Follow `MODELING_GIT_PLAN.md` and `MODELING_MIGRATION_DRY_RUN.md` for all
+  Apache-case version, release, and repository-structure work.
+- Treat top-level `3d Models/versions/` only as the ignored local safety-snapshot
+  archive. It is not the tracked modeling workspace.
+- Perform new tracked modeling work only in
+  `apache case/versions/RPNN` on a dedicated `modeling/rpNN-*` branch. Recover
+  the starting source from the preceding release's source tag (for example,
+  recover `model-rp08-source` to begin RP09); do not use curated release meshes
+  as editable source.
+- Keep uncertain fit work and physical coupons under `apache case/calibration/`.
+  Record the physical result before promoting candidate dimensions.
+- Before release, export every affected production part and pass mesh,
+  build-volume, clearance, inheritance, guide, and required physical-fit gates.
+- Tag the final editable source commit as `model-rpNN-source` before removing the
+  tracked working-version folder.
+- Publish approved artifacts under `apache case/releases/RPNN`. A release is a
+  curated package of production meshes, guides, previews, validation, release
+  notes, and a manifest containing the source tag and SHA-256 checksums. Do not
+  copy working source, exporters, intermediate coupons, or logs into a release.
+- Update `apache case/releases/current.json` during promotion and tag the release
+  commit as `model-rpNN`.
+- Never modify an existing release folder after promotion. Any later geometry
+  change starts the next RP version, even when the change is small.
+- RP08 is the current release and RP09 is the next version. Until the documented
+  tree migration is complete, do not rename legacy `full-build-RP*` folders or
+  assume their relative paths remain valid after a move.
+
 ## Purpose and authoritative files
 
 - This directory owns the physical APACHE-case chassis for the portable

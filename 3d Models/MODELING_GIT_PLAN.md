@@ -54,8 +54,10 @@ collision, but do not move its 8.85 GB of data during the repository cleanup.
 ## Revision workflow
 
 1. Create a dedicated branch named `modeling/rpNN-short-description`.
-2. Copy the current release into `apache case/versions/RPNN`, update its labels,
-   and make that the only working directory for the new version.
+2. Recover the preceding release's editable source tag into
+   `apache case/versions/RPNN` (for example, recover `model-rp08-source` to begin
+   RP09), update its labels, and make that the only working directory for the
+   new version.
 3. Save the required local before-change snapshot. Snapshots remain ignored.
 4. Make source changes and create a small fit coupon under `calibration/` when
    geometry is uncertain.
@@ -63,12 +65,15 @@ collision, but do not move its 8.85 GB of data during the repository cleanup.
 6. Record the physical test result in the version notes.
 7. Export every production part and run mesh, envelope, inheritance, clearance,
    and guide validation.
-8. After all required physical tests pass, promote the version with a Git-aware
-   move from `versions/RPNN` to `releases/RPNN`.
-9. Update `releases/current.json`, commit the promotion, and tag the commit
-   `model-rpNN`.
-10. Treat every committed folder under `releases/` as immutable.
-11. Merge through a modeling-only pull request. Do not mix Power Pages or other
+8. Tag the final editable source commit as `model-rpNN-source`.
+9. Build a curated `releases/RPNN` package containing production meshes, guides,
+   previews, validation, notes, and a SHA-256 manifest that names the source tag.
+10. Update `releases/current.json`, remove the tracked `versions/RPNN` working
+    folder after its source tag is verified, commit the promotion, and tag the
+    release commit `model-rpNN`.
+11. Treat every committed folder under `releases/` as immutable. Any later
+    geometry change starts RP(NN+1); never silently patch a released version.
+12. Merge through a modeling-only pull request. Do not mix Power Pages or other
     application changes into the modeling commit.
 
 ## Commit pattern
