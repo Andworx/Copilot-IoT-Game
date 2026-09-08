@@ -18,10 +18,14 @@ design: `power pages/GAME_MODE_PLAN.md` §4a (why) and §5 (schema).
 
 | Column | Type | Notes |
 |---|---|---|
-| `andy_name` | Single line of text | Primary name column. Fixed value, e.g. `"Current State"` |
+| `andy_name` | Single line of text (primary) | Fixed value, e.g. `"Current State"` |
 | `andy_activedeviceprofile` | Lookup → `andy_deviceprofile` | The active device. Leave null for demo/info (dial position 1) |
-| `andy_setby` | Single line of text | Optional — which control surface/staff account set it last |
-| `andy_settime` | Date and Time | Optional — when it was last changed |
+
+No custom audit columns — Dataverse's built-in `modifiedon` already answers "when did
+this last change" for free, since the row is only ever updated, never re-created. A
+built-in `modifiedby` would only ever show the Function App's service principal (it's
+always the writer, not the staff member who tapped the control app), and nothing in the
+design reads that back for any purpose, so it's not worth a dedicated column.
 
 ## Building this in the maker portal
 
@@ -34,12 +38,9 @@ design: `power pages/GAME_MODE_PLAN.md` §4a (why) and §5 (schema).
    data).
 5. The primary column `andy_name` is created automatically — no changes needed beyond
    confirming it's a single line of text.
-6. Add columns:
-   - `andy_activedeviceprofile` — **Lookup**, related table `andy_deviceprofile`, Optional.
-     When prompted for relationship behavior, set delete behavior to **Restrict** (matches
-     this project's convention — never cascade-delete).
-   - `andy_setby` — **Single line of text**, Optional.
-   - `andy_settime` — **Date and Time**, Optional.
+6. Add the one remaining column: `andy_activedeviceprofile` — **Lookup**, related table
+   `andy_deviceprofile`, Optional. When prompted for relationship behavior, set delete
+   behavior to **Restrict** (matches this project's convention — never cascade-delete).
 7. Save the table.
 8. **Don't add this table to Power Pages Table Permissions** — it should never be reachable
    from anonymous portal Web API calls. Only the Function App's application user needs a

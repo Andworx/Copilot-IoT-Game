@@ -261,8 +261,11 @@ placeholder.
 |---|---|---|
 | `andy_name` | String | Fixed value, e.g. `"Current State"` — this table only ever has one row |
 | `andy_activedeviceprofile` | Lookup → `andy_deviceprofile` | The currently active device; null = demo/info (position 1) |
-| `andy_setby` | String | Optional — which control surface/staff account set it last, for audit |
-| `andy_settime` | DateTime | When it was last changed |
+
+No custom audit columns — the built-in `modifiedon` already covers "when did this change"
+since the row is only ever updated, and `modifiedby` would only ever show the Function
+App's service principal (always the writer), not the staff member behind the control app;
+nothing in the design reads that back for any purpose.
 
 `cascadeDelete: Restrict` on the lookup, per existing table conventions. Written only by
 `/api/set-mode` (§4a) — never directly by the Power App or the kiosk SPA.

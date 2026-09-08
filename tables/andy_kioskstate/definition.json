@@ -23,21 +23,6 @@
       "target": "andy_deviceprofile",
       "required": "Optional",
       "description": "The currently active device. Null = demo/info (dial position 1)."
-    },
-    {
-      "schemaName": "andy_setby",
-      "displayName": "Set By",
-      "dataType": "String",
-      "maxLength": 100,
-      "required": "Optional",
-      "description": "Which control surface or staff account last changed the mode, for audit."
-    },
-    {
-      "schemaName": "andy_settime",
-      "displayName": "Set Time",
-      "dataType": "DateTime",
-      "required": "Optional",
-      "description": "When the mode was last changed."
     }
   ]
 }
