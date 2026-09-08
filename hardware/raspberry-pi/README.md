@@ -83,12 +83,24 @@ needed except the LED current-limiting resistors.
 | Rotary mux select S1 | MUX_S1 | GPIO18 | 12 |
 | Rotary mux select S2 | MUX_S2 | GPIO20 | 38 |
 | Rotary mux select S3 | MUX_S3 | GPIO7 | 26 |
-| Rotary mux signal (SIG) | MUX_SIG | GPIO8 | 24 |
+| Rotary mux signal (SIG) | MUX_SIG | GPIO14 | 8 |
 
-**19 of the Pi's 26 usable GPIO pins used, 7 spare** (GPIO2, 3, 9, 10, 11, 14,
-15 — includes the I2C bus and UART, left free for future use). GPIO0/1
-(ID_SD/ID_SC, reserved for HAT EEPROM) are not used. All pin assignments live
-in `config.py` — change them there, not in `panel_controller.py`.
+**19 of the Pi's 26 usable GPIO pins used, 7 spare** (GPIO2, 3, 9, 10, 11, 15
+— includes the I2C bus, plus GPIO9/10/11 which share whatever quirk GPIO8
+has, per the note above — left free for future use). GPIO0/1 (ID_SD/ID_SC,
+reserved for HAT EEPROM) are not used. All pin assignments live in
+`config.py` — change them there, not in `panel_controller.py`.
+
+**Why SIG is on GPIO14, not GPIO8 (physical pin 24):** confirmed on real
+hardware that GPIO8 doesn't reflect real voltage correctly even with a
+correctly-applied pull-up — a multimeter read 0V on a genuinely grounded
+mux channel while the Pi's own read of that same pin, at that same moment,
+reported it as floating/high. GPIO8 is part of the Pi's SPI0 group (`CE0`);
+the other SPI0 pins (`GPIO7`, `9`, `10`, `11`) likely share the same issue,
+so avoid them for pull-up-dependent inputs even with SPI disabled in
+software. (`GPIO7` is still used here for `MUX_S3`, but only as an
+*output* — outputs just drive the line directly and aren't affected by
+whatever this is.)
 
 ## Wiring diagram (text schematic)
 
@@ -162,6 +174,15 @@ only.
   expressions from a parsed AST (and/or/not/names only) — no `eval()` of
   untrusted strings, even though these JSON files are repo-authored and
   trusted.
+- **`pulled_input.py`** — a raw-`lgpio` replacement for gpiozero's
+  `Button`/`DigitalInputDevice` on every pulled-up input (switches,
+  connectors, the mux's SIG line). Confirmed on real hardware that gpiozero
+  2.0.1.post3's `LGPIOFactory` records a `pull_up=True` request
+  (`pin.pull` reports `"up"`) but never actually applies it — every
+  floating input reads permanently low regardless of pull_up, while raw
+  `lgpio` calls apply the same request correctly. Re-test against a plain
+  `gpiozero.DigitalInputDevice`/`Button` before ever reverting this —
+  if a future gpiozero release fixes the bug, this workaround can go.
 - **`rotary_mux.py`** — the CD74HC4067 scanning logic described above.
 - **`telemetry.py`** — a background-threaded Azure IoT Hub publisher (queued,
   non-blocking) so a slow/dropped network connection never stalls GPIO

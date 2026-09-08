@@ -46,5 +46,16 @@ MUX_SELECT_PINS = {
     "S2": 20,
     "S3": 7,
 }
-MUX_SIG_PIN = 8
+# SIG went through two wrong homes before landing here -- see git history /
+# README for the full story:
+#   - GPIO8 (physical pin 24): part of the Pi's SPI0 group (CE0). Doesn't
+#     reflect real voltage correctly even with a working pull-up. GPIO9/10/11
+#     are the same peripheral group -- avoid them for inputs too.
+#   - GPIO14 (physical pin 8): actively driven by the UART peripheral
+#     (enable_uart=1 in config.txt) -- idles at 3.3V as TXD0, not floating.
+#     GPIO15/RXD0 is the matching pin -- avoid that one too.
+# GPIO2 (physical pin 3) has a genuine board-level pull-up (I2C SDA1, with
+# I2C disabled in software) rather than a software-configured one, sidestepping
+# this whole class of problem. See pulled_input.py.
+MUX_SIG_PIN = 2
 MUX_CHANNEL_COUNT = 12

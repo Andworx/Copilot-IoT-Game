@@ -15,10 +15,11 @@ import time
 from pathlib import Path
 
 from dotenv import load_dotenv
-from gpiozero import Button, LED
+from gpiozero import LED
 
 import config
 import safe_eval
+from pulled_input import PulledInput
 from rotary_mux import RotaryMux
 from telemetry import TelemetryClient
 
@@ -35,13 +36,11 @@ log = logging.getLogger("panel_controller")
 class PanelController:
     def __init__(self):
         self.switches = {
-            name: Button(pin, pull_up=True, bounce_time=0.05)
-            for name, pin in config.SWITCH_PINS.items()
+            name: PulledInput(pin) for name, pin in config.SWITCH_PINS.items()
         }
         self.leds = {name: LED(pin) for name, pin in config.LED_PINS.items()}
         self.connectors = {
-            name: Button(pin, pull_up=True, bounce_time=0.05)
-            for name, pin in config.CONNECTOR_PINS.items()
+            name: PulledInput(pin) for name, pin in config.CONNECTOR_PINS.items()
         }
         self.mux = RotaryMux(
             list(config.MUX_SELECT_PINS.values()),
@@ -73,10 +72,10 @@ class PanelController:
         return maps
 
     def _read_switch_state(self):
-        return {name: btn.is_pressed for name, btn in self.switches.items()}
+        return {name: pin.is_active for name, pin in self.switches.items()}
 
     def _read_connector_state(self):
-        return {name: btn.is_pressed for name, btn in self.connectors.items()}
+        return {name: pin.is_active for name, pin in self.connectors.items()}
 
     def _apply_profile(self, profile, raw_switches):
         pin_to_key = {s["physicalPin"]: s["key"] for s in profile["switches"]}
