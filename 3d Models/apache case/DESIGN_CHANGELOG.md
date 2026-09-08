@@ -348,7 +348,7 @@ superseded.
 
 ### Added
 
-- Added `equipment-tray/`, a separate revision 0.1 mounting study containing
+- Added `analysis/equipment-tray/`, a separate revision 0.1 mounting study containing
   two X1C-printable ventilated tray halves, two narrow cross-joiners, a
   hardware/bridge coupon, export script, validator, and assembly view.
 - Added BOM entries for the two tray halves, two cross-joiners, tray coupon,
@@ -411,7 +411,7 @@ superseded.
 - Raised the chassis from 70 to 77 mm because the measured 42 mm PSU and
   25.36 mm keyed-switch rear stack cannot share the former height where their
   plan envelopes overlap.
-- Made `case-airflow-study/airflow_params.scad` import production chassis and
+- Made `analysis/airflow/airflow_params.scad` import production chassis and
   panel parameters from `model_params.scad`. The airflow study now uses the
   shipped 306.3875 x 234.95 mm footprint; the unconfirmed 229.45 mm fit-test
   candidate remains isolated and cannot silently become an airflow baseline.

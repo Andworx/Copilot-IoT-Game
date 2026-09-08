@@ -6,7 +6,7 @@ $helper = Join-Path $PSScriptRoot '../../Save-ModelVersion.ps1'
 
 $out = Join-Path $PSScriptRoot 'exports'
 $rp02 = Join-Path $PSScriptRoot '../full-build-RP02/exports'
-$rp03 = Join-Path $PSScriptRoot '../tray-routing-RP03/exports'
+$rp03 = Join-Path $PSScriptRoot '../analysis/tray-routing/RP03/exports'
 New-Item -ItemType Directory -Path $out -Force | Out-Null
 
 # Assemble a complete revision without altering or re-exporting proven parts.

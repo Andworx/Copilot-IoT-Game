@@ -3,25 +3,16 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$VersionHelper = Join-Path $PSScriptRoot '../../Save-ModelVersion.ps1'
-& $VersionHelper -Tag 'before-export_final_fit'
+$VersionHelper = Join-Path $PSScriptRoot '../../../../Save-ModelVersion.ps1'
+& $VersionHelper -Tag 'before-export_front_correction'
 $ProjectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Source = Join-Path $ProjectDir "final_fit_frame.scad"
 $ExportDir = Join-Path $ProjectDir "exports"
-$TempTag = "codex-final-fit-" + [guid]::NewGuid().ToString("N")
+$TempTag = "codex-front-correction-" + [guid]::NewGuid().ToString("N")
 
 New-Item -ItemType Directory -Force -Path $ExportDir | Out-Null
 
-$Parts = @(
-    "front_left",
-    "front_right",
-    "rear_left",
-    "rear_right",
-    "pin_joiner_x",
-    "pin_joiner_y"
-)
-
-foreach ($Part in $Parts) {
+foreach ($Part in @("front_left", "front_right")) {
     $Define = 'part="' + $Part + '"'
     $TempFile = Join-Path "C:\tmp" "$TempTag-$Part.stl"
     & $OpenScad -D $Define -o $TempFile $Source
@@ -36,6 +27,5 @@ $PreviewTemp = Join-Path "C:\tmp" "$TempTag-preview.png"
 if ($LASTEXITCODE -ne 0) { throw "OpenSCAD failed: preview" }
 Copy-Item -LiteralPath $PreviewTemp -Destination (Join-Path $ExportDir "final_fit_preview.png") -Force
 
-& $VersionHelper -Tag 'after-export_final_fit'
-Write-Host "Final-fit exports written to $ExportDir"
-
+& $VersionHelper -Tag 'after-export_front_correction'
+Write-Host "Corrected front quadrants and preview written to $ExportDir"

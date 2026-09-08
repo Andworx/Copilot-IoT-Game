@@ -13,7 +13,7 @@ M3/M4 fasteners are listed in that release; existing purchased components are
 retained. Dial nut/washer and anti-rotation engagement require a coupon check.
 No alternative distribution board has been purchased or substituted.
 
-Rear hardware is now in hand and dimensioned in the [RP01 record](rear-power-study/README.md).
+Rear hardware is now in hand and dimensioned in the [RP01 record](analysis/rear-power/README.md).
 RP01 adds one exterior printed carrier, four proposed M3 carrier bolts with
 washers/nuts, and four proposed M4 XT60 bolts with washers/nuts. Lengths and
 weather sealing remain unconfirmed. Coupons, positioning template, and two
@@ -21,7 +21,7 @@ relieved rear shells are CAD candidates, not installed hardware.
 
 **2026-09-04 decision:** Retain the in-hand fuse block. The small distribution
 PCB was not ordered; the alternatives below are deferred, not active purchases.
-See [RF02 candidate](recessed-fuse-study/README.md).
+See [RF02 candidate](analysis/recessed-fuse/README.md).
 
 | RF02 candidate item | Quantity | Status |
 |---|---:|---|
@@ -156,7 +156,7 @@ These items support development and are not part of the installed system BOM.
 
 | ID | Qty | Part | Selection or specification | Status | Verification / notes |
 |---|---:|---|---|---|---|
-| TEST-001 | 1 set | Length-fit gauges | Labeled front/rear gauge variants in `length-fit-test/` | Test tooling / equipment | Retain as dimensional evidence |
+| TEST-001 | 1 set | Length-fit gauges | Labeled front/rear gauge variants in `calibration/case-fit/length-fit/` | Test tooling / equipment | Retain as dimensional evidence |
 | TEST-002 | 1 set | Final-fit frame | Four labeled 306.3875 x 229.45 mm quadrants plus printed pin joiners | Test tooling / equipment / passed | User confirmed the fully joined frame fits well without the prior bowing; footprint promoted to production Rev 4 on 2026-09-02 |
 | TEST-003 | 1 set | Rev 5 upper-clearance frame | Four etched UP-FL/FR/RL/RR 304.3875 x 226.45 mm top-profile quadrants plus FIT-X/FIT-Y pin joiners | Test tooling / equipment / print next | Support at the intended top-rail height to isolate upper length and corner-radius clearance before reprinting the complete 77 mm shell |
 | TEST-004 | 1 | Former hinge/insert coupon | Historical `hinge_insert_coupon.stl` | Retired from active design | Retained only as evidence; a simpler insert coupon should be created for the fixed-panel and module fasteners if needed |

@@ -2,7 +2,7 @@
 // Shared-drop geometry is retained from the successful RP07 print. Converter
 // centers are adjusted from physical dry-fit feedback to clear all three
 // bodies while keeping their cables beside the shared slot.
-include <../case-airflow-study/airflow_params.scad>
+include <../analysis/airflow/airflow_params.scad>
 
 part = "assembly";
 $fn = 48;

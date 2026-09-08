@@ -6,7 +6,7 @@
   tied together by narrow front/rear cross-joiners. Override `part` from the
   OpenSCAD CLI for exports.
 */
-include <../case-airflow-study/airflow_params.scad>
+include <../airflow/airflow_params.scad>
 
 part = "assembly_preview";
 // [assembly_preview,tray_complete,tray_left,tray_right,tray_cross_joiner,fit_coupon]

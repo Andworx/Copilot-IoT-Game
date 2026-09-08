@@ -39,7 +39,7 @@ the full dependency tree. See the changelog for the human-readable history.
 
 ### RP01 rear hardware revision (historical; rear layout superseded by RP02)
 
-The [rear power study](rear-power-study/README.md) records the corrected physical
+The [rear power study](analysis/rear-power/README.md) records the corrected physical
 XT60 and rocker dimensions and creates a removable exterior carrier, fit
 coupons and rear-shell clearance openings. This study supersedes the old
 airflow model's unmeasured rear power placeholders for this hardware only.
@@ -61,7 +61,7 @@ terminal connectors are checked.
 ### Current distribution proposal and file history
 
 The user chose to retain the existing fuse block and develop a recessed mount.
-The [RF02 candidate](recessed-fuse-study/README.md) adds integrated lower support
+The [RF02 candidate](analysis/recessed-fuse/README.md) adds integrated lower support
 ribs to four shell corners and a service opening in the upper tray. Its fuse
 mounting plane is 6 mm above the floor, recovering 11.5 mm of vertical space.
 The production Rev 5 files remain unchanged pending candidate fit validation.
@@ -103,7 +103,7 @@ The design consists of two related but deliberately separate models:
 This is the authoritative narrative design record. The authoritative production
 dimensions remain in `model_params.scad`. The airflow study includes those
 production parameters and adds only case-reference, component-layout, port,
-and thermal inputs in `case-airflow-study/airflow_params.scad`.
+and thermal inputs in `analysis/airflow/airflow_params.scad`.
 
 The enclosure was initially documented under the wrong APACHE 3800 product
 name. On 2026-09-03 the user confirmed that the physical enclosure used for all
@@ -322,7 +322,7 @@ frame showed slight edge bowing, so only the front half was shortened another
 
 `113.975 mm front + 115.475 mm rear = 229.45 mm assembled depth`
 
-![Final-fit frame](final-fit-test/exports/final_fit_preview.png)
+![Final-fit frame](calibration/case-fit/final-fit/exports/final_fit_preview.png)
 
 ### 5.6 Production promotion result
 
@@ -477,10 +477,10 @@ approximate reference envelope and its large STLs are explicitly named
 
 The fixed panel and airflow study now derive from the same Rev 5 production
 source: a 294.9875 x 217.05 mm deck at the relieved shell top. The passed
-`final-fit-test/` remains evidence for the lower interface, while the new
+`calibration/case-fit/final-fit/` remains evidence for the lower interface, while the new
 `upper_fit_*` parts validate the full-height correction.
 
-![Open enclosure study](case-airflow-study/exports/assembly_open.png)
+![Open enclosure study](analysis/airflow/exports/assembly_open.png)
 
 ### 7.1 Electronics envelopes
 
@@ -514,11 +514,11 @@ The checks prevent rectangular component collisions, but they do not
 prove clearance at rounded case corners, connectors, fasteners, wire bends,
 tool access, or service-removal paths.
 
-![Collision-checked electronics layout](case-airflow-study/exports/electronics_layout.png)
+![Collision-checked electronics layout](analysis/airflow/exports/electronics_layout.png)
 
 ### 7.2 Removable equipment tray
 
-The revision 0.3 tray in `equipment-tray/` converts the measured electronics
+The revision 0.3 tray in `analysis/equipment-tray/` converts the measured electronics
 layout into printable mounting geometry. A 291 x 214 x 2 mm ventilated plate is
 split at the center into two 145.3 x 214 mm halves. Each half fits the X1
 Carbon, and neither half requires a fastener through the APACHE floor.
@@ -560,7 +560,7 @@ tray, cross-joiner, and washer stack. Print `fit_coupon.stl` and one
 cross-joiner before either tray half, and perform a closed-lid witness test
 before committing to the complete 77 mm-tall assembly.
 
-![Equipment tray assembly](equipment-tray/exports/preview/assembly_preview.png)
+![Equipment tray assembly](analysis/equipment-tray/exports/preview/assembly_preview.png)
 
 ### 7.3 Airflow arrangement
 
@@ -580,7 +580,7 @@ flowchart LR
     Exhaust --> Room[Heated exhaust air]
 ```
 
-![Airflow section](case-airflow-study/exports/airflow_section.png)
+![Airflow section](analysis/airflow/exports/airflow_section.png)
 
 Placing intake and exhaust on opposite ends reduces direct recirculation.
 Filters, guards, wall openings, wiring, and internal pressure loss will reduce
@@ -631,7 +631,7 @@ flowchart LR
     D --- R[Right inner rib]
 ```
 
-![Rear service-panel study](case-airflow-study/exports/rear_port_layout.png)
+![Rear service-panel study](analysis/airflow/exports/rear_port_layout.png)
 
 The power inlet is placed on the exterior-view left and the selector on the
 right. Rotating the power module horizontally avoids consuming nearly the full
@@ -849,13 +849,13 @@ Fill this table when the ordered parts arrive.
 | `apache_2800_chassis.scad` | Production chassis, fixed modular panel, module plates, joints, and assemblies |
 | `export_parts.ps1` | Production STL and preview export |
 | `validate_stl_bounds.py` | X1C build-volume validation |
-| `length-fit-test/` | Standalone low-material depth gauges |
-| `final-fit-test/` | Passed four-quadrant 306.3875 x 229.45 mm Rev 4 evidence |
+| `calibration/case-fit/length-fit/` | Standalone low-material depth gauges |
+| `calibration/case-fit/final-fit/` | Passed four-quadrant 306.3875 x 229.45 mm Rev 4 evidence |
 | `exports/stl/upper_fit_*.stl` | Rev 5 labeled upper-outline validation frame |
-| `case-airflow-study/airflow_params.scad` | Case, hardware, and thermal study parameters |
-| `case-airflow-study/apache_2800_airflow_study.scad` | Complete enclosure and airflow visualization |
-| `case-airflow-study/estimate_airflow.py` | Repeatable preliminary airflow calculation |
-| `case-airflow-study/exports/` | Visual evidence and non-printable reference envelopes |
+| `analysis/airflow/airflow_params.scad` | Case, hardware, and thermal study parameters |
+| `analysis/airflow/apache_2800_airflow_study.scad` | Complete enclosure and airflow visualization |
+| `analysis/airflow/estimate_airflow.py` | Repeatable preliminary airflow calculation |
+| `analysis/airflow/exports/` | Visual evidence and non-printable reference envelopes |
 | `references/apache-2800-cad-model/` | Vendored MIT-licensed FreeCAD and STEP reference model with source record |
 | `analysis/apache_2800_fit_analysis.py` | Repeatable OpenCascade cross-section comparison |
 | `analysis/FIT_ANALYSIS.md` | Reference-model fit results, limitations, and resulting design decision |

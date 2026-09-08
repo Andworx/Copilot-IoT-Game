@@ -1,6 +1,6 @@
 // RP03 tray-only update. Units mm, centered XY; FRONT is -Y.
 // All RP02 shell, rear-power, right-tray, joiner, and faceplate geometry remains unchanged.
-include <../case-airflow-study/airflow_params.scad>
+include <../../airflow/airflow_params.scad>
 
 part = "assembly";
 $fn = 48;
@@ -140,4 +140,3 @@ assert(max([for (p = converter_positions_rp03) p[1]]) -
 
 if (part == "assembly") assembly_rp03();
 else if (part == "tray_L_RP03") tray_left_rp03();
-

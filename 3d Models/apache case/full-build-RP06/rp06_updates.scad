@@ -1,6 +1,6 @@
 // RP06 targeted update: verified shell pockets and safety-panel LED retention.
 // Units millimetres. FRONT is -Y in exported shell coordinates.
-include <../case-airflow-study/airflow_params.scad>
+include <../analysis/airflow/airflow_params.scad>
 use <rear_power.scad>
 use <../apache_2800_chassis.scad>
 

@@ -3,7 +3,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$VersionHelper = Join-Path $PSScriptRoot '../../Save-ModelVersion.ps1'
+$VersionHelper = Join-Path $PSScriptRoot '../../../../Save-ModelVersion.ps1'
 & $VersionHelper -Tag 'before-export_length_tests'
 $ProjectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Source = Join-Path $ProjectDir "length_fit_gauge.scad"

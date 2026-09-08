@@ -1,7 +1,7 @@
 // RF02 candidate. Units mm, centered XY, physical interior floor Z=0.
 // Outer case contact is inherited unchanged from production Rev 5.
-include <../case-airflow-study/airflow_params.scad>
-use <../apache_2800_chassis.scad>
+include <../airflow/airflow_params.scad>
+use <../../apache_2800_chassis.scad>
 use <../equipment-tray/equipment_tray.scad>
 part="assembly";
 $fn=48;

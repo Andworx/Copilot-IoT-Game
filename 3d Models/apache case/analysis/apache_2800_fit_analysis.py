@@ -17,8 +17,8 @@ from cadquery import importers
 
 ROOT = Path(__file__).resolve().parents[1]
 PARAMS = ROOT / "model_params.scad"
-TRAY_PARAMS = ROOT / "equipment-tray" / "equipment_tray.scad"
-AIRFLOW_PARAMS = ROOT / "case-airflow-study" / "airflow_params.scad"
+TRAY_PARAMS = ROOT / "analysis" / "equipment-tray" / "equipment_tray.scad"
+AIRFLOW_PARAMS = ROOT / "analysis" / "airflow" / "airflow_params.scad"
 REFERENCE = (
     ROOT
     / "references"

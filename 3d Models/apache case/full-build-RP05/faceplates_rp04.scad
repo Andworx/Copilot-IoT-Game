@@ -1,7 +1,7 @@
 // RP04 faceplate-only fit correction. Units millimetres; FRONT is -Y.
 // Unchanged components and every non-faceplate part are inherited from RP02,
 // while tray_L is inherited from RP03.
-include <../case-airflow-study/airflow_params.scad>
+include <../analysis/airflow/airflow_params.scad>
 use <../apache_2800_chassis.scad>
 
 part = "layout";

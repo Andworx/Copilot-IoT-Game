@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$models = Resolve-Path (Join-Path $root '..\..')
+$models = Resolve-Path (Join-Path $root '..\..\..\..')
 $openscad = 'C:\Program Files\OpenSCAD\openscad.com'
 $python = 'C:\Users\edrft\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
 $source = Join-Path $root 'rear_control_calibration_t02.scad'
@@ -37,4 +37,3 @@ if ($LASTEXITCODE -ne 0) { throw 'T02 preview render failed' }
 if ($LASTEXITCODE -ne 0) { throw 'T02 validation failed' }
 
 & (Join-Path $models 'Save-ModelVersion.ps1') -Tag 'after-export-rear-control-calibration-T02'
-

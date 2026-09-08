@@ -236,7 +236,7 @@ corner/rail fit test.
 
 ## Removable electronics tray
 
-The initial mounting design is in [equipment-tray](equipment-tray/README.md).
+The initial mounting design is in [equipment-tray](analysis/equipment-tray/README.md).
 It uses two ventilated 145.3 x 214 x 2 mm halves supported by the eight existing
 chassis seam bosses. The halves replace the former side seam joiners; two narrow
 front/rear cross-joiners tie them together using the existing center inserts.
@@ -245,7 +245,7 @@ and converter holes use their measured patterns. The 12 V / 15 A supply is now
 external, entering through an XT60 interface and 12 V master switch whose
 mounting details remain pending receipt and measurement.
 
-Print `equipment-tray/exports/stl/fit_coupon.stl` and one
+Print `analysis/equipment-tray/exports/stl/fit_coupon.stl` and one
 `tray_cross_joiner.stl` first. The tray top is 17.5 mm above the case floor.
 Removing the internal PSU eliminates the former PSU/key-switch collision and
 the 92 mm height candidate. The retained 77 mm chassis still needs a closed-lid

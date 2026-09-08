@@ -1,7 +1,7 @@
 param([string]$OpenScad = 'C:\Program Files\OpenSCAD\openscad.com')
 $ErrorActionPreference = 'Stop'
 
-$VersionHelper = Join-Path $PSScriptRoot '../../Save-ModelVersion.ps1'
+$VersionHelper = Join-Path $PSScriptRoot '../../../../Save-ModelVersion.ps1'
 & $VersionHelper -Tag before-export-RP03-tray-routing
 
 $out = Join-Path $PSScriptRoot 'exports'
@@ -27,4 +27,3 @@ if ($LASTEXITCODE -ne 0) { throw 'Preview failed' }
 if ($LASTEXITCODE -ne 0) { throw 'Mesh validation failed' }
 
 & $VersionHelper -Tag after-export-RP03-tray-routing
-

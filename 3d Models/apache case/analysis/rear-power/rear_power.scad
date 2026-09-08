@@ -1,6 +1,6 @@
 // RP01 measured hardware, candidate mount, physical case floor Z=0.
-include <../case-airflow-study/airflow_params.scad>
-use <../recessed-fuse-study/recessed_insert.scad>
+include <../airflow/airflow_params.scad>
+use <../recessed-fuse/recessed_insert.scad>
 part="assembly";
 $fn=48;
 tol=0.2;

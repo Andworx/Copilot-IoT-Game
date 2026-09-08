@@ -1,7 +1,7 @@
 param([string]$OpenScad = 'C:\Program Files\OpenSCAD\openscad.com')
 $ErrorActionPreference = 'Stop'
 
-$helper = Join-Path $PSScriptRoot '../../Save-ModelVersion.ps1'
+$helper = Join-Path $PSScriptRoot '../../../../Save-ModelVersion.ps1'
 & $helper -Tag before-export-rear-control-calibration-T01
 
 $out = Join-Path $PSScriptRoot 'exports'

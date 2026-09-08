@@ -1,8 +1,8 @@
 // RP08 production rear controls. Physical case floor Z=0; rear is +Y.
-include <../case-airflow-study/airflow_params.scad>
-use <../recessed-fuse-study/recessed_insert.scad>
+include <../analysis/airflow/airflow_params.scad>
+use <../analysis/recessed-fuse/recessed_insert.scad>
 use <../apache_2800_chassis.scad>
-use <../equipment-tray/equipment_tray.scad>
+use <../analysis/equipment-tray/equipment_tray.scad>
 part="assembly";
 $fn=48;
 tol=0.2;

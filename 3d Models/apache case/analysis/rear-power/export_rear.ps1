@@ -1,6 +1,6 @@
 param([string]$OpenScad='C:\Program Files\OpenSCAD\openscad.com')
 $ErrorActionPreference='Stop'
-$helper=Join-Path $PSScriptRoot '../../Save-ModelVersion.ps1'
+$helper=Join-Path $PSScriptRoot '../../../Save-ModelVersion.ps1'
 & $helper -Tag before-export-RP01
 $out=Join-Path $PSScriptRoot 'exports'
 New-Item -ItemType Directory -Path $out -Force | Out-Null

@@ -6,7 +6,7 @@ import ast, json, re, sys
 
 ROOT=Path(sys.argv[1]).resolve() if len(sys.argv)>1 else Path(__file__).resolve().parent
 SOURCE=ROOT.parent/'rear_power.scad'
-AIR=ROOT.parent.parent/'case-airflow-study'/'airflow_params.scad'
+AIR=ROOT.parent.parent/'analysis'/'airflow'/'airflow_params.scad'
 PDF=ROOT/'output'/'pdf'/'rear-drill-guide-letter.pdf'
 GEOM=ROOT/'output'/'pdf'/'rear-drill-guide-geometry.json'
 HTML=ROOT/'electronics-placement.html'

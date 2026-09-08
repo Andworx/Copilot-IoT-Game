@@ -4,8 +4,8 @@ import ast, re, json
 
 root=Path(__file__).parent
 rear=(root/'rear_power.scad').read_text()
-air=(root/'../case-airflow-study/airflow_params.scad').read_text()
-rf=(root/'../recessed-fuse-study/recessed_insert.scad').read_text()
+air=(root/'../analysis/airflow/airflow_params.scad').read_text()
+rf=(root/'../analysis/recessed-fuse/recessed_insert.scad').read_text()
 production=(root/'../model_params.scad').read_text()
 def evaluate(node):
     if isinstance(node,ast.Constant) and isinstance(node.value,(int,float)): return node.value

@@ -3,7 +3,7 @@
 Candidate 0.1. Authoritative working folder: this directory in the main repository.
 The user reported the recessed fuse cavity looks good; this does not resolve the
 previous upper-tray binding or confirm the full installed assembly.
-Production files and RF02 files are preserved. [RF02](../recessed-fuse-study/README.md)
+Production files and RF02 files are preserved. [RF02](../recessed-fuse/README.md)
 remains the source for front shells, trays and lower supports.
 
 ## Print first — no case cutting yet

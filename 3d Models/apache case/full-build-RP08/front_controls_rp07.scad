@@ -1,5 +1,5 @@
 // RP07B targeted front-control fit update. Units mm; FRONT is the visible face.
-include <../case-airflow-study/airflow_params.scad>
+include <../analysis/airflow/airflow_params.scad>
 use <../apache_2800_chassis.scad>
 
 part = "layout";

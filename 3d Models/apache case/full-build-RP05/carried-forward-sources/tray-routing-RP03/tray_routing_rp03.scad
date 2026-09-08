@@ -1,6 +1,6 @@
 // RP03 tray-only update. Units mm, centered XY; FRONT is -Y.
 // All RP02 shell, rear-power, right-tray, joiner, and faceplate geometry remains unchanged.
-include <../case-airflow-study/airflow_params.scad>
+include <../../../analysis/airflow/airflow_params.scad>
 
 part = "assembly";
 $fn = 48;

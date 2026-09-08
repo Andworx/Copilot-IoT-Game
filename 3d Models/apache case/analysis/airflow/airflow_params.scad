@@ -2,7 +2,7 @@
 
 // Production dimensions are imported rather than duplicated. This prevents
 // the airflow study from silently drifting to an unpromoted fit-test depth.
-include <../model_params.scad>
+include <../../model_params.scad>
 
 // Official Harbor Freight catalogue envelope. Specifications are approximate.
 case_outer_x = 13.5 * inch;        // 342.90 mm, long axis
