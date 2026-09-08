@@ -37,7 +37,7 @@ revisit if `set-mode` ever gets a less trusted caller.
    add it as an **Application User** in the Dataverse environment with a security role
    granting at least Create/Read/Write on `andy_gameboxstate` and Read on
    `andy_deviceprofile`.
-3. **Node.js 24+** and the **Azure Functions Core Tools v4** (`npm i -g azure-functions-core-tools@4`) for local runs. (Node 20 reached end-of-life 2026-04-30 — `az functionapp create --runtime-version` will refuse it.)
+3. **Node.js 22** and the **Azure Functions Core Tools v4** (`npm i -g azure-functions-core-tools@4`) for local runs. Node 20 is refused at creation (EOL 2026-04-30); **Node 24 was tried first and didn't work** — the deployed app got stuck with "Runtime version: Error" in the portal and 503'd on every route, including Kudu itself, even after a restart. Node 22 (LTS) fixed it immediately. Worth retrying Node 24 in the future once it's had more time to bake on Linux Consumption specifically.
 
 ### Deployed resources (2026-09-08)
 
