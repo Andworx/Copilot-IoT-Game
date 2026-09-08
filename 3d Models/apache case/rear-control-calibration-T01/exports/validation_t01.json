@@ -1,0 +1,75 @@
+{
+  "revision": "rear-control-calibration-T01",
+  "status": "PASS - physical switch and dial calibration required",
+  "production_geometry_changed": false,
+  "coupon_thickness_mm": 3.0,
+  "switch_candidates_mm": [
+    [
+      22.4,
+      27.8
+    ],
+    [
+      22.8,
+      28.2
+    ],
+    [
+      23.2,
+      28.6
+    ]
+  ],
+  "switch_bezel_overlap_per_side_mm": [
+    [
+      1.1750000000000007,
+      1.8849999999999998
+    ],
+    [
+      0.9749999999999996,
+      1.6850000000000005
+    ],
+    [
+      0.7750000000000004,
+      1.4849999999999994
+    ]
+  ],
+  "dial_calibration": {
+    "bushing_hole_diameter_mm": 9.67,
+    "pin_slot_width_mm": 3.6,
+    "pin_offset_range_mm": [
+      7.5,
+      10.5
+    ],
+    "tick_increment_mm": 0.5,
+    "measured_pin_diameter_mm": 2.96
+  },
+  "existing_service_envelopes": {
+    "switch_mm": [
+      30,
+      36
+    ],
+    "dial_diameter_mm": 31
+  },
+  "meshes": {
+    "dial_coupon.stl": {
+      "bounds_mm": [
+        54.0,
+        54.0,
+        3.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "switch_coupon.stl": {
+      "bounds_mm": [
+        108.0,
+        50.0,
+        3.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    }
+  }
+}

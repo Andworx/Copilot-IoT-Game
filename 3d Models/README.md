@@ -7,6 +7,10 @@ case, designed as split parts that fit a Bambu Lab X1 Carbon build volume.
 
 ## Directory layout
 
+Canonical working folder: C:\Code Projects\Copilot-IoT-Game\3d Models.
+See [Version folders and export workflow](VERSIONING.md). Dated snapshots under
+`versions/` preserve each release batch, including sources and generated files.
+
 - `apache case/` — parametric OpenSCAD production chassis, generated STL
   files, preview renders, export scripts, dimensional validators, and physical
   fit-test iterations.
@@ -25,9 +29,10 @@ case, designed as split parts that fit a Bambu Lab X1 Carbon build volume.
 - Candidate rear span: **115.475 mm**, labeled `R 230.95`.
 - Lower bevel: 12 mm high, 10 mm inset, six-stage eased profile.
 
-The 229.45 mm depth is still a final physical-test candidate. The production
-OpenSCAD model remains at Rev 3 until the corrected frame is confirmed to sit
-flat without bowing.
+The current source is Rev 5, with upper-wall relief following the tight
+full-height print. A passed lower frame does not validate the full-height shell:
+print and check the upper-fit gauge before committing to the complete shell.
+See [current model notes](apache%20case/README.md) for the detailed print gates.
 
 ## Engineering design record
 

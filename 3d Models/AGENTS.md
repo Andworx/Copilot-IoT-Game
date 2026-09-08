@@ -2,12 +2,23 @@
 
 These instructions apply to everything under `3d Models/`.
 
+## Canonical location and version folders
+
+- Work in C:\Code Projects\Copilot-IoT-Game\3d Models, not the older OneDrive
+  equipment-tray worktree.
+- Before edits, run Save-ModelVersion.ps1 with a descriptive before-change tag.
+  After creating or updating files and validating them, run it again with an
+  after-change tag. Every new release batch must have a version folder.
+- Export scripts snapshot automatically before and after exports. Keep those
+  hooks in new exporters too. Never overwrite archived versions.
+- Read VERSIONING.md for manifest, storage, and print-approval semantics.
+
 ## Purpose and authoritative files
 
 - This directory owns the physical APACHE-case chassis for the portable
   Copilot-IoT-Game demonstration system.
 - Treat `apache case/model_params.scad` as the authoritative production
-  dimensions and `apache case/apache_3800_chassis.scad` as the
+  dimensions and `apache case/apache_2800_chassis.scad` as the
   authoritative production geometry.
 - Fit-test directories are calibration tools, not production geometry. Do not
   copy a candidate measurement into the production model until the user

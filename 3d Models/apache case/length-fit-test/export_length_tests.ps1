@@ -3,6 +3,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$VersionHelper = Join-Path $PSScriptRoot '../../Save-ModelVersion.ps1'
+& $VersionHelper -Tag 'before-export_length_tests'
 $ProjectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Source = Join-Path $ProjectDir "length_fit_gauge.scad"
 $ExportDir = Join-Path $ProjectDir "exports"
@@ -36,5 +38,6 @@ $PreviewTemp = "C:\tmp\codex-length-preview.png"
 if ($LASTEXITCODE -ne 0) { throw "OpenSCAD failed: preview" }
 Copy-Item -LiteralPath $PreviewTemp -Destination (Join-Path $ExportDir "depth_230_95_preview.png") -Force
 
+& $VersionHelper -Tag 'after-export_length_tests'
 Write-Host "Standalone length gauges written to $ExportDir"
 

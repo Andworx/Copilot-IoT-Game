@@ -1,9 +1,86 @@
-# APACHE 3800 Design Document Changelog
+# APACHE 2800 Design Document Changelog
 
 This file is the human-readable history for `DESIGN_DOCUMENT.md`. It records
 why the document and design changed, what evidence caused the change, and which
 values remain candidates. It complements Git history rather than duplicating
 commit messages.
+
+## 3.7.0 - 2026-09-05 - RP04 fit corrections and RP05 panel-boss review
+
+### Added
+
+- Added complete `full-build-RP04` and `full-build-RP05` revision folders.
+  RP05 carries all 24 validated RP04 STLs byte-for-byte and includes the RP03
+  staggered-converter left tray plus all source and guide files updated during
+  the session.
+- Added `PANEL_FASTENER_REVIEW.md` and a SHA-256 inheritance report to RP05.
+- Added three labeled RP05 shell-rail coupons: straight front, rear with the
+  nearby panel insert hole, and combined front/side corner. Each uses a 9.6 mm
+  pocket around the actual 9 mm boss interface.
+
+### Changed
+
+- RP04 increased the safety-toggle and keyed-switch nominal holes to 12.0 mm
+  after failed printed openings measured 11.45 and 11.20 mm respectively.
+- RP04 moved the four 5 mm LEDs into one row across the top of the safety panel
+  and removed the LED holes from the four-cable panel. Proven cable-socket and
+  circular-rocker openings were retained unchanged.
+
+### Validated
+
+- All 24 RP04 meshes are closed, consistently oriented, single-body exports
+  within the 256 mm printer envelope.
+- RP05's 24 carried-forward STLs are byte-identical to RP04. No RP05 geometry
+  change has been released during the panel-boss review.
+- All three coupon meshes are closed, consistently oriented single bodies. The
+  rear pocket retains 3.571 mm calculated ligament to the existing insert hole.
+- Corrected CAD review after the user clarified that `panel_L` and `panel_R`,
+  not the small faceplates, fail to seat. Ten 9 mm module bosses intersect
+  the shell top rail: six along the front rail, two along the rear rail, and
+  four side-rail contacts shared by the outer safety/cable bosses.
+  The nominal vertical overlap is the rail's full 8 mm height.
+
+### Deferred
+
+- Model and print front-rail and rear-rail coupons with a candidate 9.6 mm
+  rounded clearance pocket for the 9 mm panel bosses. If both coupons allow the
+  panel to reach its seating datum without force, apply the pocket to the eight
+  affected shell locations and re-export only the affected shell quadrants.
+- Preserve the panel and faceplate hole locations. Moving every fastener or
+  removing the bosses without replacement remains rejected as a first-line fix.
+
+## 3.6.1 - 2026-09-05 - RP02 installation and drill guides
+
+- Added a standalone responsive HTML placement guide with the current CAD
+  coordinates, component envelopes, assembly order and seven labeled harness
+  routes. Wiring is intentionally logical rather than a terminal-level schematic.
+- Added a one-page US Letter drill guide generated at exact PDF point scale.
+  It presents the outside rear view, 176 x 68 mm trim envelope, carrier outline,
+  cutouts, four carrier holes, four XT60 holes, center marks, 100 mm calibration
+  bar and 25 mm square.
+- Cross-checked the guide coordinates against `rear_power.scad` and the rear
+  envelope against `airflow_params.scad`; verified the PDF MediaBox is Letter.
+- Kept the guide at candidate status because the 176 x 68 mm rear flat is from
+  the approximate model, not a completed physical rear-recess measurement.
+  Paper and carrier dry fit are mandatory before drilling; no electrical pinout,
+  fuse selection, environmental seal or thermal approval is added.
+
+## 3.6.0 — 2026-09-04 — RP02 full build with rear dial
+
+- Reason: RP01 omitted the previously requested rear selector; user requested
+  a complete new revision including shell, tray and faceplates.
+- Added full-build-RP02 as a separate candidate, preserving RF02/RP01 and the
+  production lower interface. Shared rear carrier grows from 106 to 144 mm;
+  X centers change from switch 0 / XT60 48 to dial -30 / switch 10 / XT60 52.
+- Added 31 mm dial body/wiring relief, measured bushing/anti-rotation carrier
+  holes and a labeled dial coupon. Candidate pin orientation is 12 o'clock.
+- Full-height corners, recessed-fuse tray, joiners, top panel and module plates
+  are bundled, with recessed part identification and alignment marks retained.
+- Verification: exported mesh report and analytical rear-envelope report in
+  full-build-RP02/exports; preview inspection required before release snapshot.
+- Not promoted to physically approved production: tray binding, real case/rib/
+  hinge clearance, clip and dial grip, lug access and lid clearance remain open.
+  No drilling, electrical energization, thermal approval or purchase implied.
 
 ## Versioning policy
 
@@ -28,6 +105,287 @@ Every future update must include:
 Use the headings **Added**, **Changed**, **Validated**, **Deferred**, and
 **Safety** as applicable. Do not delete old entries when an assumption is
 superseded.
+
+## [3.5.0] — 2026-09-04
+
+### Added
+
+- RP01 measured rear XT60/master rocker record incorporating the user's width
+  and height corrections; BOM marks both items in hand.
+- Exterior carrier, XT60 coupon, four switch-thickness coupons, positioning
+  template, and two RF02-derived rear shells with passage and nut-access relief.
+- Approximate STEP wall measurement provenance; case thickness is not verified.
+
+### Retained / Deferred
+
+- Fuse cavity received positive user feedback and is retained without changing
+  its geometry. Front shells, lower supports and upper trays remain RF02.
+- Upper tray binding, real terminal connector clearance, switch clip fit,
+  fastener lengths, case-cut placement and sealing remain open. No production
+  promotion or case drilling approval.
+
+## [3.4.0] — 2026-09-04
+
+### Added / Changed
+
+- RF02 candidate four corner shells with integrated open lower supports,
+  two upper-tray halves with a 92 x 132 mm fuse opening, lower seam connector,
+  upper tray connector and two low-height left-support tests.
+- Existing fuse block retained at candidate mounting Z=6 mm; ordinary lower
+  ribs sit at Z=0..3 to avoid unsupported suspended floors. Outer Rev 5 shell
+  profile is inherited without dimension changes.
+- BOM includes candidate printed pieces and provisional fasteners.
+
+### Deferred
+
+- No production promotion. Real floor contact, blind-pilot strength, screw
+  lengths, terminal/cover access, wire bends and upper-shell fit require tests.
+- No new exact STEP collision or thermal simulation is claimed. See candidate
+  validation report for mesh checks and analytical clearances.
+
+## [3.3.0] — 2026-09-04
+
+### Added
+
+- Dated, hash-manifested source/export version folders, with automatic before
+  and after snapshots in all six export scripts and manual-edit snapshot rules.
+- Canonical location: C:\Code Projects\Copilot-IoT-Game\3d Models.
+- BOM proposal for a smaller protected distribution assembly.
+
+### Deferred / Safety
+
+- No fuse-block or tray geometry changed. Replacement selection, dimensions,
+  branch protection, insulated terminals and wiring clearances remain pending.
+- Upper shell-fit gate remains; version snapshots are not print approval.
+
+## [3.2.0] — 2026-09-03
+
+### Changed
+
+- Corrected all tray-mounted electronics in the airflow study from the case
+  floor to the actual tray top, 17.5 mm above the APACHE floor.
+- Moved the floor Pi 4B/GPIO assembly from X = 0 to X = +92 mm on the
+  right-hand tray half after the corrected elevation exposed a collision with
+  the Pi mounted behind the centered display.
+
+### Validated
+
+- The relocated floor Pi has 5.47 mm hard-body separation from the
+  screen-mounted Pi in X, preserving 3.47 mm after the 2 mm model allowance.
+- OpenSCAD's complete electronics AABB assertions pass at the corrected tray
+  elevation, and all four regenerated tray parts are simple/manifold.
+- The 291 x 214 mm tray clears the approximate APACHE STEP cavity at the
+  relevant height. Its controlling interface is instead the printed chassis
+  opening, with only 0.494 mm X and 0.525 mm Y nominal clearance per side.
+
+### Deferred
+
+- Tray perimeter clearance remains a physical print gate. Do not change the
+  proven chassis footprint based solely on the external STEP reference.
+
+## [3.1.0] — 2026-09-03
+
+### Added
+
+- Vendored the MIT-licensed Bellafaire APACHE 2800 FreeCAD model, open and
+  closed STEP assemblies, upstream documentation, license, and source record at
+  commit `03e16003008ad060749bf5ab678bf31af2ec339e`.
+- Added a repeatable CadQuery/OpenCascade cross-section analyzer and detailed
+  [fit-analysis report](analysis/FIT_ANALYSIS.md).
+
+### Validated
+
+- The reference model predicts that Rev 5 clears the cavity from Z = 16 through
+  77 mm, with clearance increasing toward the top rail.
+- The reference predicts X-axis interference in the bevel transition at Z = 10
+  and 12 mm, requiring at most about 0.67 mm relief per side; radius increase
+  alone does not resolve it.
+
+### Deferred
+
+- No production dimension was changed because the external model conflicts with
+  the already accepted physical 16 mm fit frame. The upper-frame result and
+  measurements of the assembled full-height print remain the production gate.
+
+## [3.0.0] — 2026-09-03
+
+### Changed
+
+- Corrected the physical enclosure identity from APACHE 3800 to APACHE 2800
+  after direct confirmation from the user.
+- Renamed the production chassis and airflow-study source files and all script
+  references from `apache_3800_*` to `apache_2800_*`.
+- Replaced the incorrect APACHE 3800 catalogue envelope with the APACHE 2800
+  nominal exterior 13-1/2 x 11-3/8 x 6 inch and interior
+  11-7/8 x 9 x 5-5/16 inch envelope.
+
+### Validated
+
+- Existing production insert measurements remain physical-fit evidence from
+  this actual case and were not rescaled or overwritten by catalogue values.
+- Recorded the catalogue-versus-fit discrepancy: the nominal catalogue
+  interior is 4.7625 mm shorter and 0.85 mm narrower than the validated lower
+  insert footprint, consistent with measurements taken at different elevations
+  in a drafted molded cavity.
+- The discovered third-party APACHE 2800 FreeCAD/STEP model is suitable as a
+  reference envelope, but its author identifies it as approximate; it is not
+  promoted over this project's measured contact geometry.
+
+## [2.6.0] — 2026-09-03
+
+### Added
+
+- Added a four-piece, 10 mm-high upper-clearance frame with etched
+  `UP-FL/FR/RL/RR R5` IDs. It uses the existing `FIT-X/FIT-Y` pin joiners and
+  isolates the full-height top outline from the already-proven lower bevel.
+- Added permanent recessed part IDs, front-orientation marks, and mating seam
+  witness lines to the shell quadrants, panel halves, module plates, chassis
+  joiners, fit frames, tray halves, tray joiners, and tray coupon.
+
+### Changed
+
+- Recorded that the complete 77 mm Rev 4 shell was printable but very tight,
+  despite the successful 16 mm lower fit frame.
+- Created Revision 5: Z = 0–16 mm remains at the proven 306.3875 x 229.45 mm
+  outline. Above Z = 16 mm, the shell progressively relieves 1.0 mm per width
+  side and 1.5 mm per depth side, ending at 304.3875 x 226.45 mm.
+- Increased the top corner radius from 21.5 to 23.5 mm while retaining the
+  proven 21.5 mm lower radius and smooth bottom bevel.
+- Reduced the derived control deck to 294.9875 x 217.05 mm and the centered
+  display carrier to 220 x 136 mm to preserve module spacing.
+
+### Validated
+
+- Representative labeled Rev 5 chassis, panel, screen-module, joiner, tray,
+  tray-joiner, coupon, and upper-frame parts compile as simple/manifold solids.
+
+### Deferred
+
+- Physically test the joined upper-clearance frame at the intended top-rail
+  height. Do not reprint the four production shell quadrants until it fits
+  without force, bowing, or spring-back.
+
+## [2.5.0] — 2026-09-02
+
+### Changed
+
+- Promoted the fully joined 306.3875 x 229.45 mm fit result to production
+  Revision 4. The production split is 113.975 mm front and 115.475 mm rear.
+- Reduced the derived fixed deck to 296.9875 x 220.05 x 5 mm, the centered
+  screen carrier to 220 x 140 mm, and the equipment tray to 291 x 214 x 2 mm
+  split into two 145.3 x 214 mm halves.
+- Replaced the in-case C14 and metal AC/DC supply with an external 12 V / 15 A
+  supply feeding an XT60 case connector and a 12 V master switch. Removed the
+  internal PSU envelope, straps, and strap coupon features from active CAD.
+- Retained the 77 mm chassis as a conservative panel/wiring volume and retired
+  the unproven 92 mm height candidate that existed only to clear the internal
+  PSU.
+- Shifted the Blue Sea fuse-block tray location to X = -91 mm and kept the Pi
+  and three converters on measured mounting patterns.
+
+### Validated
+
+- The user confirmed that the locked final-fit frame worked well in the actual
+  APACHE case. This satisfies the production footprint promotion gate.
+- Production and airflow files now share the same Rev 4 footprint instead of
+  disagreeing between 234.95 and 229.45 mm depth.
+
+### Deferred
+
+- Measure the arriving XT60 interface and 12 V master switch before releasing
+  a rear-wall drilling template.
+- Complete the 77 mm closed-lid witness test, tray boss/screw-stack coupon,
+  control coupons, fan selection, and final thermal test.
+
+### Safety
+
+- Mains remains outside the APACHE case. Incoming 12 V still requires correct
+  polarity, branch protection, suitable wire gauge, insulated terminals,
+  strain relief, and a current-rated connector and switch.
+
+## [2.4.0] — 2026-09-02
+
+### Added
+
+- Added four removable activity cables, one each red, blue, green, and orange,
+  and expanded the planned connector set to four plugs and four sockets.
+- Added a candidate four-pin logic interface using presence plus two identity
+  bits so every socket can distinguish disconnected, red, blue, green, or
+  orange without relying on visual cable color. This proposal was superseded
+  within the same revision by the simpler single-contact matrix described below.
+
+### Changed
+
+- Replaced the one-captive-plug/two-socket activity with a four-socket
+  two-by-two module. Removed the captive-cable exit from the module CAD.
+- Confirmed all four cables at 152.4 mm (6 in), one active pin per socket, and
+  one signal conductor per cable with an optional spare. The interim tethered
+  cable-channel proposal was superseded by loose double-ended jumper cables.
+- Assigned socket N to connector pin N and defined the candidate cable map as
+  red 1A-2B, blue 2A-3B, green 3A-4B, and orange 4A-1B. Added permanent A/B
+  end identification and numbered socket engravings to the panel model.
+- Recorded the six-unique-pair ceiling for four sockets and the inability to
+  distinguish reversed duplicate pair types without added electrical coding.
+- Increased socket row pitch from 28 to 36 mm. The measured plug bodies now
+  have 26.19 mm horizontal and 18.19 mm vertical clear gaps.
+- Updated the BOM, production panel, airflow keepouts, requirements table,
+  decision log, and service risks for removable leads and partial/empty modes.
+
+### Deferred
+
+- Confirm the quantity of delivered connectors, cable outside diameter, A/B
+  label method, matrix scan wiring, series protection, GPIO interface, plug finger
+  clearance, rear terminal bends, and cable storage after the remaining parts
+  arrive. Print the utility module as a fit test before the complete panel.
+
+### Safety
+
+- The four activity connectors are low-voltage logic interfaces only. They
+  must not be used for 12 V branch power, and the Pi GPIO must not be exposed
+  directly to an unprotected external connector.
+
+## [2.3.0] — 2026-09-02
+
+### Added
+
+- Added `equipment-tray/`, a separate revision 0.1 mounting study containing
+  two X1C-printable ventilated tray halves, two narrow cross-joiners, a
+  hardware/bridge coupon, export script, validator, and assembly view.
+- Added BOM entries for the two tray halves, two cross-joiners, tray coupon,
+  PSU straps, tray/joiner screws, and low-profile device fasteners.
+
+### Changed
+
+- Converted the floor-electronics planning envelopes into actual measured hole
+  patterns for the Blue Sea fuse block, floor Pi/GPIO assembly, and three
+  converters. The PSU remains strap-retained until its offset tab holes are
+  measured.
+- Shifted the fuse block from X = -100 to -91 mm and the PSU from
+  X = 55/Y = -56 to X = 54/Y = -50 mm to clear the tray fastener stack while
+  preserving the collision-study spacing.
+- Replaced the side seam joiners with tray halves that meet at the chassis
+  centerline. Front and rear cross-joiners tie the halves together through the
+  existing center insert holes; the tray rests on all eight existing boss tops.
+
+### Validated
+
+- OpenSCAD reports both 145.3 x 219 mm tray halves, the 50 x 14 mm cross-joiner,
+  and the fit coupon as simple/manifold objects within the 256 mm X1C envelope.
+
+### Deferred
+
+- The tray rests at Z = 15.5 mm on the production boss tops, placing its top
+  at Z = 17.5 mm. The current 77 mm chassis produces 12.86 mm of nominal
+  PSU/key interference. A 92 mm chassis candidate provides 2.14 mm nominal
+  clearance but is not promoted until a closed-lid witness test passes.
+- Measure PSU tab holes, real case-floor high points, chassis joiner thickness,
+  insert engagement, tray screw length, connector access, and wire bends.
+
+### Safety
+
+- The metal PSU and fuse distribution require insulating pads/washers and
+  guarded terminals. Tray straps and printed joiners are mechanical prototypes;
+  validate heat, creep, vibration, and pull-out before powered transport.
 
 ## [2.2.0] — 2026-09-01
 

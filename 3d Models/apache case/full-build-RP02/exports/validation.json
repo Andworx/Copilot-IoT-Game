@@ -1,0 +1,252 @@
+{
+  "status": "CAD-only candidate validation, physical testing required",
+  "parts": [
+    {
+      "part": "dial_coupon",
+      "bounds_mm": [
+        42.0,
+        44.0,
+        3.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "xt_coupon",
+      "bounds_mm": [
+        50.0,
+        50.0,
+        3.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "switch_1",
+      "bounds_mm": [
+        40.0,
+        46.0,
+        1.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "switch_2",
+      "bounds_mm": [
+        40.0,
+        46.0,
+        2.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "switch_3",
+      "bounds_mm": [
+        40.0,
+        46.0,
+        3.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "switch_3_27",
+      "bounds_mm": [
+        40.0,
+        46.0,
+        3.27
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "carrier",
+      "bounds_mm": [
+        144.0,
+        52.0,
+        3.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "layout_template",
+      "bounds_mm": [
+        144.0,
+        52.0,
+        1.2
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "rear_L",
+      "bounds_mm": [
+        152.994,
+        115.274999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "rear_R",
+      "bounds_mm": [
+        152.994,
+        115.274999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "shell_FL",
+      "bounds_mm": [
+        152.994,
+        113.77499999999999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "shell_FR",
+      "bounds_mm": [
+        152.994,
+        113.77499999999999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "tray_L",
+      "bounds_mm": [
+        145.3,
+        214.0,
+        2.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "tray_R",
+      "bounds_mm": [
+        145.3,
+        214.0,
+        2.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "panel_L",
+      "bounds_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "panel_R",
+      "bounds_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "screen_face",
+      "bounds_mm": [
+        220.0,
+        136.0,
+        3.2
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "safety_face",
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "switch_face",
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "activity_face",
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "lower_joiner",
+      "bounds_mm": [
+        12.0,
+        32.0,
+        2.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "tray_joiner",
+      "bounds_mm": [
+        50.0,
+        14.0,
+        4.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "shell_joiner_x",
+      "bounds_mm": [
+        50.0,
+        24.0,
+        4.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "shell_joiner_y",
+      "bounds_mm": [
+        24.0,
+        50.0,
+        4.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    }
+  ],
+  "rear_body_to_tray_gap_mm": 6.5,
+  "carrier_nut_relief_to_tray_gap_mm": 1.5,
+  "fuse_top_mm": 46,
+  "panel_underside_mm": 72,
+  "vertical_gap_mm": 26,
+  "screen_pi_hard_x_gap_mm": 6.5,
+  "lower_joiner_to_tray_gap_mm": 7.5
+}

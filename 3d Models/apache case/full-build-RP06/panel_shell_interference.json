@@ -1,0 +1,158 @@
+{
+  "status": "FAIL AS-DESIGNED - ten panel bosses intersect shell top rail",
+  "rail_inner_boundaries_mm": {
+    "left_x": -141.99375,
+    "right_x": 141.99375,
+    "front_y": 11.7,
+    "rear_y": 217.75
+  },
+  "boss_diameter_mm": 9.0,
+  "collision_count": 10,
+  "collisions": [
+    {
+      "module": "screen",
+      "center_xy_mm": [
+        -105.0,
+        216.0
+      ],
+      "rails": [
+        "rear"
+      ],
+      "penetration": {
+        "rear_mm": 2.75
+      },
+      "z_overlap_mm": 8.0
+    },
+    {
+      "module": "screen",
+      "center_xy_mm": [
+        105.0,
+        216.0
+      ],
+      "rails": [
+        "rear"
+      ],
+      "penetration": {
+        "rear_mm": 2.75
+      },
+      "z_overlap_mm": 8.0
+    },
+    {
+      "module": "safety",
+      "center_xy_mm": [
+        -138.0,
+        13.0
+      ],
+      "rails": [
+        "front",
+        "left"
+      ],
+      "penetration": {
+        "front_mm": 3.1999999999999993,
+        "left_mm": 0.5062499999999943
+      },
+      "z_overlap_mm": 8.0
+    },
+    {
+      "module": "safety",
+      "center_xy_mm": [
+        -138.0,
+        77.0
+      ],
+      "rails": [
+        "left"
+      ],
+      "penetration": {
+        "left_mm": 0.5062499999999943
+      },
+      "z_overlap_mm": 8.0
+    },
+    {
+      "module": "safety",
+      "center_xy_mm": [
+        -58.0,
+        13.0
+      ],
+      "rails": [
+        "front"
+      ],
+      "penetration": {
+        "front_mm": 3.1999999999999993
+      },
+      "z_overlap_mm": 8.0
+    },
+    {
+      "module": "key_rocker",
+      "center_xy_mm": [
+        -40.0,
+        13.0
+      ],
+      "rails": [
+        "front"
+      ],
+      "penetration": {
+        "front_mm": 3.1999999999999993
+      },
+      "z_overlap_mm": 8.0
+    },
+    {
+      "module": "key_rocker",
+      "center_xy_mm": [
+        40.0,
+        13.0
+      ],
+      "rails": [
+        "front"
+      ],
+      "penetration": {
+        "front_mm": 3.1999999999999993
+      },
+      "z_overlap_mm": 8.0
+    },
+    {
+      "module": "cable",
+      "center_xy_mm": [
+        58.0,
+        13.0
+      ],
+      "rails": [
+        "front"
+      ],
+      "penetration": {
+        "front_mm": 3.1999999999999993
+      },
+      "z_overlap_mm": 8.0
+    },
+    {
+      "module": "cable",
+      "center_xy_mm": [
+        138.0,
+        13.0
+      ],
+      "rails": [
+        "front",
+        "right"
+      ],
+      "penetration": {
+        "front_mm": 3.1999999999999993,
+        "right_mm": 0.5062499999999943
+      },
+      "z_overlap_mm": 8.0
+    },
+    {
+      "module": "cable",
+      "center_xy_mm": [
+        138.0,
+        77.0
+      ],
+      "rails": [
+        "right"
+      ],
+      "penetration": {
+        "right_mm": 0.5062499999999943
+      },
+      "z_overlap_mm": 8.0
+    }
+  ],
+  "recommended_coupon_pocket_diameter_mm": 9.6
+}

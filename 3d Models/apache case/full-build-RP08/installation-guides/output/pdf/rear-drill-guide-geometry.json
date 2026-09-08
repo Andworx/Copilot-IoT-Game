@@ -1,0 +1,70 @@
+{
+  "revision": "RP08-DG01",
+  "page": "US Letter 8.5 x 11 in",
+  "print_scale": "100 percent / Actual size",
+  "rear_flat_envelope_mm": [
+    132.55,
+    75.62
+  ],
+  "carrier_outline_mm": [
+    2.2750000000000057,
+    7.810000000000002,
+    128.0,
+    60.0
+  ],
+  "controls": {
+    "XT60 SERVICE": {
+      "center": [
+        30.275000000000006,
+        37.81
+      ],
+      "shape": "rounded_rect",
+      "size": [
+        38.0,
+        40.0
+      ]
+    },
+    "MASTER SWITCH": {
+      "center": [
+        65.275,
+        37.81
+      ],
+      "shape": "rounded_rect",
+      "size": [
+        30.0,
+        36.0
+      ]
+    },
+    "DIAL": {
+      "center": [
+        96.275,
+        37.81
+      ],
+      "shape": "circle",
+      "diameter": 31.0
+    }
+  },
+  "carrier_mounts_mm": [
+    [
+      125.275,
+      16.810000000000002
+    ],
+    [
+      125.275,
+      58.81
+    ],
+    [
+      7.275000000000006,
+      16.810000000000002
+    ],
+    [
+      7.275000000000006,
+      58.81
+    ]
+  ],
+  "carrier_hole_diameter_mm": 3.5,
+  "calibration_bar_mm": 100.0,
+  "calibration_square_mm": 25.0,
+  "view": "outside rear; page left corresponds to positive model X",
+  "status": "measured-case candidate - verify paper scale, hinges, ribs and hardware before drilling"
+}

@@ -1,5 +1,5 @@
 /*
-  APACHE 3800 portable IoT demonstration chassis
+  APACHE 2800 portable IoT demonstration chassis
   Authoritative editable parameters (millimetres / degrees).
 
   IMPORTANT: every value tagged MEASURE_BEFORE_PRINT is deliberately a
@@ -11,9 +11,9 @@ $fn = 48;
 inch = 25.4;
 
 // ---------- CASE INTERFACE: MEASURE_BEFORE_PRINT ----------
-case_inner_width        = 377.8; // MEASURE_BEFORE_PRINT: narrowest usable width
-case_inner_depth        = 269.9; // MEASURE_BEFORE_PRINT: narrowest usable front/back depth
-usable_case_depth       = 250.0; // MEASURE_BEFORE_PRINT: obstruction-free base depth
+case_inner_width        = 301.625; // APACHE 2800 catalogue reference; measured footprint below governs
+case_inner_depth        = 228.6;   // APACHE 2800 catalogue reference; molded elevation is unspecified
+usable_case_depth       = 229.45;  // measured production fit depth; retain physical-test authority
 case_lower_clear_height = 95.0;  // MEASURE_BEFORE_PRINT: floor to case split line
 case_wall_draft_per_side= 2.0;   // MEASURE_BEFORE_PRINT: inward taper at chassis bottom
 case_bottom_bevel_height= 12.0;  // MEASURE_BEFORE_PRINT: floor to top of molded floor/wall bevel
@@ -24,18 +24,21 @@ chassis_width_fit_adjust= 1.0;   // total EXTRA width reduction from physical fi
 chassis_depth_fit_adjust= 1.0;   // total EXTRA depth reduction from physical fit test
 corner_radius           = 24.0;  // MEASURE_BEFORE_PRINT: increased after physical corner-fit test
 
-// PHYSICAL FIT REVISION 3: direct finished outer footprint supplied after the
-// second sample print. When true, these override the catalogue-derived case
-// formula so the printed assembly measures exactly 12-1/16 x 9-1/4 inches.
+// PHYSICAL FIT REVISION 5: the low joined frame passed, but the 77 mm shell was
+// very tight. Preserve the validated bottom 16 mm and progressively relieve the
+// upper shell, where the low frame could not test wall/rib/corner interference.
 use_measured_outer_footprint = true;
 measured_chassis_outer_width = 12.0625 * inch; // 306.3875 mm
-measured_chassis_outer_depth = 9.25 * inch;    // 234.9500 mm
+measured_chassis_outer_depth = 229.45;
+chassis_upper_relief_start_z = 16.0;
+chassis_upper_width_relief_per_side = 1.0;
+chassis_upper_depth_relief_per_side = 1.5;
+chassis_upper_corner_relief = 2.0;
 
 // ---------- CHASSIS ----------
 chassis_wall_thickness  = 3.2;
-// Raised 7 mm after measuring the 42 mm PSU and 25.36 mm keyed-switch rear
-// depth. This preserves at least 4 mm vertical separation at their closest
-// planned overlap; confirm the case split-line clearance before full printing.
+// Retained as a conservative service cavity after moving the 12 V supply
+// outside the case. Confirm the complete fixed-panel stack under the closed lid.
 chassis_height          = 77.0;
 bottom_rail_height      = 8.0;
 top_rail_height         = 8.0;
@@ -61,8 +64,8 @@ module_mount_edge_inset = 5.0;
 screen_model            = "official_touch_display_7_original_measured";
 screen_body_size        = [193.0,110.0];
 screen_visible_size     = [155.0,87.0];
-screen_module_center    = [0.0,155.5];
-screen_module_size      = [220.0,146.0];
+screen_module_center    = [0.0,153.0];
+screen_module_size      = [220.0,136.0];
 screen_opening_clearance= 1.0; // per side around the measured illuminated area
 screen_opening_size     = [screen_visible_size[0]+2*screen_opening_clearance,
                            screen_visible_size[1]+2*screen_opening_clearance];
@@ -96,21 +99,36 @@ rocker_total_rear_depth = 23.14;
 rocker_front_projection = 6.64;
 utility_module_center   = [98.0,45.0];
 utility_module_size     = [90.0,74.0];
-// Mode-dependent plug-in activity: one captive four-pin plug and two sockets.
-activity_socket_count   = 2;
+// Mode-dependent plug-in activity: four removable color-coded four-pin cables
+// and four identical sockets. Each plug receives an electrical ID so software
+// can distinguish a correct cable from a merely occupied socket.
+activity_socket_count   = 4;
+activity_plug_count     = 4;
 activity_socket_hole_diameter = 15.6;
 activity_socket_flange_diameter = 18.2;
 activity_socket_rear_depth = 13.3;
 activity_socket_front_projection = 5.19;
 activity_plug_diameter  = 17.81;
 activity_plug_length    = 36.65;
-activity_cable_pullout  = 6*inch;
-activity_cable_exit_diameter = 8.0; // grommet/strain-relief selection pending
+activity_cable_colors   = ["RED","BLUE","GREEN","ORANGE"];
+activity_cable_length   = 6*inch;
+activity_wired_pins_per_socket = 1;
+activity_socket_active_pins = [1,2,3,4];
+// Cable rows are [A-end active pin, B-end active pin]. The A/B end labels are
+// electrically significant; reversing a cable intentionally makes no contact.
+activity_cable_pin_pairs = [[1,2],[2,3],[3,4],[4,1]];
+activity_cable_end_labels = ["A","B"];
+// A 36 mm row pitch leaves 18.2 mm between the measured 17.8 mm plug bodies.
+// The 44 mm column pitch leaves 26.2 mm horizontally. Verify with four plugs.
+activity_socket_local_positions = [[-22,10],[22,10],[-22,-26],[22,-26]];
+activity_led_local_positions = [[-8,10],[8,10],[-8,-26],[8,-26]];
 indicator_count         = 4;
 indicator_hole_diameter = 5.0;
 indicator_body_diameter = 5.03;
 indicator_body_length   = 8.19;
-indicator_colors        = ["GREEN","BLUE","ORANGE","RED"];
+// Position order is upper-left, upper-right, lower-left, lower-right so each
+// LED can mark the matching red, blue, green, or orange socket.
+indicator_colors        = activity_cable_colors;
 
 // ---------- RETIRED MOVING-PANEL REFERENCE ----------
 // Retained only so historical fit-check modules remain readable. The active
@@ -162,9 +180,11 @@ split_joint_clearance   = 0.20;
 joiner_width            = 24.0;
 joiner_thickness        = 4.0;
 joiner_hole_spacing     = 34.0;
-chassis_split_y         = 110.0;
+// Proven final-fit spans: F 227.95 / 2 and R 230.95 / 2.
+chassis_split_y         = 113.975;
 seam_pad_wall_offset    = 11.0;  // boss centre from outer wall; guarantees rail overlap
 fit_test_frame_height   = 16.0;  // captures the full curved bevel while remaining low-cost
+upper_fit_frame_height = 10.0;   // low-material gauge for the relieved full-height top outline
 fit_test_pin_clearance  = 0.25;  // interference tuning for tool-free sample joiner pins
 fit_test_pin_height     = 5.0;
 fit_test_joiner_thickness = 2.4;
@@ -181,10 +201,15 @@ chassis_outer_depth = use_measured_outer_footprint
 chassis_inner_width = chassis_outer_width - 2*chassis_wall_thickness;
 chassis_inner_depth = chassis_outer_depth - 2*chassis_wall_thickness;
 chassis_corner_radius = max(4, corner_radius - chassis_clearance);
+chassis_top_outer_width = chassis_outer_width - 2*chassis_upper_width_relief_per_side;
+chassis_top_outer_depth = chassis_outer_depth - 2*chassis_upper_depth_relief_per_side;
+chassis_top_corner_radius = chassis_corner_radius + chassis_upper_corner_relief;
+chassis_top_inner_width = chassis_top_outer_width - 2*chassis_wall_thickness;
+chassis_top_inner_depth = chassis_top_outer_depth - 2*chassis_wall_thickness;
 
 panel_front_y = chassis_wall_thickness + panel_edge_gap;
-panel_width = chassis_inner_width - 2*panel_edge_gap;
-panel_depth = chassis_inner_depth - 2*panel_edge_gap;
+panel_width = chassis_top_inner_width - 2*panel_edge_gap;
+panel_depth = chassis_top_inner_depth - 2*panel_edge_gap;
 panel_back_y = panel_front_y + panel_depth;
 deck_underside_z = chassis_height - panel_thickness;
 
@@ -220,6 +245,12 @@ assert(case_bottom_bevel_height > 0 && case_bottom_bevel_height <= bottom_rail_h
        "Bottom bevel height must remain within the reinforced lower rail zone");
 assert(case_bottom_bevel_inset >= 0 && case_bottom_bevel_inset < chassis_outer_width/4,
        "Bottom bevel inset is invalid");
+assert(chassis_upper_relief_start_z >= case_bottom_bevel_height &&
+       chassis_upper_relief_start_z < chassis_height-top_rail_height,
+       "Upper relief must start above the validated bevel and below the top rail");
+assert(chassis_upper_width_relief_per_side >= 0 &&
+       chassis_upper_depth_relief_per_side >= 0,
+       "Upper relief cannot enlarge the shell");
 assert(bevel_curve_steps >= 4, "Use at least four bevel curve steps");
 assert(screen_module_center[0]+screen_module_size[0]/2 < panel_width/2 &&
        screen_module_center[0]-screen_module_size[0]/2 > -panel_width/2 &&

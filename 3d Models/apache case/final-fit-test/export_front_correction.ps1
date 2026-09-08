@@ -3,6 +3,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$VersionHelper = Join-Path $PSScriptRoot '../../Save-ModelVersion.ps1'
+& $VersionHelper -Tag 'before-export_front_correction'
 $ProjectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Source = Join-Path $ProjectDir "final_fit_frame.scad"
 $ExportDir = Join-Path $ProjectDir "exports"
@@ -25,4 +27,5 @@ $PreviewTemp = Join-Path "C:\tmp" "$TempTag-preview.png"
 if ($LASTEXITCODE -ne 0) { throw "OpenSCAD failed: preview" }
 Copy-Item -LiteralPath $PreviewTemp -Destination (Join-Path $ExportDir "final_fit_preview.png") -Force
 
+& $VersionHelper -Tag 'after-export_front_correction'
 Write-Host "Corrected front quadrants and preview written to $ExportDir"

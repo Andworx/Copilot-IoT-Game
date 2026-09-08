@@ -1,4 +1,4 @@
-# APACHE 3800 case and airflow study
+# APACHE 2800 case and airflow study
 
 See [the complete engineering design document](../DESIGN_DOCUMENT.md) for the
 mechanical history, airflow analysis, decision log, risks, and validation plan.
@@ -7,26 +7,28 @@ components are tracked in [the system bill of materials](../BOM.md).
 Document revisions are recorded in
 [the design changelog](../DESIGN_CHANGELOG.md).
 
-This is a separate planning model for the complete APACHE 3800 enclosure. It
+This is a separate planning model for the complete APACHE 2800 enclosure. It
 does not modify the production chassis and is not a drilling template.
 
 The model combines Harbor Freight's approximate catalogue envelope with the
 physically tested chassis footprint. It provides visible keepouts and proposed
-locations for cooling, rear-wall AC power entry, and a rear control dial.
+locations for cooling, rear-wall low-voltage power entry, and a rear control dial.
 
 ## Baseline geometry
 
-Harbor Freight lists the APACHE 3800 at approximately:
+Harbor Freight lists the APACHE 2800 at approximately:
 
-- Exterior: 16-1/2 x 13 x 6-3/4 inches
-- Interior: 14-7/8 x 10-5/8 x 6-1/8 inches
+- Exterior: 13-1/2 x 11-3/8 x 6 inches
+- Interior: 11-7/8 x 9 x 5-5/16 inches
 - Polypropylene construction with an IP65 rating
 
-Source: <https://www.harborfreight.com/3800-weatherproof-protective-case-16-516-in-63927.html>
+Source: <https://www.harborfreight.com/2800-weatherproof-protective-case-medium-black-64551.html>
 
-The study imports the current 306.3875 x 234.95 x 77 mm production chassis
-from `../model_params.scad` and places it inside a tapered lower cavity. The
-separate 229.45 mm final-fit candidate is not used here. The exact case split,
+The study imports the Rev 5 production chassis from `../model_params.scad`:
+the physically passed 306.3875 x 229.45 mm lower outline is preserved through
+Z = 16 mm, then progressively relieved to 304.3875 x 226.45 mm at Z = 77 mm.
+The upper correction remains pending its dedicated physical frame test. The
+model places this chassis inside a tapered lower cavity. The exact case split,
 floor size, draft, ribs, hinge,
 latches, handle, and flat exterior wall areas remain `MEASURE_BEFORE_DRILL`
 parameters.
@@ -37,7 +39,7 @@ parameters.
 |---|---|---|
 | Filtered intake | Left short end, front/lower offset | 60 mm fan, 54 mm opening, 50 mm hole pitch |
 | Exhaust | Right short end, rear/upper offset | 60 mm fan, 54 mm opening, 50 mm hole pitch |
-| Fused AC inlet | Left side of the recessed rear-center panel shown in the reference photo | In-hand FILSHU C14/fuse/switch module; measured 47.38 x 27.56 mm body/cutout, 66.72 x 31.8 mm face, 16.62 mm rear depth, and two 2.99 mm holes on 55.09 mm pitch |
+| Low-voltage power input | Left side of the recessed rear-center panel shown in the reference photo | External 12 V / 15 A supply through an XT60 connector and 12 V master switch; exact interfaces await receipt and measurement |
 | Six-position control selector | Right side of the same recessed rear-center panel | In-hand FOCMKEAS RS26 2P6T; measured 9.27 mm panel hole, 27 mm body/flange, 16 mm rear depth, 21.55 mm front projection, and anti-rotation pin |
 
 This diagonal low-to-high path crosses the under-panel electronics cavity. The
@@ -48,14 +50,11 @@ photo-derived planning envelope, not measured geometry. Confirm that this area
 is flat and single-wall, and that cords and the knob
 clear the opened lid, hinge hardware, table, and adjacent equipment.
 
-The power inlet represents the in-hand FILSHU IEC320 C14 inlet, fuse holder,
-and rocker-switch module from Amazon ASIN `B0FZQ866Z3`. It is rotated 90 degrees
-so its measured 66.72 x 31.8 mm face fits within the low rear panel. The model
-uses the measured 47.38 x 27.56 mm body/cutout, 16.62 mm rear depth, and two
-2.99 mm mounting holes on 55.09 mm pitch. Corner radii, terminal bend, wall
-thickness, and sealing still require a drilling coupon and case measurement.
-
-Product reference: <https://www.amazon.com/dp/B0FZQ866Z3?th=1>
+The former in-case C14/mains inlet and metal AC/DC supply are retired. The
+selected architecture keeps mains outside the case and brings only 12 V DC
+through an XT60 connector and master switch. Their cutouts, strain relief,
+polarity labeling, sealing, wire bend, and rear-wall placement remain
+provisional until the actual parts are measured.
 
 The control is the in-hand FOCMKEAS RS26 2P6T rotary band switch from Amazon
 ASIN `B0F9KTRGV5`. It is a six-position selector, not a continuously variable
@@ -97,16 +96,18 @@ Product reference: <https://www.amazon.com/dp/B0FD735LFG>
 
 The safe functional order is:
 
-`C14 AC inlet -> AC/DC supply -> 12/24 V DC -> Blue Sea 5025 -> branch fuse -> PlusRoc converter -> 5 V USB-C load`
+`external 12 V supply -> XT60 -> 12 V master switch -> Blue Sea 5025 -> branch fuse -> PlusRoc converter -> 5 V USB-C load`
 
 The 5025 is DC-only and must never receive mains voltage. Each branch fuse must
 be selected for its converter, conductor, connector, and load; 30 A is the
 fuse block's circuit limit, not the correct converter fuse value.
 
 The collision-checked study layout places the rotated fuse block at the rear
-left, the power supply toward the front-right, all three converters in a
-front-left service bank, and the separate Pi 4B/GPIO-breakout assembly near
-the center. The screen-mounted Pi is modeled with the display. The
+left, all three converters in a front-left service bank, and the separate Pi
+4B/GPIO-breakout assembly at X = +92 mm, Y = +38 mm on the right tray half.
+All floor electronics begin at the real tray top, 17.5 mm above the APACHE
+floor. Correcting that elevation exposed and removed the former center-Pi
+collision with the screen-mounted Pi. The screen-mounted Pi is modeled with the display. The
 old generic terminal-block envelope is removed because
 the 5025 now provides the DC positive distribution and negative bus. Any mains
 terminal/barrier hardware remains a separate selection.
@@ -117,10 +118,10 @@ clearance. These checks do not include rounded-corner detail, mounting
 fasteners, connector access, wiring bend radius, cover removal, or a component
 service path, so the delivered hardware still requires a physical mockup.
 
-The control deck is fixed and removable rather than hinged. A 220 x 146 mm
+The control deck is fixed and removable rather than hinged. A 220 x 136 mm
 carrier centers the measured 193 x 110 mm original Raspberry Pi 7-inch display
 with its attached Pi 4B and 35 mm total depth. Three 90 x 74 mm lower modules
-hold two safety toggles; two key switches plus two circular rockers; and two
+hold two safety toggles; two key switches plus two circular rockers; and four
 mode sockets plus four bare LEDs. The 77 mm chassis height clears the measured
 rear control bodies in the proposed layout, but closed-lid height still needs
 a physical witness test. The panel is removed by ten perimeter screws and
@@ -155,9 +156,9 @@ worst-case load. Run `python estimate_airflow.py` to repeat the calculation.
 3. Flat mounting area around each port, including the exterior corner bumpers.
 4. Case hinge, latch, handle, pressure-valve, padlock, and gasket keepouts.
 5. Clearance behind each 60 x 60 x 25 mm fan for wiring, guards, and service.
-6. Exact Mean Well model, worst-case AC input, output load, and measured loss.
+6. External supply model, rated output, connector polarity, and measured loss.
 7. Exact fan model, voltage, current, free-air CFM, pressure curve, and noise.
-8. Power-inlet corner radii, terminal bend, strain relief, and sealed-wall coupon.
+8. XT60/master-switch dimensions, terminal bend, strain relief, and sealed-wall coupon.
 9. Dial terminal clearance, nut/washer stack, and sealed-wall coupon.
 10. Closed-lid clearance above the fixed control panel, touchscreen bezel,
     switches, knobs, and indicators after lid-foam removal.
@@ -165,8 +166,8 @@ worst-case load. Run `python estimate_airflow.py` to repeat the calculation.
 12. Converter lead exits, cable clearance, sustained output, and measured
     temperature at the intended load.
 13. Touchscreen rear attachment/clamp details, connector positions, and cable bend.
-14. Control nut/washer stacks, LED rear holders, terminal bends, and the captive
-    plug cable's grommet, strain relief, and stowage path.
+14. Control nut/washer stacks, LED rear holders, terminal bends, and storage
+    for four removable 6-inch A/B-labeled cables.
 
 ## Safety and sealing
 
@@ -174,16 +175,15 @@ Any wall opening defeats the original IP65 enclosure rating unless the complete
 installation is independently sealed and tested. Use gasketed/IP-rated hardware,
 finger-safe guards, a replaceable intake filter, and drip-aware orientation.
 
-If mains voltage enters the case, use a recognized fused inlet, protective
-earth where required, insulated terminals, strain relief, appropriate wire and
-fusing, and physical separation from low-voltage/control wiring. Have the final
-mains design reviewed by a qualified person before energizing it.
+Mains voltage must remain outside the case in the selected architecture. Fuse
+the incoming 12 V path appropriately, use insulated terminals and strain
+relief, preserve polarity, and keep power wiring separated from logic wiring.
 
 ## Files and views
 
 - `airflow_params.scad` — study-specific case, port, component, and thermal
   inputs; it imports production chassis and panel values from `../model_params.scad`.
-- `apache_3800_airflow_study.scad` — case shell, chassis envelope, hardware
+- `apache_2800_airflow_study.scad` — case shell, chassis envelope, hardware
   mockups, keepouts, component blocks, and airflow arrows.
 - `estimate_airflow.py` — editable first-pass airflow calculation.
 - `export_airflow_previews.ps1` — renders open, closed, airflow-only, and port

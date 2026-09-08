@@ -3,8 +3,10 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$VersionHelper = Join-Path $PSScriptRoot '../../Save-ModelVersion.ps1'
+& $VersionHelper -Tag 'before-export_airflow_previews'
 $ProjectDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Source = Join-Path $ProjectDir "apache_3800_airflow_study.scad"
+$Source = Join-Path $ProjectDir "apache_2800_airflow_study.scad"
 $ExportDir = Join-Path $ProjectDir "exports"
 $TempTag = "codex-airflow-" + [guid]::NewGuid().ToString("N")
 
@@ -29,8 +31,8 @@ foreach ($View in $Views.Keys) {
 }
 
 $References = @{
-    "apache_3800_lower_REFERENCE_DO_NOT_PRINT" = "case_lower_reference"
-    "apache_3800_lid_REFERENCE_DO_NOT_PRINT"   = "case_lid_reference"
+    "apache_2800_lower_REFERENCE_DO_NOT_PRINT" = "case_lower_reference"
+    "apache_2800_lid_REFERENCE_DO_NOT_PRINT"   = "case_lid_reference"
 }
 
 foreach ($Name in $References.Keys) {
@@ -41,4 +43,5 @@ foreach ($Name in $References.Keys) {
     Copy-Item -LiteralPath $TempFile -Destination (Join-Path $ExportDir "$Name.stl") -Force
 }
 
+& $VersionHelper -Tag 'after-export_airflow_previews'
 Write-Host "Airflow-study previews and reference envelopes written to $ExportDir"
