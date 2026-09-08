@@ -1,7 +1,13 @@
 # Global Choices (Option Sets)
 
 Global choice definitions consumed by `scripts/Import-Tables.ps1`. Schema documented in
-`tables/README.md`. Base option value `756150000`, incrementing by 1 per option.
+`tables/README.md`. The generic template base value is `756150000`, but this
+environment's real publisher option-value prefix is `43570` (from
+`solutions/CopilotIoTGame/Other/Solution.xml`'s `CustomizationOptionValuePrefix`) —
+so real global choices here start at `435700000`, confirmed against
+`andy_layout` (built manually in the maker portal, which assigns this
+automatically; only matters if you're hand-writing values in a
+`definition.json` for the scripted path). Increment by 1 per option either way.
 
 | Choice | Used by | Notes |
 |---|---|---|

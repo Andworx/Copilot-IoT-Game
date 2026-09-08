@@ -88,6 +88,27 @@ export async function getGameBoxState(): Promise<GameBoxState> {
   };
 }
 
+export interface DeviceProfileSummary {
+  id: string;
+  name: string;
+  deviceSlug: string;
+}
+
+/** Lists all andy_deviceprofile rows, for the control app's device picker. */
+export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
+  const response = await dataverseFetch(
+    "andy_deviceprofiles?$select=andy_deviceprofileid,andy_name,andy_deviceslug&$orderby=andy_name"
+  );
+  const body = (await response.json()) as {
+    value: Array<{ andy_deviceprofileid: string; andy_name: string; andy_deviceslug: string }>;
+  };
+  return body.value.map((row) => ({
+    id: row.andy_deviceprofileid,
+    name: row.andy_name,
+    deviceSlug: row.andy_deviceslug,
+  }));
+}
+
 /** Sets or clears andy_gameboxstate's active device lookup. Pass null to return to demo/info. */
 export async function setActiveDeviceProfile(
   gameBoxStateId: string,

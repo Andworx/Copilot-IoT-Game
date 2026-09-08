@@ -3,12 +3,12 @@
   "displayName": "Panel Layout",
   "description": "Which control-panel layout renders a device profile -- one option per component in power pages/restore-and-spin/src/components/layouts/. See KIOSK_UI_SPEC.md §2.",
   "isGlobal": true,
-  "defaultValue": 756150000,
+  "defaultValue": 435700000,
   "options": [
-    { "value": 756150000, "label": "Dial Arc",        "description": "DialArcPanel.tsx" },
-    { "value": 756150001, "label": "Keypad",           "description": "KeypadPanel.tsx" },
-    { "value": 756150002, "label": "DIP Strip",        "description": "DipStripPanel.tsx" },
-    { "value": 756150003, "label": "Paired Columns",   "description": "PairedColumnsPanel.tsx" },
-    { "value": 756150004, "label": "Radio Cluster",    "description": "RadioClusterPanel.tsx" }
+    { "value": 435700000, "label": "Dial Arc",        "description": "DialArcPanel.tsx" },
+    { "value": 435700001, "label": "Keypad",           "description": "KeypadPanel.tsx" },
+    { "value": 435700002, "label": "DIP Strip",        "description": "DipStripPanel.tsx" },
+    { "value": 435700003, "label": "Paired Columns",   "description": "PairedColumnsPanel.tsx" },
+    { "value": 435700004, "label": "Radio Cluster",    "description": "RadioClusterPanel.tsx" }
   ]
 }
