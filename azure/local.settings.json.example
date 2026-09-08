@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+
+    "DATAVERSE_URL": "https://yourorg.crm.dynamics.com",
+    "DATAVERSE_TENANT_ID": "<entra-tenant-guid>",
+    "DATAVERSE_CLIENT_ID": "<app-registration-client-id>",
+    "DATAVERSE_CLIENT_SECRET": "<app-registration-client-secret>",
+
+    "AzureSignalRConnectionString": "<azure-signalr-service-connection-string>"
+  }
+}

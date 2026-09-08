@@ -1,0 +1,8 @@
+*.ts
+!dist/**/*.js
+src/
+.git*
+.vscode
+local.settings.json
+tsconfig.json
+*.tsbuildinfo

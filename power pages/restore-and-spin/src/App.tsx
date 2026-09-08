@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { KioskInfoPage } from "./pages/KioskInfoPage";
 import { KioskDevicePage } from "./pages/KioskDevicePage";
 import { PlaySpinPage } from "./pages/PlaySpinPage";
+import { useDeviceSync } from "./hooks/useDeviceSync";
 
 /**
  * React Router reuses the same component instance across param changes on the same
@@ -17,6 +18,10 @@ function KeyedKioskDevicePage() {
 
 /** Routes per GAME_MODE_PLAN.md §6. */
 export default function App() {
+  // Mode sync (GAME_MODE_PLAN.md §4a) needs Router context (useNavigate),
+  // so it lives inside App, not around it in main.tsx like SignalRProvider.
+  useDeviceSync();
+
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/kiosk/info" replace />} />

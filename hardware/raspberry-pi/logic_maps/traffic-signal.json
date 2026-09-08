@@ -1,0 +1,21 @@
+{
+  "slug": "traffic-signal",
+  "label": "Traffic Signal Controller",
+  "dialPosition": 9,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "autotiming", "label": "Auto Timing" },
+    { "physicalPin": "SW3", "key": "manualoverride", "label": "Manual Override" },
+    { "physicalPin": "SW4", "key": "pedestriansignal", "label": "Pedestrian Signal" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "cycling", "label": "Cycling", "when": "win" },
+    { "physicalPin": "LED2", "key": "conflict", "label": "Conflict", "when": "not autotiming" },
+    { "physicalPin": "LED3", "key": "override", "label": "Override", "when": "manualoverride" },
+    { "physicalPin": "LED4", "key": "pedestrianreq", "label": "Pedestrian Req", "when": "not win" }
+  ],
+  "win": "power and autotiming and not manualoverride",
+  "faultStartingState": { "power": true, "autotiming": false, "manualoverride": true, "pedestriansignal": false },
+  "winMessage": "Traffic signal restored to normal cycle."
+}

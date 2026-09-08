@@ -1,0 +1,21 @@
+{
+  "slug": "drone-ground-control",
+  "label": "Drone Ground Control",
+  "dialPosition": 12,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "gpslock", "label": "GPS Lock" },
+    { "physicalPin": "SW3", "key": "rthoverride", "label": "RTH Override" },
+    { "physicalPin": "SW4", "key": "payloadarm", "label": "Payload Arm" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "gpslocked", "label": "GPS Locked", "when": "gpslock" },
+    { "physicalPin": "LED2", "key": "linkup", "label": "Link Up", "when": "win" },
+    { "physicalPin": "LED3", "key": "batterycritical", "label": "Battery Critical", "when": "not win" },
+    { "physicalPin": "LED4", "key": "rthactive", "label": "RTH Active", "when": "rthoverride" }
+  ],
+  "win": "power and gpslock and not rthoverride",
+  "faultStartingState": { "power": true, "gpslock": false, "rthoverride": true, "payloadarm": false },
+  "winMessage": "Drone link restored — ready for flight ops."
+}

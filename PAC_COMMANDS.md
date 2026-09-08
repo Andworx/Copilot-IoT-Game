@@ -1,4 +1,13 @@
-# PAC CLI Commands — Power Pages Code Site
+# PAC CLI Commands
+
+Two different PAC CLI command families in this repo, for two different Power Platform
+products — don't cross them:
+
+- **Power Pages Code Site** (`power pages/restore-and-spin`) — `pac pages` commands, below.
+- **Power Apps Code App** (`power apps/game-box-control`) — `pac code` commands, further
+  down.
+
+## Power Pages Code Site
 
 `power pages/restore-and-spin` is a **Power Pages Code Site** (React 19 + Vite SPA), not a
 classic Liquid portal. Code sites use a different PAC CLI command family — mixing in
@@ -74,6 +83,44 @@ If the error mentions `.html` being blocked, the real cause is usually a stale m
 file left over from a previous build — delete `dist/` and re-run `npm run build` before
 retrying the upload.
 
+## Power Apps Code App
+
+`power apps/game-box-control` is a **Power Apps Code App** — the staff control device that
+sets which kiosk mode is live (`power pages/GAME_MODE_PLAN.md` §4a). It's a plain
+Vite/React/TS app on purpose (see that folder's `README.md`); `pac code` adds whatever
+Power Platform-specific config and Entra ID auth wrapping is needed on top, so there's
+nothing hand-written to match here.
+
+Make sure the right auth profile is selected first (`pac auth list` / `pac auth select`,
+same as the Power Pages section above — this needs to target the same environment as the
+`CopilotIoTGame` solution and Dataverse tables).
+
+```powershell
+cd "power apps\game-box-control"
+npm install
+```
+
+**First-time setup** — turns this plain Vite app into a Code App project:
+
+```powershell
+pac code init
+```
+
+This is expected to add its own config/auth files to the folder (do **not** hand-author
+anything that looks like what it generates — let it own that). Re-run `npm install` if it
+adds new dependencies.
+
+**Push to the environment** (first push and every update after):
+
+```powershell
+npm run build
+pac code push
+```
+
+If either command's exact flags differ from what's above (this is a newer, still-evolving
+PAC CLI feature), `pac code init --help` / `pac code push --help` are the source of truth —
+update this doc once confirmed.
+
 ## Reference
 
 | Parameter | Value |
@@ -81,4 +128,5 @@ retrying the upload.
 | Site | `power pages/restore-and-spin` (config: `powerpages.config.json`) |
 | Build output | `dist/` (Vite default) |
 | Environment | `YOUR_ORG_URL` |
+| Code App | `power apps/game-box-control` |
 | Website ID (for `pac pages activate`) | `YOUR_WEBSITE_ID` |

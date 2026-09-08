@@ -1,0 +1,21 @@
+{
+  "slug": "field-radio",
+  "label": "Tactical Field Radio",
+  "dialPosition": 6,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "encryption", "label": "Encryption Mode" },
+    { "physicalPin": "SW3", "key": "channelhop", "label": "Channel Hop" },
+    { "physicalPin": "SW4", "key": "transmit", "label": "Transmit Enable" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "signal", "label": "Signal Lock", "when": "power and channelhop" },
+    { "physicalPin": "LED2", "key": "encrypted", "label": "Encrypted Link", "when": "power and channelhop and encryption" },
+    { "physicalPin": "LED3", "key": "battery", "label": "Battery Critical", "when": "not win" },
+    { "physicalPin": "LED4", "key": "interference", "label": "Interference", "when": "power and not channelhop" }
+  ],
+  "win": "power and encryption and channelhop and transmit",
+  "faultStartingState": { "power": true, "encryption": false, "channelhop": false, "transmit": true },
+  "winMessage": "Secure link established with base."
+}

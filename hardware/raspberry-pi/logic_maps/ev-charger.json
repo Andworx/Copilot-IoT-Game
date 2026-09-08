@@ -1,0 +1,21 @@
+{
+  "slug": "ev-charger",
+  "label": "Smart EV Charger",
+  "dialPosition": 7,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "chargeenable", "label": "Charge Enable" },
+    { "physicalPin": "SW3", "key": "resetbreaker", "label": "Reset Breaker" },
+    { "physicalPin": "SW4", "key": "schedulemode", "label": "Schedule Mode" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "charging", "label": "Charging", "when": "win" },
+    { "physicalPin": "LED2", "key": "fault", "label": "Fault", "when": "not win" },
+    { "physicalPin": "LED3", "key": "scheduled", "label": "Scheduled", "when": "schedulemode" },
+    { "physicalPin": "LED4", "key": "connected", "label": "Connected", "when": "resetbreaker" }
+  ],
+  "win": "power and chargeenable and resetbreaker",
+  "faultStartingState": { "power": true, "chargeenable": false, "schedulemode": true, "resetbreaker": false },
+  "winMessage": "EV charger restored — charging resumed."
+}

@@ -11,22 +11,17 @@
 
 Fill in `project.tokens.json` and run `.\scripts\Apply-ProjectTokens.ps1 -Environment dev` to stamp these values across the repo.
 
-## Startup Onboarding Guardrail
+## Deployment Workflow
 
-Before any coding workflow starts (creating/editing files or running build/test/deploy commands), check onboarding completion:
-
-```powershell
-.\scripts\Test-OnboardingCompletion.ps1 -Environment dev -Json
-```
-
-- Treat onboarding as complete only when `isComplete` is `true`
-- If onboarding is incomplete, warn and route to remediation:
-  - `.\scripts\Start-Onboarding.ps1 -Environment dev`
-  - `.\scripts\Validate-DeploymentSetup.ps1 -Environment dev`
-- Allow bypass once per session only after explicit user acknowledgement:
-  - `I acknowledge onboarding is incomplete and want to bypass for this session.`
-- When bypass is used, include an auditable response note:
-  - `[Onboarding Bypass] User acknowledged incomplete onboarding for this session.`
+Power Platform changes ship via the `pac` CLI directly — build tables/choices/relationships
+manually in the maker portal (or via whatever surface fits: canvas app, Copilot Studio,
+etc.), then `pac solution export` + `pac solution unpack` to bring them into source control
+under `solutions/`, and `pac solution pack` + `pac solution import` to move a solution
+between environments. `scripts/Import-Tables.ps1` and the `Test-OnboardingCompletion.ps1`/
+`Start-Onboarding.ps1` gated flow are no longer this project's deployment path — no
+onboarding-completion check is required before coding or deployment work. Table
+`definition.json`/`README.md` files under `tables/` still document schema for reference,
+independent of which mechanism actually created the table.
 
 ## Solution & Publisher
 
