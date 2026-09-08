@@ -18,10 +18,10 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 1 | 0 | 1 | 1 | 3 |
-| Integration (Azure Functions) | 0 | 0 | 2 | 0 | 2 |
+| Integration (Azure Functions) | 0 | 1 | 1 | 0 | 2 |
 | Power Apps | 0 | 0 | 1 | 0 | 1 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 10 | 2 | 10 | 2 | 24 |
+| Totals | 10 | 3 | 9 | 2 | 24 |
 
 ## Dataverse
 
@@ -83,7 +83,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| `POST /api/set-mode`, `GET /api/kiosk-state`, `POST /api/negotiate` | Azure Function endpoints (`azure/`) | ⬜ TODO | GAME_MODE_PLAN.md §4a, Phase 2a — code written and compiles clean 2026-09-08, not yet deployed to a real Function App or exercised against live Dataverse/SignalR resources |
+| `POST /api/set-mode`, `GET /api/kiosk-state`, `POST /api/negotiate` | Azure Function endpoints (`azure/`) | ⬜ Verify | GAME_MODE_PLAN.md §4a, Phase 2a — deployed 2026-09-08 to `func-aw-azcom-copilot-iot-game` (`rg-aw-azcom-copilot-iot-game`) with SignalR (`sigr-aw-azcom-copilot-iot-game`) and the `restore-and-spin-function` app registration wired in; app registration still needs adding as a Dataverse Application User before Dataverse calls will succeed |
 | Prize claim endpoint (validate token → weighted-pick → atomic decrement → mark claimed) | Azure Function endpoint | ⬜ TODO | GAME_MODE_PLAN.md §7/PRIZE_ENGINE_SPEC.md, Phase 5 — `PlaySpinPage` currently picks client-side as a stand-in |
 
 ## Power Apps

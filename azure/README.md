@@ -37,7 +37,23 @@ revisit if `set-mode` ever gets a less trusted caller.
    add it as an **Application User** in the Dataverse environment with a security role
    granting at least Create/Read/Write on `andy_gameboxstate` and Read on
    `andy_deviceprofile`.
-3. **Node.js 20+** and the **Azure Functions Core Tools v4** (`npm i -g azure-functions-core-tools@4`) for local runs.
+3. **Node.js 24+** and the **Azure Functions Core Tools v4** (`npm i -g azure-functions-core-tools@4`) for local runs. (Node 20 reached end-of-life 2026-04-30 — `az functionapp create --runtime-version` will refuse it.)
+
+### Deployed resources (2026-09-08)
+
+All in resource group `rg-aw-azcom-copilot-iot-game` (subscription "Microsoft Azure
+Sponsorship", `eastus2`):
+
+| Resource | Name |
+|---|---|
+| Function App | `func-aw-azcom-copilot-iot-game` (`func-aw-azcom-copilot-iot-game.azurewebsites.net`) |
+| Storage account | `stawazcomiotgame` |
+| SignalR Service | `sigr-aw-azcom-copilot-iot-game` (Free_F1 — fine for dev; upgrade to Standard_S1 before the real booth event, Free tier caps concurrent connections/daily messages) |
+| Entra app registration | `restore-and-spin-function`, App ID `8eb31f00-6f72-4663-8de9-e5290d2a2aa7`, tenant `7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8` — **still needs to be added as a Dataverse Application User** (client secret was generated and set directly as the Function App's `DATAVERSE_CLIENT_SECRET` setting, not committed anywhere) |
+
+All 5 app settings (`DATAVERSE_URL`, `DATAVERSE_TENANT_ID`, `DATAVERSE_CLIENT_ID`,
+`DATAVERSE_CLIENT_SECRET`, `AzureSignalRConnectionString`) are already set on the live
+Function App via `az functionapp config appsettings set`.
 
 ## Local setup
 
@@ -68,8 +84,11 @@ curl -X POST http://localhost:7071/api/set-mode \
 
 ```bash
 npm run build
-func azure functionapp publish <your-function-app-name>
+func azure functionapp publish func-aw-azcom-copilot-iot-game --typescript
 ```
+
+`--typescript` matters — without it, `func` can't determine the project language from a
+TS-only source tree and refuses to publish.
 
 Set the same app settings (`DATAVERSE_URL`, `DATAVERSE_TENANT_ID`, `DATAVERSE_CLIENT_ID`,
 `DATAVERSE_CLIENT_SECRET`, `AzureSignalRConnectionString`) on the deployed Function App
