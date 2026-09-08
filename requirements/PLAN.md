@@ -14,14 +14,14 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 0 | 2 | 1 | 0 | 3 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 6 | 0 | 1 | 0 | 7 |
-| Power Pages | 3 | 0 | 1 | 0 | 4 |
+| Power Pages | 4 | 0 | 0 | 0 | 4 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 1 | 0 | 1 | 1 | 3 |
 | Integration (Azure Functions) | 1 | 1 | 1 | 0 | 3 |
 | Power Apps | 0 | 0 | 1 | 0 | 1 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 11 | 3 | 9 | 2 | 25 |
+| Totals | 12 | 3 | 8 | 2 | 25 |
 
 ## Dataverse
 
@@ -57,7 +57,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `restore-and-spin`: `KioskInfoPage` + `KioskDevicePage`, all 11 devices, 10s reset timer (800×480 viewport) | Code Site pages | ✅ Done | GAME_MODE_PLAN.md §6, Phase 3 |
 | `restore-and-spin`: `/play-spin` page, QR generation on kiosk win, wheel animation | Code Site page | ✅ Done | GAME_MODE_PLAN.md §7, Phase 6 — except real QR encoding (placeholder pattern) and the real claim call (depends on the Integration claim endpoint below) |
 | `restore-and-spin`: all 11 device pages + content | Code Site content | ✅ Done | GAME_MODE_PLAN.md §11, Phase 7 |
-| `restore-and-spin`: extend root `SignalRContext` to fetch current state on load and navigate on `deviceChanged` | Code Site — SPA change | ⬜ TODO | GAME_MODE_PLAN.md §4a, Phase 2c — new as of 2026-09-08 |
+| `restore-and-spin`: root `SignalRContext` + `useDeviceSync` — fetch current state on load, navigate on `deviceChanged` | Code Site — SPA change | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2c — confirmed 2026-09-08: a live tab moved from `/kiosk/info` to `/kiosk/smart-lock` via an external `set-mode` call, no reload |
 
 ## Plugins
 
