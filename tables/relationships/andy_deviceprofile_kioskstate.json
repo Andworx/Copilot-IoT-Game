@@ -1,0 +1,8 @@
+{
+  "schemaName": "andy_deviceprofile_kioskstate",
+  "type": "OneToMany",
+  "referencingEntity": "andy_kioskstate",
+  "referencingAttribute": "andy_activedeviceprofile",
+  "referencedEntity": "andy_deviceprofile",
+  "cascadeDelete": "Restrict"
+}
