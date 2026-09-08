@@ -212,7 +212,7 @@ per `restore-and-spin/README.md`), not the production control surface.
    endpoint" rule already applied to prize claims (§7). No direct Power-App-to-Dataverse
    write, to keep the write-and-broadcast logic in one place.
 2. **The Function does three things:**
-   - Updates the new `andy_kioskstate` singleton row (§5) via the Dataverse Web API.
+   - Updates the new `andy_gameboxstate` singleton row (§5) via the Dataverse Web API.
    - Broadcasts a SignalR message to the kiosk group:
      `{ type: "deviceChanged", deviceSlug, dialPosition }`.
    - Sends an Azure IoT Hub **cloud-to-device** message to the panel Pi's existing device
@@ -244,19 +244,22 @@ by the existing tables (`andy_iot_sensor`, `andy_iottelemetryevent`, `andy_dispa
 `andy` to make that official, but the schema below is written against the real value, not a
 placeholder.
 
-### `andy_deviceprofile` — one row per dial position (12 total: 1 demo + 11 devices)
+### `andy_deviceprofile` — one row per kiosk mode (12 total: 1 demo + 11 devices)
 | Column | Type | Notes |
 |---|---|---|
-| `andy_name` | String | Display name, e.g. "Smart Lock", or "Demo / Info" for position 1 |
+| `andy_name` | String | Display name, e.g. "Smart Lock", or "Demo / Info" for the non-game row |
 | `andy_deviceslug` | String | URL slug, matches `/kiosk/<slug>` page and telemetry `deviceSlug` |
-| `andy_dialposition` | Whole Number | 1–12, matches the physical dial position reported by the Pi |
-| `andy_isgamedevice` | Yes/No | `No` for position 1 (demo/info) — tells the win-detection and Copilot-agent wiring to skip this page entirely |
+| `andy_isgamedevice` | Yes/No | `No` for the demo/info row — tells the win-detection and Copilot-agent wiring to skip this page entirely |
 | `andy_introcopy` | Multiline text | Optional — intro/troubleshooting copy if not hardcoded in the page |
 | `andy_copilottopic` | String | Which Copilot Studio topic/context this page should invoke (null for the demo page) |
 | `andy_layout` | Choice | Which control-panel layout renders this device — one option per layout in `KIOSK_UI_SPEC.md` §2 (dial-arc / keypad / dip-strip / paired-columns / radio-cluster). Lets a future 6th device reuse an existing layout via data instead of a new code branch |
-| `andy_isactive` | Yes/No | Allows retiring a device type without deleting history |
 
-### `andy_kioskstate` — singleton row: which device is active right now (§4a)
+No `andy_isactive` — Dataverse's built-in Status/Status Reason already covers retiring a
+row without deleting it. No `andy_dialposition` either — it only ever mapped a physical
+rotary contact to a row, and selection is software-defined now (§4a); trivial to add back
+if the dial ever returns as a third input.
+
+### `andy_gameboxstate` — singleton row: which device is active right now (§4a)
 | Column | Type | Notes |
 |---|---|---|
 | `andy_name` | String | Fixed value, e.g. `"Current State"` — this table only ever has one row |
@@ -452,7 +455,7 @@ not design decisions:
 | 1 | Dataverse: `andy_deviceprofile` (6 rows incl. demo), `andy_gamewin`, `andy_prize` tables + choices/relationships | ⬜ TODO |
 | 2 | ~~Panel Pi: add dial GPIO read + `deviceSlug` field to telemetry. Kiosk Pi: split dial wire, local GPIO-watcher + local WebSocket~~ **Superseded by Phase 2a (§0, §4a)** | ⬜ TODO → superseded |
 | 2 (done part) | Panel Pi (`hardware/raspberry-pi/`): switches, LEDs, connectors, rotary mux scanner, all 12 `logic_maps/<slug>.json` files, Azure IoT Hub telemetry publisher | ✅ Done — verified against real hardware; rotary mux chip itself confirmed defective, see §4a |
-| 2a | Dataverse: `andy_kioskstate` singleton table (§5). Azure Function: `POST /api/set-mode` (validate + write + SignalR broadcast + IoT Hub C2D) and `GET /api/kiosk-state` (§4a) | ⬜ TODO |
+| 2a | Dataverse: `andy_gameboxstate` singleton table (§5). Azure Function: `POST /api/set-mode` (validate + write + SignalR broadcast + IoT Hub C2D) and `GET /api/kiosk-state` (§4a) | ⬜ TODO |
 | 2b | Panel Pi: add IoT Hub cloud-to-device receive-loop to `panel_controller.py` so it loads the mode-selected `logic_maps/<slug>.json` instead of reading a local dial (§4a) | ⬜ TODO |
 | 2c | Power Pages (`restore-and-spin`): extend the root `SignalRContext` to fetch current state on load (`GET /api/kiosk-state`) and navigate on `deviceChanged` messages (§4a) | ⬜ TODO |
 | 2d | Power App: staff control app — 12-tile device picker, Entra ID sign-in, calls `/api/set-mode` via custom connector (§4a) | ⬜ TODO |

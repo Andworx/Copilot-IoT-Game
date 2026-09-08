@@ -28,7 +28,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Item | Type | Status | Notes |
 |---|---|---|---|
 | `andy_deviceprofile`, `andy_gamewin`, `andy_prize` + choices/relationships | Tables | ⬜ TODO | GAME_MODE_PLAN.md §5, Phase 1 |
-| `andy_kioskstate` — singleton row tracking the active device | Table | ⬜ TODO | GAME_MODE_PLAN.md §5, Phase 2a — new as of 2026-09-08 (§4a) |
+| `andy_gameboxstate` — singleton row tracking the active device | Table | ⬜ TODO | GAME_MODE_PLAN.md §5, Phase 2a — new as of 2026-09-08 (§4a) |
 
 ## Flows
 

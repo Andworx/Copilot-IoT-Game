@@ -1,4 +1,4 @@
-# `andy_kioskstate`
+# `andy_gameboxstate`
 
 Singleton table — **exactly one row, ever.** Tracks which device is currently active on the
 `restore-and-spin` kiosk, replacing "read the physical dial" as the source of truth. Full
@@ -19,7 +19,7 @@ design: `power pages/GAME_MODE_PLAN.md` §4a (why) and §5 (schema).
 | Column | Type | Notes |
 |---|---|---|
 | `andy_name` | Single line of text (primary) | Fixed value, e.g. `"Current State"` |
-| `andy_activedeviceprofile` | Lookup → `andy_deviceprofile` | The active device. Leave null for demo/info (dial position 1) |
+| `andy_activedeviceprofile` | Lookup → `andy_deviceprofile` | The active device. Leave null for demo/info |
 
 No custom audit columns — Dataverse's built-in `modifiedon` already answers "when did
 this last change" for free, since the row is only ever updated, never re-created. A
@@ -31,9 +31,11 @@ design reads that back for any purpose, so it's not worth a dedicated column.
 
 1. **Prerequisite:** `andy_deviceprofile` must already exist in the environment — the
    lookup column below can't be created until it does.
-2. `make.powerapps.com` → your environment → your project's solution → **+ New → Table**.
-3. Display name `Kiosk State`, plural `Kiosk States`. Confirm the schema name resolves to
-   `andy_kioskstate` (publisher prefix `andy_`).
+2. `make.powerapps.com` → your environment → the `CopilotIoTGame` solution → **+ New →
+   Table**. Build it *inside* the solution's context so it's tracked as a solution
+   component when you export.
+3. Display name `Game Box State`, plural `Game Box States`. Confirm the schema name
+   resolves to `andy_gameboxstate` (publisher prefix `andy_`).
 4. **Ownership: Organization** (not User/Team-owned — this is shared config, not per-user
    data).
 5. The primary column `andy_name` is created automatically — no changes needed beyond
@@ -47,12 +49,12 @@ design reads that back for any purpose, so it's not worth a dedicated column.
    security role granting Create/Read/Write on it.
 9. Manually create the one and only row once the table exists (`andy_name = "Current
    State"`, leave `andy_activedeviceprofile` null to start in demo/info mode).
-10. Export the solution when ready — same process as the rest of this project's Dataverse
-    schema.
+10. Export the solution when ready — this project uses `pac solution pack`/`pac solution
+    import` to move it between environments, not `Import-Tables.ps1`, for this table.
 
 ## Automation note
 
-`tables/andy_kioskstate/definition.json` in this folder documents the same schema in the
+`tables/andy_gameboxstate/definition.json` in this folder documents the same schema in the
 format `scripts/Import-Tables.ps1` consumes, for whenever this project's schema moves to
-the scripted deployment path instead of a manual UI build + solution export. The
+the scripted deployment path instead of a manual UI build + solution export/pack. The
 relationship is also recorded in `tables/relationships/`.
