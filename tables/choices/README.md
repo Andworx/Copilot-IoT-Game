@@ -12,3 +12,5 @@ automatically; only matters if you're hand-writing values in a
 | Choice | Used by | Notes |
 |---|---|---|
 | `andy_layout` | `andy_deviceprofile.andy_layout` | The 5 control-panel layouts in `power pages/restore-and-spin/src/components/layouts/` |
+| `andy_gamewinstatus` | `andy_gamewin.andy_status` | Digital claim status (Unclaimed/Claimed/Expired) — PRIZE_ENGINE_SPEC.md §2.2/§2.3 |
+| `andy_redemptionstatus` | `andy_gamewin.andy_redemptionstatus` | Physical handoff status (Not Redeemed/Redeemed) — PRIZE_ENGINE_SPEC.md §2.2/§2.3 |

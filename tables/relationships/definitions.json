@@ -8,6 +8,30 @@
       "referencingAttribute": "andy_activedeviceprofile",
       "referencedEntity": "andy_deviceprofile",
       "cascadeDelete": "Restrict"
+    },
+    {
+      "schemaName": "andy_gamewin_deviceprofile",
+      "type": "OneToMany",
+      "referencingEntity": "andy_gamewin",
+      "referencingAttribute": "andy_deviceprofile",
+      "referencedEntity": "andy_deviceprofile",
+      "cascadeDelete": "Restrict"
+    },
+    {
+      "schemaName": "andy_gamewin_prize",
+      "type": "OneToMany",
+      "referencingEntity": "andy_gamewin",
+      "referencingAttribute": "andy_prize",
+      "referencedEntity": "andy_prize",
+      "cascadeDelete": "Restrict"
+    },
+    {
+      "schemaName": "andy_gamewin_technician",
+      "type": "OneToMany",
+      "referencingEntity": "andy_gamewin",
+      "referencingAttribute": "andy_redeemedby",
+      "referencedEntity": "andy_technician",
+      "cascadeDelete": "Restrict"
     }
   ]
 }

@@ -1,0 +1,11 @@
+{
+  "schemaName": "andy_redemptionstatus",
+  "displayName": "Redemption Status",
+  "description": "Tracks the physical handoff of a claimed prize at the booth -- separate from andy_gamewinstatus, which tracks the digital claim. See power pages/PRIZE_ENGINE_SPEC.md §2.3.",
+  "isGlobal": true,
+  "defaultValue": 435700000,
+  "options": [
+    { "value": 435700000, "label": "Not Redeemed", "description": "Claimed but not yet picked up at the prize table." },
+    { "value": 435700001, "label": "Redeemed", "description": "Staff handed over the item and set andy_redeemedtime/andy_redeemedby." }
+  ]
+}

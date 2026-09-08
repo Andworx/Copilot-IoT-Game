@@ -1,0 +1,70 @@
+{
+  "schemaName": "andy_prize",
+  "displayName": "Prize",
+  "displayCollectionName": "Prizes",
+  "description": "One row per prize the wheel can award. andy_weight controls odds; andy_remaining is finite stock, atomically decremented on claim. See power pages/PRIZE_ENGINE_SPEC.md §1/§2.1.",
+  "primaryNameColumn": "andy_name",
+  "ownership": "Organization",
+  "isActivity": false,
+  "changeTrackingEnabled": true,
+  "columns": [
+    {
+      "schemaName": "andy_name",
+      "displayName": "Name",
+      "dataType": "String",
+      "maxLength": 200,
+      "required": "Required",
+      "description": "Prize name, shown to the player and to booth staff."
+    },
+    {
+      "schemaName": "andy_value",
+      "displayName": "Value",
+      "dataType": "Currency",
+      "required": "Optional",
+      "description": "Reference value -- reporting only, not read by the picker (§1.1)."
+    },
+    {
+      "schemaName": "andy_weight",
+      "displayName": "Weight",
+      "dataType": "WholeNumber",
+      "required": "Required",
+      "description": "Relative odds -- the field the picker actually uses (§1.2). Higher andy_value should mean lower andy_weight, by convention, not a formula."
+    },
+    {
+      "schemaName": "andy_remaining",
+      "displayName": "Remaining",
+      "dataType": "WholeNumber",
+      "required": "Required",
+      "description": "Finite stock, decremented atomically on claim via ETag/If-Match (§1.3). Use a large number (e.g. 999999) for the fallback row -- see andy_isfallback."
+    },
+    {
+      "schemaName": "andy_isactive",
+      "displayName": "Is Active",
+      "dataType": "Boolean",
+      "required": "Required",
+      "description": "Inactive prizes are excluded from selection entirely -- distinct from andy_remaining = 0, use this to retire a prize mid-event without it looking sold out."
+    },
+    {
+      "schemaName": "andy_isfallback",
+      "displayName": "Is Fallback",
+      "dataType": "Boolean",
+      "required": "Required",
+      "description": "Exactly one row should be true -- the empty-pool safety valve (§1.4). Excluded from normal weighted selection; only used when the eligible pool is empty. Validate exactly-one at deploy time."
+    },
+    {
+      "schemaName": "andy_totalawarded",
+      "displayName": "Total Awarded",
+      "dataType": "WholeNumber",
+      "required": "Required",
+      "description": "Running counter, incremented alongside the andy_remaining decrement. Lets reporting show \"claimed\" even after andy_remaining hits 0. Starts at 0."
+    },
+    {
+      "schemaName": "andy_imageurl",
+      "displayName": "Image URL",
+      "dataType": "String",
+      "maxLength": 500,
+      "required": "Optional",
+      "description": "Optional reference image for booth staff / a future admin view."
+    }
+  ]
+}

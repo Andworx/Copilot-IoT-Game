@@ -1,0 +1,8 @@
+{
+  "schemaName": "andy_gamewin_prize",
+  "type": "OneToMany",
+  "referencingEntity": "andy_gamewin",
+  "referencingAttribute": "andy_prize",
+  "referencedEntity": "andy_prize",
+  "cascadeDelete": "Restrict"
+}
