@@ -29,15 +29,6 @@ pac solution import --path "solutions\CopilotIoTGame.zip"
 > `pac pages upload` / `pac pages download` are classic-portal commands — do not use them
 > on these sites, they will corrupt code-site metadata. Always use `upload-code-site`.
 
-### restore-and-spin
-
-```powershell
-cd "power pages\restore-and-spin"
-npm install
-npm run build
-pac pages upload-code-site --rootPath "."
-```
-
 ### copilotiotgame
 
 ```powershell
