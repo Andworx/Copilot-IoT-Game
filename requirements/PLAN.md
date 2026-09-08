@@ -11,25 +11,25 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Area | ✅ Done | ⬜ Verify | ⬜ TODO | Future | Total |
 |---|---:|---:|---:|---:|---:|
-| Dataverse | 0 | 2 | 1 | 0 | 3 |
+| Dataverse | 1 | 1 | 1 | 0 | 3 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 6 | 0 | 1 | 0 | 7 |
 | Power Pages | 4 | 0 | 0 | 0 | 4 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 1 | 0 | 1 | 1 | 3 |
-| Integration (Azure Functions) | 1 | 1 | 1 | 0 | 3 |
-| Power Apps | 0 | 0 | 1 | 0 | 1 |
+| Integration (Azure Functions) | 2 | 0 | 1 | 0 | 3 |
+| Power Apps | 0 | 1 | 0 | 0 | 1 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 12 | 3 | 8 | 2 | 25 |
+| Totals | 14 | 2 | 7 | 2 | 25 |
 
 ## Dataverse
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| `andy_deviceprofile` + `andy_layout` choice | Table + choice | ⬜ Verify | GAME_MODE_PLAN.md §5, Phase 1 — built in the maker portal and unpacked into `solutions/CopilotIoTGame/` 2026-09-08; the 12 real device rows and end-to-end use aren't populated/exercised yet |
+| `andy_deviceprofile` + `andy_layout` choice | Table + choice | ⬜ Verify | GAME_MODE_PLAN.md §5, Phase 1 — schema confirmed working end to end 2026-09-08 (1 real row, `smart-lock`, created and successfully driven a live kiosk navigation); 11 of 12 device rows still need authoring (§11) |
 | `andy_gamewin`, `andy_prize` + choices/relationships | Tables | ⬜ TODO | GAME_MODE_PLAN.md §5, Phase 1 |
-| `andy_gameboxstate` — singleton row tracking the active device | Table | ⬜ Verify | GAME_MODE_PLAN.md §5, Phase 2a — new as of 2026-09-08 (§4a); built and unpacked, not yet exercised by the Function endpoints below |
+| `andy_gameboxstate` — singleton row tracking the active device | Table | ✅ Done | GAME_MODE_PLAN.md §5, Phase 2a — confirmed end to end 2026-09-08 by both `GET /api/kiosk-state` and a real `set-mode` write |
 
 ## Flows
 
@@ -83,15 +83,15 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| `GET /api/kiosk-state` | Azure Function endpoint (`azure/`) | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2a — confirmed 2026-09-08 end to end against live Dataverse: `func-aw-azcom-copilot-iot-game` on Node 22, `restore-and-spin-function` added as a Dataverse Application User, `andy_gameboxstate`'s one row created, returns clean `200 {"deviceSlug":null,"deviceName":null}` |
-| `POST /api/set-mode`, `POST /api/negotiate` | Azure Function endpoints (`azure/`) | ⬜ Verify | GAME_MODE_PLAN.md §4a, Phase 2a — deployed alongside `kiosk-state` and share its (now-confirmed) Dataverse auth path, but not yet individually exercised — `set-mode` needs a real `andy_deviceprofile` row to write, `negotiate` needs a SignalR client to call it |
+| `GET /api/kiosk-state`, `GET /api/device-profiles` | Azure Function endpoints (`azure/`) | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2a — confirmed 2026-09-08 end to end against live Dataverse on `func-aw-azcom-copilot-iot-game` (Node 22, `restore-and-spin-function` as a Dataverse Application User) |
+| `POST /api/set-mode`, `POST /api/negotiate` | Azure Function endpoints (`azure/`) | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2a — confirmed 2026-09-08: a real `set-mode` call (from Game Box Control) wrote `andy_gameboxstate` and broadcast over `negotiate`'s SignalR hub to a live kiosk tab, which navigated with no reload |
 | Prize claim endpoint (validate token → weighted-pick → atomic decrement → mark claimed) | Azure Function endpoint | ⬜ TODO | GAME_MODE_PLAN.md §7/PRIZE_ENGINE_SPEC.md, Phase 5 — `PlaySpinPage` currently picks client-side as a stand-in |
 
 ## Power Apps
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| Staff control app — 12-tile device picker, Entra ID sign-in, calls `/api/set-mode` | Canvas app | ⬜ TODO | GAME_MODE_PLAN.md §4a, Phase 2d — new as of 2026-09-08 |
+| Game Box Control — device picker, calls `/api/set-mode` | Power Apps Code App (`power apps/game-box-control`) | ⬜ Verify | GAME_MODE_PLAN.md §4a, Phase 2d — built as a Code App (not Canvas) for a normal React dev loop; app logic confirmed 2026-09-08 driving a live kiosk navigation via `npm run dev`, but `pac code init`/`pac code push` (PAC_COMMANDS.md) haven't run yet — not yet actually published as a governed Power App with real Entra ID gating |
 
 ## Testing
 
