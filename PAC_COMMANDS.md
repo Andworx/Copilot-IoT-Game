@@ -43,9 +43,6 @@ npm run build
 pac pages upload-code-site --rootPath "."
 ```
 
-**Never use `pac pages upload`** on this site — that command targets classic portal-studio
-sites and will corrupt code site metadata.
-
 ## First deployment to a new environment
 
 A code site needs to be activated once it has a live website record before it's reachable:

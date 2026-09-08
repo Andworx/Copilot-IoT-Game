@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <EntityRelationship Name="andy_gameboxstate_andy_activedeviceprofile_andy_deviceprofile" />
+  <EntityRelationship Name="business_unit_andy_deviceprofile" />
+  <EntityRelationship Name="business_unit_andy_gameboxstate" />
+  <EntityRelationship Name="lk_andy_deviceprofile_createdby" />
+  <EntityRelationship Name="lk_andy_deviceprofile_modifiedby" />
+  <EntityRelationship Name="lk_andy_gameboxstate_createdby" />
+  <EntityRelationship Name="lk_andy_gameboxstate_modifiedby" />
+  <EntityRelationship Name="owner_andy_deviceprofile" />
+  <EntityRelationship Name="owner_andy_gameboxstate" />
+  <EntityRelationship Name="team_andy_deviceprofile" />
+  <EntityRelationship Name="team_andy_gameboxstate" />
+  <EntityRelationship Name="user_andy_deviceprofile" />
+  <EntityRelationship Name="user_andy_gameboxstate" />
+</EntityRelationships>

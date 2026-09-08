@@ -72,3 +72,6 @@ logs/
 # 3D modeling local snapshots and generated export logs
 /3d Models/versions/
 /3d Models/**/*.log
+
+# Claude Code worktree scaffolding -- never track these, they are separate working copies
+.claude/worktrees/
