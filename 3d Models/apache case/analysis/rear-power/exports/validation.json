@@ -1,0 +1,102 @@
+{
+  "status": "CAD-only candidate validation, physical testing required",
+  "parts": [
+    {
+      "part": "xt_coupon",
+      "bounds_mm": [
+        50.0,
+        50.0,
+        3.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "switch_1",
+      "bounds_mm": [
+        40.0,
+        46.0,
+        1.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "switch_2",
+      "bounds_mm": [
+        40.0,
+        46.0,
+        2.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "switch_3",
+      "bounds_mm": [
+        40.0,
+        46.0,
+        3.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "switch_3_27",
+      "bounds_mm": [
+        40.0,
+        46.0,
+        3.27
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "carrier",
+      "bounds_mm": [
+        106.0,
+        52.0,
+        3.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "layout_template",
+      "bounds_mm": [
+        106.0,
+        52.0,
+        1.2
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "rear_L",
+      "bounds_mm": [
+        152.994,
+        115.274999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "rear_R",
+      "bounds_mm": [
+        152.994,
+        115.274999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    }
+  ],
+  "rear_body_to_tray_gap_mm": 6.5,
+  "carrier_nut_relief_to_tray_gap_mm": 1.5,
+  "fuse_top_mm": 46,
+  "panel_underside_mm": 72,
+  "vertical_gap_mm": 26,
+  "screen_pi_hard_x_gap_mm": 6.5,
+  "lower_joiner_to_tray_gap_mm": 7.5
+}

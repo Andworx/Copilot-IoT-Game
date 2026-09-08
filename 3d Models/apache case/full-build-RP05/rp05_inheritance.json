@@ -1,0 +1,109 @@
+{
+  "status": "PASS - complete RP05 planning set; no geometry delta",
+  "source_revision": "full-build-RP04",
+  "stl_count": 24,
+  "all_stls_byte_identical": true,
+  "stls": [
+    {
+      "file": "exports/activity_face.stl",
+      "sha256": "610aa6eb6357c5d2fa00a5cb4e59badb1eca2d7cacf17d563b5deb40c10b3e4b"
+    },
+    {
+      "file": "exports/carrier.stl",
+      "sha256": "1d6f9df48aa9aa4fca5f4cc3c32e5712872f5957bba6d0799c06c028a4c250c7"
+    },
+    {
+      "file": "exports/dial_coupon.stl",
+      "sha256": "94a9ec1cfbc99303edd07836f278119b994b2b7fa8432ebfcb1106985b0b83c2"
+    },
+    {
+      "file": "exports/layout_template.stl",
+      "sha256": "837bd2dce81adc0d875e0a4e181c932129e44b9aafb3cc6a16c3aa05d953d14f"
+    },
+    {
+      "file": "exports/lower_joiner.stl",
+      "sha256": "cfb9e73be1a21eed9ea59ce7a6ebfc119d245f2f9c0c3d6ddce7a6e58e8f6f13"
+    },
+    {
+      "file": "exports/panel_L.stl",
+      "sha256": "da352529c5a77b62531846b618dcd76d41a8daa2710c19ff3e38e67a39168acb"
+    },
+    {
+      "file": "exports/panel_R.stl",
+      "sha256": "df73e554ef648cf8c224ea3b743a7c303cb3879d63abfb11733ccf6254c803e7"
+    },
+    {
+      "file": "exports/rear_L.stl",
+      "sha256": "61490678a44880bb0bb87bebc06bd2c0a856a023535e2f12e4ddc644ce468bb8"
+    },
+    {
+      "file": "exports/rear_R.stl",
+      "sha256": "4a22bddbe0ece625bc985f05f34b0743948bb6a7de80ab0bd96da48269650251"
+    },
+    {
+      "file": "exports/safety_face.stl",
+      "sha256": "ca9eaaf360181e0049cb0be28da3546bb11c17e3815714f3dd0083a8654e5109"
+    },
+    {
+      "file": "exports/screen_face.stl",
+      "sha256": "712cfce2d3576330907b1398b5f44800206af05a2c9bd7e24211fbbff3fffe29"
+    },
+    {
+      "file": "exports/shell_FL.stl",
+      "sha256": "1ffcfdb6ab5fcd076ae58d952dde513edd4944cf6f2afc4947897e7bbd6f355b"
+    },
+    {
+      "file": "exports/shell_FR.stl",
+      "sha256": "560de8fcb25479377ab520a226b8301c4df4946efad70c1b9e8652517a6bc433"
+    },
+    {
+      "file": "exports/shell_joiner_x.stl",
+      "sha256": "98edcbece620c3f52b10a37daa2fe1bfba813350767e350b1845d2d06199f043"
+    },
+    {
+      "file": "exports/shell_joiner_y.stl",
+      "sha256": "28bc1a7b095f07777de7e3c85a252fc0ca31745cd072a52d0098b4b3dea7cd5d"
+    },
+    {
+      "file": "exports/switch_1.stl",
+      "sha256": "bedd8a03015fc68a6b63ddda27d0f70abdaac894cea2d5531191d3dd351f195a"
+    },
+    {
+      "file": "exports/switch_2.stl",
+      "sha256": "bd9dc26925a654d9785c4241ea2a3c5525afecd5fb2c101a361b4b80f38da723"
+    },
+    {
+      "file": "exports/switch_3.stl",
+      "sha256": "e066d50c34b321654f0089a46685ca5d404db4984afc3a90a8e0e73cf74700ef"
+    },
+    {
+      "file": "exports/switch_3_27.stl",
+      "sha256": "76287024826445a60e62ac35c72cde8172eed2f739407be059e48cf6d93d1ff3"
+    },
+    {
+      "file": "exports/switch_face.stl",
+      "sha256": "8bd324d602851fc35ea6c50018085640fb34d8f0d89bf7b46233f94c9f40ca63"
+    },
+    {
+      "file": "exports/tray_joiner.stl",
+      "sha256": "b40a23936bd48bf2359d9453dc72cb9da7f32ef2867b18e97ada49de125aa94e"
+    },
+    {
+      "file": "exports/tray_L.stl",
+      "sha256": "2733b7f8be8890e16a2276e57bc376e6ff0ffd619e38c1db43d1c6089547b4e9"
+    },
+    {
+      "file": "exports/tray_R.stl",
+      "sha256": "ba407b531faffb4319503569a68289dd661543903ae350296792f66c47335fcc"
+    },
+    {
+      "file": "exports/xt_coupon.stl",
+      "sha256": "0ace3832f3b430813512f7a5fb436ee36a1a689f7d24e430d2c29bb6fa96d16c"
+    }
+  ],
+  "new_review_files": [
+    "PANEL_FASTENER_REVIEW.md",
+    "README.md",
+    "verify_rp05_inheritance.py"
+  ]
+}

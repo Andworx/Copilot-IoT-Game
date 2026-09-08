@@ -1,0 +1,349 @@
+{
+  "revision": "RP06",
+  "stl_count": 25,
+  "changed_from_rp05": [
+    "rear_L.stl",
+    "rear_R.stl",
+    "safety_face.stl",
+    "shell_FL.stl",
+    "shell_FR.stl"
+  ],
+  "new_parts": [
+    "led_clip_coupon.stl"
+  ],
+  "unchanged_hash_verified": [
+    "activity_face.stl",
+    "carrier.stl",
+    "dial_coupon.stl",
+    "layout_template.stl",
+    "lower_joiner.stl",
+    "panel_L.stl",
+    "panel_R.stl",
+    "screen_face.stl",
+    "shell_joiner_x.stl",
+    "shell_joiner_y.stl",
+    "switch_1.stl",
+    "switch_2.stl",
+    "switch_3.stl",
+    "switch_3_27.stl",
+    "switch_face.stl",
+    "tray_L.stl",
+    "tray_R.stl",
+    "tray_joiner.stl",
+    "xt_coupon.stl"
+  ],
+  "shell_pocket_count": 10,
+  "shell_pocket_nominal_diameter_mm": 9.6,
+  "led": {
+    "measured_body_mm": 5.03,
+    "old_nominal_hole_mm": 5.0,
+    "old_printed_hole_mm": 4.59,
+    "new_nominal_hole_mm": 5.6,
+    "predicted_printed_hole_mm": 5.19,
+    "clip_bore_mm": 5.4,
+    "clip_outer_diameter_mm": 9.4,
+    "clip_height_mm": 3.0
+  },
+  "meshes": {
+    "activity_face.stl": {
+      "bytes": 2056459,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "fits_256mm_bed": true
+    },
+    "carrier.stl": {
+      "bytes": 2164343,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        144.0,
+        52.0,
+        3.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "dial_coupon.stl": {
+      "bytes": 564369,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        42.0,
+        44.0,
+        3.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "layout_template.stl": {
+      "bytes": 2552584,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        144.0,
+        52.0,
+        1.2
+      ],
+      "fits_256mm_bed": true
+    },
+    "led_clip_coupon.stl": {
+      "bytes": 907348,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        22.0,
+        22.0,
+        6.2
+      ],
+      "fits_256mm_bed": true
+    },
+    "lower_joiner.stl": {
+      "bytes": 150741,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        12.0,
+        32.0,
+        2.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "panel_L.stl": {
+      "bytes": 1158129,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "panel_R.stl": {
+      "bytes": 1179937,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "rear_L.stl": {
+      "bytes": 1873317,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        152.994,
+        115.275,
+        77.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "rear_R.stl": {
+      "bytes": 2044789,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        152.994,
+        115.275,
+        77.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "safety_face.stl": {
+      "bytes": 1479611,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        90.0,
+        74.0,
+        6.2
+      ],
+      "fits_256mm_bed": true
+    },
+    "screen_face.stl": {
+      "bytes": 914963,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        220.0,
+        136.0,
+        3.2
+      ],
+      "fits_256mm_bed": true
+    },
+    "shell_FL.stl": {
+      "bytes": 1684812,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        152.994,
+        113.775,
+        77.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "shell_FR.stl": {
+      "bytes": 1982618,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        152.994,
+        113.775,
+        77.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "shell_joiner_x.stl": {
+      "bytes": 117737,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        50.0,
+        24.0,
+        4.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "shell_joiner_y.stl": {
+      "bytes": 115094,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        24.0,
+        50.0,
+        4.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "switch_1.stl": {
+      "bytes": 541041,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        40.0,
+        46.0,
+        1.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "switch_2.stl": {
+      "bytes": 609171,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        40.0,
+        46.0,
+        2.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "switch_3.stl": {
+      "bytes": 629345,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        40.0,
+        46.0,
+        3.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "switch_3_27.stl": {
+      "bytes": 780085,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        40.0,
+        46.0,
+        3.27
+      ],
+      "fits_256mm_bed": true
+    },
+    "switch_face.stl": {
+      "bytes": 996934,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "fits_256mm_bed": true
+    },
+    "tray_L.stl": {
+      "bytes": 1290477,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        145.3,
+        214.0,
+        2.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "tray_R.stl": {
+      "bytes": 1726292,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        145.3,
+        214.0,
+        2.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "tray_joiner.stl": {
+      "bytes": 177830,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        50.0,
+        14.0,
+        4.0
+      ],
+      "fits_256mm_bed": true
+    },
+    "xt_coupon.stl": {
+      "bytes": 460466,
+      "watertight": true,
+      "winding_consistent": true,
+      "body_count": 1,
+      "extents_mm": [
+        50.0,
+        50.0,
+        3.0
+      ],
+      "fits_256mm_bed": true
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "status": "PASS - mesh/analytical; physical panel fit required",
+  "revision": "RP05",
+  "parts": [
+    {
+      "part": "coupon_front",
+      "bounds_mm": [
+        40.0,
+        10.39679,
+        8.0
+      ],
+      "closed": true,
+      "bodies": 1
+    },
+    {
+      "part": "coupon_rear",
+      "bounds_mm": [
+        40.0,
+        10.396799999999999,
+        8.0
+      ],
+      "closed": true,
+      "bodies": 1
+    },
+    {
+      "part": "coupon_corner",
+      "bounds_mm": [
+        26.324931,
+        26.69679,
+        8.0
+      ],
+      "closed": true,
+      "bodies": 1
+    }
+  ],
+  "boss_diameter_mm": 9.0,
+  "pocket_diameter_mm": 9.6,
+  "radial_clearance_mm": 0.3,
+  "rear_pocket_to_panel_insert_ligament_mm": 3.571234256345771,
+  "print_quantity_each": 1
+}
