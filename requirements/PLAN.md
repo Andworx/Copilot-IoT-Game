@@ -11,7 +11,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Area | ✅ Done | ⬜ Verify | ⬜ TODO | Future | Total |
 |---|---:|---:|---:|---:|---:|
-| Dataverse | 0 | 0 | 2 | 0 | 2 |
+| Dataverse | 0 | 2 | 1 | 0 | 3 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 6 | 0 | 1 | 0 | 7 |
 | Power Pages | 3 | 0 | 1 | 0 | 4 |
@@ -21,14 +21,15 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Integration (Azure Functions) | 0 | 0 | 2 | 0 | 2 |
 | Power Apps | 0 | 0 | 1 | 0 | 1 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 10 | 0 | 11 | 2 | 23 |
+| Totals | 10 | 2 | 10 | 2 | 24 |
 
 ## Dataverse
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| `andy_deviceprofile`, `andy_gamewin`, `andy_prize` + choices/relationships | Tables | ⬜ TODO | GAME_MODE_PLAN.md §5, Phase 1 |
-| `andy_gameboxstate` — singleton row tracking the active device | Table | ⬜ TODO | GAME_MODE_PLAN.md §5, Phase 2a — new as of 2026-09-08 (§4a) |
+| `andy_deviceprofile` + `andy_layout` choice | Table + choice | ⬜ Verify | GAME_MODE_PLAN.md §5, Phase 1 — built in the maker portal and unpacked into `solutions/CopilotIoTGame/` 2026-09-08; the 12 real device rows and end-to-end use aren't populated/exercised yet |
+| `andy_gamewin`, `andy_prize` + choices/relationships | Tables | ⬜ TODO | GAME_MODE_PLAN.md §5, Phase 1 |
+| `andy_gameboxstate` — singleton row tracking the active device | Table | ⬜ Verify | GAME_MODE_PLAN.md §5, Phase 2a — new as of 2026-09-08 (§4a); built and unpacked, not yet exercised by the Function endpoints below |
 
 ## Flows
 
