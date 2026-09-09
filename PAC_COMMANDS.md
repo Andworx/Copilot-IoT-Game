@@ -15,13 +15,13 @@ pac solution unpack --zipfile "solutions\CopilotIoTGame.zip" --folder "solutions
 ## Solution — Pack
 
 ```powershell
-pac solution pack --zipfile "solutions\CopilotIoTGame.zip" --folder "solutions\CopilotIoTGame"
+pac solution pack -z solutions\CopilotIoTGame.zip -f solutions\CopilotIoTGame -aw
 ```
 
 ## Solution — Import
 
 ```powershell
-pac solution import --path "solutions\CopilotIoTGame.zip"
+pac solution import --path "solutions\CopilotIoTGame.zip" -pc
 ```
 
 ## Power Pages Code Site — Build & Upload
