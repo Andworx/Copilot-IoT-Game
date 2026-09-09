@@ -51,7 +51,7 @@ export function WinOverlay({ winMessage, restoreItems, claimToken, onReset }: Wi
         ))}
       </ul>
       <div className="qr-block">
-        {qrDataUrl && <img src={qrDataUrl} alt="Scan to claim your prize" width="100%" height="100%" />}
+        {qrDataUrl && <img src={qrDataUrl} alt="Scan to claim your prize" />}
       </div>
       <div className="qr-caption">Scan to claim your prize</div>
       <div className="reset-timer">
