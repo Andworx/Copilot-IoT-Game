@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset Name="andy_redemptionstatus" localizedName="Redemption Status" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <ExternalTypeName></ExternalTypeName>
+  <displaynames>
+    <displayname description="Redemption Status" languagecode="1033" />
+  </displaynames>
+  <Descriptions>
+    <Description description="Tracks the physical handoff of a claimed prize at the booth, separate from andy_gamewinstatus." languagecode="1033" />
+  </Descriptions>
+  <options>
+    <option value="435700000" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Not Redeemed" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="Claimed but not yet picked up at the prize table." languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="435700001" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Redeemed" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="Staff handed over the item and set andy_redeemedtime and andy_redeemedby." languagecode="1033" />
+      </Descriptions>
+    </option>
+  </options>
+</optionset>

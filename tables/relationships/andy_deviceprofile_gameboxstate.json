@@ -1,8 +1,0 @@
-{
-  "schemaName": "andy_deviceprofile_gameboxstate",
-  "type": "OneToMany",
-  "referencingEntity": "andy_gameboxstate",
-  "referencingAttribute": "andy_activedeviceprofile",
-  "referencedEntity": "andy_deviceprofile",
-  "cascadeDelete": "Restrict"
-}

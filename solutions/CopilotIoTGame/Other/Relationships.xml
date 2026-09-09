@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <EntityRelationship Name="andy_gameboxstate_andy_activedeviceprofile_andy_deviceprofile" />
+  <EntityRelationship Name="andy_gamewin_deviceprofile" />
+  <EntityRelationship Name="andy_gamewin_prize" />
+  <EntityRelationship Name="andy_gamewin_technician" />
   <EntityRelationship Name="business_unit_andy_deviceprofile" />
   <EntityRelationship Name="business_unit_andy_gameboxstate" />
   <EntityRelationship Name="lk_andy_deviceprofile_createdby" />

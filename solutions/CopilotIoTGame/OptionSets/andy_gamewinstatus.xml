@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<optionset Name="andy_gamewinstatus" localizedName="Game Win Status" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <ExternalTypeName></ExternalTypeName>
+  <displaynames>
+    <displayname description="Game Win Status" languagecode="1033" />
+  </displaynames>
+  <Descriptions>
+    <Description description="Tracks the digital claim on an andy_gamewin row, separate from andy_redemptionstatus, which tracks the physical handoff." languagecode="1033" />
+  </Descriptions>
+  <options>
+    <option value="435700000" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Unclaimed" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="QR shown, player has not claimed a prize yet." languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="435700001" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Claimed" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="Claim endpoint ran: prize picked, andy_remaining decremented, andy_redemptioncode generated." languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="435700002" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Expired" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="Reserved for future auto-expiry and restocking behavior." languagecode="1033" />
+      </Descriptions>
+    </option>
+  </options>
+</optionset>

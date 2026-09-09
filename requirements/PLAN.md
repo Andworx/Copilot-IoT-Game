@@ -28,7 +28,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Item | Type | Status | Notes |
 |---|---|---|---|
 | `andy_deviceprofile` + `andy_layout` choice | Table + choice | ⬜ Verify | GAME_MODE_PLAN.md §5, Phase 1 — schema confirmed working end to end 2026-09-08 (1 real row, `smart-lock`, created and successfully driven a live kiosk navigation); 11 of 12 device rows still need authoring (§11) |
-| `andy_gamewin`, `andy_prize` + choices/relationships | Tables | ⬜ TODO | GAME_MODE_PLAN.md §5, Phase 1 |
+| `andy_gamewin`, `andy_prize` + choices/relationships | Tables | ⬜ Verify | GAME_MODE_PLAN.md §5, Phase 1 — moved into unpacked solution for PAC pack/import; verify after environment import |
 | `andy_gameboxstate` — singleton row tracking the active device | Table | ✅ Done | GAME_MODE_PLAN.md §5, Phase 2a — confirmed end to end 2026-09-08 by both `GET /api/kiosk-state` and a real `set-mode` write |
 
 ## Flows

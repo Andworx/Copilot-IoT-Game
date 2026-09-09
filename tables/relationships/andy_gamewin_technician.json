@@ -1,8 +1,0 @@
-{
-  "schemaName": "andy_gamewin_technician",
-  "type": "OneToMany",
-  "referencingEntity": "andy_gamewin",
-  "referencingAttribute": "andy_redeemedby",
-  "referencedEntity": "andy_technician",
-  "cascadeDelete": "Restrict"
-}

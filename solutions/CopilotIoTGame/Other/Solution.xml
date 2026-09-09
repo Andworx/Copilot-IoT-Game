@@ -80,10 +80,14 @@
     <RootComponents>
       <RootComponent type="1" schemaName="andy_deviceprofile" behavior="0" />
       <RootComponent type="1" schemaName="andy_gameboxstate" behavior="0" />
+      <RootComponent type="1" schemaName="andy_gamewin" behavior="0" />
+      <RootComponent type="1" schemaName="andy_prize" behavior="0" />
       <RootComponent type="20" id="{1cc6d8d0-83ab-f111-aaac-3833c5e08f78}" behavior="0" />
       <RootComponent type="62" schemaName="andy_CopilotIotGameBackend" behavior="0" />
       <RootComponent type="80" schemaName="andy_CopilotIotGameBackend" behavior="0" />
+      <RootComponent type="9" schemaName="andy_gamewinstatus" behavior="0" />
       <RootComponent type="9" schemaName="andy_layout" behavior="0" />
+      <RootComponent type="9" schemaName="andy_redemptionstatus" behavior="0" />
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>

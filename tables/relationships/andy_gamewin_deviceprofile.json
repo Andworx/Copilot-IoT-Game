@@ -1,8 +1,0 @@
-{
-  "schemaName": "andy_gamewin_deviceprofile",
-  "type": "OneToMany",
-  "referencingEntity": "andy_gamewin",
-  "referencingAttribute": "andy_deviceprofile",
-  "referencedEntity": "andy_deviceprofile",
-  "cascadeDelete": "Restrict"
-}
