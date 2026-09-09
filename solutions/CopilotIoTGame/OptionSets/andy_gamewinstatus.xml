@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<optionset Name="andy_gamewinstatus" localizedName="Game Win Status" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<optionset Name="andy_gamewinstatus" localizedName="Game Win Status" description="Tracks the digital claim on an andy_gamewin row, separate from andy_redemptionstatus, which tracks the physical handoff." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <OptionSetType>picklist</OptionSetType>
   <IsGlobal>1</IsGlobal>
   <IntroducedVersion>1.0.0.0</IntroducedVersion>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <EntityRelationship Name="andy_gamewin_prize">
     <EntityRelationshipType>OneToMany</EntityRelationshipType>
@@ -18,7 +18,7 @@
     <ReferencingAttributeName>andy_Prize</ReferencingAttributeName>
     <RelationshipDescription>
       <Descriptions>
-        <Description description="Game wins awarded this prize." languagecode="1033" />
+        <Description description="Prize selected for the claim; null until claimed." languagecode="1033" />
       </Descriptions>
     </RelationshipDescription>
     <EntityRelationshipRoles>

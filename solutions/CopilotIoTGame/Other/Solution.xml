@@ -95,6 +95,14 @@
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>
+        <Required type="1" schemaName="andy_sessionprizewin" displayName="Session Prize Win" solution="Active" />
+        <Dependent type="1" schemaName="andy_prize" displayName="Prize" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="andy_categoryname" displayName="Category Name" parentSchemaName="andy_prizecategory" parentDisplayName="Prize Category" solution="Active" />
+        <Dependent type="10" schemaName="andy_Prize_andy_CategoryName_andy_PrizeCategory" displayName="andy_Prize_andy_CategoryName_andy_PrizeCategory" parentSchemaName="andy_prizecategory" parentDisplayName="Prize Category" />
+      </MissingDependency>
+      <MissingDependency>
         <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)" />
         <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Copilot Iot Game Backend" />
       </MissingDependency>
