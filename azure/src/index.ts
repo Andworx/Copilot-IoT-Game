@@ -2,3 +2,6 @@ import "./functions/negotiate";
 import "./functions/kioskState";
 import "./functions/setMode";
 import "./functions/deviceProfiles";
+import "./functions/createWin";
+import "./functions/claimPrize";
+import "./functions/prizes";

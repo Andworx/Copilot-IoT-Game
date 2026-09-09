@@ -10,6 +10,7 @@ import { KeypadPanel } from "../components/layouts/KeypadPanel";
 import { DipStripPanel } from "../components/layouts/DipStripPanel";
 import { PairedColumnsPanel } from "../components/layouts/PairedColumnsPanel";
 import { RadioClusterPanel } from "../components/layouts/RadioClusterPanel";
+import { API_BASE_URL } from "../lib/apiConfig";
 
 /**
  * One route, one component, 11 data-driven instances — GAME_MODE_PLAN.md §6. Keyed by
@@ -24,11 +25,36 @@ export function KioskDevicePage() {
 
   const [state, setState] = useState<DeviceState>(() => ({ ...device?.fault }));
   const [telemetryTick, setTelemetryTick] = useState(0);
+  const [claimToken, setClaimToken] = useState<string | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setTelemetryTick((t) => (t + 0.4) % 6), 400);
     return () => clearInterval(id);
   }, []);
+
+  const win = device ? device.checkWin(state) : false;
+
+  // Creates the andy_gamewin row (PRIZE_ENGINE_SPEC.md §3 step 1 -- standing in for the
+  // not-yet-built Copilot Studio topic action) exactly once per win, on the false->true
+  // transition. claimToken resets to null in handleReset so a re-fix fires this again.
+  useEffect(() => {
+    if (!win || !device || claimToken) return;
+    let cancelled = false;
+    fetch(`${API_BASE_URL}/api/create-win`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deviceSlug: device.slug }),
+    })
+      .then((res) => res.json())
+      .then((data: { claimToken: string }) => {
+        if (!cancelled) setClaimToken(data.claimToken);
+      })
+      .catch((err) => console.error("Failed to create game win", err));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [win]);
 
   if (!device) {
     return (
@@ -38,7 +64,6 @@ export function KioskDevicePage() {
     );
   }
 
-  const win = device.checkWin(state);
   const lamps = device.computeLamps(state, win);
 
   function handleToggle(key: string) {
@@ -47,6 +72,7 @@ export function KioskDevicePage() {
 
   function handleReset() {
     setState({ ...device.fault });
+    setClaimToken(null);
   }
 
   return (
@@ -113,11 +139,11 @@ export function KioskDevicePage() {
         <span>UNIT: game-panel-01</span>
       </div>
 
-      {win && (
+      {win && claimToken && (
         <WinOverlay
           winMessage={device.winMessage}
           restoreItems={device.restoreItems}
-          claimToken={`${device.slug}-${Date.now()}`}
+          claimToken={claimToken}
           onReset={handleReset}
         />
       )}

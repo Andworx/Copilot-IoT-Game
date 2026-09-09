@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import QRCode from "qrcode";
+import { PRIZE_WHEEL_URL } from "../lib/apiConfig";
 
 interface WinOverlayProps {
   winMessage: string;
@@ -10,13 +12,13 @@ interface WinOverlayProps {
 const RESET_SECONDS = 10; // GAME_MODE_PLAN.md §0 — locked decision
 
 /**
- * Full-viewport takeover — KIOSK_UI_SPEC.md §1.6. The QR pattern here is a
- * visually-plausible placeholder (no real encoder), same as the prototype. The real
- * build points it at `/play-spin?token=<claimToken>` once andy_gamewin exists
- * (PRIZE_ENGINE_SPEC.md §3, steps 1-2).
+ * Full-viewport takeover — KIOSK_UI_SPEC.md §1.6. Encodes a real, scannable QR
+ * pointing at the standalone prize wheel SPA with the claim token from the
+ * andy_gamewin row the kiosk just created (PRIZE_ENGINE_SPEC.md §3, steps 1-2).
  */
 export function WinOverlay({ winMessage, restoreItems, claimToken, onReset }: WinOverlayProps) {
   const [remaining, setRemaining] = useState(RESET_SECONDS);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (remaining <= 0) {
@@ -27,7 +29,18 @@ export function WinOverlay({ winMessage, restoreItems, claimToken, onReset }: Wi
     return () => clearTimeout(id);
   }, [remaining, onReset]);
 
-  const cells = useMemo(() => buildFakeQr(claimToken), [claimToken]);
+  useEffect(() => {
+    let cancelled = false;
+    const claimUrl = `${PRIZE_WHEEL_URL}/?token=${encodeURIComponent(claimToken)}`;
+    QRCode.toDataURL(claimUrl, { margin: 1, width: 200 })
+      .then((url) => {
+        if (!cancelled) setQrDataUrl(url);
+      })
+      .catch((err) => console.error("Failed to generate QR code", err));
+    return () => {
+      cancelled = true;
+    };
+  }, [claimToken]);
 
   return (
     <div className="win-overlay">
@@ -38,9 +51,7 @@ export function WinOverlay({ winMessage, restoreItems, claimToken, onReset }: Wi
         ))}
       </ul>
       <div className="qr-block">
-        {cells.map((on, i) => (
-          <div key={i} className={on ? "cell on" : "cell"} />
-        ))}
+        {qrDataUrl && <img src={qrDataUrl} alt="Scan to claim your prize" width="100%" height="100%" />}
       </div>
       <div className="qr-caption">Scan to claim your prize</div>
       <div className="reset-timer">
@@ -48,28 +59,4 @@ export function WinOverlay({ winMessage, restoreItems, claimToken, onReset }: Wi
       </div>
     </div>
   );
-}
-
-function buildFakeQr(seed: string): boolean[] {
-  const size = 11;
-  const cells: boolean[] = [];
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      const isFinder = (r < 3 && c < 3) || (r < 3 && c > size - 4) || (r > size - 4 && c < 3);
-      if (isFinder) {
-        cells.push(
-          (r + c) % 2 === 0 ||
-            (r === 1 && c === 1) ||
-            (r === 1 && c === size - 2) ||
-            (r === size - 2 && c === 1),
-        );
-      } else {
-        h = (h * 1103515245 + 12345) >>> 0;
-        cells.push(h % 100 > 45);
-      }
-    }
-  }
-  return cells;
 }

@@ -1,24 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import type { Prize } from "../types/prize";
-import { pickWeightedPrize } from "../data/prizes";
 
 interface PrizeWheelProps {
   prizes: Prize[];
+  /** Name of the prize the claim endpoint already picked (PRIZE_ENGINE_SPEC.md §1.2/
+   * §1.3) -- the wheel just animates to it, it never decides the outcome itself. */
+  winningPrizeName: string;
   onResult: (prize: Prize) => void;
 }
 
 const SIZE = 220;
 
 /**
- * Canvas wheel — visual theater only. The prize is chosen before the animation starts
- * (client-side here; server-side once the claim endpoint exists — PRIZE_ENGINE_SPEC.md
- * §1.2/§1.3) so the spin can never land on a result the backend didn't already commit to.
+ * Canvas wheel — visual theater only. The prize was already chosen server-side
+ * (claim-prize, called before this component mounts) so the spin can never land on a
+ * result the backend didn't already commit to. Slices are drawn equal-sized since the
+ * real odds (andy_weight) are a server-only concept now — the client never receives
+ * them.
  */
-export function PrizeWheel({ prizes, onResult }: PrizeWheelProps) {
+export function PrizeWheel({ prizes, winningPrizeName, onResult }: PrizeWheelProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rotationRef = useRef(0);
   const [spinning, setSpinning] = useState(false);
-  const totalWeight = prizes.reduce((sum, p) => sum + p.weight, 0);
 
   const drawWheel = (rotation: number) => {
     const canvas = canvasRef.current;
@@ -27,6 +30,7 @@ export function PrizeWheel({ prizes, onResult }: PrizeWheelProps) {
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
     const radius = canvas.width / 2 - 4;
+    const sliceAngle = (Math.PI * 2) / prizes.length;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
@@ -34,14 +38,13 @@ export function PrizeWheel({ prizes, onResult }: PrizeWheelProps) {
     ctx.rotate(rotation);
     let start = -Math.PI / 2;
     for (const p of prizes) {
-      const slice = (p.weight / totalWeight) * Math.PI * 2;
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.fillStyle = p.color;
-      ctx.arc(0, 0, radius, start, start + slice);
+      ctx.arc(0, 0, radius, start, start + sliceAngle);
       ctx.closePath();
       ctx.fill();
-      start += slice;
+      start += sliceAngle;
     }
     ctx.restore();
 
@@ -54,21 +57,21 @@ export function PrizeWheel({ prizes, onResult }: PrizeWheelProps) {
   useEffect(() => {
     drawWheel(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function angleForIndex(index: number) {
-    let start = 0;
-    for (let i = 0; i < index; i++) start += (prizes[i].weight / totalWeight) * Math.PI * 2;
-    return start + (prizes[index].weight / totalWeight) * Math.PI;
-  }
+  }, [prizes]);
 
   function handleSpin() {
     if (spinning) return;
+
+    const chosenIndex = prizes.findIndex((p) => p.name === winningPrizeName);
+    if (chosenIndex === -1) {
+      console.error(`winningPrizeName "${winningPrizeName}" isn't in the rendered wheel`);
+      return;
+    }
+    const chosen = prizes[chosenIndex];
     setSpinning(true);
 
-    const chosen = pickWeightedPrize(prizes);
-    const chosenIndex = prizes.indexOf(chosen);
-    const targetSliceAngle = angleForIndex(chosenIndex);
+    const sliceAngle = (Math.PI * 2) / prizes.length;
+    const targetSliceAngle = chosenIndex * sliceAngle + sliceAngle / 2;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const extraSpins = reduceMotion ? 0 : 5;
