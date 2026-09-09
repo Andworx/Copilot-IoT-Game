@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Role id="{1cc6d8d0-83ab-f111-aaac-3833c5e08f78}" name="Copilot IoT Game Security Role" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IsCustomizable>1</IsCustomizable>
+  <IsAutoAssigned>0</IsAutoAssigned>
+  <RolePrivileges>
+    <RolePrivilege name="prvAppendandy_DeviceProfile" level="Global" />
+    <RolePrivilege name="prvAppendandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvAppendToandy_DeviceProfile" level="Global" />
+    <RolePrivilege name="prvAppendToandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvAssignandy_DeviceProfile" level="Global" />
+    <RolePrivilege name="prvAssignandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvCreateandy_DeviceProfile" level="Global" />
+    <RolePrivilege name="prvCreateandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvCreateSharePointData" level="Global" />
+    <RolePrivilege name="prvDeleteandy_DeviceProfile" level="Global" />
+    <RolePrivilege name="prvDeleteandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvReadandy_DeviceProfile" level="Global" />
+    <RolePrivilege name="prvReadandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvReadPluginAssembly" level="Global" />
+    <RolePrivilege name="prvReadPluginType" level="Global" />
+    <RolePrivilege name="prvReadSdkMessage" level="Global" />
+    <RolePrivilege name="prvReadSdkMessageProcessingStep" level="Global" />
+    <RolePrivilege name="prvReadSdkMessageProcessingStepImage" level="Global" />
+    <RolePrivilege name="prvReadSharePointData" level="Global" />
+    <RolePrivilege name="prvReadSharePointDocument" level="Global" />
+    <RolePrivilege name="prvShareandy_DeviceProfile" level="Global" />
+    <RolePrivilege name="prvShareandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvWriteandy_DeviceProfile" level="Global" />
+    <RolePrivilege name="prvWriteandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvWriteSharePointData" level="Global" />
+  </RolePrivileges>
+</Role>

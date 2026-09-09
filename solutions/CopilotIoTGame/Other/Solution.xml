@@ -80,8 +80,22 @@
     <RootComponents>
       <RootComponent type="1" schemaName="andy_deviceprofile" behavior="0" />
       <RootComponent type="1" schemaName="andy_gameboxstate" behavior="0" />
+      <RootComponent type="20" id="{1cc6d8d0-83ab-f111-aaac-3833c5e08f78}" behavior="0" />
+      <RootComponent type="62" schemaName="andy_CopilotIotGameBackend" behavior="0" />
+      <RootComponent type="80" schemaName="andy_CopilotIotGameBackend" behavior="0" />
       <RootComponent type="9" schemaName="andy_layout" behavior="0" />
     </RootComponents>
-    <MissingDependencies />
+    <MissingDependencies>
+      <MissingDependency>
+        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)" />
+        <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Copilot Iot Game Backend" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.19)" id.uniquename="AppChannel">
+          <package appName="PowerAppsAppFramework Package" version="1.0.0.25">PowerAppsAppFramework_Anchor (1.0.0.25)</package>
+        </Required>
+        <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=andy_CopilotIotGameBackend,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="andy_CopilotIotGameBackend" id.settingdefinitionid.uniquename="AppChannel" />
+      </MissingDependency>
+    </MissingDependencies>
   </SolutionManifest>
 </ImportExportXml>
