@@ -23,7 +23,7 @@ If a user hits a problem in a repo generated from this template, report it **her
 Classify as **template-origin** only if all are true:
 
 1. Reproduces from baseline behavior in a generated repo.
-2. Root cause maps to template-owned assets (onboarding/scripts/docs/folder mapping/conventions/starter automation).
+2. Root cause maps to template-owned assets (scripts/docs/folder mapping/conventions/starter automation).
 3. Not introduced by consumer-specific code customization.
 
 Otherwise classify as **consumer-code-origin** and track it in the consumer repository.
@@ -32,37 +32,9 @@ Otherwise classify as **consumer-code-origin** and track it in the consumer repo
 
 | Area | Example that belongs in this template repo |
 |---|---|
-| Onboarding | `scripts/Test-OnboardingCompletion.ps1` reports incomplete setup despite required files created by `Start-Onboarding.ps1`. |
 | Scripts | `scripts/Deploy-Project.ps1` fails with default template inputs before consumer code changes. |
-| Documentation | README onboarding steps reference an outdated command or missing prerequisite causing setup failure. |
+| Documentation | README deployment steps reference an outdated command or missing prerequisite causing setup failure. |
 | Folder mapping | Baseline paths in docs/scripts disagree (for example, expected folder names do not match generated structure). |
-
-### Collecting Onboarding Feedback (repeatable loop)
-
-Use this flow for onboarding friction, failures, and improvement requests:
-
-1. Create an issue from **Tracked Work Item** and prefix the title with `[Onboarding Feedback]`.
-2. Add `YOUR_PROJECT_LABEL`, one `type:*` label, and relevant `area:*` labels.
-3. Capture:
-   - onboarding path (`local-only` or `github-hosted`)
-   - time-to-first-success (TTFS) in minutes (or `not completed`)
-   - one primary failure category:
-     - `prerequisites`
-     - `input-validation`
-     - `token-stamping`
-     - `config-generation`
-     - `secret-setup`
-     - `github-hosted-sync`
-     - `documentation-gap`
-     - `guardrail-ux`
-   - reproduction commands and output excerpts (redact secrets)
-
-For qualitative, non-actionable discovery, use GitHub Discussions first and convert actionable items to tracked issues with the same fields.
-
-### Onboarding review cadence and ownership
-
-- **Weekly triage:** template maintainers normalize labels/categories and set priorities for new onboarding feedback.
-- **Monthly review:** template maintainers review TTFS trend and category distribution, then create follow-up implementation issues for prioritized fixes.
 
 ### Moving Work Through the Workflow
 

@@ -39,13 +39,6 @@ labels: ["YOUR_PROJECT_LABEL", "status:backlog"]
 ## Related Issues
 <!-- Link any related issues (e.g., "Fixes #123", "Related to #456") -->
 
-## Onboarding Feedback Details (only for onboarding-related items)
-<!-- Complete this section for onboarding feedback or onboarding defects -->
-- Onboarding path: `local-only` / `github-hosted`
-- Time-to-first-success (TTFS): `<minutes>` or `not completed`
-- Failure category: `prerequisites` / `input-validation` / `token-stamping` / `config-generation` / `secret-setup` / `github-hosted-sync` / `documentation-gap` / `guardrail-ux`
-- Reproduction evidence: command outputs and steps (redact secrets)
-
 ## Labels
 <!-- After creating this issue, add appropriate labels:
   - YOUR_PROJECT_LABEL (required for project board tracking)

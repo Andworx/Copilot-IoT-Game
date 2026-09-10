@@ -2,10 +2,6 @@
 
 Use `requirements/PLAN.md` as the working plan for `YOUR_PROJECT_NAME`.
 
-Use `requirements/onboarding-input-contract.md` as the canonical source for
-first-run setup prompts, required inputs, defaults, validation rules, and file
-mapping.
-
 ## Status Legend
 
 - `✅ Done` — implemented and verified

@@ -56,22 +56,6 @@ instructions: |
 
   ## During Work
 
-  ## Startup Onboarding Guardrail
-
-  Before any coding workflow (creating/editing files, running build/test/deploy commands), run:
-
-  `.\scripts\Test-OnboardingCompletion.ps1 -Environment dev -Json`
-
-  - If `isComplete` is `false`, stop coding and show a warning that includes:
-    - The failed onboarding checks
-    - Exact remediation commands:
-      - `.\scripts\Start-Onboarding.ps1 -Environment dev`
-      - `.\scripts\Validate-DeploymentSetup.ps1 -Environment dev`
-  - Allow bypass only once per session, and only after explicit user acknowledgement:
-    - `I acknowledge onboarding is incomplete and want to bypass for this session.`
-  - When bypass is used, include an auditable note in the response:
-    - `[Onboarding Bypass] User acknowledged incomplete onboarding for this session.`
-
   - Follow the project structure in `.github/instructions/project-conventions.instructions.md`
   - Update README.md files when adding/changing components
   - Update `requirements/PLAN.md` for tracked items
@@ -84,6 +68,17 @@ instructions: |
   - Fill out the PR template
   - Reference the issue for context
   - **Automation will handle board state transitions**
+
+  ## Function App and Power Pages CI/CD
+
+  - Follow `docs/CI_CD.md`; `.github/workflows/deploy-apps.yml` is authoritative.
+  - Build `azure` and `power pages/restore-and-spin` with `npm ci` and `npm run build`.
+  - Use a PR to main. PRs build only; relevant main pushes deploy both apps through production.
+  - For a requested redeploy: `gh workflow run deploy-apps.yml --ref main`; inspect the run.
+  - Do not use local Function/PAC publishing unless explicitly asked for recovery/bootstrap.
+  - Use Azure/functions-action and PAC upload-code-site, never classic upload-paportal or GitHub Pages actions.
+  - Keep Node 22 and backend-before-frontend order; never put secrets in Vite variables.
+  - Report the run URL and SHA, and keep plan items Verify until live checks pass.
 
   ## Helpful Commands
 

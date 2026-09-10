@@ -11,15 +11,25 @@
 
 Fill in `project.tokens.json` and run `.\scripts\Apply-ProjectTokens.ps1 -Environment dev` to stamp these values across the repo.
 
+## Function App and Power Pages CI/CD
+
+Follow [docs/CI_CD.md](docs/CI_CD.md) and `.github/workflows/deploy-apps.yml`.
+Run both local builds, open a PR, and use the GitHub Actions deployment after
+merging relevant changes to `main`. For a requested redeploy, dispatch
+`deploy-apps.yml` on `main` and inspect the run. Do not publish these apps locally
+unless explicitly asked for recovery/bootstrap. PRs build only; production deploys
+use the `production` environment, Azure OIDC, and a Power Platform deployment
+secret. Deploy the backend before the Code Site. Report the run URL and commit SHA;
+keep plan items at Verify until live checks pass. The PAC commands below are
+manual recovery/bootstrap references for these two apps.
+
 ## Deployment Workflow
 
 Power Platform changes ship via the `pac` CLI directly — build tables/choices/relationships
 manually in the maker portal (or via whatever surface fits: canvas app, Copilot Studio,
 etc.), then `pac solution export` + `pac solution unpack` to bring them into source control
 under `solutions/`, and `pac solution pack` + `pac solution import` to move a solution
-between environments. `scripts/Import-Tables.ps1` and the `Test-OnboardingCompletion.ps1`/
-`Start-Onboarding.ps1` gated flow are no longer this project's deployment path — no
-onboarding-completion check is required before coding or deployment work. Table
+between environments. Table
 `definition.json`/`README.md` files under `tables/` still document schema for reference,
 independent of which mechanism actually created the table.
 

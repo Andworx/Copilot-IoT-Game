@@ -1,5 +1,13 @@
 # PAC CLI Commands
 
+## GitHub Actions releases
+
+Use [the CI/CD workflow](docs/CI_CD.md) for routine Function App and
+`restore-and-spin` releases: PR build checks, then automatic deployment after
+relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
+Local publishing commands are for explicitly requested recovery/bootstrap work.
+Other Power Platform components retain their existing PAC workflows.
+
 ## Solution — Export
 
 ```powershell
@@ -61,3 +69,17 @@ npm install
 npm run build
 pac pages upload-code-site --rootPath "."
 ```
+
+### restore-and-spin (active CI/CD site)
+
+Routine releases use `deploy-apps.yml`. For explicit manual recovery/bootstrap:
+
+```powershell
+cd "power pages/restore-and-spin"
+npm ci
+npm run build
+pac pages upload-code-site --rootPath "."
+```
+
+Authenticate to the intended Dataverse environment first. Activate an initial
+inactive site through Power Pages, then verify the public site.

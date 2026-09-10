@@ -82,6 +82,7 @@
       <RootComponent type="1" schemaName="andy_gameboxstate" behavior="0" />
       <RootComponent type="1" schemaName="andy_gamewin" behavior="0" />
       <RootComponent type="20" id="{1cc6d8d0-83ab-f111-aaac-3833c5e08f78}" behavior="0" />
+      <RootComponent type="300" schemaName="andy_gameboxcontrol_9ce00" behavior="0" />
       <RootComponent type="61" schemaName="andy_deviceprofile_icon" behavior="0" />
       <RootComponent type="61" schemaName="andy_gameboxstate_icon" behavior="0" />
       <RootComponent type="61" schemaName="andy_gamewin_icon" behavior="0" />
@@ -104,7 +105,7 @@
       </MissingDependency>
       <MissingDependency>
         <Required type="1" schemaName="andy_prizes" displayName="Prizes" solution="Active" />
-        <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Game Backend" />
+        <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Copilot IoT Game Backend" />
       </MissingDependency>
       <MissingDependency>
         <Required type="1" schemaName="andy_prizetypes" displayName="Prize Types" solution="Active" />
@@ -112,7 +113,7 @@
       </MissingDependency>
       <MissingDependency>
         <Required type="1" schemaName="andy_prizetypes" displayName="Prize Types" solution="Active" />
-        <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Game Backend" />
+        <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Copilot IoT Game Backend" />
       </MissingDependency>
       <MissingDependency>
         <Required type="2" schemaName="andy_prizename" displayName="Prize Name" parentSchemaName="andy_prizes" parentDisplayName="Prizes" solution="Active" />
@@ -124,7 +125,7 @@
       </MissingDependency>
       <MissingDependency>
         <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)" />
-        <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Game Backend" />
+        <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Copilot IoT Game Backend" />
       </MissingDependency>
       <MissingDependency>
         <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.19)" id.uniquename="AppChannel">

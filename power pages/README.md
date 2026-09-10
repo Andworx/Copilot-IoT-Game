@@ -24,6 +24,14 @@ power pages/
 
 See `docs/README.md` for what's still an active reference vs. archived.
 
+## GitHub Actions releases
+
+Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App and
+`restore-and-spin` releases: PR build checks, then automatic deployment after
+relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
+Local publishing commands are for explicitly requested recovery/bootstrap work.
+Other Power Platform components retain their existing PAC workflows.
+
 ## PAC CLI Commands
 
 See `PAC_COMMANDS.md` at the repo root for the full reference. Quick version:

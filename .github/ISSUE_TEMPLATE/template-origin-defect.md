@@ -22,8 +22,7 @@ If you cannot mark all three, file the issue in the consumer repo instead.
 
 Provide at least one concrete pointer to the template-owned source of the issue:
 
-- Onboarding step:
-- Script path (example: `scripts/Start-Onboarding.ps1`):
+- Script path:
 - Documentation path/section:
 - Folder mapping/convention path:
 
@@ -52,4 +51,3 @@ Provide at least one concrete pointer to the template-owned source of the issue:
 ## Scope Confirmation
 - [ ] I confirm this issue is for template-origin defects only
 - [ ] I confirm consumer code defects will be tracked in the consumer repo
-

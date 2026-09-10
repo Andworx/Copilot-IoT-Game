@@ -91,6 +91,14 @@ curl -X POST http://localhost:7071/api/set-mode \
   -d '{"deviceProfileId": "<a real andy_deviceprofile GUID>", "deviceSlug": "smart-lock", "deviceName": "Smart Lock"}'
 ```
 
+## GitHub Actions releases
+
+Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App and
+`restore-and-spin` releases: PR build checks, then automatic deployment after
+relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
+Local publishing commands are for explicitly requested recovery/bootstrap work.
+Other Power Platform components retain their existing PAC workflows.
+
 ## Deploying
 
 ```bash

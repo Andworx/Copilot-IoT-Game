@@ -8,6 +8,14 @@ applyTo: "power pages/**"
 a classic Liquid portal. Do not introduce Liquid templates, `.webpage.yml`, or
 `web-templates/`-style files here; there is no such structure in this project.
 
+## GitHub Actions releases
+
+Use [the CI/CD workflow](../../docs/CI_CD.md) for routine Function App and
+`restore-and-spin` releases: PR build checks, then automatic deployment after
+relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
+Local publishing commands are for explicitly requested recovery/bootstrap work.
+Other Power Platform components retain their existing PAC workflows.
+
 ## Deployment (PAC CLI)
 
 - Full reference: `PAC_COMMANDS.md` at the repo root

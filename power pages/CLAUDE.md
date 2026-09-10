@@ -4,6 +4,14 @@ Applies to `power pages/restore-and-spin` — a **Power Pages Code Site** (React
 SPA), not a classic Liquid portal. There is no `web-pages/`, `web-templates/`, or Liquid
 content in this project; all UI is React components under `restore-and-spin/src/`.
 
+## GitHub Actions releases
+
+Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App and
+`restore-and-spin` releases: PR build checks, then automatic deployment after
+relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
+Local publishing commands are for explicitly requested recovery/bootstrap work.
+Other Power Platform components retain their existing PAC workflows.
+
 ## Deployment
 
 - Full command reference: `PAC_COMMANDS.md` at the repo root

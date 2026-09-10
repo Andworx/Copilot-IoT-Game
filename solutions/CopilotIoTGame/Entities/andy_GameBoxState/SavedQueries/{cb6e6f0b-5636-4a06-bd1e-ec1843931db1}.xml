@@ -12,6 +12,7 @@
         <row name="result" id="andy_gameboxstateid">
           <cell name="andy_name" width="300" />
           <cell name="andy_activedeviceprofile" width="150" />
+          <cell name="andy_gamemodeenabled" width="159" />
         </row>
       </grid>
     </layoutxml>
@@ -27,6 +28,7 @@
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
           <attribute name="andy_activedeviceprofile" />
+          <attribute name="andy_gamemodeenabled" />
         </entity>
       </fetch>
     </fetchxml>
