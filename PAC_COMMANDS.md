@@ -24,6 +24,21 @@ pac solution pack -z solutions\CopilotIoTGame.zip -f solutions\CopilotIoTGame -a
 pac solution import --path "solutions\CopilotIoTGame.zip" -pc
 ```
 
+## Power Apps Code App — Build & Push
+
+> Code Apps use `pac code push`, not `pac pages upload-code-site` (that command is for
+> Power Pages Code Sites only — see below). First-time setup on a new environment also
+> needs `pac code init` before the first push; see `power apps/<app>/README.md`.
+
+### game-box-control
+
+```powershell
+cd "power apps\game-box-control"
+npm install
+npm run build
+pac code push
+```
+
 ## Power Pages Code Site — Build & Upload
 
 > `pac pages upload` / `pac pages download` are classic-portal commands — do not use them
