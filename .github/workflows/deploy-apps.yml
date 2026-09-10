@@ -106,15 +106,6 @@ jobs:
         with:
           name: power-pages
           path: power-pages-artifact
-      - name: Install Power Platform CLI
-        uses: microsoft/powerplatform-actions/actions-install@v1
-        with:
-          add-tools-to-path: true
-      - name: Authenticate Power Platform
-        shell: pwsh
-        run: |
-          pac auth create --name github-production --tenant "$env:POWER_PLATFORM_TENANT_ID" --applicationId "$env:POWER_PLATFORM_CLIENT_ID" --clientSecret "$env:POWER_PLATFORM_CLIENT_SECRET" --url "$env:POWER_PLATFORM_ENVIRONMENT_URL"
-          if ($LASTEXITCODE -ne 0) { throw 'Power Platform authentication failed.' }
       - uses: azure/login@v3
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
@@ -126,6 +117,16 @@ jobs:
           app-name: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
           package: function-artifact/function-app.zip
           sku: flexconsumption
+          remote-build: false
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+        with:
+          add-tools-to-path: true
+      - name: Authenticate Power Platform
+        shell: pwsh
+        run: |
+          pac auth create --name github-production --tenant "$env:POWER_PLATFORM_TENANT_ID" --applicationId "$env:POWER_PLATFORM_CLIENT_ID" --clientSecret "$env:POWER_PLATFORM_CLIENT_SECRET" --url "$env:POWER_PLATFORM_ENVIRONMENT_URL"
+          if ($LASTEXITCODE -ne 0) { throw 'Power Platform authentication failed.' }
       - name: Upload Power Pages Code Site
         shell: pwsh
         working-directory: power-pages-artifact

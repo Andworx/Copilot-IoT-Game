@@ -56,6 +56,14 @@ Application Platform admin environment endpoint during auth, which requires
 broader Power Platform admin-management permissions than the Dataverse
 Application User role needed for code-site upload.
 
+PAC still requires the deployment app to be registered as a Power Platform admin
+management application before service-principal auth can complete in GitHub
+Actions. A tenant admin with `ManageAdminApplications` permission must run:
+
+```powershell
+pac admin application register --application-id 6bf6a3f1-39d1-4b99-99e7-8460dd1a7d3d
+```
+
 Configure Azure OIDC federation for the Azure deployment identity:
 
 - Issuer: `https://token.actions.githubusercontent.com`
@@ -69,9 +77,12 @@ The Function App must already exist with the Node 22 runtime. Current target:
 Consumption with dedicated storage account `stawazcomiotgamefn` and shared
 Serverless SignalR resource `signalr-aw-iot-copilot`. Preserve its runtime
 Dataverse/SignalR settings and storage configuration. This workflow does not
-provision resources or publish `local.settings.json`. Configure CORS for the
-public Power Pages origin. The frontend's `VITE_API_BASE_URL` is derived from the
-Function App name at build time; Vite values are public and must never be secrets.
+provision resources or publish `local.settings.json`. The deploy job uses the
+prebuilt zip package with `sku: flexconsumption` and `remote-build: false`; do
+not add the legacy `SCM_DO_BUILD_DURING_DEPLOYMENT` app setting to the Flex
+Consumption app. Configure CORS for the public Power Pages origin. The
+frontend's `VITE_API_BASE_URL` is derived from the Function App name at build
+time; Vite values are public and must never be secrets.
 
 The Power Pages environment must support Code Sites, allow JavaScript attachments,
 and have the intended site. The install action provides PAC; Code Sites require
