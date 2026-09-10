@@ -8,3 +8,5 @@ import "./functions/prizes";
 import "./functions/toggleDevice";
 import "./functions/setGameMode";
 import "./functions/pickRandomMode";
+import "./functions/prizeTypes";
+import "./functions/bulkCreatePrizes";

@@ -23,3 +23,7 @@ export const TOGGLE_DEVICE_FUNCTION_KEY =
 /** set-game-mode's function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
 export const SET_GAME_MODE_FUNCTION_KEY =
   (import.meta.env.VITE_SET_GAME_MODE_FUNCTION_KEY as string | undefined) ?? "";
+
+/** bulk-create-prizes's function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
+export const BULK_CREATE_PRIZES_FUNCTION_KEY =
+  (import.meta.env.VITE_BULK_CREATE_PRIZES_FUNCTION_KEY as string | undefined) ?? "";

@@ -268,6 +268,11 @@ const PRIZES_SET = "andy_prizeses";
 const PRIZES_GAMEWIN_NAV = "andy_GameWin"; // on andy_Prizes, -> andy_GameWin
 const GAMEWIN_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_gamewin, -> andy_PrizeTypes
 const GAMEWIN_PRIZEINSTANCE_NAV = "andy_PrizeInstance"; // on andy_gamewin, -> andy_Prizes
+// Same string as GAMEWIN_PRIZETYPE_NAV above, but a *different* relationship -- this one
+// is on andy_Prizes (confirmed against solutions/PrizeEngine/Other/Relationships/
+// andy_PrizeTypes.xml), not andy_gamewin. Kept as its own constant so the two don't get
+// conflated if either relationship's nav property name ever diverges.
+const PRIZES_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_Prizes, -> andy_PrizeTypes
 
 /** Active, non-fallback prize types -- for the prize wheel SPA's wheel rendering (not
  * the pick itself, which stays server-side and can also draw the fallback type). */
@@ -279,6 +284,50 @@ export async function listActivePrizeTypes(): Promise<Array<{ name: string }>> {
   );
   const body = (await response.json()) as { value: Array<{ andy_prizetypename: string }> };
   return body.value.map((row) => ({ name: row.andy_prizetypename }));
+}
+
+/** All active prize types including the fallback one, with ids -- for Game Box
+ * Control's bulk-create picker, where staff need to target a specific type
+ * (unlike the wheel, which only ever shows the non-fallback ones). */
+export async function listAllPrizeTypes(): Promise<Array<{ id: string; name: string }>> {
+  const response = await dataverseFetch(
+    `${PRIZE_TYPES_SET}?$select=andy_prizetypesid,andy_prizetypename` +
+      "&$filter=statecode eq 0" +
+      "&$orderby=andy_prizetypename"
+  );
+  const body = (await response.json()) as {
+    value: Array<{ andy_prizetypesid: string; andy_prizetypename: string }>;
+  };
+  return body.value.map((row) => ({ id: row.andy_prizetypesid, name: row.andy_prizetypename }));
+}
+
+/** Creates `quantity` andy_Prizes instance rows bound to one andy_PrizeTypes row, for
+ * Game Box Control's bulk-create action (mirrors the Bulk Add Prizes genpage's
+ * per-row naming/info note, power apps/bulk-add-prizes/bulk-add-prizes.tsx). */
+export async function createPrizeInstances(
+  prizeTypeId: string,
+  quantity: number,
+  namePrefix: string
+): Promise<Array<{ id: string; name: string }>> {
+  const createdAt = new Date().toLocaleString();
+  const infoNote = `Bulk added on ${createdAt} via Game Box Control`;
+  const created: Array<{ id: string; name: string }> = [];
+  for (let i = 1; i <= quantity; i++) {
+    const prizeName = quantity > 1 ? `${namePrefix} #${i}` : namePrefix;
+    const response = await dataverseFetch(PRIZES_SET, {
+      method: "POST",
+      body: JSON.stringify({
+        andy_prizename: prizeName,
+        andy_prizeinfo: infoNote,
+        andy_prizetaken: false,
+        [`${PRIZES_PRIZETYPE_NAV}@odata.bind`]: `/${PRIZE_TYPES_SET}(${prizeTypeId})`,
+      }),
+    });
+    const entityId = response.headers.get("OData-EntityId");
+    const match = entityId?.match(/\(([0-9a-f-]{36})\)/i);
+    created.push({ id: match?.[1] ?? "", name: prizeName });
+  }
+  return created;
 }
 
 interface EligiblePrizeType {

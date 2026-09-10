@@ -11,6 +11,12 @@ SignalR.
 open in separate browser tabs, clicking "Smart Lock & Security Panel" here moved the kiosk
 tab from `/kiosk/info` to `/kiosk/smart-lock` live, no reload.
 
+Also owns a master "Game Mode" switch, per-tile device enable/disable, and a Prize
+Management section that bulk-creates `andy_Prizes` rows (`POST /api/bulk-create-prizes`)
+-- the same capability as the "Bulk Add Prizes" genpage in the Game Backend model-driven
+app, so staff can stock prizes without leaving this control app. That genpage is still
+there too, as a redundant alternate entry point.
+
 ## Why a Code App instead of a Canvas app
 
 Near-zero build time for what's really a 12-tile picker, but the real reason: Power Apps
@@ -54,6 +60,7 @@ power apps/game-box-control/
 ├── .env.example              # copy to .env.local, fill in the function key
 └── src/
     ├── main.tsx
-    ├── App.tsx                # the whole app -- device picker + set-mode calls
-    └── apiConfig.ts           # azure/ Functions base URL + function key
+    ├── App.tsx                # device picker + mode controls, renders PrizeManagement
+    ├── PrizeManagement.tsx    # bulk-create-prizes UI (Prize Management section)
+    └── apiConfig.ts           # azure/ Functions base URL + function keys
 ```

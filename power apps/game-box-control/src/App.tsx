@@ -5,6 +5,7 @@ import {
   SET_GAME_MODE_FUNCTION_KEY,
   TOGGLE_DEVICE_FUNCTION_KEY,
 } from "./apiConfig";
+import PrizeManagement from "./PrizeManagement";
 
 interface DeviceProfile {
   id: string;
@@ -174,6 +175,8 @@ export default function App() {
           {gameModeBusy ? "Saving…" : gameModeEnabled ? "Turn Off" : "Turn On"}
         </button>
       </div>
+
+      <PrizeManagement />
 
       {error && (
         <p style={{ background: "#fdecea", color: "#611a15", padding: "0.75rem 1rem", borderRadius: 6 }}>
