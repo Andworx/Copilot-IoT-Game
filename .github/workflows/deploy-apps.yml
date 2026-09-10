@@ -49,7 +49,7 @@ jobs:
       - name: Build Power Pages Code Site
         working-directory: power pages/restore-and-spin
         env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-copilot-iot-game' }}.azurewebsites.net
+          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
         run: |
           npm ci
           npm run build
@@ -125,6 +125,7 @@ jobs:
         with:
           app-name: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
           package: function-artifact/function-app.zip
+          sku: flexconsumption
       - name: Upload Power Pages Code Site
         shell: pwsh
         working-directory: power-pages-artifact

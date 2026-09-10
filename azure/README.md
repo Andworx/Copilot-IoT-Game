@@ -39,22 +39,22 @@ revisit if `set-mode` ever gets a less trusted caller.
    `andy_deviceprofile`.
 3. **Node.js 22** and the **Azure Functions Core Tools v4** (`npm i -g azure-functions-core-tools@4`) for local runs. Node 20 is refused at creation (EOL 2026-04-30); **Node 24 was tried first and didn't work** — the deployed app got stuck with "Runtime version: Error" in the portal and 503'd on every route, including Kudu itself, even after a restart. Node 22 (LTS) fixed it immediately. Worth retrying Node 24 in the future once it's had more time to bake on Linux Consumption specifically.
 
-### Deployed resources (2026-09-08)
+### Deployed resources (updated 2026-09-10)
 
-All in resource group `rg-aw-azcom-copilot-iot-game` (subscription "Microsoft Azure
-Sponsorship", `eastus2`):
+Runtime resources are consolidated into resource group `rg-aw-azcom-iot-copilot`
+(subscription "Microsoft Azure Sponsorship", `eastus`):
 
 | Resource | Name |
 |---|---|
-| Function App | `func-aw-azcom-copilot-iot-game` (`func-aw-azcom-copilot-iot-game.azurewebsites.net`) |
-| Storage account | `stawazcomiotgame` |
-| SignalR Service | `sigr-aw-azcom-copilot-iot-game` (Free_F1 — fine for dev; upgrade to Standard_S1 before the real booth event, Free tier caps concurrent connections/daily messages) |
+| Function App | `func-aw-azcom-iot-game` (`func-aw-azcom-iot-game.azurewebsites.net`) |
+| Storage account | `stawazcomiotgamefn` |
+| SignalR Service | `signalr-aw-iot-copilot` (Free_F1, Serverless, shared with the IoT Copilot environment — upgrade to Standard_S1 before the real booth event if concurrent connection or daily message volume approaches Free tier limits) |
 | Entra app registration | `restore-and-spin-function`, App ID `8eb31f00-6f72-4663-8de9-e5290d2a2aa7`, tenant `7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8` — added as a Dataverse Application User (client secret was generated and set directly as the Function App's `DATAVERSE_CLIENT_SECRET` setting, not committed anywhere) |
 
 All 5 app settings (`DATAVERSE_URL`, `DATAVERSE_TENANT_ID`, `DATAVERSE_CLIENT_ID`,
 `DATAVERSE_CLIENT_SECRET`, `AzureSignalRConnectionString`) are set on the live Function App
-via `az functionapp config appsettings set`. Runtime is `Node|22` — see the Node version
-note under Prerequisites before ever trying Node 24 again.
+via `az functionapp config appsettings set`. Runtime is Node 22 on Flex Consumption — see
+the Node version note under Prerequisites before ever trying Node 24 again.
 
 **CORS:** `az functionapp cors add --allowed-origins <origin>` per origin that needs to call
 these endpoints from a browser (no wildcard). `http://localhost:5173` (the
@@ -103,7 +103,7 @@ Other Power Platform components retain their existing PAC workflows.
 
 ```bash
 npm run build
-func azure functionapp publish func-aw-azcom-copilot-iot-game --typescript
+func azure functionapp publish func-aw-azcom-iot-game --typescript
 ```
 
 `--typescript` matters — without it, `func` can't determine the project language from a

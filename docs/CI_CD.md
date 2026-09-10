@@ -37,7 +37,7 @@ and deploy jobs use the same API host; do not override it at environment scope.
 
 | Variable | Value/purpose |
 |---|---|
-| `AZURE_FUNCTIONAPP_NAME` | `func-aw-azcom-copilot-iot-game` for the existing deployment |
+| `AZURE_FUNCTIONAPP_NAME` | `func-aw-azcom-iot-game` for the consolidated IoT resource group deployment |
 | `AZURE_CLIENT_ID` | Deployment identity/application client ID |
 | `AZURE_TENANT_ID` | Azure tenant ID |
 | `AZURE_SUBSCRIPTION_ID` | Subscription containing the Function App |
@@ -55,10 +55,13 @@ Configure Azure OIDC federation for the Azure deployment identity:
 - Issuer: `https://token.actions.githubusercontent.com`
 - Subject: `repo:Andworx/Copilot-IoT-Game:environment:production`
 - Audience: `api://AzureADTokenExchange`
-- Assign Website Contributor scoped to the existing Function App (or a tested
+- Assign Website Contributor scoped to the consolidated Function App (or a tested
   equivalent deployment role). No Azure publish-profile secret is used.
 
-The Function App must already exist with the Node 22 runtime. Preserve its runtime
+The Function App must already exist with the Node 22 runtime. Current target:
+`func-aw-azcom-iot-game` in `rg-aw-azcom-iot-copilot`, hosted on Flex
+Consumption with dedicated storage account `stawazcomiotgamefn` and shared
+Serverless SignalR resource `signalr-aw-iot-copilot`. Preserve its runtime
 Dataverse/SignalR settings and storage configuration. This workflow does not
 provision resources or publish `local.settings.json`. Configure CORS for the
 public Power Pages origin. The frontend's `VITE_API_BASE_URL` is derived from the
