@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{8fc86ca1-ddec-4ea0-a2d3-ef51a40fc0c2}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_prizename" select="1" icon="1" preview="1">
+        <row name="result" id="andy_prizesid">
+          <cell name="andy_prizename" width="300" />
+          <cell name="andy_prizetype" width="101" />
+          <cell name="andy_prizewinner" width="114" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_prizes">
+          <attribute name="andy_prizesid" />
+          <attribute name="andy_prizename" />
+          <order attribute="andy_prizename" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="1" />
+          </filter>
+          <attribute name="andy_prizetype" />
+          <attribute name="andy_prizewinner" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Inactive Prizes" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

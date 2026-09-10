@@ -249,10 +249,10 @@
             <Description description="Unique identifier for entity instances" languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="andy_Prize">
+        <attribute PhysicalName="andy_PrizeInstance">
           <Type>lookup</Type>
-          <Name>andy_prize</Name>
-          <LogicalName>andy_prize</LogicalName>
+          <Name>andy_prizeinstance</Name>
+          <LogicalName>andy_prizeinstance</LogicalName>
           <RequiredLevel>none</RequiredLevel>
           <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
           <ImeMode>auto</ImeMode>
@@ -260,9 +260,9 @@
           <ValidForReadApi>1</ValidForReadApi>
           <ValidForCreateApi>1</ValidForCreateApi>
           <IsCustomField>1</IsCustomField>
-          <IsAuditEnabled>1</IsAuditEnabled>
+          <IsAuditEnabled>0</IsAuditEnabled>
           <IsSecured>0</IsSecured>
-          <IntroducedVersion>1.0</IntroducedVersion>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
           <IsCustomizable>1</IsCustomizable>
           <IsRenameable>1</IsRenameable>
           <CanModifySearchSettings>1</CanModifySearchSettings>
@@ -282,10 +282,49 @@
           <LookupStyle>single</LookupStyle>
           <LookupTypes />
           <displaynames>
-            <displayname description="Prize" languagecode="1033" />
+            <displayname description="Prize Instance" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Prize selected for the claim; null until claimed." languagecode="1033" />
+            <Description description="Specific prize instance drawn for this win; set once resolved." languagecode="1033" />
+          </Descriptions>
+        </attribute>
+        <attribute PhysicalName="andy_PrizeType">
+          <Type>lookup</Type>
+          <Name>andy_prizetype</Name>
+          <LogicalName>andy_prizetype</LogicalName>
+          <RequiredLevel>none</RequiredLevel>
+          <DisplayMask>ValidForAdvancedFind|ValidForForm|ValidForGrid</DisplayMask>
+          <ImeMode>auto</ImeMode>
+          <ValidForUpdateApi>1</ValidForUpdateApi>
+          <ValidForReadApi>1</ValidForReadApi>
+          <ValidForCreateApi>1</ValidForCreateApi>
+          <IsCustomField>1</IsCustomField>
+          <IsAuditEnabled>0</IsAuditEnabled>
+          <IsSecured>0</IsSecured>
+          <IntroducedVersion>1.0.0.0</IntroducedVersion>
+          <IsCustomizable>1</IsCustomizable>
+          <IsRenameable>1</IsRenameable>
+          <CanModifySearchSettings>1</CanModifySearchSettings>
+          <CanModifyRequirementLevelSettings>1</CanModifyRequirementLevelSettings>
+          <CanModifyAdditionalSettings>1</CanModifyAdditionalSettings>
+          <SourceType>0</SourceType>
+          <IsGlobalFilterEnabled>0</IsGlobalFilterEnabled>
+          <IsSortableEnabled>0</IsSortableEnabled>
+          <CanModifyGlobalFilterSettings>1</CanModifyGlobalFilterSettings>
+          <CanModifyIsSortableSettings>1</CanModifyIsSortableSettings>
+          <IsDataSourceSecret>0</IsDataSourceSecret>
+          <AutoNumberFormat></AutoNumberFormat>
+          <IsSearchable>0</IsSearchable>
+          <IsFilterable>0</IsFilterable>
+          <IsRetrievable>0</IsRetrievable>
+          <IsLocalizable>0</IsLocalizable>
+          <LookupStyle>single</LookupStyle>
+          <LookupTypes />
+          <displaynames>
+            <displayname description="Prize Type" languagecode="1033" />
+          </displaynames>
+          <Descriptions>
+            <Description description="Prize type awarded by this win, before an instance is drawn." languagecode="1033" />
           </Descriptions>
         </attribute>
         <attribute PhysicalName="andy_RedeemedBy">
@@ -1327,6 +1366,7 @@
       <IsSolutionAware>0</IsSolutionAware>
     </entity>
   </EntityInfo>
+  <FormXml />
   <SavedQueries />
   <RibbonDiffXml />
 </Entity>

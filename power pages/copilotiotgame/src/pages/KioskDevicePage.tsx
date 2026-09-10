@@ -4,6 +4,7 @@ import { DEVICE_PROFILES } from "../data/deviceProfiles";
 import type { DeviceState } from "../types/game";
 import { HelpFixBar } from "../components/HelpFixBar";
 import { WinOverlay } from "../components/WinOverlay";
+import { SuccessPopup } from "../components/SuccessPopup";
 import { DemoGearMenu } from "../components/DemoGearMenu";
 import { DialArcPanel } from "../components/layouts/DialArcPanel";
 import { KeypadPanel } from "../components/layouts/KeypadPanel";
@@ -26,19 +27,52 @@ export function KioskDevicePage() {
   const [state, setState] = useState<DeviceState>(() => ({ ...device?.fault }));
   const [telemetryTick, setTelemetryTick] = useState(0);
   const [claimToken, setClaimToken] = useState<string | null>(null);
+  // Null while unknown (still loading) -- default to the ON behavior (today's flow) so a
+  // slow/failed fetch never silently drops a real win into the OFF path.
+  const [gameModeEnabled, setGameModeEnabled] = useState<boolean | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setTelemetryTick((t) => (t + 0.4) % 6), 400);
     return () => clearInterval(id);
   }, []);
 
+  // Read the Game Mode flag once per device mount -- cheap enough not to need the
+  // window-cache/de-dupe pattern used elsewhere in this project; a stale read only
+  // affects which completion UI shows, not any Dataverse write.
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API_BASE_URL}/api/kiosk-state`)
+      .then((res) => res.json())
+      .then((data: { gameModeEnabled?: boolean }) => {
+        if (!cancelled) setGameModeEnabled(data.gameModeEnabled ?? true);
+      })
+      .catch((err) => {
+        console.error("Failed to read game mode state", err);
+        if (!cancelled) setGameModeEnabled(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const win = device ? device.checkWin(state) : false;
 
-  // Creates the andy_gamewin row (PRIZE_ENGINE_SPEC.md §3 step 1 -- standing in for the
-  // not-yet-built Copilot Studio topic action) exactly once per win, on the false->true
-  // transition. claimToken resets to null in handleReset so a re-fix fires this again.
+  // Game Mode ON: creates the andy_gamewin row (PRIZE_ENGINE_SPEC.md §3 step 1 --
+  // standing in for the not-yet-built Copilot Studio topic action) exactly once per
+  // win, on the false->true transition. claimToken resets to null in
+  // handleCompletionReset so a re-fix fires this again.
+  //
+  // Game Mode OFF: skips this entirely -- no andy_gamewin row, no Dataverse write at
+  // all, per the decision to leave OFF completions unlogged. Shows the success popup
+  // client-side only instead.
   useEffect(() => {
-    if (!win || !device || claimToken) return;
+    if (!win || !device || gameModeEnabled === null) return;
+    if (!gameModeEnabled) {
+      setShowSuccessPopup(true);
+      return;
+    }
+    if (claimToken) return;
     let cancelled = false;
     fetch(`${API_BASE_URL}/api/create-win`, {
       method: "POST",
@@ -54,7 +88,7 @@ export function KioskDevicePage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [win]);
+  }, [win, gameModeEnabled]);
 
   if (!device) {
     return (
@@ -70,9 +104,20 @@ export function KioskDevicePage() {
     setState((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
-  function handleReset() {
+  // Fires when the win/success overlay's own dwell timer elapses, in both Game Mode
+  // states. Clears local win state (belt-and-suspenders in case the auto-rotate below
+  // happens to re-pick this same device -- SignalR's deviceChanged dedupe would then
+  // skip re-navigating, so this component would otherwise stay stuck showing the win
+  // screen) and immediately auto-picks a new random *enabled* mode server-side; the
+  // resulting deviceChanged broadcast is what actually moves the kiosk on, via the
+  // existing useDeviceSync listener at the app root -- no local navigation call needed.
+  function handleCompletionReset() {
     setState({ ...device.fault });
     setClaimToken(null);
+    setShowSuccessPopup(false);
+    fetch(`${API_BASE_URL}/api/pick-random-mode`, { method: "POST" }).catch((err) =>
+      console.error("Failed to pick a random mode", err)
+    );
   }
 
   return (
@@ -139,12 +184,20 @@ export function KioskDevicePage() {
         <span>UNIT: game-panel-01</span>
       </div>
 
-      {win && claimToken && (
+      {win && gameModeEnabled && claimToken && (
         <WinOverlay
           winMessage={device.winMessage}
           restoreItems={device.restoreItems}
           claimToken={claimToken}
-          onReset={handleReset}
+          onReset={handleCompletionReset}
+        />
+      )}
+
+      {win && gameModeEnabled === false && showSuccessPopup && (
+        <SuccessPopup
+          winMessage={device.winMessage}
+          restoreItems={device.restoreItems}
+          onReset={handleCompletionReset}
         />
       )}
 

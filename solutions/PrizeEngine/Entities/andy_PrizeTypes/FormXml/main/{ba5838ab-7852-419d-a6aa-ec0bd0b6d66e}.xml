@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{ba5838ab-7852-419d-a6aa-ec0bd0b6d66e}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls" shownavigationbar="false">
+      <tabs>
+        <tab verticallayout="true" id="{59bf07c8-b4ca-4fe4-b165-f2d1118e4ee4}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{726147f5-8f00-427a-8dfc-71eadd8744ad}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{fea3cbac-5a8e-4d93-b9fe-f82fe2147adf}">
+                        <labels>
+                          <label description="Prize Type Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prizetypename" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_prizetypename" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1313d65a-e27f-47f2-a248-1b1d55ca0d55}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Color" languagecode="1033" />
+                        </labels>
+                        <control id="andy_color" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="andy_color" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{01cf586d-d599-485a-829a-d383ff249975}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Rarity" languagecode="1033" />
+                        </labels>
+                        <control id="andy_rarity" classid="{C6D124CA-7EDA-4A60-AEA9-7FB8D318B68F}" datafieldname="andy_rarity" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{c7a7fde9-964f-441b-8bd8-9c9f957ca388}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Prize Type Emoji" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prizetypeimage" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="andy_prizetypeimage" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ba583305-dd67-430d-b8c5-8f8556423709}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Prize Image" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prizeimage" classid="{7E548B0D-209C-477B-9DCD-F0F44472381D}" datafieldname="andy_prizeimage" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{65f54377-13bb-44bf-bde9-b840057a3a3c}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Prize Image File" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prizeimagefile" classid="{0A7FF475-B016-4687-9CE5-042BFDBD6519}" datafieldname="andy_prizeimagefile" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{949551a5-b711-4c72-8f67-45bf7ac2a86d}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Prize Image SVG" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prizeimagesvg" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_prizeimagesvg" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell locklevel="0" id="{4596426d-260d-4fab-ac20-802bff54617d}" rowspan="4" colspan="1" auto="false" showlabel="true">
+                        <labels>
+                          <label description="Available Prizes" languagecode="1033" />
+                        </labels>
+                        <control indicationOfSubgrid="true" id="Subgrid_new_1" classid="{E7A81278-8635-4D9E-8D4D-59480B391C5B}">
+                          <parameters>
+                            <RecordsPerPage>4</RecordsPerPage>
+                            <AutoExpand>Fixed</AutoExpand>
+                            <EnableQuickFind>false</EnableQuickFind>
+                            <EnableViewPicker>false</EnableViewPicker>
+                            <EnableChartPicker>true</EnableChartPicker>
+                            <ChartGridMode>All</ChartGridMode>
+                            <RelationshipName>andy_prizes_PrizeType_andy_prizetypes</RelationshipName>
+                            <TargetEntityType>andy_prizes</TargetEntityType>
+                            <ViewId>{e67dc58d-7eac-4598-8ab8-0df85285c168}</ViewId>
+                            <ViewIds>{e67dc58d-7eac-4598-8ab8-0df85285c168}</ViewIds>
+                          </parameters>
+                        </control>
+                      </cell>
+                    </row>
+                    <row />
+                    <row />
+                    <row />
+                    <row>
+                      <cell locklevel="0" id="{2d1e5199-bf6c-417f-bae5-be3bbcb069c3}" rowspan="4" colspan="1" auto="false">
+                        <labels>
+                          <label description="Taken Prizes" languagecode="1033" />
+                        </labels>
+                        <control indicationOfSubgrid="true" id="Subgrid_new_2" classid="{E7A81278-8635-4D9E-8D4D-59480B391C5B}">
+                          <parameters>
+                            <RecordsPerPage>4</RecordsPerPage>
+                            <AutoExpand>Fixed</AutoExpand>
+                            <EnableQuickFind>false</EnableQuickFind>
+                            <EnableViewPicker>false</EnableViewPicker>
+                            <EnableChartPicker>true</EnableChartPicker>
+                            <ChartGridMode>All</ChartGridMode>
+                            <RelationshipName>andy_prizes_PrizeType_andy_prizetypes</RelationshipName>
+                            <TargetEntityType>andy_prizes</TargetEntityType>
+                            <ViewId>{8FC86CA1-DDEC-4EA0-A2D3-EF51A40FC0C2}</ViewId>
+                            <ViewIds>{E67DC58D-7EAC-4598-8AB8-0DF85285C168},{8FC86CA1-DDEC-4EA0-A2D3-EF51A40FC0C2}</ViewIds>
+                          </parameters>
+                        </control>
+                      </cell>
+                    </row>
+                    <row />
+                    <row />
+                    <row />
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{0f1de689-511c-4298-b9e9-d2f2bf3294ec}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{e19c6bfb-2121-4c1a-8470-b0f1808854a6}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{21ac4201-4e48-4d93-a16e-46cc928bf3b3}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{9bbbb2ab-8138-4b9c-89c9-d94a258b883c}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{d01f7c18-53dd-4bfa-b237-461c752d6337}" colspan="1" rowspan="1">
+              <labels>
+                <label description="Owner" languagecode="1033" />
+              </labels>
+              <control id="header_ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{8b20f268-ddf2-41fa-9afb-06f04e6c6f8b}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{40dbdf62-5c7a-44e0-88b1-6dec5560795e}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{0171a466-feac-4dfd-bd8d-41714c5af35e}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{89402220-c639-4c2a-8f71-467ce95d6c4a}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

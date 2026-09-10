@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{44622621-dac2-466d-b275-dbbd8744100a}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_winname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_sessionprizewinid">
+          <cell name="andy_winname" width="300" />
+          <cell name="andy_sessionname" width="150" />
+          <cell name="andy_attendeename" width="150" />
+          <cell name="andy_prizetype" width="150" />
+          <cell name="andy_wintime" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_sessionprizewin">
+          <attribute name="andy_sessionprizewinid" />
+          <attribute name="andy_winname" />
+          <attribute name="createdon" />
+          <order attribute="andy_winname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="andy_sessionname" />
+          <attribute name="andy_attendeename" />
+          <attribute name="andy_prizetype" />
+          <attribute name="andy_wintime" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Session Prize Wins" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<optionset Name="andy_redemptionstatus" localizedName="Redemption Status" description="Tracks the physical handoff of a claimed prize at the booth, separate from andy_gamewinstatus." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<optionset Name="andy_redemptionstatus" localizedName="Redemption Status" description="Tracks evaluation and physical handoff of a prize win at the booth." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <OptionSetType>picklist</OptionSetType>
   <IsGlobal>1</IsGlobal>
   <IntroducedVersion>1.0.0.0</IntroducedVersion>
@@ -9,7 +9,7 @@
     <displayname description="Redemption Status" languagecode="1033" />
   </displaynames>
   <Descriptions>
-    <Description description="Tracks the physical handoff of a claimed prize at the booth, separate from andy_gamewinstatus." languagecode="1033" />
+    <Description description="Tracks evaluation and physical handoff of a prize win at the booth." languagecode="1033" />
   </Descriptions>
   <options>
     <option value="435700000" ExternalValue="" IsHidden="0">

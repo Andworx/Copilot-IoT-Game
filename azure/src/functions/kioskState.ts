@@ -13,7 +13,9 @@ export async function kioskState(
 ): Promise<HttpResponseInit> {
   try {
     const state = await getGameBoxState();
-    return { jsonBody: { deviceSlug: state.deviceSlug, deviceName: state.deviceName } };
+    return {
+      jsonBody: { deviceSlug: state.deviceSlug, deviceName: state.deviceName, gameModeEnabled: state.gameModeEnabled },
+    };
   } catch (error) {
     context.error("kiosk-state failed", error);
     return { status: 500, jsonBody: { error: "Failed to read kiosk state" } };

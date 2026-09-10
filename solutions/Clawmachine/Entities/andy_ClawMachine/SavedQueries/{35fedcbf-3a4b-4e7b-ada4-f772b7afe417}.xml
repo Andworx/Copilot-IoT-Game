@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{35fedcbf-3a4b-4e7b-ada4-f772b7afe417}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_machinename" select="1" icon="1" preview="1">
+        <row name="result" id="andy_clawmachineid">
+          <cell name="andy_machinename" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_clawmachine">
+          <attribute name="andy_clawmachineid" />
+          <attribute name="andy_machinename" />
+          <attribute name="createdon" />
+          <order attribute="andy_machinename" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="1" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Inactive Claw Machines" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

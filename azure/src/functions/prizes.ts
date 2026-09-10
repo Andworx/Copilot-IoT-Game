@@ -1,10 +1,11 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { listActivePrizes } from "../lib/dataverse";
+import { listActivePrizeTypes } from "../lib/dataverse";
 
 /**
- * GET /api/prizes -- lists active, non-fallback andy_prize names for the prize wheel
- * SPA to draw its wheel slices from. The actual pick happens server-side in
- * claim-prize (PRIZE_ENGINE_SPEC.md §1.2); this is presentation data only, so
+ * GET /api/prizes -- lists active, non-fallback andy_PrizeTypes names for the prize
+ * wheel SPA to draw its wheel slices from. The actual pick happens server-side in
+ * claim-prize (PRIZE_CODE_MIGRATION.md), now weighted-picking a type then claiming one
+ * of its untaken andy_Prizes instance rows; this is presentation data only, so
  * anonymous is fine -- same posture as device-profiles/kiosk-state.
  */
 export async function prizes(
@@ -12,7 +13,7 @@ export async function prizes(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const prizes = await listActivePrizes();
+    const prizes = await listActivePrizeTypes();
     return { jsonBody: { prizes } };
   } catch (error) {
     context.error("prizes failed", error);

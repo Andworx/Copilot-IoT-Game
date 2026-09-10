@@ -1,0 +1,2827 @@
+{
+  "personasAndUserStories": [
+    {
+      "user": {
+        "id": "Administrator",
+        "name": "Administrator",
+        "description": "Responsible for managing prize inventory, categorizing prizes, configuring claw machine settings, and maintaining backend operations for the system.",
+        "image": "https://content.powerapps.com/resource/makerx/static/media/PersonAvailable.807f0e9a.svg"
+      },
+      "userStories": [
+        {
+          "id": "us01",
+          "description": "Update prize inventory so that prizes available for claw machine games are accurately tracked.",
+          "userType": "Administrator"
+        },
+        {
+          "id": "us02",
+          "description": "Categorize prizes into different types so that prize management and distribution is more efficient.",
+          "userType": "Administrator"
+        },
+        {
+          "id": "us03",
+          "description": "Modify claw machine settings so that the game sessions can be adjusted to suit operational needs.",
+          "userType": "Administrator"
+        },
+        {
+          "id": "us04",
+          "description": "Review historical claw machine game sessions so that machine performance can be analyzed and future sessions optimized.",
+          "userType": "Administrator"
+        }
+      ]
+    },
+    {
+      "user": {
+        "id": "Booth Attendee",
+        "name": "Booth Attendee",
+        "description": "Interact with the claw machine to win a prize",
+        "image": "https://content.powerapps.com/resource/makerx/static/media/PersonLightning.42f126d5.svg"
+      },
+      "userStories": [
+        {
+          "id": "us05",
+          "description": "Access live prize availability data so that immediate decisions can be made on what prize I won",
+          "userType": "Booth Attendee"
+        }
+      ]
+    }
+  ],
+  "entitiesAndRelationships": {
+    "entities": [
+      {
+        "entityMetadataId": "137d7144-d077-41d4-8569-a41517bbca56",
+        "entityName": "Prize",
+        "description": "This table contains records of prizes available in the claw machine inventory",
+        "columns": [
+          "Prize Name",
+          "Category Name",
+          "Quantity Available",
+          "Value"
+        ],
+        "userStories": [
+          "us01",
+          "us05"
+        ],
+        "userConfirmed": false,
+        "generated": true
+      },
+      {
+        "entityMetadataId": "05319f52-dbb1-499e-8827-0c814dc1ade1",
+        "entityName": "Prize Category",
+        "description": "This table contains categories for prizes to organize and classify them",
+        "columns": [
+          "Category Name",
+          "Description"
+        ],
+        "userStories": [
+          "us02"
+        ],
+        "userConfirmed": false,
+        "generated": true
+      },
+      {
+        "entityMetadataId": "1f08be9d-c4b7-490d-92b1-2b58993de423",
+        "entityName": "Claw Machine",
+        "description": "This table contains records of claw machines and their details",
+        "columns": [
+          "Machine Name",
+          "Location",
+          "Status"
+        ],
+        "userStories": [
+          "us03",
+          "us04"
+        ],
+        "userConfirmed": false,
+        "generated": true
+      },
+      {
+        "entityMetadataId": "e4c98fb1-f2c7-4087-b04c-df099d630255",
+        "entityName": "Game Session",
+        "description": "This table contains records of individual game sessions played on claw machines",
+        "columns": [
+          "Session Name",
+          "Machine Name",
+          "Start Time",
+          "End Time"
+        ],
+        "userStories": [
+          "us04",
+          "us05"
+        ],
+        "userConfirmed": false,
+        "generated": true
+      },
+      {
+        "entityMetadataId": "8749a347-f9b6-488b-9371-3a6dfae30d5c",
+        "entityName": "Machine Setting",
+        "description": "This table contains configuration settings for claw machines",
+        "columns": [
+          "Setting Name",
+          "Machine Name",
+          "Difficulty Level",
+          "Max Play Time (seconds)"
+        ],
+        "userStories": [
+          "us03"
+        ],
+        "userConfirmed": false,
+        "generated": true
+      },
+      {
+        "entityMetadataId": "c0e9f6f0-f035-4355-af19-352e786b68e4",
+        "entityName": "Booth Attendee",
+        "description": "This table contains records of users who interact with the claw machines",
+        "columns": [
+          "Attendee Name",
+          "Email",
+          "Phone"
+        ],
+        "userStories": [
+          "us05"
+        ],
+        "userConfirmed": false,
+        "generated": true
+      },
+      {
+        "entityMetadataId": "7555a21e-b37d-476c-b8eb-3a3f69484654",
+        "entityName": "Session Prize Win",
+        "description": "This table records prizes won during game sessions by booth attendees",
+        "columns": [
+          "Win Name",
+          "Session Name",
+          "Attendee Name",
+          "Prize Name",
+          "Win Time"
+        ],
+        "userStories": [
+          "us05",
+          "us04"
+        ],
+        "userConfirmed": false,
+        "generated": true
+      }
+    ],
+    "relationships": [],
+    "isFinalResult": true
+  },
+  "entitiesCollection": [
+    {
+      "EntityDefinition": {
+        "MetadataId": "137d7144-d077-41d4-8569-a41517bbca56",
+        "Attributes": [
+          {
+            "MetadataId": "97571185-81d8-4c50-89e4-50e3b754f81b",
+            "IsPrimaryName": true,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_PrizeName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Prize Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "ApplicationRequired"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 850,
+            "FormatName": {
+              "Value": "Text"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          },
+          {
+            "MetadataId": "fb27686f-9b86-479f-b44c-a7ee34f0cf26",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_CategoryName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Category Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Lookup",
+            "AttributeTypeName": {
+              "Value": "LookupType"
+            },
+            "Targets": [
+              "andy_prizecategory"
+            ],
+            "@odata.type": "Microsoft.Dynamics.CRM.LookupAttributeMetadata"
+          },
+          {
+            "MetadataId": "3da63a03-269c-46d7-9869-6ec9fe66226f",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_QuantityAvailable",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Quantity Available",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Integer",
+            "AttributeTypeName": {
+              "Value": "IntegerType"
+            },
+            "MaxValue": 2147483647,
+            "MinValue": -2147483648,
+            "Format": "None",
+            "@odata.type": "Microsoft.Dynamics.CRM.IntegerAttributeMetadata"
+          },
+          {
+            "MetadataId": "479e7148-a279-412f-bf74-aa4d7c98f6c4",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_Value",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Value",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Money",
+            "AttributeTypeName": {
+              "Value": "MoneyType"
+            },
+            "ImeMode": "Auto",
+            "MaxValue": 922337203685477,
+            "MinValue": -922337203685477,
+            "PrecisionSource": 2,
+            "Precision": 2,
+            "IsBaseCurrency": false,
+            "@odata.type": "Microsoft.Dynamics.CRM.MoneyAttributeMetadata"
+          }
+        ],
+        "OwnershipType": "UserOwned",
+        "PrimaryNameAttribute": "",
+        "SchemaName": "andy_Prize",
+        "HasNotes": false,
+        "HasActivities": false,
+        "IsAvailableOffline": false,
+        "IsActivity": false,
+        "ActivityTypeMask": 0,
+        "IsSolutionAware": false,
+        "Description": {
+          "LocalizedLabels": [
+            {
+              "Label": "This table contains records of prizes available in the claw machine inventory",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayCollectionName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Prizes",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Prize",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "IsAuditEnabled": {
+          "Value": false
+        },
+        "IsValidForQueue": {
+          "Value": false
+        },
+        "IsConnectionsEnabled": {
+          "Value": false
+        },
+        "IsDuplicateDetectionEnabled": {
+          "Value": true
+        },
+        "IsDocumentManagementEnabled": false,
+        "EntityColor": null,
+        "IsRetentionEnabled": false,
+        "SyncToExternalSearchIndex": false,
+        "AutoRouteToOwnerQueue": false,
+        "IsSLAEnabled": false,
+        "IsQuickCreateEnabled": false,
+        "IsActivityParty": false,
+        "HasFeedback": false,
+        "AutoCreateAccessTeams": false,
+        "ChangeTrackingEnabled": false,
+        "IsKnowledgeManagementEnabled": false,
+        "EntityHelpUrlEnabled": false,
+        "EntityHelpUrl": null,
+        "IsMailMergeEnabled": {
+          "Value": true
+        },
+        "IsOfflineInMobileClient": {
+          "Value": false
+        },
+        "ManyToOneRelationships": [
+          {
+            "MetadataId": "2a2c03f8-b725-4337-96d8-2be07b145e98",
+            "SchemaName": "andy_Prize_andy_CategoryName_andy_PrizeCategory",
+            "ReferencingAttribute": "andy_categoryname",
+            "ReferencedEntity": "andy_prizecategory",
+            "ReferencingEntity": "andy_prize",
+            "ReferencedAttribute": "andy_prizecategoryid",
+            "ReferencingEntityNavigationPropertyName": "andy_CategoryName",
+            "RelationshipType": "OneToManyRelationship",
+            "IsCustomRelationship": true,
+            "IsValidForAdvancedFind": true,
+            "IsCustomizable": {
+              "Value": true,
+              "CanBeChanged": true,
+              "ManagedPropertyLogicalName": "iscustomizable"
+            },
+            "CascadeConfiguration": {
+              "Assign": "NoCascade",
+              "Delete": "RemoveLink",
+              "Merge": "NoCascade",
+              "Reparent": "NoCascade",
+              "Share": "NoCascade",
+              "Unshare": "NoCascade",
+              "RollupView": "NoCascade",
+              "Archive": "RemoveLink"
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.OneToManyRelationshipMetadata"
+          }
+        ],
+        "@odata.type": "Microsoft.Dynamics.CRM.EntityMetadata"
+      },
+      "SampleData": [
+        {
+          "andy_prizeid": "b7c7e724-f75e-4227-a118-c73ad4ffc0a2",
+          "andy_prizename": "Mini Robot",
+          "andy_CategoryName@odata.bind": "/andy_prizecategories(655204e1-0322-4cdf-a16e-0f71038a2d63)",
+          "andy_quantityavailable": 15,
+          "andy_value": 12.5
+        },
+        {
+          "andy_prizeid": "7c23dd9c-8645-4a9a-9a1a-53f08d6250bd",
+          "andy_prizename": "Bluetooth Speaker",
+          "andy_CategoryName@odata.bind": "/andy_prizecategories(bce623eb-feee-4605-8100-efa2fc72178d)",
+          "andy_quantityavailable": 8,
+          "andy_value": 45
+        },
+        {
+          "andy_prizeid": "c1862918-38ba-4c77-9868-bc977c03189d",
+          "andy_prizename": "Teddy Bear",
+          "andy_CategoryName@odata.bind": "/andy_prizecategories(39bf59e9-5723-4167-b52f-00c9cda1c5bb)",
+          "andy_quantityavailable": 20,
+          "andy_value": 18
+        },
+        {
+          "andy_prizeid": "1032cf9e-fe8f-4463-a40f-af2ecd873ef8",
+          "andy_prizename": "Action Figure",
+          "andy_CategoryName@odata.bind": "/andy_prizecategories(dd413ae9-ffb3-479d-9c6d-9364a89dcc7a)",
+          "andy_quantityavailable": 10,
+          "andy_value": 25
+        },
+        {
+          "andy_prizeid": "487e383f-c121-4a8e-8b24-56b17d27454b",
+          "andy_prizename": "Amazon Gift Card",
+          "andy_CategoryName@odata.bind": "/andy_prizecategories(c4a28d1c-dea5-4d18-a30b-84b86ba80b62)",
+          "andy_quantityavailable": 5,
+          "andy_value": 50
+        }
+      ]
+    },
+    {
+      "EntityDefinition": {
+        "MetadataId": "05319f52-dbb1-499e-8827-0c814dc1ade1",
+        "Attributes": [
+          {
+            "MetadataId": "6ae6c777-0644-47cf-8929-44dd74eb8000",
+            "IsPrimaryName": true,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_CategoryName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Category Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "ApplicationRequired"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 850,
+            "FormatName": {
+              "Value": "Text"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          },
+          {
+            "MetadataId": "1858850b-dd19-4983-8785-6db13635ea74",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_Description",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Description",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Memo",
+            "AttributeTypeName": {
+              "Value": "MemoType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 2000,
+            "FormatName": {
+              "Value": "Text"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.MemoAttributeMetadata"
+          }
+        ],
+        "OwnershipType": "UserOwned",
+        "PrimaryNameAttribute": "",
+        "SchemaName": "andy_PrizeCategory",
+        "HasNotes": false,
+        "HasActivities": false,
+        "IsAvailableOffline": false,
+        "IsActivity": false,
+        "ActivityTypeMask": 0,
+        "IsSolutionAware": false,
+        "Description": {
+          "LocalizedLabels": [
+            {
+              "Label": "This table contains categories for prizes to organize and classify them",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayCollectionName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Prize Categories",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Prize Category",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "IsAuditEnabled": {
+          "Value": false
+        },
+        "IsValidForQueue": {
+          "Value": false
+        },
+        "IsConnectionsEnabled": {
+          "Value": false
+        },
+        "IsDuplicateDetectionEnabled": {
+          "Value": true
+        },
+        "IsDocumentManagementEnabled": false,
+        "EntityColor": null,
+        "IsRetentionEnabled": false,
+        "SyncToExternalSearchIndex": false,
+        "AutoRouteToOwnerQueue": false,
+        "IsSLAEnabled": false,
+        "IsQuickCreateEnabled": false,
+        "IsActivityParty": false,
+        "HasFeedback": false,
+        "AutoCreateAccessTeams": false,
+        "ChangeTrackingEnabled": false,
+        "IsKnowledgeManagementEnabled": false,
+        "EntityHelpUrlEnabled": false,
+        "EntityHelpUrl": null,
+        "IsMailMergeEnabled": {
+          "Value": true
+        },
+        "IsOfflineInMobileClient": {
+          "Value": false
+        },
+        "ManyToOneRelationships": [],
+        "@odata.type": "Microsoft.Dynamics.CRM.EntityMetadata"
+      },
+      "SampleData": [
+        {
+          "andy_prizecategoryid": "655204e1-0322-4cdf-a16e-0f71038a2d63",
+          "andy_categoryname": "Toys",
+          "andy_description": "Small toys and figurines"
+        },
+        {
+          "andy_prizecategoryid": "bce623eb-feee-4605-8100-efa2fc72178d",
+          "andy_categoryname": "Electronics",
+          "andy_description": "Electronic gadgets and accessories"
+        },
+        {
+          "andy_prizecategoryid": "39bf59e9-5723-4167-b52f-00c9cda1c5bb",
+          "andy_categoryname": "Plushies",
+          "andy_description": "Soft stuffed animals"
+        },
+        {
+          "andy_prizecategoryid": "dd413ae9-ffb3-479d-9c6d-9364a89dcc7a",
+          "andy_categoryname": "Collectibles",
+          "andy_description": "Limited edition collectibles"
+        },
+        {
+          "andy_prizecategoryid": "c4a28d1c-dea5-4d18-a30b-84b86ba80b62",
+          "andy_categoryname": "Gift Cards",
+          "andy_description": "Various gift cards"
+        }
+      ]
+    },
+    {
+      "EntityDefinition": {
+        "MetadataId": "1f08be9d-c4b7-490d-92b1-2b58993de423",
+        "Attributes": [
+          {
+            "MetadataId": "2aee1b23-f61f-4188-8ea2-3282a5b108bf",
+            "IsPrimaryName": true,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_MachineName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Machine Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "ApplicationRequired"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 850,
+            "FormatName": {
+              "Value": "Text"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          },
+          {
+            "MetadataId": "c6ccda9c-1b64-4b4e-8796-d27a79a8389e",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_Location",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Location",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 100,
+            "FormatName": {
+              "Value": "Text"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          },
+          {
+            "MetadataId": "ea5fdb92-b86f-4b68-866e-5ca67927b8a9",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_Status",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Status",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Picklist",
+            "AttributeTypeName": {
+              "Value": "PicklistType"
+            },
+            "DefaultFormValue": -1,
+            "OptionSet": {
+              "IsCustomOptionSet": true,
+              "IsGlobal": false,
+              "IsCustomizable": {
+                "Value": true,
+                "CanBeChanged": false,
+                "ManagedPropertyLogicalName": "iscustomizable"
+              },
+              "ExternalTypeName": "",
+              "OptionSetType": "Picklist",
+              "Description": {
+                "LocalizedLabels": [
+                  {
+                    "Label": "",
+                    "LanguageCode": 1033
+                  }
+                ]
+              },
+              "DisplayName": {
+                "LocalizedLabels": [
+                  {
+                    "Label": "Status",
+                    "LanguageCode": 1033
+                  }
+                ]
+              },
+              "Options": [
+                {
+                  "Value": 435700000,
+                  "ExternalValue": "",
+                  "IsManaged": false,
+                  "Label": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "Active",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  },
+                  "Description": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Value": 435700001,
+                  "ExternalValue": "",
+                  "IsManaged": false,
+                  "Label": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "Maintenance",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  },
+                  "Description": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Value": 435700002,
+                  "ExternalValue": "",
+                  "IsManaged": false,
+                  "Label": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "Inactive",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  },
+                  "Description": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.PicklistAttributeMetadata"
+          }
+        ],
+        "OwnershipType": "UserOwned",
+        "PrimaryNameAttribute": "",
+        "SchemaName": "andy_ClawMachine",
+        "HasNotes": false,
+        "HasActivities": false,
+        "IsAvailableOffline": false,
+        "IsActivity": false,
+        "ActivityTypeMask": 0,
+        "IsSolutionAware": false,
+        "Description": {
+          "LocalizedLabels": [
+            {
+              "Label": "This table contains records of claw machines and their details",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayCollectionName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Claw Machines",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Claw Machine",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "IsAuditEnabled": {
+          "Value": false
+        },
+        "IsValidForQueue": {
+          "Value": false
+        },
+        "IsConnectionsEnabled": {
+          "Value": false
+        },
+        "IsDuplicateDetectionEnabled": {
+          "Value": true
+        },
+        "IsDocumentManagementEnabled": false,
+        "EntityColor": null,
+        "IsRetentionEnabled": false,
+        "SyncToExternalSearchIndex": false,
+        "AutoRouteToOwnerQueue": false,
+        "IsSLAEnabled": false,
+        "IsQuickCreateEnabled": false,
+        "IsActivityParty": false,
+        "HasFeedback": false,
+        "AutoCreateAccessTeams": false,
+        "ChangeTrackingEnabled": false,
+        "IsKnowledgeManagementEnabled": false,
+        "EntityHelpUrlEnabled": false,
+        "EntityHelpUrl": null,
+        "IsMailMergeEnabled": {
+          "Value": true
+        },
+        "IsOfflineInMobileClient": {
+          "Value": false
+        },
+        "ManyToOneRelationships": [],
+        "@odata.type": "Microsoft.Dynamics.CRM.EntityMetadata"
+      },
+      "SampleData": [
+        {
+          "andy_clawmachineid": "1a8728e2-4e10-45f4-992a-773e6092dc33",
+          "andy_machinename": "ClawMaster 3000",
+          "andy_location": "Lobby",
+          "andy_status": 435700000
+        },
+        {
+          "andy_clawmachineid": "8e2a290b-0bf9-4470-aac3-ae911bcdbd90",
+          "andy_machinename": "PrizeGrabber X",
+          "andy_location": "Game Room",
+          "andy_status": 435700001
+        },
+        {
+          "andy_clawmachineid": "b81fc693-75ff-4f57-9dc8-50d18f1472c3",
+          "andy_machinename": "Lucky Claw",
+          "andy_location": "Arcade Hall",
+          "andy_status": 435700000
+        },
+        {
+          "andy_clawmachineid": "9517e40a-5edc-4f10-9292-f7a241af284b",
+          "andy_machinename": "Fun Claw",
+          "andy_location": "Entrance",
+          "andy_status": 435700002
+        },
+        {
+          "andy_clawmachineid": "bf0d1796-5750-4590-8420-9e756f5ebf47",
+          "andy_machinename": "Mega Claw",
+          "andy_location": "Main Floor",
+          "andy_status": 435700000
+        }
+      ]
+    },
+    {
+      "EntityDefinition": {
+        "MetadataId": "e4c98fb1-f2c7-4087-b04c-df099d630255",
+        "Attributes": [
+          {
+            "MetadataId": "bc1c237b-0fdf-475f-92f0-b3103eae73e3",
+            "IsPrimaryName": true,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_SessionName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Session Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "ApplicationRequired"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 850,
+            "FormatName": {
+              "Value": "Text"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          },
+          {
+            "MetadataId": "43cc5950-08f2-4f98-a77e-a9982faada46",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_MachineName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Machine Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Lookup",
+            "AttributeTypeName": {
+              "Value": "LookupType"
+            },
+            "Targets": [
+              "andy_clawmachine"
+            ],
+            "@odata.type": "Microsoft.Dynamics.CRM.LookupAttributeMetadata"
+          },
+          {
+            "MetadataId": "351ca818-a069-4bda-a345-44b8cc272411",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_StartTime",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Start Time",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "ImeMode": "Auto",
+            "AttributeType": "DateTime",
+            "AttributeTypeName": {
+              "Value": "DateTimeType"
+            },
+            "Format": "DateAndTime",
+            "DateTimeBehavior": {
+              "Value": "UserLocal"
+            },
+            "CanChangeDateTimeBehavior": {
+              "Value": true,
+              "CanBeChanged": true,
+              "ManagedPropertyLogicalName": "canmodifybehavior"
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.DateTimeAttributeMetadata"
+          },
+          {
+            "MetadataId": "5b0594f9-25df-4ed3-83a0-e6f9b4a93968",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_EndTime",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "End Time",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "ImeMode": "Auto",
+            "AttributeType": "DateTime",
+            "AttributeTypeName": {
+              "Value": "DateTimeType"
+            },
+            "Format": "DateAndTime",
+            "DateTimeBehavior": {
+              "Value": "UserLocal"
+            },
+            "CanChangeDateTimeBehavior": {
+              "Value": true,
+              "CanBeChanged": true,
+              "ManagedPropertyLogicalName": "canmodifybehavior"
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.DateTimeAttributeMetadata"
+          }
+        ],
+        "OwnershipType": "UserOwned",
+        "PrimaryNameAttribute": "",
+        "SchemaName": "andy_GameSession",
+        "HasNotes": false,
+        "HasActivities": false,
+        "IsAvailableOffline": false,
+        "IsActivity": false,
+        "ActivityTypeMask": 0,
+        "IsSolutionAware": false,
+        "Description": {
+          "LocalizedLabels": [
+            {
+              "Label": "This table contains records of individual game sessions played on claw machines",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayCollectionName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Game Sessions",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Game Session",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "IsAuditEnabled": {
+          "Value": false
+        },
+        "IsValidForQueue": {
+          "Value": false
+        },
+        "IsConnectionsEnabled": {
+          "Value": false
+        },
+        "IsDuplicateDetectionEnabled": {
+          "Value": true
+        },
+        "IsDocumentManagementEnabled": false,
+        "EntityColor": null,
+        "IsRetentionEnabled": false,
+        "SyncToExternalSearchIndex": false,
+        "AutoRouteToOwnerQueue": false,
+        "IsSLAEnabled": false,
+        "IsQuickCreateEnabled": false,
+        "IsActivityParty": false,
+        "HasFeedback": false,
+        "AutoCreateAccessTeams": false,
+        "ChangeTrackingEnabled": false,
+        "IsKnowledgeManagementEnabled": false,
+        "EntityHelpUrlEnabled": false,
+        "EntityHelpUrl": null,
+        "IsMailMergeEnabled": {
+          "Value": true
+        },
+        "IsOfflineInMobileClient": {
+          "Value": false
+        },
+        "ManyToOneRelationships": [
+          {
+            "MetadataId": "5a056c27-0820-42bf-ac51-38bf5d56be01",
+            "SchemaName": "andy_GameSession_andy_MachineName_andy_ClawMachine",
+            "ReferencingAttribute": "andy_machinename",
+            "ReferencedEntity": "andy_clawmachine",
+            "ReferencingEntity": "andy_gamesession",
+            "ReferencedAttribute": "andy_clawmachineid",
+            "ReferencingEntityNavigationPropertyName": "andy_MachineName",
+            "RelationshipType": "OneToManyRelationship",
+            "IsCustomRelationship": true,
+            "IsValidForAdvancedFind": true,
+            "IsCustomizable": {
+              "Value": true,
+              "CanBeChanged": true,
+              "ManagedPropertyLogicalName": "iscustomizable"
+            },
+            "CascadeConfiguration": {
+              "Assign": "NoCascade",
+              "Delete": "RemoveLink",
+              "Merge": "NoCascade",
+              "Reparent": "NoCascade",
+              "Share": "NoCascade",
+              "Unshare": "NoCascade",
+              "RollupView": "NoCascade",
+              "Archive": "RemoveLink"
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.OneToManyRelationshipMetadata"
+          }
+        ],
+        "@odata.type": "Microsoft.Dynamics.CRM.EntityMetadata"
+      },
+      "SampleData": [
+        {
+          "andy_gamesessionid": "842b1054-579f-42d5-b41f-38e2921f0ae4",
+          "andy_sessionname": "Session 1",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(1a8728e2-4e10-45f4-992a-773e6092dc33)",
+          "andy_starttime": "2025-06-01T14:00:00.000Z",
+          "andy_endtime": "2025-06-01T14:30:00.000Z"
+        },
+        {
+          "andy_gamesessionid": "d80fbf39-2bcf-47ff-b0f5-da901ddcd613",
+          "andy_sessionname": "Session 2",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(b81fc693-75ff-4f57-9dc8-50d18f1472c3)",
+          "andy_starttime": "2025-06-01T15:00:00.000Z",
+          "andy_endtime": "2025-06-01T15:45:00.000Z"
+        },
+        {
+          "andy_gamesessionid": "49927484-7faf-41ed-bd24-96bfcd9ae6b9",
+          "andy_sessionname": "Session 3",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(bf0d1796-5750-4590-8420-9e756f5ebf47)",
+          "andy_starttime": "2025-06-02T13:00:00.000Z",
+          "andy_endtime": "2025-06-02T13:30:00.000Z"
+        },
+        {
+          "andy_gamesessionid": "5be8377a-ba5f-4803-9a0a-ee5733eb600b",
+          "andy_sessionname": "Session 4",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(1a8728e2-4e10-45f4-992a-773e6092dc33)",
+          "andy_starttime": "2025-06-02T18:00:00.000Z",
+          "andy_endtime": "2025-06-02T18:40:00.000Z"
+        },
+        {
+          "andy_gamesessionid": "24f694d1-3ad3-4f5b-8095-a6bc36f5cdcc",
+          "andy_sessionname": "Session 5",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(b81fc693-75ff-4f57-9dc8-50d18f1472c3)",
+          "andy_starttime": "2025-06-03T19:00:00.000Z",
+          "andy_endtime": "2025-06-03T19:30:00.000Z"
+        }
+      ]
+    },
+    {
+      "EntityDefinition": {
+        "MetadataId": "8749a347-f9b6-488b-9371-3a6dfae30d5c",
+        "Attributes": [
+          {
+            "MetadataId": "7bab7549-4120-408d-ab3b-9e1a60ed7852",
+            "IsPrimaryName": true,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_SettingName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Setting Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "ApplicationRequired"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 850,
+            "FormatName": {
+              "Value": "Text"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          },
+          {
+            "MetadataId": "25436791-d512-4a5d-b8b3-96336904c4bd",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_MachineName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Machine Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Lookup",
+            "AttributeTypeName": {
+              "Value": "LookupType"
+            },
+            "Targets": [
+              "andy_clawmachine"
+            ],
+            "@odata.type": "Microsoft.Dynamics.CRM.LookupAttributeMetadata"
+          },
+          {
+            "MetadataId": "8f5dc795-2f01-48f6-8d94-7f8fbd11571f",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_DifficultyLevel",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Difficulty Level",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Picklist",
+            "AttributeTypeName": {
+              "Value": "PicklistType"
+            },
+            "DefaultFormValue": -1,
+            "OptionSet": {
+              "IsCustomOptionSet": true,
+              "IsGlobal": false,
+              "IsCustomizable": {
+                "Value": true,
+                "CanBeChanged": false,
+                "ManagedPropertyLogicalName": "iscustomizable"
+              },
+              "ExternalTypeName": "",
+              "OptionSetType": "Picklist",
+              "Description": {
+                "LocalizedLabels": [
+                  {
+                    "Label": "",
+                    "LanguageCode": 1033
+                  }
+                ]
+              },
+              "DisplayName": {
+                "LocalizedLabels": [
+                  {
+                    "Label": "Difficulty Level",
+                    "LanguageCode": 1033
+                  }
+                ]
+              },
+              "Options": [
+                {
+                  "Value": 435700000,
+                  "ExternalValue": "",
+                  "IsManaged": false,
+                  "Label": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "Easy",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  },
+                  "Description": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Value": 435700001,
+                  "ExternalValue": "",
+                  "IsManaged": false,
+                  "Label": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "Medium",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  },
+                  "Description": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Value": 435700002,
+                  "ExternalValue": "",
+                  "IsManaged": false,
+                  "Label": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "Hard",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  },
+                  "Description": {
+                    "LocalizedLabels": [
+                      {
+                        "Label": "",
+                        "LanguageCode": 1033
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.PicklistAttributeMetadata"
+          },
+          {
+            "MetadataId": "d672b21f-7013-4873-b488-143f388934c3",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_MaxPlayTimeseconds",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Max Play Time (seconds)",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Integer",
+            "AttributeTypeName": {
+              "Value": "IntegerType"
+            },
+            "MaxValue": 2147483647,
+            "MinValue": -2147483648,
+            "Format": "None",
+            "@odata.type": "Microsoft.Dynamics.CRM.IntegerAttributeMetadata"
+          }
+        ],
+        "OwnershipType": "UserOwned",
+        "PrimaryNameAttribute": "",
+        "SchemaName": "andy_MachineSetting",
+        "HasNotes": false,
+        "HasActivities": false,
+        "IsAvailableOffline": false,
+        "IsActivity": false,
+        "ActivityTypeMask": 0,
+        "IsSolutionAware": false,
+        "Description": {
+          "LocalizedLabels": [
+            {
+              "Label": "This table contains configuration settings for claw machines",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayCollectionName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Machine Settings",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Machine Setting",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "IsAuditEnabled": {
+          "Value": false
+        },
+        "IsValidForQueue": {
+          "Value": false
+        },
+        "IsConnectionsEnabled": {
+          "Value": false
+        },
+        "IsDuplicateDetectionEnabled": {
+          "Value": true
+        },
+        "IsDocumentManagementEnabled": false,
+        "EntityColor": null,
+        "IsRetentionEnabled": false,
+        "SyncToExternalSearchIndex": false,
+        "AutoRouteToOwnerQueue": false,
+        "IsSLAEnabled": false,
+        "IsQuickCreateEnabled": false,
+        "IsActivityParty": false,
+        "HasFeedback": false,
+        "AutoCreateAccessTeams": false,
+        "ChangeTrackingEnabled": false,
+        "IsKnowledgeManagementEnabled": false,
+        "EntityHelpUrlEnabled": false,
+        "EntityHelpUrl": null,
+        "IsMailMergeEnabled": {
+          "Value": true
+        },
+        "IsOfflineInMobileClient": {
+          "Value": false
+        },
+        "ManyToOneRelationships": [
+          {
+            "MetadataId": "6a339d22-85e7-4dc3-a6e6-7e1fadefec43",
+            "SchemaName": "andy_MachineSetting_andy_MachineName_andy_ClawMachine",
+            "ReferencingAttribute": "andy_machinename",
+            "ReferencedEntity": "andy_clawmachine",
+            "ReferencingEntity": "andy_machinesetting",
+            "ReferencedAttribute": "andy_clawmachineid",
+            "ReferencingEntityNavigationPropertyName": "andy_MachineName",
+            "RelationshipType": "OneToManyRelationship",
+            "IsCustomRelationship": true,
+            "IsValidForAdvancedFind": true,
+            "IsCustomizable": {
+              "Value": true,
+              "CanBeChanged": true,
+              "ManagedPropertyLogicalName": "iscustomizable"
+            },
+            "CascadeConfiguration": {
+              "Assign": "NoCascade",
+              "Delete": "RemoveLink",
+              "Merge": "NoCascade",
+              "Reparent": "NoCascade",
+              "Share": "NoCascade",
+              "Unshare": "NoCascade",
+              "RollupView": "NoCascade",
+              "Archive": "RemoveLink"
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.OneToManyRelationshipMetadata"
+          }
+        ],
+        "@odata.type": "Microsoft.Dynamics.CRM.EntityMetadata"
+      },
+      "SampleData": [
+        {
+          "andy_machinesettingid": "17115e92-b60f-4aa9-b6a8-f7da171fb13a",
+          "andy_settingname": "Easy Mode",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(1a8728e2-4e10-45f4-992a-773e6092dc33)",
+          "andy_difficultylevel": 435700000,
+          "andy_maxplaytimeseconds": 120
+        },
+        {
+          "andy_machinesettingid": "80c7143e-a2eb-46f3-9a68-e9a6dcb8fd3c",
+          "andy_settingname": "Medium Mode",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(1a8728e2-4e10-45f4-992a-773e6092dc33)",
+          "andy_difficultylevel": 435700001,
+          "andy_maxplaytimeseconds": 90
+        },
+        {
+          "andy_machinesettingid": "e098d15c-6676-440c-87c6-1be7e49ec060",
+          "andy_settingname": "Hard Mode",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(8e2a290b-0bf9-4470-aac3-ae911bcdbd90)",
+          "andy_difficultylevel": 435700002,
+          "andy_maxplaytimeseconds": 60
+        },
+        {
+          "andy_machinesettingid": "ebf2a7c3-09a7-4cea-a366-fe7c3aef3fad",
+          "andy_settingname": "Standard Mode",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(b81fc693-75ff-4f57-9dc8-50d18f1472c3)",
+          "andy_difficultylevel": 435700001,
+          "andy_maxplaytimeseconds": 100
+        },
+        {
+          "andy_machinesettingid": "60c575d6-3a81-411b-b4ba-789a2bc8f9b9",
+          "andy_settingname": "Challenge Mode",
+          "andy_MachineName@odata.bind": "/andy_clawmachines(bf0d1796-5750-4590-8420-9e756f5ebf47)",
+          "andy_difficultylevel": 435700002,
+          "andy_maxplaytimeseconds": 80
+        }
+      ]
+    },
+    {
+      "EntityDefinition": {
+        "MetadataId": "c0e9f6f0-f035-4355-af19-352e786b68e4",
+        "Attributes": [
+          {
+            "MetadataId": "b00fc595-6051-41fe-bbcc-c675aa44ec06",
+            "IsPrimaryName": true,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_AttendeeName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Attendee Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "ApplicationRequired"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 850,
+            "FormatName": {
+              "Value": "Text"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          },
+          {
+            "MetadataId": "52754cce-abd1-44f5-a9ec-95c80419a6b3",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_Email",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Email",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 100,
+            "FormatName": {
+              "Value": "Email"
+            },
+            "Format": "Email",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          },
+          {
+            "MetadataId": "759938af-c36a-4f58-aac8-309ed2bde857",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_Phone",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Phone",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 100,
+            "FormatName": {
+              "Value": "Phone"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          }
+        ],
+        "OwnershipType": "UserOwned",
+        "PrimaryNameAttribute": "",
+        "SchemaName": "andy_BoothAttendee",
+        "HasNotes": false,
+        "HasActivities": false,
+        "IsAvailableOffline": false,
+        "IsActivity": false,
+        "ActivityTypeMask": 0,
+        "IsSolutionAware": false,
+        "Description": {
+          "LocalizedLabels": [
+            {
+              "Label": "This table contains records of users who interact with the claw machines",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayCollectionName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Booth Attendees",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Booth Attendee",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "IsAuditEnabled": {
+          "Value": false
+        },
+        "IsValidForQueue": {
+          "Value": false
+        },
+        "IsConnectionsEnabled": {
+          "Value": false
+        },
+        "IsDuplicateDetectionEnabled": {
+          "Value": true
+        },
+        "IsDocumentManagementEnabled": false,
+        "EntityColor": null,
+        "IsRetentionEnabled": false,
+        "SyncToExternalSearchIndex": false,
+        "AutoRouteToOwnerQueue": false,
+        "IsSLAEnabled": false,
+        "IsQuickCreateEnabled": false,
+        "IsActivityParty": false,
+        "HasFeedback": false,
+        "AutoCreateAccessTeams": false,
+        "ChangeTrackingEnabled": false,
+        "IsKnowledgeManagementEnabled": false,
+        "EntityHelpUrlEnabled": false,
+        "EntityHelpUrl": null,
+        "IsMailMergeEnabled": {
+          "Value": true
+        },
+        "IsOfflineInMobileClient": {
+          "Value": false
+        },
+        "ManyToOneRelationships": [],
+        "@odata.type": "Microsoft.Dynamics.CRM.EntityMetadata"
+      },
+      "SampleData": [
+        {
+          "andy_boothattendeeid": "87bc73da-3b96-43e9-a96c-0687439dded7",
+          "andy_attendeename": "Alice Green",
+          "andy_email": "alice.green@example.com",
+          "andy_phone": "+1 555-0101"
+        },
+        {
+          "andy_boothattendeeid": "9abbd073-2a77-4819-99af-fc2ecb1b7d2e",
+          "andy_attendeename": "Bob White",
+          "andy_email": "bob.white@example.com",
+          "andy_phone": "+1 555-0102"
+        },
+        {
+          "andy_boothattendeeid": "8ca67293-bd81-4d29-9f63-e5bf67df8a84",
+          "andy_attendeename": "Carol Black",
+          "andy_email": "carol.black@example.com",
+          "andy_phone": "+1 555-0103"
+        },
+        {
+          "andy_boothattendeeid": "e6c54763-5845-439b-bc58-99c3e39bdcae",
+          "andy_attendeename": "David Blue",
+          "andy_email": "david.blue@example.com",
+          "andy_phone": "+1 555-0104"
+        },
+        {
+          "andy_boothattendeeid": "066aafad-c721-4397-b927-217913f1c645",
+          "andy_attendeename": "Eva Red",
+          "andy_email": "eva.red@example.com",
+          "andy_phone": "+1 555-0105"
+        }
+      ]
+    },
+    {
+      "EntityDefinition": {
+        "MetadataId": "7555a21e-b37d-476c-b8eb-3a3f69484654",
+        "Attributes": [
+          {
+            "MetadataId": "92605c86-9997-4502-998e-2ee38371e550",
+            "IsPrimaryName": true,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_WinName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Win Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "ApplicationRequired"
+            },
+            "AttributeType": "String",
+            "AttributeTypeName": {
+              "Value": "StringType"
+            },
+            "ImeMode": "Auto",
+            "MaxLength": 850,
+            "FormatName": {
+              "Value": "Text"
+            },
+            "Format": "Text",
+            "AutoNumberFormat": null,
+            "@odata.type": "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+          },
+          {
+            "MetadataId": "916a5875-7ff8-4029-b64e-dcfdb198de15",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_SessionName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Session Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Lookup",
+            "AttributeTypeName": {
+              "Value": "LookupType"
+            },
+            "Targets": [
+              "andy_gamesession"
+            ],
+            "@odata.type": "Microsoft.Dynamics.CRM.LookupAttributeMetadata"
+          },
+          {
+            "MetadataId": "c1ab7c42-1052-45b9-87a4-b4238bb98204",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_AttendeeName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Attendee Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Lookup",
+            "AttributeTypeName": {
+              "Value": "LookupType"
+            },
+            "Targets": [
+              "andy_boothattendee"
+            ],
+            "@odata.type": "Microsoft.Dynamics.CRM.LookupAttributeMetadata"
+          },
+          {
+            "MetadataId": "abde4cf2-78c8-45b2-af27-3f7a420bc1e9",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_PrizeName",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Prize Name",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "AttributeType": "Lookup",
+            "AttributeTypeName": {
+              "Value": "LookupType"
+            },
+            "Targets": [
+              "andy_prize"
+            ],
+            "@odata.type": "Microsoft.Dynamics.CRM.LookupAttributeMetadata"
+          },
+          {
+            "MetadataId": "06d572e5-4681-48b9-86ce-725b68e22dc1",
+            "IsPrimaryName": false,
+            "IsSecured": false,
+            "IsValidForUpdate": true,
+            "IsValidForRead": true,
+            "SchemaName": "andy_WinTime",
+            "SourceType": 0,
+            "ExternalName": null,
+            "Description": {
+              "LocalizedLabels": [
+                {
+                  "Label": "",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "DisplayName": {
+              "LocalizedLabels": [
+                {
+                  "Label": "Win Time",
+                  "LanguageCode": 1033
+                }
+              ]
+            },
+            "RequiredLevel": {
+              "Value": "None"
+            },
+            "ImeMode": "Auto",
+            "AttributeType": "DateTime",
+            "AttributeTypeName": {
+              "Value": "DateTimeType"
+            },
+            "Format": "DateAndTime",
+            "DateTimeBehavior": {
+              "Value": "UserLocal"
+            },
+            "CanChangeDateTimeBehavior": {
+              "Value": true,
+              "CanBeChanged": true,
+              "ManagedPropertyLogicalName": "canmodifybehavior"
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.DateTimeAttributeMetadata"
+          }
+        ],
+        "OwnershipType": "UserOwned",
+        "PrimaryNameAttribute": "",
+        "SchemaName": "andy_SessionPrizeWin",
+        "HasNotes": false,
+        "HasActivities": false,
+        "IsAvailableOffline": false,
+        "IsActivity": false,
+        "ActivityTypeMask": 0,
+        "IsSolutionAware": false,
+        "Description": {
+          "LocalizedLabels": [
+            {
+              "Label": "This table records prizes won during game sessions by booth attendees",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayCollectionName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Session Prize Wins",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "DisplayName": {
+          "LocalizedLabels": [
+            {
+              "Label": "Session Prize Win",
+              "LanguageCode": 1033
+            }
+          ]
+        },
+        "IsAuditEnabled": {
+          "Value": false
+        },
+        "IsValidForQueue": {
+          "Value": false
+        },
+        "IsConnectionsEnabled": {
+          "Value": false
+        },
+        "IsDuplicateDetectionEnabled": {
+          "Value": true
+        },
+        "IsDocumentManagementEnabled": false,
+        "EntityColor": null,
+        "IsRetentionEnabled": false,
+        "SyncToExternalSearchIndex": false,
+        "AutoRouteToOwnerQueue": false,
+        "IsSLAEnabled": false,
+        "IsQuickCreateEnabled": false,
+        "IsActivityParty": false,
+        "HasFeedback": false,
+        "AutoCreateAccessTeams": false,
+        "ChangeTrackingEnabled": false,
+        "IsKnowledgeManagementEnabled": false,
+        "EntityHelpUrlEnabled": false,
+        "EntityHelpUrl": null,
+        "IsMailMergeEnabled": {
+          "Value": true
+        },
+        "IsOfflineInMobileClient": {
+          "Value": false
+        },
+        "ManyToOneRelationships": [
+          {
+            "MetadataId": "7c8c23a4-d58b-4eef-b26d-8032036f63cb",
+            "SchemaName": "andy_SessionPrizeWin_andy_SessionName_andy_GameSession",
+            "ReferencingAttribute": "andy_sessionname",
+            "ReferencedEntity": "andy_gamesession",
+            "ReferencingEntity": "andy_sessionprizewin",
+            "ReferencedAttribute": "andy_gamesessionid",
+            "ReferencingEntityNavigationPropertyName": "andy_SessionName",
+            "RelationshipType": "OneToManyRelationship",
+            "IsCustomRelationship": true,
+            "IsValidForAdvancedFind": true,
+            "IsCustomizable": {
+              "Value": true,
+              "CanBeChanged": true,
+              "ManagedPropertyLogicalName": "iscustomizable"
+            },
+            "CascadeConfiguration": {
+              "Assign": "NoCascade",
+              "Delete": "RemoveLink",
+              "Merge": "NoCascade",
+              "Reparent": "NoCascade",
+              "Share": "NoCascade",
+              "Unshare": "NoCascade",
+              "RollupView": "NoCascade",
+              "Archive": "RemoveLink"
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.OneToManyRelationshipMetadata"
+          },
+          {
+            "MetadataId": "25252ade-7922-4ce8-bf61-85d911f648e0",
+            "SchemaName": "andy_SessionPrizeWin_andy_AttendeeName_andy_BoothAttendee",
+            "ReferencingAttribute": "andy_attendeename",
+            "ReferencedEntity": "andy_boothattendee",
+            "ReferencingEntity": "andy_sessionprizewin",
+            "ReferencedAttribute": "andy_boothattendeeid",
+            "ReferencingEntityNavigationPropertyName": "andy_AttendeeName",
+            "RelationshipType": "OneToManyRelationship",
+            "IsCustomRelationship": true,
+            "IsValidForAdvancedFind": true,
+            "IsCustomizable": {
+              "Value": true,
+              "CanBeChanged": true,
+              "ManagedPropertyLogicalName": "iscustomizable"
+            },
+            "CascadeConfiguration": {
+              "Assign": "NoCascade",
+              "Delete": "RemoveLink",
+              "Merge": "NoCascade",
+              "Reparent": "NoCascade",
+              "Share": "NoCascade",
+              "Unshare": "NoCascade",
+              "RollupView": "NoCascade",
+              "Archive": "RemoveLink"
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.OneToManyRelationshipMetadata"
+          },
+          {
+            "MetadataId": "08275f7d-bc6f-4198-b9e3-65327406bc86",
+            "SchemaName": "andy_SessionPrizeWin_andy_PrizeName_andy_Prize",
+            "ReferencingAttribute": "andy_prizename",
+            "ReferencedEntity": "andy_prize",
+            "ReferencingEntity": "andy_sessionprizewin",
+            "ReferencedAttribute": "andy_prizeid",
+            "ReferencingEntityNavigationPropertyName": "andy_PrizeName",
+            "RelationshipType": "OneToManyRelationship",
+            "IsCustomRelationship": true,
+            "IsValidForAdvancedFind": true,
+            "IsCustomizable": {
+              "Value": true,
+              "CanBeChanged": true,
+              "ManagedPropertyLogicalName": "iscustomizable"
+            },
+            "CascadeConfiguration": {
+              "Assign": "NoCascade",
+              "Delete": "RemoveLink",
+              "Merge": "NoCascade",
+              "Reparent": "NoCascade",
+              "Share": "NoCascade",
+              "Unshare": "NoCascade",
+              "RollupView": "NoCascade",
+              "Archive": "RemoveLink"
+            },
+            "@odata.type": "Microsoft.Dynamics.CRM.OneToManyRelationshipMetadata"
+          }
+        ],
+        "@odata.type": "Microsoft.Dynamics.CRM.EntityMetadata"
+      },
+      "SampleData": [
+        {
+          "andy_sessionprizewinid": "c419433d-4722-4806-ae6e-b82fb952eb28",
+          "andy_winname": "Win 1",
+          "andy_SessionName@odata.bind": "/andy_gamesessions(842b1054-579f-42d5-b41f-38e2921f0ae4)",
+          "andy_AttendeeName@odata.bind": "/andy_boothattendees(87bc73da-3b96-43e9-a96c-0687439dded7)",
+          "andy_PrizeName@odata.bind": "/andy_prizes(c1862918-38ba-4c77-9868-bc977c03189d)",
+          "andy_wintime": "2025-06-01T14:15:00.000Z"
+        },
+        {
+          "andy_sessionprizewinid": "78f8f8d7-794f-438b-979a-b42f984819da",
+          "andy_winname": "Win 2",
+          "andy_SessionName@odata.bind": "/andy_gamesessions(d80fbf39-2bcf-47ff-b0f5-da901ddcd613)",
+          "andy_AttendeeName@odata.bind": "/andy_boothattendees(9abbd073-2a77-4819-99af-fc2ecb1b7d2e)",
+          "andy_PrizeName@odata.bind": "/andy_prizes(b7c7e724-f75e-4227-a118-c73ad4ffc0a2)",
+          "andy_wintime": "2025-06-01T15:20:00.000Z"
+        },
+        {
+          "andy_sessionprizewinid": "65c97a16-ece4-46da-823d-cc48681317a3",
+          "andy_winname": "Win 3",
+          "andy_SessionName@odata.bind": "/andy_gamesessions(49927484-7faf-41ed-bd24-96bfcd9ae6b9)",
+          "andy_AttendeeName@odata.bind": "/andy_boothattendees(8ca67293-bd81-4d29-9f63-e5bf67df8a84)",
+          "andy_PrizeName@odata.bind": "/andy_prizes(487e383f-c121-4a8e-8b24-56b17d27454b)",
+          "andy_wintime": "2025-06-02T13:10:00.000Z"
+        },
+        {
+          "andy_sessionprizewinid": "39e2975a-8227-41f0-8ac8-25a1590ca0f7",
+          "andy_winname": "Win 4",
+          "andy_SessionName@odata.bind": "/andy_gamesessions(5be8377a-ba5f-4803-9a0a-ee5733eb600b)",
+          "andy_AttendeeName@odata.bind": "/andy_boothattendees(e6c54763-5845-439b-bc58-99c3e39bdcae)",
+          "andy_PrizeName@odata.bind": "/andy_prizes(7c23dd9c-8645-4a9a-9a1a-53f08d6250bd)",
+          "andy_wintime": "2025-06-02T18:25:00.000Z"
+        },
+        {
+          "andy_sessionprizewinid": "aa97b349-e15a-443b-b48d-739cf4af4866",
+          "andy_winname": "Win 5",
+          "andy_SessionName@odata.bind": "/andy_gamesessions(24f694d1-3ad3-4f5b-8095-a6bc36f5cdcc)",
+          "andy_AttendeeName@odata.bind": "/andy_boothattendees(066aafad-c721-4397-b927-217913f1c645)",
+          "andy_PrizeName@odata.bind": "/andy_prizes(1032cf9e-fe8f-4463-a40f-af2ecd873ef8)",
+          "andy_wintime": "2025-06-03T19:10:00.000Z"
+        }
+      ]
+    }
+  ],
+  "artifactIds": [
+    "2bb07d94-7d7f-f011-b4cc-6045bdd9f970",
+    "38b07d94-7d7f-f011-b4cc-6045bdd9f970"
+  ],
+  "solutionUniqueName": "ClawMachine",
+  "planProcessDiagrams": [
+    {
+      "name": "Manage Claw Machine Inventory and Settings",
+      "description": "This process encompasses the backend activities required to maintain and optimize claw machine operations. Administrators update and categorize prize inventory, configure machine settings, and review historical game sessions to ensure efficient management and continuous improvement.",
+      "userStoryIds": [
+        "us01",
+        "us02",
+        "us03",
+        "us04"
+      ],
+      "nodes": [
+        {
+          "id": "step01",
+          "position": {
+            "x": 362,
+            "y": 8
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Initiate inventory and settings management",
+            "userStoryId": "us01",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "event"
+        },
+        {
+          "id": "step02",
+          "position": {
+            "x": 258,
+            "y": 118
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Update prize inventory",
+            "userStoryId": "us01",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step02",
+          "position": {
+            "x": 258,
+            "y": 118
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Update prize inventory",
+            "userStoryId": "us01",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step03",
+          "position": {
+            "x": 8,
+            "y": 298
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Categorize prizes by type",
+            "userStoryId": "us02",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step03",
+          "position": {
+            "x": 8,
+            "y": 298
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Categorize prizes by type",
+            "userStoryId": "us02",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step04",
+          "position": {
+            "x": 8,
+            "y": 478
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Modify claw machine settings",
+            "userStoryId": "us03",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step04",
+          "position": {
+            "x": 8,
+            "y": 478
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Modify claw machine settings",
+            "userStoryId": "us03",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step05",
+          "position": {
+            "x": 8,
+            "y": 658
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Review historical game sessions",
+            "userStoryId": "us04",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step05",
+          "position": {
+            "x": 8,
+            "y": 658
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Review historical game sessions",
+            "userStoryId": "us04",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step06",
+          "position": {
+            "x": 410,
+            "y": 838
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Are further modifications needed?",
+            "userStoryId": "us01",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "gateway"
+        },
+        {
+          "id": "step06",
+          "position": {
+            "x": 410,
+            "y": 838
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Are further modifications needed?",
+            "userStoryId": "us01",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "gateway"
+        },
+        {
+          "id": "step07",
+          "position": {
+            "x": 362,
+            "y": 1028
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Inventory and settings management completed",
+            "userStoryId": "us01",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "event"
+        },
+        {
+          "id": "step06",
+          "position": {
+            "x": 410,
+            "y": 838
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Are further modifications needed?",
+            "userStoryId": "us01",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "gateway"
+        },
+        {
+          "id": "step02",
+          "position": {
+            "x": 258,
+            "y": 118
+          },
+          "data": {
+            "actor": "Administrator",
+            "actionName": "Update prize inventory",
+            "userStoryId": "us01",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          },
+          "type": "activity"
+        }
+      ],
+      "edges": [
+        {
+          "id": "step01-step02-0",
+          "sourceNodeId": "step01",
+          "targetNodeId": "step02",
+          "data": {
+            "label": "",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          }
+        },
+        {
+          "id": "step02-step03-1",
+          "sourceNodeId": "step02",
+          "targetNodeId": "step03",
+          "data": {
+            "label": "",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          }
+        },
+        {
+          "id": "step03-step04-2",
+          "sourceNodeId": "step03",
+          "targetNodeId": "step04",
+          "data": {
+            "label": "",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          }
+        },
+        {
+          "id": "step04-step05-3",
+          "sourceNodeId": "step04",
+          "targetNodeId": "step05",
+          "data": {
+            "label": "",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          }
+        },
+        {
+          "id": "step05-step06-4",
+          "sourceNodeId": "step05",
+          "targetNodeId": "step06",
+          "data": {
+            "label": "",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          }
+        },
+        {
+          "id": "step06-step07-5",
+          "sourceNodeId": "step06",
+          "targetNodeId": "step07",
+          "data": {
+            "label": "No",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          }
+        },
+        {
+          "id": "step06-step02-6",
+          "sourceNodeId": "step06",
+          "targetNodeId": "step02",
+          "data": {
+            "label": "Yes",
+            "processName": "Manage Claw Machine Inventory and Settings"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Engage with Claw Machine and Access Real-Time Prize Data",
+      "description": "This process focuses on the booth attendee's interaction with the claw machine, providing immediate access to live prize availability data to enhance user experience and support informed decision-making during game sessions.",
+      "userStoryIds": [
+        "us05"
+      ],
+      "nodes": [
+        {
+          "id": "step01",
+          "position": {
+            "x": 362,
+            "y": 8
+          },
+          "data": {
+            "actor": "Booth Attendee",
+            "actionName": "Game Session Initiated",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "event"
+        },
+        {
+          "id": "step02",
+          "position": {
+            "x": 258,
+            "y": 118
+          },
+          "data": {
+            "actor": "System",
+            "actionName": "Fetch Live Prize Inventory Data",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step02",
+          "position": {
+            "x": 258,
+            "y": 118
+          },
+          "data": {
+            "actor": "System",
+            "actionName": "Fetch Live Prize Inventory Data",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step03",
+          "position": {
+            "x": 258,
+            "y": 298
+          },
+          "data": {
+            "actor": "Booth Attendee",
+            "actionName": "Review Available Prizes",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step03",
+          "position": {
+            "x": 258,
+            "y": 298
+          },
+          "data": {
+            "actor": "Booth Attendee",
+            "actionName": "Review Available Prizes",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step04",
+          "position": {
+            "x": 258,
+            "y": 478
+          },
+          "data": {
+            "actor": "Booth Attendee",
+            "actionName": "Attempt to Win Prize",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step04",
+          "position": {
+            "x": 258,
+            "y": 478
+          },
+          "data": {
+            "actor": "Booth Attendee",
+            "actionName": "Attempt to Win Prize",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step05",
+          "position": {
+            "x": 410,
+            "y": 658
+          },
+          "data": {
+            "actor": "System",
+            "actionName": "Prize Won?",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "gateway"
+        },
+        {
+          "id": "step05",
+          "position": {
+            "x": 410,
+            "y": 658
+          },
+          "data": {
+            "actor": "System",
+            "actionName": "Prize Won?",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "gateway"
+        },
+        {
+          "id": "step06",
+          "position": {
+            "x": 8,
+            "y": 848
+          },
+          "data": {
+            "actor": "System",
+            "actionName": "Update Live Prize Inventory",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step06",
+          "position": {
+            "x": 8,
+            "y": 848
+          },
+          "data": {
+            "actor": "System",
+            "actionName": "Update Live Prize Inventory",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step07",
+          "position": {
+            "x": 8,
+            "y": 1028
+          },
+          "data": {
+            "actor": "Booth Attendee",
+            "actionName": "Display Prize Won Data",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        },
+        {
+          "id": "step05",
+          "position": {
+            "x": 410,
+            "y": 658
+          },
+          "data": {
+            "actor": "System",
+            "actionName": "Prize Won?",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "gateway"
+        },
+        {
+          "id": "step08",
+          "position": {
+            "x": 508,
+            "y": 848
+          },
+          "data": {
+            "actor": "Booth Attendee",
+            "actionName": "Display No Prize Data",
+            "userStoryId": "us05",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          },
+          "type": "activity"
+        }
+      ],
+      "edges": [
+        {
+          "id": "step01-step02-0",
+          "sourceNodeId": "step01",
+          "targetNodeId": "step02",
+          "data": {
+            "label": "",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          }
+        },
+        {
+          "id": "step02-step03-1",
+          "sourceNodeId": "step02",
+          "targetNodeId": "step03",
+          "data": {
+            "label": "",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          }
+        },
+        {
+          "id": "step03-step04-2",
+          "sourceNodeId": "step03",
+          "targetNodeId": "step04",
+          "data": {
+            "label": "",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          }
+        },
+        {
+          "id": "step04-step05-3",
+          "sourceNodeId": "step04",
+          "targetNodeId": "step05",
+          "data": {
+            "label": "",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          }
+        },
+        {
+          "id": "step05-step06-4",
+          "sourceNodeId": "step05",
+          "targetNodeId": "step06",
+          "data": {
+            "label": "Yes",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          }
+        },
+        {
+          "id": "step06-step07-5",
+          "sourceNodeId": "step06",
+          "targetNodeId": "step07",
+          "data": {
+            "label": "",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          }
+        },
+        {
+          "id": "step05-step08-6",
+          "sourceNodeId": "step05",
+          "targetNodeId": "step08",
+          "data": {
+            "label": "No",
+            "processName": "Engage with Claw Machine and Access Real-Time Prize Data"
+          }
+        }
+      ]
+    }
+  ]
+}

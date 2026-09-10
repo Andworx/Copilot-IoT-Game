@@ -15,3 +15,11 @@ export const API_BASE_URL =
  * instead of a function key -- tracked in azure/README.md, not done yet.
  */
 export const SET_MODE_FUNCTION_KEY = (import.meta.env.VITE_SET_MODE_FUNCTION_KEY as string | undefined) ?? "";
+
+/** toggle-device's function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
+export const TOGGLE_DEVICE_FUNCTION_KEY =
+  (import.meta.env.VITE_TOGGLE_DEVICE_FUNCTION_KEY as string | undefined) ?? "";
+
+/** set-game-mode's function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
+export const SET_GAME_MODE_FUNCTION_KEY =
+  (import.meta.env.VITE_SET_GAME_MODE_FUNCTION_KEY as string | undefined) ?? "";

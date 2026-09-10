@@ -67,6 +67,7 @@ export interface GameBoxState {
   id: string;
   deviceSlug: string | null;
   deviceName: string | null;
+  gameModeEnabled: boolean;
 }
 
 // The andy_activedeviceprofile lookup's OData *navigation property* name is
@@ -80,12 +81,13 @@ const ACTIVE_DEVICE_PROFILE_NAV_PROPERTY = "andy_ActiveDeviceProfile";
 /** Reads the andy_gameboxstate singleton row. Throws if the row hasn't been created yet. */
 export async function getGameBoxState(): Promise<GameBoxState> {
   const response = await dataverseFetch(
-    "andy_gameboxstates?$top=1&$select=andy_gameboxstateid" +
+    "andy_gameboxstates?$top=1&$select=andy_gameboxstateid,andy_gamemodeenabled" +
       `&$expand=${ACTIVE_DEVICE_PROFILE_NAV_PROPERTY}($select=andy_deviceslug,andy_name)`
   );
   const body = (await response.json()) as {
     value: Array<{
       andy_gameboxstateid: string;
+      andy_gamemodeenabled: boolean | null;
       [ACTIVE_DEVICE_PROFILE_NAV_PROPERTY]?: { andy_deviceslug?: string; andy_name?: string } | null;
     }>;
   };
@@ -98,6 +100,10 @@ export async function getGameBoxState(): Promise<GameBoxState> {
     id: row.andy_gameboxstateid,
     deviceSlug: activeDevice?.andy_deviceslug ?? null,
     deviceName: activeDevice?.andy_name ?? null,
+    // Treat a not-yet-backfilled null as enabled -- the column defaults to
+    // true for new rows, and every existing row was explicitly backfilled to
+    // true, but this keeps behavior safe if a row somehow predates both.
+    gameModeEnabled: row.andy_gamemodeenabled !== false,
   };
 }
 
@@ -105,20 +111,28 @@ export interface DeviceProfileSummary {
   id: string;
   name: string;
   deviceSlug: string;
+  isEnabled: boolean;
 }
 
 /** Lists all andy_deviceprofile rows, for the control app's device picker. */
 export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
   const response = await dataverseFetch(
-    "andy_deviceprofiles?$select=andy_deviceprofileid,andy_name,andy_deviceslug&$orderby=andy_name"
+    "andy_deviceprofiles?$select=andy_deviceprofileid,andy_name,andy_deviceslug,andy_isenabled&$orderby=andy_name"
   );
   const body = (await response.json()) as {
-    value: Array<{ andy_deviceprofileid: string; andy_name: string; andy_deviceslug: string }>;
+    value: Array<{
+      andy_deviceprofileid: string;
+      andy_name: string;
+      andy_deviceslug: string;
+      andy_isenabled: boolean | null;
+    }>;
   };
   return body.value.map((row) => ({
     id: row.andy_deviceprofileid,
     name: row.andy_name,
     deviceSlug: row.andy_deviceslug,
+    // Same null-safe treatment as gameModeEnabled above.
+    isEnabled: row.andy_isenabled !== false,
   }));
 }
 
@@ -141,6 +155,50 @@ export async function setActiveDeviceProfile(
       { method: "DELETE" }
     );
   }
+}
+
+/** Flips andy_isenabled on one device profile. Staff use this from Game Box Control to
+ * hide a mode from manual selection and exclude it from pickRandomEnabledMode. */
+export async function setDeviceProfileEnabled(deviceProfileId: string, isEnabled: boolean): Promise<void> {
+  await dataverseFetch(`andy_deviceprofiles(${deviceProfileId})`, {
+    method: "PATCH",
+    body: JSON.stringify({ andy_isenabled: isEnabled }),
+  });
+}
+
+/** Flips andy_gamemodeenabled on the andy_gameboxstate singleton. OFF makes the kiosk
+ * show a simple success popup instead of the QR/phone-spin/claim flow on completion. */
+export async function setGameModeEnabled(gameBoxStateId: string, gameModeEnabled: boolean): Promise<void> {
+  await dataverseFetch(`andy_gameboxstates(${gameBoxStateId})`, {
+    method: "PATCH",
+    body: JSON.stringify({ andy_gamemodeenabled: gameModeEnabled }),
+  });
+}
+
+/** Picks a random *enabled* device profile (excluding the currently-active one when
+ * there's another enabled choice available), writes it as the new active device, and
+ * returns its slug/name -- the same write the caller then broadcasts over SignalR via
+ * the existing deviceChanged mechanism (see setActiveDeviceProfile / setMode.ts). Used
+ * to auto-rotate the kiosk to a new mode after a device is completed, in both Game Mode
+ * states. Looks up the currently-active device itself (rather than trusting a
+ * caller-supplied id) since the exclusion is a nicety, not a security boundary, and the
+ * server already has this state in andy_gameboxstate. Throws if there are no enabled
+ * device profiles at all. */
+export async function pickRandomEnabledMode(
+  gameBoxStateId: string
+): Promise<{ deviceProfileId: string; deviceSlug: string; deviceName: string }> {
+  const [profiles, current] = await Promise.all([listDeviceProfiles(), getGameBoxState()]);
+  const enabled = profiles.filter((p) => p.isEnabled);
+  if (enabled.length === 0) {
+    throw new Error("No enabled device profiles to pick from");
+  }
+  // Prefer a different device than the one currently active, but fall back to it if
+  // it's the only enabled option -- better to re-select the same mode than throw.
+  const candidates = enabled.filter((p) => p.deviceSlug !== current.deviceSlug);
+  const pickFrom = candidates.length > 0 ? candidates : enabled;
+  const chosen = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+  await setActiveDeviceProfile(gameBoxStateId, chosen.id);
+  return { deviceProfileId: chosen.id, deviceSlug: chosen.deviceSlug, deviceName: chosen.name };
 }
 
 // ============ Prize engine (PRIZE_ENGINE_SPEC.md) ============
@@ -197,121 +255,180 @@ export async function createGameWin(deviceSlug: string): Promise<{ claimToken: s
   return { claimToken };
 }
 
-/** Active, non-fallback prizes -- for the prize wheel SPA's wheel rendering (not the
- * pick itself, which stays server-side and can also draw the fallback). */
-export async function listActivePrizes(): Promise<Array<{ name: string }>> {
+// Entity set names -- confirmed against solutions/CopilotIoTGame/Entities/andy_Prizes/
+// Entity.xml and .../andy_PrizeTypes/Entity.xml's <EntitySetName> after the Phase 5
+// export. Both logical names already end in "s", so Dataverse's naive "+s"
+// pluralization double-pluralizes them -- not a typo.
+const PRIZE_TYPES_SET = "andy_prizetypeses";
+const PRIZES_SET = "andy_prizeses";
+
+// Navigation properties -- confirmed against solutions/CopilotIoTGame/Other/
+// Relationships/{andy_GameWin,andy_PrizeTypes,andy_Prizes}.xml after the Phase 5
+// export, not assumed.
+const PRIZES_GAMEWIN_NAV = "andy_GameWin"; // on andy_Prizes, -> andy_GameWin
+const GAMEWIN_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_gamewin, -> andy_PrizeTypes
+const GAMEWIN_PRIZEINSTANCE_NAV = "andy_PrizeInstance"; // on andy_gamewin, -> andy_Prizes
+
+/** Active, non-fallback prize types -- for the prize wheel SPA's wheel rendering (not
+ * the pick itself, which stays server-side and can also draw the fallback type). */
+export async function listActivePrizeTypes(): Promise<Array<{ name: string }>> {
   const response = await dataverseFetch(
-    "andy_prizes?$filter=statecode eq 0 and andy_isfallback eq false" +
-      "&$select=andy_prizename&$orderby=andy_prizename"
+    `${PRIZE_TYPES_SET}?$select=andy_prizetypename` +
+      "&$filter=statecode eq 0 and andy_isfallback eq false" +
+      "&$orderby=andy_prizetypename"
   );
-  const body = (await response.json()) as { value: Array<{ andy_prizename: string }> };
-  return body.value.map((row) => ({ name: row.andy_prizename }));
+  const body = (await response.json()) as { value: Array<{ andy_prizetypename: string }> };
+  return body.value.map((row) => ({ name: row.andy_prizetypename }));
 }
 
-interface PrizeRow {
+interface EligiblePrizeType {
   id: string;
   name: string;
+  /** andy_rarity, used directly as the weighted-pick weight per project decision
+   * (higher rarity number = more likely) -- the PRIZE_CODE_MIGRATION.md draft assumed
+   * a column named andy_weight, but the live schema only has andy_rarity; there is no
+   * andy_weight column. */
   weight: number;
-  remaining: number;
-  totalAwarded: number;
-  etag: string;
 }
 
-function toPrizeRow(row: {
-  andy_prizeid: string;
-  andy_prizename: string;
-  andy_weight: number;
-  andy_remaining: number;
-  andy_totalawarded: number;
-  "@odata.etag": string;
-}): PrizeRow {
-  return {
-    id: row.andy_prizeid,
-    name: row.andy_prizename,
-    weight: row.andy_weight,
-    remaining: row.andy_remaining,
-    totalAwarded: row.andy_totalawarded,
-    etag: row["@odata.etag"],
+async function fetchEligiblePrizeTypes(): Promise<EligiblePrizeType[]> {
+  const response = await dataverseFetch(
+    `${PRIZE_TYPES_SET}?$select=andy_prizetypesid,andy_prizetypename,andy_rarity` +
+      "&$filter=statecode eq 0 and andy_isfallback eq false"
+  );
+  const body = (await response.json()) as {
+    value: Array<{ andy_prizetypesid: string; andy_prizetypename: string; andy_rarity: number }>;
   };
+  return body.value.map((row) => ({
+    id: row.andy_prizetypesid,
+    name: row.andy_prizetypename,
+    weight: row.andy_rarity,
+  }));
 }
 
-const PRIZE_SELECT = "andy_prizeid,andy_prizename,andy_weight,andy_remaining,andy_totalawarded";
-
-async function fetchEligiblePrizes(): Promise<PrizeRow[]> {
+async function fetchFallbackPrizeType(): Promise<{ id: string; name: string } | null> {
   const response = await dataverseFetch(
-    `andy_prizes?$select=${PRIZE_SELECT}` +
-      "&$filter=statecode eq 0 and andy_remaining gt 0 and andy_isfallback eq false" +
-      "&$orderby=andy_prizename"
+    `${PRIZE_TYPES_SET}?$select=andy_prizetypesid,andy_prizetypename` +
+      "&$filter=andy_isfallback eq true and statecode eq 0&$top=1"
   );
-  const body = (await response.json()) as { value: Parameters<typeof toPrizeRow>[0][] };
-  return body.value.map(toPrizeRow);
+  const body = (await response.json()) as {
+    value: Array<{ andy_prizetypesid: string; andy_prizetypename: string }>;
+  };
+  const row = body.value[0];
+  return row ? { id: row.andy_prizetypesid, name: row.andy_prizetypename } : null;
 }
 
-async function fetchFallbackPrize(): Promise<PrizeRow | null> {
+interface UntakenInstance {
+  id: string;
+  etag: string;
+  typeId: string;
+}
+
+/** Untaken instance rows for the given eligible type ids, fetched in one call and
+ * grouped client-side by type. Uses an OR-chain over `_andy_prizetype_value eq <guid>`
+ * rather than the OData `in` operator -- this environment's Dataverse rejects `in` on
+ * a lookup FK value with "The query node In is not supported" (confirmed live), so
+ * `in` is not an option here even though it's valid OData v4. At the scale here (a few
+ * dozen types, a few hundred instances at most) this is simpler and safer than
+ * trusting a cross-table aggregate anyway. */
+async function fetchUntakenInstances(typeIds: string[]): Promise<UntakenInstance[]> {
+  if (typeIds.length === 0) return [];
+  const typeFilter = typeIds.map((id) => `_andy_prizetype_value eq ${id}`).join(" or ");
   const response = await dataverseFetch(
-    `andy_prizes?$select=${PRIZE_SELECT}&$filter=andy_isfallback eq true and statecode eq 0&$top=1`
+    `${PRIZES_SET}?$select=andy_prizesid,_andy_prizetype_value` +
+      `&$filter=andy_prizetaken eq false and (${typeFilter})`
   );
-  const body = (await response.json()) as { value: Parameters<typeof toPrizeRow>[0][] };
-  return body.value[0] ? toPrizeRow(body.value[0]) : null;
+  const body = (await response.json()) as {
+    value: Array<{ andy_prizesid: string; _andy_prizetype_value: string; "@odata.etag": string }>;
+  };
+  return body.value.map((row) => ({
+    id: row.andy_prizesid,
+    etag: row["@odata.etag"],
+    typeId: row._andy_prizetype_value,
+  }));
 }
 
-function pickWeighted(prizes: PrizeRow[]): PrizeRow {
-  const totalWeight = prizes.reduce((sum, p) => sum + p.weight, 0);
+function pickWeightedType(types: EligiblePrizeType[]): EligiblePrizeType {
+  const totalWeight = types.reduce((sum, t) => sum + t.weight, 0);
   const r = Math.random() * totalWeight;
   let running = 0;
-  for (const p of prizes) {
-    running += p.weight;
-    if (r <= running) return p;
+  for (const t of types) {
+    running += t.weight;
+    if (r <= running) return t;
   }
-  return prizes[prizes.length - 1];
+  return types[types.length - 1];
 }
 
-/** Conditional decrement -- false means the row changed since it was read (someone
- * else just took the last unit), which the caller retries from selection, not just
- * the decrement, per PRIZE_ENGINE_SPEC.md §1.3. */
-async function tryClaimPrizeRow(prize: PrizeRow): Promise<boolean> {
-  const response = await dataverseFetchRaw(`andy_prizes(${prize.id})`, {
+/** Conditional claim of one specific instance row -- false means it changed since it
+ * was read (someone else just claimed it), which the caller retries from selection,
+ * not just this claim, since the eligible/stock set may have changed. Binds the
+ * instance straight to this win via andy_GameWin (the new andy_Prizes lookup), rather
+ * than the old single-row decrement this replaces. */
+async function tryClaimInstance(instance: UntakenInstance, gameWinId: string): Promise<boolean> {
+  const response = await dataverseFetchRaw(`${PRIZES_SET}(${instance.id})`, {
     method: "PATCH",
-    headers: { "If-Match": prize.etag },
+    headers: { "If-Match": instance.etag },
     body: JSON.stringify({
-      andy_remaining: prize.remaining - 1,
-      andy_totalawarded: prize.totalAwarded + 1,
+      andy_prizetaken: true,
+      [`${PRIZES_GAMEWIN_NAV}@odata.bind`]: `/andy_gamewins(${gameWinId})`,
     }),
   });
   if (response.status === 412) return false;
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Dataverse PATCH andy_prizes(${prize.id}) failed: ${response.status} ${body}`);
+    throw new Error(`Dataverse PATCH ${PRIZES_SET}(${instance.id}) failed: ${response.status} ${body}`);
   }
   return true;
 }
 
 const MAX_CLAIM_RETRIES = 5;
 
-/** Runs PRIZE_ENGINE_SPEC.md §1.2/§1.3/§1.4 end to end: weighted pick from the
- * eligible pool (falling back to the designated fallback prize if that pool is
- * empty), atomic decrement, retrying the whole selection on a losing race. */
-async function selectAndClaimPrize(): Promise<{ id: string; name: string }> {
+interface SelectedPrize {
+  typeId: string;
+  typeName: string;
+  /** null for a fallback claim -- the fallback type isn't instance-tracked, so there's
+   * nothing to bind andy_gamewin.andy_PrizeInstance to. */
+  instanceId: string | null;
+}
+
+/** Weighted-picks a *type* from eligible types that currently have untaken instance
+ * stock (falling back to the designated andy_isfallback type, which isn't
+ * instance-tracked, if none do), then atomically claims one specific instance row of
+ * the chosen type. Retries the whole selection on a losing race. */
+async function selectAndClaimPrize(gameWinId: string): Promise<SelectedPrize> {
   for (let attempt = 0; attempt < MAX_CLAIM_RETRIES; attempt++) {
-    const eligible = await fetchEligiblePrizes();
-    let pool = eligible;
-    if (pool.length === 0) {
-      const fallback = await fetchFallbackPrize();
+    const eligibleTypes = await fetchEligiblePrizeTypes();
+    const instances = await fetchUntakenInstances(eligibleTypes.map((t) => t.id));
+
+    const instancesByType = new Map<string, UntakenInstance[]>();
+    for (const instance of instances) {
+      const list = instancesByType.get(instance.typeId);
+      if (list) list.push(instance);
+      else instancesByType.set(instance.typeId, [instance]);
+    }
+    const typesWithStock = eligibleTypes.filter((t) => (instancesByType.get(t.id)?.length ?? 0) > 0);
+
+    if (typesWithStock.length === 0) {
+      const fallback = await fetchFallbackPrizeType();
       if (!fallback) {
         throw new ClaimError(
           "no_prizes_available",
-          "No eligible prizes and no andy_isfallback row configured"
+          "No eligible prize types have stock and no andy_isfallback type is configured"
         );
       }
-      pool = [fallback];
+      // Fallback isn't instance-tracked -- nothing to claim atomically, no retry loop.
+      return { typeId: fallback.id, typeName: fallback.name, instanceId: null };
     }
-    const chosen = pickWeighted(pool);
-    if (await tryClaimPrizeRow(chosen)) {
-      return { id: chosen.id, name: chosen.name };
+
+    const chosenType = pickWeightedType(typesWithStock);
+    const candidates = instancesByType.get(chosenType.id) ?? [];
+    const chosenInstance = candidates[Math.floor(Math.random() * candidates.length)];
+    if (await tryClaimInstance(chosenInstance, gameWinId)) {
+      return { typeId: chosenType.id, typeName: chosenType.name, instanceId: chosenInstance.id };
     }
-    // 412 -- someone else claimed the last unit between read and write. Retry from
-    // selection (not just the decrement), since the eligible set itself may have
-    // changed.
+    // 412 -- someone else claimed that exact instance between read and write. Retry
+    // from selection (not just the claim), since the eligible/stock set itself may
+    // have changed.
   }
   throw new ClaimError(
     "no_prizes_available",
@@ -330,10 +447,10 @@ interface ContestantInfo {
 }
 
 /**
- * PRIZE_ENGINE_SPEC.md §3 steps 3-4: validates the token is Unclaimed, runs the
- * weighted pick + atomic decrement, generates the redemption code, and marks the
- * andy_gamewin row Claimed. Throws ClaimError for anything the caller should turn
- * into a 4xx rather than a 500 (bad/reused token, no prizes configured).
+ * Validates the claim token is Unclaimed, runs the weighted-type-pick +
+ * atomic-instance-claim (PRIZE_CODE_MIGRATION.md), generates the redemption code, and
+ * marks the andy_gamewin row Claimed. Throws ClaimError for anything the caller should
+ * turn into a 4xx rather than a 500 (bad/reused token, no prizes configured).
  */
 export async function claimGameWin(
   claimToken: string,
@@ -357,13 +474,16 @@ export async function claimGameWin(
     throw new ClaimError("already_claimed", "This claim token has already been used");
   }
 
-  const prize = await selectAndClaimPrize();
+  const prize = await selectAndClaimPrize(gameWin.andy_gamewinid);
   const redemptionCode = generateRedemptionCode();
 
   await dataverseFetch(`andy_gamewins(${gameWin.andy_gamewinid})`, {
     method: "PATCH",
     body: JSON.stringify({
-      "andy_Prize@odata.bind": `/andy_prizes(${prize.id})`,
+      [`${GAMEWIN_PRIZETYPE_NAV}@odata.bind`]: `/${PRIZE_TYPES_SET}(${prize.typeId})`,
+      ...(prize.instanceId
+        ? { [`${GAMEWIN_PRIZEINSTANCE_NAV}@odata.bind`]: `/${PRIZES_SET}(${prize.instanceId})` }
+        : {}),
       andy_status: GAMEWIN_STATUS_CLAIMED,
       andy_redemptioncode: redemptionCode,
       andy_claimedtime: new Date().toISOString(),
@@ -373,5 +493,5 @@ export async function claimGameWin(
     }),
   });
 
-  return { prizeName: prize.name, redemptionCode };
+  return { prizeName: prize.typeName, redemptionCode };
 }

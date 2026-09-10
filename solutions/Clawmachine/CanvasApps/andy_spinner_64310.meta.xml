@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CanvasApp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>andy_spinner_64310</Name>
+  <AppVersion>2026-09-09T22:35:50Z</AppVersion>
+  <Status>Ready</Status>
+  <CreatedByClientVersion>3.25101.19.0</CreatedByClientVersion>
+  <MinClientVersion>3.25101.19.0</MinClientVersion>
+  <Tags>{"primaryDeviceWidth":"1366","primaryDeviceHeight":"768","supportsPortrait":"true","supportsLandscape":"true","primaryFormFactor":"Tablet","showStatusBar":"false","publisherVersion":"3.25101.19","minimumRequiredApiVersion":"2.2.0","hasComponent":"false","hasUnlockedComponent":"false","isUnifiedRootApp":"false","sienaVersion":"20251028T144857Z-3.25101.19.0"}</Tags>
+  <IsCdsUpgraded>0</IsCdsUpgraded>
+  <GalleryItemId xsi:nil="true"></GalleryItemId>
+  <BackgroundColor>rgba(255, 255, 255, 1)</BackgroundColor>
+  <DisplayName>Spinner</DisplayName>
+  <Description>Enable real-time interaction with prize data through integrated SignalR technology in the Spinner feature. Deliver dynamic engagement and instant updates, providing business users with immediate access to current information for improved decision-making and user experience.</Description>
+  <CommitMessage></CommitMessage>
+  <Publisher></Publisher>
+  <AuthorizationReferences>[]</AuthorizationReferences>
+  <ConnectionReferences>{"48e40355-a5d2-4308-8e0a-a464f1af71df":{"id":"/providers/microsoft.powerapps/apis/shared_logicflows","displayName":"Logic flows","iconUri":"https://static.powerapps.com/resource/ppcr/releases/v1.0.1827/1.0.1827.4908/logicflows/icon.png","dataSources":["UpdatePrizeType"],"dependencies":["7ad79885-d6a2-4133-9cfc-da47476f50d0"],"dependents":[],"parameterHints":{"workflowName":{"value":"8348419a-2546-4d05-bc2e-c1532c1ce8aa"},"workflowEntityId":{"value":"54c7c125-647b-f011-b4cc-7c1e52578ac0"},"workflowDisplayName":{"value":"Update Prize Type"},"7ad79885-d6a2-4133-9cfc-da47476f50d0":{"value":"shared_commondataserviceforapps"}},"parameterHintsV2":{"workflowName":{"value":"8348419a-2546-4d05-bc2e-c1532c1ce8aa"},"workflowEntityId":{"value":"54c7c125-647b-f011-b4cc-7c1e52578ac0"},"workflowDisplayName":{"value":"Update Prize Type"},"shared_commondataserviceforapps":{"value":"7ad79885-d6a2-4133-9cfc-da47476f50d0"}},"isOnPremiseConnection":false,"bypassConsent":false,"dataSets":{},"apiTier":"Standard","actions":["Run"]},"7ad79885-d6a2-4133-9cfc-da47476f50d0":{"id":"/providers/microsoft.powerapps/apis/shared_commondataserviceforapps","displayName":"Microsoft Dataverse","iconUri":"https://static.powerapps.com/resource/ppcr/releases/v1.0.1825/1.0.1825.4855/commondataserviceforapps/icon.png","dataSources":[],"dependencies":[],"dependents":["48e40355-a5d2-4308-8e0a-a464f1af71df"],"parameterHints":{},"parameterHintsV2":{},"isOnPremiseConnection":false,"bypassConsent":false,"dataSets":{},"apiTier":"Premium"}}</ConnectionReferences>
+  <DatabaseReferences>{"default.cds":{"databaseDetails":{"referenceType":"Environmental","environmentName":"default.cds","overrideValues":{"status":"NotSpecified"}},"dataSources":{"Prizes":{"entitySetName":"andy_prizeses","logicalName":"andy_prizes"},"Prize Types":{"entitySetName":"andy_prizetypeses","logicalName":"andy_prizetypes"},"Claw Machine Settings":{"entitySetName":"andy_clawmachinesettings","logicalName":"andy_clawmachinesetting"},"Claw Machine Game Sessions":{"entitySetName":"andy_clawmachinegamesessionses","logicalName":"andy_clawmachinegamesessions"}},"components":[{"componentName":"CustomControl","identifier":"andy_ClawMachine.SpinnerControl","identifierType":"LogicalName","capabilities":{"pcfExternalServiceUsageAllowed":false}}]}}</DatabaseReferences>
+  <AppComponents>[]</AppComponents>
+  <AppComponentDependencies>[]</AppComponentDependencies>
+  <CanConsumeAppPass>1</CanConsumeAppPass>
+  <CanvasAppType>0</CanvasAppType>
+  <BypassConsent>0</BypassConsent>
+  <AdminControlBypassConsent>0</AdminControlBypassConsent>
+  <EmbeddedApp xsi:nil="true"></EmbeddedApp>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <CdsDependencies>{"cdsdependencies":[{"componenttype":29,"dependencyid":"54c7c125-647b-f011-b4cc-7c1e52578ac0","componenttypeplatformname":"Workflow"},{"componenttype":1,"logicalname":"andy_prizes"},{"componenttype":1,"logicalname":"andy_prizetypes"},{"componenttype":1,"logicalname":"andy_clawmachinesetting"},{"componenttype":1,"logicalname":"andy_clawmachinegamesessions"},{"componenttype":66,"logicalname":"andy_ClawMachine.SpinnerControl","componenttypeplatformname":"CustomControl"}]}</CdsDependencies>
+  <IsCustomizable>1</IsCustomizable>
+  <BackgroundImageUri>/CanvasApps/andy_spinner_64310_BackgroundImageUri</BackgroundImageUri>
+  <DocumentUri>/CanvasApps/andy_spinner_64310_DocumentUri.msapp</DocumentUri>
+  <AdditionalUris>
+    <AdditionalUri>/CanvasApps/andy_spinner_64310_AdditionalUris0_identity.json</AdditionalUri>
+  </AdditionalUris>
+</CanvasApp>

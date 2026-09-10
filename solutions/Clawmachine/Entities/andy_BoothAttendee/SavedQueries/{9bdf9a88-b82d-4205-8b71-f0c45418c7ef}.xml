@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{9bdf9a88-b82d-4205-8b71-f0c45418c7ef}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_attendeename" select="1" icon="1" preview="1">
+        <row name="result" id="andy_boothattendeeid">
+          <cell name="andy_attendeename" width="300" />
+          <cell name="andy_email" width="150" />
+          <cell name="andy_phone" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_boothattendee">
+          <attribute name="andy_boothattendeeid" />
+          <attribute name="andy_attendeename" />
+          <attribute name="createdon" />
+          <order attribute="andy_attendeename" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="andy_email" />
+          <attribute name="andy_phone" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Booth Attendees" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

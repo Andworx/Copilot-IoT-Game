@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<AppModule>
+  <UniqueName>andy_ClawMachineBackend</UniqueName>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <WebResourceId>9a1c3bbf-7d7f-f011-b4cc-7c1e5219f1c1</WebResourceId>
+  <OptimizedFor></OptimizedFor>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+  <FormFactor>1</FormFactor>
+  <ClientType>4</ClientType>
+  <NavigationType>0</NavigationType>
+  <AppModuleComponents>
+    <AppModuleComponent type="1" schemaName="andy_clawmachinegamesessions" />
+    <AppModuleComponent type="1" schemaName="andy_clawmachinesetting" />
+    <AppModuleComponent type="1" schemaName="andy_prizes" />
+    <AppModuleComponent type="1" schemaName="andy_prizetypes" />
+    <AppModuleComponent type="62" schemaName="andy_ClawMachineBackend" />
+  </AppModuleComponents>
+  <AppModuleRoleMaps>
+    <Role id="{627090ff-40a3-4053-8790-584edc5be201}" />
+    <Role id="{119f245c-3cc8-4b62-b31c-d1a046ced15d}" />
+  </AppModuleRoleMaps>
+  <LocalizedNames>
+    <LocalizedName description="Claw Machine Backend" languagecode="1033" />
+  </LocalizedNames>
+  <Descriptions>
+    <Description description="Streamline the management of prize inventory and related backend operations for claw machine systems. Enable efficient tracking and organization to support seamless prize distribution workflows." languagecode="1033" />
+  </Descriptions>
+  <appsettings>
+    <appsetting settingdefinitionid.uniquename="AppChannel">
+      <iscustomizable>1</iscustomizable>
+      <value>1</value>
+    </appsetting>
+  </appsettings>
+</AppModule>

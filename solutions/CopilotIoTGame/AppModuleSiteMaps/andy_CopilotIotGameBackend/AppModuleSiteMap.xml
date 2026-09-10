@@ -21,21 +21,18 @@
         <Titles>
           <Title LCID="1033" Title="Prize Management " />
         </Titles>
+        <SubArea Id="subarea_6a36f153" ResourceId="SitemapDesigner.NewSubArea" VectorIcon="/_imgs/TableIconsFluentV9/document_one_page_sparkle.svg" Icon="/_imgs/imagestrips/transparent_spacer.gif" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" GenPageId="2b55fe56-e580-40df-9ac6-b7a10ee8517f">
+          <Titles>
+            <Title LCID="1033" Title="Bulk Add Prizes " />
+          </Titles>
+        </SubArea>
+        <SubArea Id="subarea_prizes_instances" Icon="/_imgs/imagestrips/transparent_spacer.gif" Entity="andy_prizes" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
         <SubArea Id="subarea_58145b74" Icon="/_imgs/imagestrips/transparent_spacer.gif" Entity="andy_gamewin" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
-        <SubArea Id="subarea_b2cc6697" Icon="/_imgs/imagestrips/transparent_spacer.gif" Entity="andy_prize" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
-      </Group>
-    </Area>
-    <Area Id="area_prize_management" ResourceId="SitemapDesigner.NewTitle" DescriptionResourceId="SitemapDesigner.NewTitle" ShowGroups="true" IntroducedVersion="7.0.0.0">
-      <Titles>
-        <Title LCID="1033" Title="Prize Management" />
-      </Titles>
-      <Group Id="group_prize_management" ResourceId="SitemapDesigner.NewGroup" DescriptionResourceId="SitemapDesigner.NewGroup" IntroducedVersion="7.0.0.0" IsProfile="false" ToolTipResourseId="SitemapDesigner.Unknown">
-        <SubArea Id="subarea_prizes" Icon="$webresource:andy_prize_icon" Entity="andy_prize" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
-        <SubArea Id="subarea_gamewins" Icon="$webresource:andy_gamewin_icon" Entity="andy_gamewin" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
+        <SubArea Id="subarea_prizetypes" Icon="/_imgs/imagestrips/transparent_spacer.gif" Entity="andy_prizetypes" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
       </Group>
     </Area>
   </SiteMap>
   <LocalizedNames>
-    <LocalizedName description="Copilot Iot Game Backend" languagecode="1033" />
+    <LocalizedName description="Game Backend" languagecode="1033" />
   </LocalizedNames>
 </AppModuleSiteMap>

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <EntityRelationship Name="andy_prizes_GameWin_andy_gamewin" />
+  <EntityRelationship Name="andy_prizes_PrizeType_andy_prizetypes" />
+  <EntityRelationship Name="business_unit_andy_prizes" />
+  <EntityRelationship Name="business_unit_andy_prizetypes" />
+  <EntityRelationship Name="FileAttachment_andy_PrizeTypes_andy_PrizeImageFile" />
+  <EntityRelationship Name="lk_andy_prizes_createdby" />
+  <EntityRelationship Name="lk_andy_prizes_modifiedby" />
+  <EntityRelationship Name="lk_andy_prizetypes_createdby" />
+  <EntityRelationship Name="lk_andy_prizetypes_modifiedby" />
+  <EntityRelationship Name="owner_andy_prizes" />
+  <EntityRelationship Name="owner_andy_prizetypes" />
+  <EntityRelationship Name="team_andy_prizes" />
+  <EntityRelationship Name="team_andy_prizetypes" />
+  <EntityRelationship Name="user_andy_prizes" />
+  <EntityRelationship Name="user_andy_prizetypes" />
+</EntityRelationships>

@@ -6,28 +6,34 @@
     <RolePrivilege name="prvAppendandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvAppendandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvAppendandy_GameWin" level="Global" />
-    <RolePrivilege name="prvAppendandy_Prize" level="Global" />
+    <RolePrivilege name="prvAppendandy_Prizes" level="Global" />
+    <RolePrivilege name="prvAppendandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvAppendToandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvAppendToandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvAppendToandy_GameWin" level="Global" />
-    <RolePrivilege name="prvAppendToandy_Prize" level="Global" />
+    <RolePrivilege name="prvAppendToandy_Prizes" level="Global" />
+    <RolePrivilege name="prvAppendToandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvAssignandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvAssignandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvAssignandy_GameWin" level="Global" />
-    <RolePrivilege name="prvAssignandy_Prize" level="Global" />
+    <RolePrivilege name="prvAssignandy_Prizes" level="Global" />
+    <RolePrivilege name="prvAssignandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvCreateandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvCreateandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvCreateandy_GameWin" level="Global" />
-    <RolePrivilege name="prvCreateandy_Prize" level="Global" />
+    <RolePrivilege name="prvCreateandy_Prizes" level="Global" />
+    <RolePrivilege name="prvCreateandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvCreateSharePointData" level="Global" />
     <RolePrivilege name="prvDeleteandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvDeleteandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvDeleteandy_GameWin" level="Global" />
-    <RolePrivilege name="prvDeleteandy_Prize" level="Global" />
+    <RolePrivilege name="prvDeleteandy_Prizes" level="Global" />
+    <RolePrivilege name="prvDeleteandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvReadandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvReadandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvReadandy_GameWin" level="Global" />
-    <RolePrivilege name="prvReadandy_Prize" level="Global" />
+    <RolePrivilege name="prvReadandy_Prizes" level="Global" />
+    <RolePrivilege name="prvReadandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvReadPluginAssembly" level="Global" />
     <RolePrivilege name="prvReadPluginType" level="Global" />
     <RolePrivilege name="prvReadSdkMessage" level="Global" />
@@ -38,11 +44,13 @@
     <RolePrivilege name="prvShareandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvShareandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvShareandy_GameWin" level="Global" />
-    <RolePrivilege name="prvShareandy_Prize" level="Global" />
+    <RolePrivilege name="prvShareandy_Prizes" level="Global" />
+    <RolePrivilege name="prvShareandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvWriteandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvWriteandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvWriteandy_GameWin" level="Global" />
-    <RolePrivilege name="prvWriteandy_Prize" level="Global" />
+    <RolePrivilege name="prvWriteandy_Prizes" level="Global" />
+    <RolePrivilege name="prvWriteandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvWriteSharePointData" level="Global" />
   </RolePrivileges>
 </Role>
