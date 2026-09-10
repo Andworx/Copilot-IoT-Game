@@ -50,6 +50,12 @@ Use a dedicated deployment application registered as a Dataverse application
 user with permissions to upload the site; the backend's runtime identity, which
 only accesses game tables, is not sufficient. Rotate this secret when needed.
 
+The workflow authenticates PAC with `--url` instead of `--environment` for the
+service-principal profile. `--environment` causes PAC to query the Business
+Application Platform admin environment endpoint during auth, which requires
+broader Power Platform admin-management permissions than the Dataverse
+Application User role needed for code-site upload.
+
 Configure Azure OIDC federation for the Azure deployment identity:
 
 - Issuer: `https://token.actions.githubusercontent.com`

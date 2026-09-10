@@ -113,7 +113,7 @@ jobs:
       - name: Authenticate Power Platform
         shell: pwsh
         run: |
-          pac auth create --name github-production --tenant "$env:POWER_PLATFORM_TENANT_ID" --applicationId "$env:POWER_PLATFORM_CLIENT_ID" --clientSecret "$env:POWER_PLATFORM_CLIENT_SECRET" --environment "$env:POWER_PLATFORM_ENVIRONMENT_URL"
+          pac auth create --name github-production --tenant "$env:POWER_PLATFORM_TENANT_ID" --applicationId "$env:POWER_PLATFORM_CLIENT_ID" --clientSecret "$env:POWER_PLATFORM_CLIENT_SECRET" --url "$env:POWER_PLATFORM_ENVIRONMENT_URL"
           if ($LASTEXITCODE -ne 0) { throw 'Power Platform authentication failed.' }
       - uses: azure/login@v3
         with:
