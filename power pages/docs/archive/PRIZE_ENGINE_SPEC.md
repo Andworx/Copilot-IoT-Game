@@ -1,7 +1,15 @@
 # Prize Engine Spec
 
-Companion to [`GAME_MODE_PLAN.md`](GAME_MODE_PLAN.md) (architecture, §5/§7 give the short
-version) and [`KIOSK_UI_SPEC.md`](KIOSK_UI_SPEC.md) (the on-screen side of the spin). This
+> **⚠️ ARCHIVED — superseded 2026-09-09.** This describes the original single-table
+> `andy_prize` design (weight/remaining decrement on one row). It was replaced by the
+> `andy_PrizeTypes`/`andy_Prizes` split documented in
+> [`PRIZE_DATA_MODEL_MIGRATION.md`](PRIZE_DATA_MODEL_MIGRATION.md) and
+> [`PRIZE_CODE_MIGRATION.md`](PRIZE_CODE_MIGRATION.md), both now also archived (migration
+> complete and deployed live). Kept for historical reference only — do not build against
+> the schema/algorithm described below.
+
+Companion to [`../GAME_MODE_PLAN.md`](../GAME_MODE_PLAN.md) (architecture, §5/§7 give the short
+version) and [`../KIOSK_UI_SPEC.md`](../KIOSK_UI_SPEC.md) (the on-screen side of the spin). This
 document is the detailed spec for the one subsystem neither of those fully covers: **how a
 prize gets picked, how the schema backs that, and what happens physically at the booth
 between "the app says you won X" and the player actually walking away with X.**

@@ -1,5 +1,12 @@
 # Prize Code Migration — Execution Plan
 
+> **✅ ARCHIVED — completed and deployed 2026-09-09.** The `azure/src/lib/dataverse.ts`
+> rewrite described here shipped to `func-aw-azcom-copilot-iot-game` and was smoke-tested
+> live end to end (see
+> [`PRIZE_DATA_MODEL_MIGRATION_STATUS.md`](PRIZE_DATA_MODEL_MIGRATION_STATUS.md) for the
+> verified outcome, including a live-only OData `in`-operator bug found and fixed along the
+> way). Kept for historical reference only.
+
 Companion to [`PRIZE_DATA_MODEL_MIGRATION.md`](PRIZE_DATA_MODEL_MIGRATION.md) (the
 schema/Dataverse side of this same change) and
 [`PRIZE_ENGINE_SPEC.md`](PRIZE_ENGINE_SPEC.md) (the original design this supersedes).

@@ -3,7 +3,7 @@
 Backend for mode selection: the Power App control device calls `POST /api/set-mode`, which
 writes `andy_gameboxstate` and broadcasts the change over SignalR; the kiosk SPA calls
 `GET /api/kiosk-state` once on load and `POST /api/negotiate` to open its SignalR
-connection. Full design: `power pages/GAME_MODE_PLAN.md` §4a.
+connection. Full design: `power pages/docs/GAME_MODE_PLAN.md` §4a.
 
 This is a fresh Node.js/TypeScript Function App (v4 programming model) — `GAME_MODE_PLAN.md`
 describes an "existing Function App" from a sibling project (`copilot-iot-service`) that

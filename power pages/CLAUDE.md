@@ -19,17 +19,26 @@ content in this project; all UI is React components under `restore-and-spin/src/
 See `restore-and-spin/README.md` for the full breakdown. Briefly:
 
 - `src/App.tsx` — routes: `/kiosk/info`, `/kiosk/:deviceSlug`, `/play-spin`
-- `src/data/deviceProfiles.ts` — the 11 devices (content spec: `GAME_MODE_PLAN.md` /
-  `KIOSK_UI_SPEC.md` in this folder)
+- `src/data/deviceProfiles.ts` — the 11 devices (content spec: `docs/GAME_MODE_PLAN.md` /
+  `docs/KIOSK_UI_SPEC.md`)
 - `src/components/layouts/` — the 5 reusable control-panel layouts; a new device is a data
-  row assigned to one of these, not new component code (see `KIOSK_UI_SPEC.md` §2.6)
+  row assigned to one of these, not new component code (see `docs/KIOSK_UI_SPEC.md` §2.6)
 - `src/styles/theme.css` — shared design tokens + all 11 device skins
 
-## Design/architecture docs (this folder)
+## Design/architecture docs
 
-- [`GAME_MODE_PLAN.md`](GAME_MODE_PLAN.md) — architecture, Dataverse schema, dial/win flow
-- [`KIOSK_UI_SPEC.md`](KIOSK_UI_SPEC.md) — visual/interaction spec for every screen
-- [`PRIZE_ENGINE_SPEC.md`](PRIZE_ENGINE_SPEC.md) — prize weighting, schema, claim/redemption workflow
+Active references live in [`docs/`](docs/):
+
+- [`docs/GAME_MODE_PLAN.md`](docs/GAME_MODE_PLAN.md) — architecture, Dataverse schema, dial/win flow
+- [`docs/KIOSK_UI_SPEC.md`](docs/KIOSK_UI_SPEC.md) — visual/interaction spec for every screen
+
+Completed migrations and superseded specs are kept in [`docs/archive/`](docs/archive/) for
+historical reference only — do not build against them:
+
+- [`docs/archive/PRIZE_ENGINE_SPEC.md`](docs/archive/PRIZE_ENGINE_SPEC.md) — original single-table `andy_prize` design (superseded)
+- [`docs/archive/PRIZE_DATA_MODEL_MIGRATION.md`](docs/archive/PRIZE_DATA_MODEL_MIGRATION.md) — Dataverse migration plan (done 2026-09-09)
+- [`docs/archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md`](docs/archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md) — migration status/checklist (done)
+- [`docs/archive/PRIZE_CODE_MIGRATION.md`](docs/archive/PRIZE_CODE_MIGRATION.md) — Azure Functions backend migration (done)
 
 ## Table permissions
 

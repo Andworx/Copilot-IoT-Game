@@ -8,14 +8,21 @@ SPA) — not a classic Liquid portal. There's no `web-templates/`, `web-pages/`,
 
 ```
 power pages/
-├── GAME_MODE_PLAN.md      # architecture, Dataverse schema, dial/win flow
-├── KIOSK_UI_SPEC.md       # visual/interaction spec for every screen
-├── PRIZE_ENGINE_SPEC.md   # prize weighting, schema, claim/redemption workflow
+├── docs/                        # architecture, UI, and (historical) prize-engine specs
+│   ├── GAME_MODE_PLAN.md        # architecture, Dataverse schema, dial/win flow
+│   ├── KIOSK_UI_SPEC.md         # visual/interaction spec for every screen
+│   └── archive/                 # completed migrations + superseded specs — historical only
+│       ├── PRIZE_ENGINE_SPEC.md              # original single-table prize design (superseded)
+│       ├── PRIZE_DATA_MODEL_MIGRATION.md     # Dataverse migration plan (done 2026-09-09)
+│       ├── PRIZE_DATA_MODEL_MIGRATION_STATUS.md  # migration status/checklist (done)
+│       └── PRIZE_CODE_MIGRATION.md           # Azure Functions backend migration (done)
 └── restore-and-spin/      # the Code Site itself
     ├── powerpages.config.json   # site name + build output path, read by PAC
     ├── src/                     # React app source
     └── README.md                # app-specific dev notes, what's stubbed
 ```
+
+See `docs/README.md` for what's still an active reference vs. archived.
 
 ## PAC CLI Commands
 
@@ -40,4 +47,4 @@ Dataverse API. See `.github/instructions/power-pages.instructions.md` for detail
 - Build (`npm run build`) before every upload — PAC uploads the compiled `dist/` output
 - Site name and build path live in `restore-and-spin/powerpages.config.json`, not CLI flags
 - A new device is a data row in `src/data/deviceProfiles.ts` assigned to one of the 5
-  existing layouts (`KIOSK_UI_SPEC.md` §2.6) — not new component code
+  existing layouts (`docs/KIOSK_UI_SPEC.md` §2.6) — not new component code

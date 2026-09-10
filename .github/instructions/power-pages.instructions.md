@@ -26,21 +26,25 @@ a classic Liquid portal. Do not introduce Liquid templates, `.webpage.yml`, or
   so React remounts cleanly on device change
 - There are exactly **5 reusable control-panel layouts** (`src/components/layouts/`). A
   new device is a data row assigned to one of these five, not a new layout component —
-  see `KIOSK_UI_SPEC.md` §2.6 for the positional convention each layout expects
+  see `docs/KIOSK_UI_SPEC.md` §2.6 for the positional convention each layout expects
   (`switches[i]` / `lamps[i]` by array position, not by hardcoded key name)
 - Semantic lamp colors (green/amber/red = good/caution/bad) are never reskinned per
-  device; only background, accent hue, font, and motif vary — see `KIOSK_UI_SPEC.md` §1.2
+  device; only background, accent hue, font, and motif vary — see `docs/KIOSK_UI_SPEC.md` §1.2
 - The Help-Fix pattern (`HelpFixBar.tsx`) matches the existing `AgentButton.tsx` from the
   sibling `iot-panel-dashboard` app: collapsed by default, shows only a numbered list on
   tap, never a persistent chat
 
 ## Design/architecture docs
 
-Read before making non-trivial changes under `power pages/`:
+Read before making non-trivial changes under `power pages/`. Active references live in
+`power pages/docs/`; completed migrations and superseded specs are archived under
+`power pages/docs/archive/` — see `power pages/docs/README.md` for the full index.
 
-- `power pages/GAME_MODE_PLAN.md` — architecture, Dataverse schema, dial/win flow
-- `power pages/KIOSK_UI_SPEC.md` — visual/interaction spec for every screen
-- `power pages/PRIZE_ENGINE_SPEC.md` — prize weighting, schema, claim/redemption workflow
+- `power pages/docs/GAME_MODE_PLAN.md` — architecture, Dataverse schema, dial/win flow
+- `power pages/docs/KIOSK_UI_SPEC.md` — visual/interaction spec for every screen
+- `power pages/docs/archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md` — current live prize
+  schema (`andy_PrizeTypes`/`andy_Prizes`) and migration history; the current source of
+  truth for prize data, superseding `PRIZE_ENGINE_SPEC.md`'s original single-table design
 - `power pages/restore-and-spin/README.md` — what's stubbed and where the real wiring goes
   (Copilot Studio integration, the real prize-claim endpoint, dial-driven navigation)
 

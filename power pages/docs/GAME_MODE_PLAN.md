@@ -273,12 +273,18 @@ nothing in the design reads that back for any purpose.
 `cascadeDelete: Restrict` on the lookup, per existing table conventions. Written only by
 `/api/set-mode` (§4a) — never directly by the Power App or the kiosk SPA.
 
-> **Superseded by a fuller spec:** the `andy_gamewin` and `andy_prize` schemas below are the
-> short version. [`PRIZE_ENGINE_SPEC.md`](PRIZE_ENGINE_SPEC.md) has the full column list
-> (including the redemption-lifecycle fields needed for physical prize handoff at the
-> booth), the weighting algorithm with a worked example, the atomic-decrement/concurrency
-> approach, and the empty-pool fallback rule. Build against that document for these two
-> tables, not this summary.
+> **Superseded by a fuller spec — and that spec is itself now historical:** the
+> `andy_gamewin`/`andy_prize` schema sketch below reflects the *original* single-table
+> design. [`archive/PRIZE_ENGINE_SPEC.md`](archive/PRIZE_ENGINE_SPEC.md) had the fuller
+> version of that same original design (full column list, weighting algorithm, atomic
+> decrement). **Both are now archived** — the live schema is the
+> `andy_PrizeTypes`/`andy_Prizes` split from
+> [`archive/PRIZE_DATA_MODEL_MIGRATION.md`](archive/PRIZE_DATA_MODEL_MIGRATION.md) /
+> [`archive/PRIZE_CODE_MIGRATION.md`](archive/PRIZE_CODE_MIGRATION.md) (migration complete
+> and deployed 2026-09-09; `andy_prize`/`andy_prizecategory` no longer exist). Do not build
+> against the `andy_prize` table below — see
+> [`archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md`](archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md)
+> for the current live schema and any open data gaps.
 
 ### `andy_gamewin` — one row per completed troubleshooting session
 | Column | Type | Notes |
@@ -364,10 +370,13 @@ today — `npm run build` then `pac pages upload-code-site` — no new `pac page
 
 ## 7. Win → QR → Spin flow
 
-> **See [`PRIZE_ENGINE_SPEC.md`](PRIZE_ENGINE_SPEC.md) §3 for the fuller version of this
-> flow** — it continues past step 6 below into what happens physically at the booth
-> (redemption codes, staff lookup, marking a prize as handed over), which this summary
-> doesn't cover.
+> **See [`archive/PRIZE_ENGINE_SPEC.md`](archive/PRIZE_ENGINE_SPEC.md) §3 for the fuller,
+> now-historical version of this flow's redemption side** — it continues past step 6 below
+> into what happens physically at the booth (redemption codes, staff lookup, marking a
+> prize as handed over). The prize-*selection* mechanics it describes are superseded by
+> the live `andy_PrizeTypes`/`andy_Prizes` implementation in
+> [`archive/PRIZE_CODE_MIGRATION.md`](archive/PRIZE_CODE_MIGRATION.md), but the
+> booth/redemption workflow shape hasn't changed.
 
 1. Player works through the troubleshooting agent (the `AgentButton` "Help Fix" pattern,
    §1/§8) on the active `/kiosk/:deviceSlug` route (`andy_isgamedevice = Yes` — the demo/info

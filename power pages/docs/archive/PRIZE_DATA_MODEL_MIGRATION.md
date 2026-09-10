@@ -1,5 +1,11 @@
 # Prize Data Model Migration — Execution Plan
 
+> **✅ ARCHIVED — completed 2026-09-09.** This migration shipped and was verified live
+> (schema, seed data, icons, and the Phase 6 decommission of `andy_prize`/
+> `andy_prizecategory` are all done — see
+> [`PRIZE_DATA_MODEL_MIGRATION_STATUS.md`](PRIZE_DATA_MODEL_MIGRATION_STATUS.md) for the
+> final state). Kept for historical reference only — do not use as a live task list.
+
 Companion to [`PRIZE_ENGINE_SPEC.md`](PRIZE_ENGINE_SPEC.md) (the original design) and
 [`PRIZE_CODE_MIGRATION.md`](PRIZE_CODE_MIGRATION.md) (the backend/frontend side of this
 same change). This document is the **data-model side only** — everything you do by hand

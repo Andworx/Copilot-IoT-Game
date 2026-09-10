@@ -1,8 +1,10 @@
 # Restore & Spin
 
 Power Pages Code Site (React 19 + Vite SPA) for the Copilot IoT Game — see
-[`../GAME_MODE_PLAN.md`](../GAME_MODE_PLAN.md), [`../KIOSK_UI_SPEC.md`](../KIOSK_UI_SPEC.md),
-and [`../PRIZE_ENGINE_SPEC.md`](../PRIZE_ENGINE_SPEC.md) for the full design.
+[`../docs/GAME_MODE_PLAN.md`](../docs/GAME_MODE_PLAN.md), [`../docs/KIOSK_UI_SPEC.md`](../docs/KIOSK_UI_SPEC.md),
+and [`../docs/archive/PRIZE_ENGINE_SPEC.md`](../docs/archive/PRIZE_ENGINE_SPEC.md) (superseded —
+current prize schema is `andy_PrizeTypes`/`andy_Prizes`, see `../docs/archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md`)
+for the full design.
 
 Built fresh for this game rather than extending the sibling `iot-panel-dashboard` app —
 that app was reference only (its `AgentButton`/`useAgentChat` pattern, `theme.css` tokens,

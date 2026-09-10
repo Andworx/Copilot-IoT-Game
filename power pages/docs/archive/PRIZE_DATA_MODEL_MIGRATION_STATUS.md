@@ -1,5 +1,10 @@
 # Prize Data Model Migration — Status & Remaining Manual Steps
 
+> **✅ ARCHIVED — migration complete as of 2026-09-09.** All phases (1–6, including the
+> Phase 6 decommission of `andy_prize`/`andy_prizecategory` and the Prize Engine solution
+> split) are done and verified live. Kept for historical reference — the only open item is
+> the live Prize Type data gap noted near the bottom (not a code/schema task).
+
 Companion to [`PRIZE_DATA_MODEL_MIGRATION.md`](PRIZE_DATA_MODEL_MIGRATION.md), which is
 the authoritative phase-by-phase plan. This file tracks what's actually been done in the
 repo vs. what still requires hands-on work in the live `andworx-development` environment,
