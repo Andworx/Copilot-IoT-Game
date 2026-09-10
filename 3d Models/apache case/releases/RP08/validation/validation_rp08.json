@@ -1,0 +1,345 @@
+{
+  "revision": "RP08",
+  "status": "PASS - T02-E/P3 and converter coupon physically approved; rear carrier/drill guide require case dry-fit",
+  "changed_production_parts": [
+    "carrier.stl",
+    "layout_template.stl",
+    "rear_L.stl",
+    "rear_R.stl",
+    "tray_L.stl"
+  ],
+  "unchanged_rp07_stl_count": 21,
+  "rear_recess_measured_mm": [
+    132.55,
+    75.62
+  ],
+  "carrier_mm": [
+    128.0,
+    60.0
+  ],
+  "rear_recess_clearance_mm": [
+    4.550000000000011,
+    15.620000000000005
+  ],
+  "switch_opening_mm": [
+    23.6,
+    29.8
+  ],
+  "dial_shoulder_pocket_mm": [
+    19.0,
+    2.0
+  ],
+  "dial_register_slot_center_range_mm": [
+    7.5,
+    10.5
+  ],
+  "controls": {
+    "dial_x": -30.0,
+    "switch_x": 1.0,
+    "xt60_x": 36.0,
+    "z": 45.0
+  },
+  "case_service_openings": {
+    "dial_d": 31.0,
+    "switch_wh": [
+      30.0,
+      36.0
+    ],
+    "xt60_wh": [
+      38.0,
+      40.0
+    ]
+  },
+  "shared_power_drop_mm": [
+    12.0,
+    42.0
+  ],
+  "meshes": {
+    "activity_face.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "carrier.stl": {
+      "bounds_mm": [
+        128.0,
+        60.0,
+        3.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "converter_bay_coupon.stl": {
+      "bounds_mm": [
+        130.0,
+        84.0,
+        2.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "dial_coupon.stl": {
+      "bounds_mm": [
+        42.0,
+        44.0,
+        3.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "layout_template.stl": {
+      "bounds_mm": [
+        128.0,
+        60.0,
+        1.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "led_clip_coupon.stl": {
+      "bounds_mm": [
+        22.0,
+        22.0,
+        6.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "lower_joiner.stl": {
+      "bounds_mm": [
+        12.0,
+        32.0,
+        2.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "panel_L.stl": {
+      "bounds_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "panel_R.stl": {
+      "bounds_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "rear_L.stl": {
+      "bounds_mm": [
+        152.994,
+        115.275,
+        77.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "rear_R.stl": {
+      "bounds_mm": [
+        152.994,
+        115.275,
+        77.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "safety_face.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "screen_face.stl": {
+      "bounds_mm": [
+        220.0,
+        136.0,
+        6.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "shell_FL.stl": {
+      "bounds_mm": [
+        152.994,
+        113.775,
+        77.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "shell_FR.stl": {
+      "bounds_mm": [
+        152.994,
+        113.775,
+        77.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "shell_joiner_x.stl": {
+      "bounds_mm": [
+        50.0,
+        24.0,
+        4.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "shell_joiner_y.stl": {
+      "bounds_mm": [
+        24.0,
+        50.0,
+        4.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "switch_1.stl": {
+      "bounds_mm": [
+        40.0,
+        46.0,
+        1.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "switch_2.stl": {
+      "bounds_mm": [
+        40.0,
+        46.0,
+        2.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "switch_3.stl": {
+      "bounds_mm": [
+        40.0,
+        46.0,
+        3.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "switch_3_27.stl": {
+      "bounds_mm": [
+        40.0,
+        46.0,
+        3.27
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "switch_face.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "tray_L.stl": {
+      "bounds_mm": [
+        145.3,
+        214.0,
+        2.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "tray_R.stl": {
+      "bounds_mm": [
+        145.3,
+        214.0,
+        2.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "tray_joiner.stl": {
+      "bounds_mm": [
+        50.0,
+        14.0,
+        4.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "xt_coupon.stl": {
+      "bounds_mm": [
+        50.0,
+        50.0,
+        3.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    }
+  }
+}

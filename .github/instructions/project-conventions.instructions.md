@@ -11,10 +11,18 @@ description: "Use when working on YOUR_PROJECT_NAME — general conventions for 
 
 ## PAC CLI
 
-- Always use `--modelVersion 2` for power pages commands
-- Upload command: `pac pages upload --path "<portal-path>\YOUR_PORTAL_SLUG" --modelVersion 2`
-- Download command: `pac pages download --path "<portal-parent-path>" --modelVersion 2`
-- See `PAC_COMMANDS.md` for full reference with paths
+`power pages/restore-and-spin` is a **Power Pages Code Site** (React + Vite SPA), not a
+classic Liquid portal — it uses `pac pages upload-code-site`, not `pac pages upload`/
+`pac pages download`:
+
+```powershell
+cd "power pages\restore-and-spin"
+npm run build
+pac pages upload-code-site --rootPath "."
+```
+
+See `PAC_COMMANDS.md` for the full reference, including first-deploy activation and
+troubleshooting.
 
 ## File Organization
 

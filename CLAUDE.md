@@ -11,22 +11,27 @@
 
 Fill in `project.tokens.json` and run `.\scripts\Apply-ProjectTokens.ps1 -Environment dev` to stamp these values across the repo.
 
-## Startup Onboarding Guardrail
+## Function App and Power Pages CI/CD
 
-Before any coding workflow starts (creating/editing files or running build/test/deploy commands), check onboarding completion:
+Follow [docs/CI_CD.md](docs/CI_CD.md) and `.github/workflows/deploy-apps.yml`.
+Run both local builds, open a PR, and use the GitHub Actions deployment after
+merging relevant changes to `main`. For a requested redeploy, dispatch
+`deploy-apps.yml` on `main` and inspect the run. Do not publish these apps locally
+unless explicitly asked for recovery/bootstrap. PRs build only; production deploys
+use the `production` environment, Azure OIDC, and a Power Platform deployment
+secret. Deploy the backend before the Code Site. Report the run URL and commit SHA;
+keep plan items at Verify until live checks pass. The PAC commands below are
+manual recovery/bootstrap references for these two apps.
 
-```powershell
-.\scripts\Test-OnboardingCompletion.ps1 -Environment dev -Json
-```
+## Deployment Workflow
 
-- Treat onboarding as complete only when `isComplete` is `true`
-- If onboarding is incomplete, warn and route to remediation:
-  - `.\scripts\Start-Onboarding.ps1 -Environment dev`
-  - `.\scripts\Validate-DeploymentSetup.ps1 -Environment dev`
-- Allow bypass once per session only after explicit user acknowledgement:
-  - `I acknowledge onboarding is incomplete and want to bypass for this session.`
-- When bypass is used, include an auditable response note:
-  - `[Onboarding Bypass] User acknowledged incomplete onboarding for this session.`
+Power Platform changes ship via the `pac` CLI directly — build tables/choices/relationships
+manually in the maker portal (or via whatever surface fits: canvas app, Copilot Studio,
+etc.), then `pac solution export` + `pac solution unpack` to bring them into source control
+under `solutions/`, and `pac solution pack` + `pac solution import` to move a solution
+between environments. Table
+`definition.json`/`README.md` files under `tables/` still document schema for reference,
+independent of which mechanism actually created the table.
 
 ## Solution & Publisher
 
@@ -36,9 +41,13 @@ Before any coding workflow starts (creating/editing files or running build/test/
 
 ## PAC CLI
 
-- Always use `--modelVersion 2` for all power pages commands
-- Upload: `pac pages upload --path "<portal-path>\YOUR_PORTAL_SLUG" --modelVersion 2`
-- Download: `pac pages download --path "<portal-parent-path>" --modelVersion 2`
+`power pages/restore-and-spin` is a **Power Pages Code Site** (React + Vite SPA), not a
+classic Liquid portal — it uses a different PAC CLI command family entirely:
+
+- Build first: `npm run build` (from inside `power pages/restore-and-spin`)
+- Upload: `pac pages upload-code-site --rootPath "."` (run from inside that folder — reads `powerpages.config.json` for the site name and build output path)
+- **Never** use `pac pages upload` / `pac pages download` on it — those target classic portal-studio sites and will corrupt code site metadata
+- First deploy to a new environment also needs: `pac pages activate --webSiteId <WEBSITE_GUID>`
 - Full reference: `PAC_COMMANDS.md`
 
 ## File Organisation
@@ -47,7 +56,7 @@ Before any coding workflow starts (creating/editing files or running build/test/
 YOUR_PROJECT_ID/
 ├── automations/         # Non-flow automation assets
 │   └── emails/          # Managed email templates (templates.json + HTML body files)
-├── power pages/         # Power Pages portal assets (PAC CLI v2 format)
+├── power pages/         # Power Pages Code Site (React + Vite SPA) — see restore-and-spin/
 ├── scripts/             # PowerShell deployment & export scripts
 ├── tables/              # Dataverse table definitions (JSON)
 │   ├── choices/         # Global option sets
@@ -123,7 +132,7 @@ Each subdirectory has its own `CLAUDE.md` loaded automatically when working in t
 | [tables/](tables/CLAUDE.md) | Dataverse schema, column types, deployment order |
 | [plugins/](plugins/CLAUDE.md) | C# plugin architecture, registration docs, ALM |
 | [flows/](flows/CLAUDE.md) | Power Automate ALM, payload contract, change checklist |
-| [power pages/](power%20pages/CLAUDE.md) | PAC CLI v2 format, Liquid templating, portal structure |
+| [power pages/](power%20pages/CLAUDE.md) | Power Pages Code Site (React SPA) conventions, `pac pages upload-code-site` |
 | [copilot agents/](copilot%20agents/CLAUDE.md) | Topic authoring, agent guardrails, pull/push workflow |
 | [reports/](reports/CLAUDE.md) | Power BI PBIP structure, DAX/M organization, and review checklist |
 

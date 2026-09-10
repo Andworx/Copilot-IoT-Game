@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{be83b5ee-3a99-4aeb-96d4-d0161336f4ee}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{7978CDC3-4F67-4901-9580-06A34E8587B2}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{EDAF730D-B4EA-4772-A540-DFA5E1B0B22F}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{28A04DA1-D640-4155-A004-B33DA9EF5E83}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="andy_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_Name" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{A1C8F92D-6FD5-40EE-9E1A-2EE612716CD0}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{08f881f0-277d-4d65-8d4b-d8ddcad5fe93}">
+                        <labels>
+                          <label description="Device Slug" languagecode="1033" />
+                        </labels>
+                        <control id="andy_deviceslug" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_deviceslug" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{3e319944-e1e1-4a8c-9915-b97be645ce07}">
+                        <labels>
+                          <label description="Is Game Device" languagecode="1033" />
+                        </labels>
+                        <control id="andy_isgamedevice" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_isgamedevice" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{4540172c-1c3d-46ae-95b2-6a1bb5061095}">
+                        <labels>
+                          <label description="Intro copy" languagecode="1033" />
+                        </labels>
+                        <control id="andy_introcopy" classid="{e0dece4b-6fc8-4a8f-a065-082708572369}" datafieldname="andy_introcopy" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{86423b2f-befd-4968-8e90-6fb509788612}">
+                        <labels>
+                          <label description="Copilot Topic" languagecode="1033" />
+                        </labels>
+                        <control id="andy_copilottopic" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_copilottopic" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

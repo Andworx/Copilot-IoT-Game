@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "appId": "36533fcf-1ad1-4891-9e27-82cc3d2f794a",
+  "appDisplayName": "Game Box Control",
+  "region": "prod",
+  "environmentId": "dd045fe3-6b47-e5bd-87e6-680b3cfd3a09",
+  "description": "Staff control panel: pick the active game-box device, calling set-mode.",
+  "buildPath": "dist",
+  "buildEntryPoint": "index.html",
+  "localAppUrl": "http://localhost:3000",
+  "logoPath": "Default",
+  "connectionReferences": {},
+  "databaseReferences": {}
+}

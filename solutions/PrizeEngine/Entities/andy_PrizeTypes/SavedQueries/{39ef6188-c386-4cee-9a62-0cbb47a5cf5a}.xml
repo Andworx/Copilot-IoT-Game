@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{39ef6188-c386-4cee-9a62-0cbb47a5cf5a}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_prizetypename" select="1" icon="1" preview="1">
+        <row name="result" id="andy_prizetypesid">
+          <cell name="andy_prizetypename" width="300" />
+          <cell name="andy_rarity" width="100" />
+          <cell name="andy_isfallback" width="102" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_prizetypes">
+          <attribute name="andy_prizetypesid" />
+          <attribute name="andy_prizetypename" />
+          <attribute name="createdon" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="andy_rarity" />
+          <order attribute="andy_rarity" descending="false" />
+          <attribute name="andy_isfallback" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Prize Types" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

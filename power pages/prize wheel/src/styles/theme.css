@@ -1,0 +1,93 @@
+/* Ported from restore-and-spin/src/styles/theme.css's "Player phone" section
+   (KIOSK_UI_SPEC.md §4) -- trimmed to just what this standalone page needs. */
+
+:root {
+  --font-mono: "IBM Plex Mono", "Consolas", monospace;
+  --color-text-muted: #526052;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: #080c08;
+  color: #c8d4c8;
+  font-family: var(--font-mono);
+}
+
+button {
+  font-family: var(--font-mono);
+}
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #4c8dff;
+  outline-offset: 2px;
+}
+
+.qr-caption { font-size: 0.62rem; color: var(--color-text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+.phone-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: #080c08;
+}
+
+.handset-screen {
+  width: min(360px, 100%);
+  min-height: 560px;
+  background-color: #080c08;
+  background-image: radial-gradient(circle, #1a261a 1px, transparent 1px);
+  background-size: 18px 18px;
+  border: 1px solid #1a261a;
+  border-radius: 18px;
+  padding: 26px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.phone-step { display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.phone-step .eyebrow { font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: #4c8dff; }
+.phone-step h3 { font-size: 1.4rem; color: #e8f0e8; font-weight: 700; margin: 0; font-family: var(--font-mono); }
+.phone-step p { font-size: 0.85rem; line-height: 1.5; color: #c8d4c8; font-family: system-ui, sans-serif; margin: 0; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: #526052; }
+.field input {
+  background: #161e16; border: 1px solid #243224; border-radius: 6px;
+  color: #e8f0e8; font-family: system-ui, sans-serif; font-size: 0.9rem; padding: 10px 12px;
+}
+
+.phone-actions { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.btn-primary, .btn-secondary {
+  border-radius: 8px; padding: 12px 16px; font-family: system-ui, sans-serif;
+  font-size: 0.88rem; font-weight: 600; border: none; cursor: pointer;
+}
+.btn-primary { background: #f59e0b; color: #14100a; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-secondary { background: transparent; color: #c8d4c8; border: 1px solid #243224; }
+.btn-secondary:hover { border-color: #c8d4c8; }
+
+.wheel-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; flex: 1; justify-content: center; }
+.wheel-stack { position: relative; width: 240px; height: 240px; }
+.wheel-pointer {
+  position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent;
+  border-top: 16px solid #f59e0b; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+.wheel-canvas { border-radius: 50%; box-shadow: 0 0 0 4px #243224, 0 0 30px rgba(0, 0, 0, 0.4); }
+.wheel-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; font-family: var(--font-mono); font-size: 0.62rem; color: #c8d4c8; }
+.wheel-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.swatch { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+
+.result-card {
+  background: #161e16; border: 1px solid #22c55e; border-radius: 10px;
+  padding: 18px; text-align: center; box-shadow: 0 0 30px rgba(34, 197, 94, 0.24);
+}
+.result-card .prize-name { font-family: var(--font-mono); font-size: 1.6rem; color: #e8f0e8; margin: 6px 0; }
+.result-card .claim-code { font-family: var(--font-mono); font-size: 0.72rem; color: #f59e0b; letter-spacing: 0.08em; }

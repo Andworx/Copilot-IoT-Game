@@ -1,0 +1,21 @@
+{
+  "slug": "thermostat",
+  "label": "Smart Thermostat",
+  "dialPosition": 2,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "eco", "label": "Eco Mode" },
+    { "physicalPin": "SW3", "key": "fan", "label": "Fan" },
+    { "physicalPin": "SW4", "key": "mode", "label": "Heat / Cool" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "power", "label": "Power", "when": "power" },
+    { "physicalPin": "LED2", "key": "heating", "label": "Heating", "when": "power and fan and not mode" },
+    { "physicalPin": "LED3", "key": "cooling", "label": "Cooling", "when": "power and fan and mode" },
+    { "physicalPin": "LED4", "key": "fault", "label": "Fault", "when": "not win" }
+  ],
+  "win": "power and fan and not mode",
+  "faultStartingState": { "power": true, "eco": true, "fan": false, "mode": true },
+  "winMessage": "Thermostat restored — holding your set temperature."
+}

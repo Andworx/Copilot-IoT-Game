@@ -1,0 +1,37 @@
+{
+  "name": "Claw Machine Backend",
+  "description": "Streamline the management of prize inventory and related backend operations for claw machine systems. Enable efficient tracking and organization to support seamless prize distribution workflows.",
+  "typesOfUsers": [
+    "Administrator"
+  ],
+  "tableSchemaNames": [
+    "andy_Prize",
+    "andy_PrizeCategory",
+    "andy_ClawMachine",
+    "andy_GameSession",
+    "andy_MachineSetting"
+  ],
+  "userStories": [
+    {
+      "id": "us01",
+      "description": "Update prize inventory so that prizes available for claw machine games are accurately tracked.",
+      "userType": "Administrator"
+    },
+    {
+      "id": "us02",
+      "description": "Categorize prizes into different types so that prize management and distribution is more efficient.",
+      "userType": "Administrator"
+    },
+    {
+      "id": "us03",
+      "description": "Modify claw machine settings so that the game sessions can be adjusted to suit operational needs.",
+      "userType": "Administrator"
+    },
+    {
+      "id": "us04",
+      "description": "Review historical claw machine game sessions so that machine performance can be analyzed and future sessions optimized.",
+      "userType": "Administrator"
+    }
+  ],
+  "version": 1
+}

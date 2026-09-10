@@ -1,49 +1,85 @@
-# PAC CLI Commands — YOUR_PROJECT_NAME Portal
+# PAC CLI Commands
 
-## Authentication
+## GitHub Actions releases
 
-```powershell
-# List current auth profiles
-pac auth list
+Use [the CI/CD workflow](docs/CI_CD.md) for routine Function App and
+`restore-and-spin` releases: PR build checks, then automatic deployment after
+relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
+Local publishing commands are for explicitly requested recovery/bootstrap work.
+Other Power Platform components retain their existing PAC workflows.
 
-# Create a new auth profile (interactive login)
-pac auth create --environment "https://YOUR_ORG_URL"
-
-# Select an existing auth profile by index
-pac auth select --index 1
-```
-
-## Pages Download
+## Solution — Export
 
 ```powershell
-# Download portal files (overwrites local changes)
-# NOTE: PAC creates a subfolder named after the portal. Download into the parent folder;
-# the actual content lands in YOUR_PORTAL_SLUG\ inside it.
-pac pages download --overwrite `
-  --path "power pages\\\YOUR_PORTAL_FOLDER" `
-  --webSiteId YOUR_WEBSITE_ID `
-  --modelVersion "2" `
-  --overwrite true
+pac solution export --name CopilotIoTGame --path "solutions" -ow
 ```
 
-## Pages Upload
+## Solution — Unpack
 
 ```powershell
-# Upload portal files to Dataverse
-pac pages upload `
-  --path "power pages\\\YOUR_PORTAL_FOLDER\YOUR_PORTAL_SLUG" `
-  --modelVersion "2"
+pac solution unpack --zipfile "solutions\CopilotIoTGame.zip" --folder "solutions\CopilotIoTGame" --allowWrite
 ```
 
-## Reference
+## Solution — Pack
 
-| Parameter | Value |
-|-----------|-------|
-| Website ID | `YOUR_WEBSITE_ID` |
-| Model Version | `2` |
-| Environment | `YOUR_ORG_URL` |
-| Upload Path | `power pages\\\YOUR_PORTAL_FOLDER\YOUR_PORTAL_SLUG` |
-| Download Path | `power pages\\\YOUR_PORTAL_FOLDER` (PAC appends `YOUR_PORTAL_SLUG\` automatically) |
+```powershell
+pac solution pack -z solutions\CopilotIoTGame.zip -f solutions\CopilotIoTGame -aw
+```
 
-Upload must point to the `YOUR_PORTAL_SLUG\` subfolder — that is where the manifest lives.
-Download should target the parent folder; PAC will create/update `YOUR_PORTAL_SLUG\` inside it.
+## Solution — Import
+
+```powershell
+pac solution import --path "solutions\CopilotIoTGame.zip" -pc
+```
+
+## Power Apps Code App — Build & Push
+
+> Code Apps use `pac code push`, not `pac pages upload-code-site` (that command is for
+> Power Pages Code Sites only — see below). First-time setup on a new environment also
+> needs `pac code init` before the first push; see `power apps/<app>/README.md`.
+
+### game-box-control
+
+```powershell
+cd "power apps\game-box-control"
+npm install
+npm run build
+pac code push
+```
+
+## Power Pages Code Site — Build & Upload
+
+> `pac pages upload` / `pac pages download` are classic-portal commands — do not use them
+> on these sites, they will corrupt code-site metadata. Always use `upload-code-site`.
+
+### copilotiotgame
+
+```powershell
+cd "power pages\copilotiotgame"
+npm install
+npm run build
+pac pages upload-code-site --rootPath "."
+```
+
+### prize wheel
+
+```powershell
+cd "power pages\prize wheel"
+npm install
+npm run build
+pac pages upload-code-site --rootPath "."
+```
+
+### restore-and-spin (active CI/CD site)
+
+Routine releases use `deploy-apps.yml`. For explicit manual recovery/bootstrap:
+
+```powershell
+cd "power pages/restore-and-spin"
+npm ci
+npm run build
+pac pages upload-code-site --rootPath "."
+```
+
+Authenticate to the intended Dataverse environment first. Activate an initial
+inactive site through Power Pages, then verify the public site.

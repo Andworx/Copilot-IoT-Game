@@ -1,0 +1,207 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { DEVICE_PROFILES } from "../data/deviceProfiles";
+import type { DeviceState } from "../types/game";
+import { HelpFixBar } from "../components/HelpFixBar";
+import { WinOverlay } from "../components/WinOverlay";
+import { SuccessPopup } from "../components/SuccessPopup";
+import { DemoGearMenu } from "../components/DemoGearMenu";
+import { DialArcPanel } from "../components/layouts/DialArcPanel";
+import { KeypadPanel } from "../components/layouts/KeypadPanel";
+import { DipStripPanel } from "../components/layouts/DipStripPanel";
+import { PairedColumnsPanel } from "../components/layouts/PairedColumnsPanel";
+import { RadioClusterPanel } from "../components/layouts/RadioClusterPanel";
+import { API_BASE_URL } from "../lib/apiConfig";
+
+/**
+ * One route, one component, 11 data-driven instances — GAME_MODE_PLAN.md §6. Keyed by
+ * `deviceSlug` at the router level (see App.tsx) so React fully remounts this component on
+ * every dial change, matching the "no stale state carries over" guarantee from §4 without
+ * a hard page reload.
+ */
+export function KioskDevicePage() {
+  const { deviceSlug = "" } = useParams();
+  const navigate = useNavigate();
+  const device = DEVICE_PROFILES[deviceSlug];
+
+  const [state, setState] = useState<DeviceState>(() => ({ ...device?.fault }));
+  const [telemetryTick, setTelemetryTick] = useState(0);
+  const [claimToken, setClaimToken] = useState<string | null>(null);
+  // Null while unknown (still loading) -- default to the ON behavior (today's flow) so a
+  // slow/failed fetch never silently drops a real win into the OFF path.
+  const [gameModeEnabled, setGameModeEnabled] = useState<boolean | null>(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
+  useEffect(() => {
+    const id = setInterval(() => setTelemetryTick((t) => (t + 0.4) % 6), 400);
+    return () => clearInterval(id);
+  }, []);
+
+  // Read the Game Mode flag once per device mount -- cheap enough not to need the
+  // window-cache/de-dupe pattern used elsewhere in this project; a stale read only
+  // affects which completion UI shows, not any Dataverse write.
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API_BASE_URL}/api/kiosk-state`)
+      .then((res) => res.json())
+      .then((data: { gameModeEnabled?: boolean }) => {
+        if (!cancelled) setGameModeEnabled(data.gameModeEnabled ?? true);
+      })
+      .catch((err) => {
+        console.error("Failed to read game mode state", err);
+        if (!cancelled) setGameModeEnabled(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const win = device ? device.checkWin(state) : false;
+
+  // Game Mode ON: creates the andy_gamewin row (PRIZE_ENGINE_SPEC.md §3 step 1 --
+  // standing in for the not-yet-built Copilot Studio topic action) exactly once per
+  // win, on the false->true transition. claimToken resets to null in
+  // handleCompletionReset so a re-fix fires this again.
+  //
+  // Game Mode OFF: skips this entirely -- no andy_gamewin row, no Dataverse write at
+  // all, per the decision to leave OFF completions unlogged. Shows the success popup
+  // client-side only instead.
+  useEffect(() => {
+    if (!win || !device || gameModeEnabled === null) return;
+    if (!gameModeEnabled) {
+      setShowSuccessPopup(true);
+      return;
+    }
+    if (claimToken) return;
+    let cancelled = false;
+    fetch(`${API_BASE_URL}/api/create-win`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deviceSlug: device.slug }),
+    })
+      .then((res) => res.json())
+      .then((data: { claimToken: string }) => {
+        if (!cancelled) setClaimToken(data.claimToken);
+      })
+      .catch((err) => console.error("Failed to create game win", err));
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [win, gameModeEnabled]);
+
+  if (!device) {
+    return (
+      <div style={{ padding: 24, color: "#c8d4c8" }}>
+        Unknown device "{deviceSlug}". <button onClick={() => navigate("/kiosk/info")}>Go to info screen</button>
+      </div>
+    );
+  }
+
+  const lamps = device.computeLamps(state, win);
+
+  function handleToggle(key: string) {
+    setState((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  // Fires when the win/success overlay's own dwell timer elapses, in both Game Mode
+  // states. Clears local win state (belt-and-suspenders in case the auto-rotate below
+  // happens to re-pick this same device -- SignalR's deviceChanged dedupe would then
+  // skip re-navigating, so this component would otherwise stay stuck showing the win
+  // screen) and immediately auto-picks a new random *enabled* mode server-side; the
+  // resulting deviceChanged broadcast is what actually moves the kiosk on, via the
+  // existing useDeviceSync listener at the app root -- no local navigation call needed.
+  function handleCompletionReset() {
+    setState({ ...device.fault });
+    setClaimToken(null);
+    setShowSuccessPopup(false);
+    fetch(`${API_BASE_URL}/api/pick-random-mode`, { method: "POST" }).catch((err) =>
+      console.error("Failed to pick a random mode", err)
+    );
+  }
+
+  return (
+    <div className="kiosk-screen" data-skin={device.slug}>
+      <div className={`motif motif-${device.slug}`} />
+      {device.slug === "coldchain-sensor" && (
+        <>
+          <div className="chrome-crosshair tl" />
+          <div className="chrome-crosshair br" />
+        </>
+      )}
+      {device.slug === "water-pump" && <div className="chrome-hazard" />}
+      {device.slug === "field-radio" && (
+        <>
+          <div className="chrome-rivet tl" />
+          <div className="chrome-rivet tr" />
+          <div className="chrome-rivet bl" />
+          <div className="chrome-rivet br" />
+        </>
+      )}
+
+      <div className="status-bar">
+        <span>
+          <span className="live-dot" />
+          PANEL LINK: CONNECTED
+        </span>
+        <span>LAST UPDATE {telemetryTick.toFixed(1)}s AGO</span>
+      </div>
+
+      <div className="kiosk-header">
+        <div>
+          <span className="sector-tag">{device.sector}</span>
+          <h2>{device.label}</h2>
+        </div>
+        <span className="position-badge">DIAL {device.dialPosition} / 12</span>
+      </div>
+
+      <div className="fault-line" data-mode={win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: win ? device.okText : device.faultText }} />
+
+      <div className="panel-body">
+        {device.layout === "dial-arc" && (
+          <DialArcPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} />
+        )}
+        {device.layout === "keypad" && (
+          <KeypadPanel device={device} state={state} lampColors={lamps} win={win} onToggle={handleToggle} />
+        )}
+        {device.layout === "dip-strip" && (
+          <DipStripPanel device={device} state={state} lampColors={lamps} win={win} onToggle={handleToggle} />
+        )}
+        {device.layout === "paired-columns" && (
+          <PairedColumnsPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} />
+        )}
+        {device.layout === "radio-cluster" && (
+          <RadioClusterPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} />
+        )}
+      </div>
+
+      <HelpFixBar isAlert={!win} steps={device.steps} />
+
+      <div className="telemetry-strip">
+        <span>
+          PANEL_LINK: <span className="live">CONNECTED</span>
+        </span>
+        <span>UNIT: game-panel-01</span>
+      </div>
+
+      {win && gameModeEnabled && claimToken && (
+        <WinOverlay
+          winMessage={device.winMessage}
+          restoreItems={device.restoreItems}
+          claimToken={claimToken}
+          onReset={handleCompletionReset}
+        />
+      )}
+
+      {win && gameModeEnabled === false && showSuccessPopup && (
+        <SuccessPopup
+          winMessage={device.winMessage}
+          restoreItems={device.restoreItems}
+          onReset={handleCompletionReset}
+        />
+      )}
+
+      <DemoGearMenu currentSlug={device.slug} />
+    </div>
+  );
+}

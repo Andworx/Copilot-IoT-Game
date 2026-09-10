@@ -5,27 +5,10 @@
 > and then do a global find-and-replace across the repo using the mapping in
 > the table, replacing the placeholder token with your actual value.
 >
-> For the canonical first-run onboarding journey, prompt order, and validation
-> rules, see `requirements/onboarding-input-contract.md`.
-
-## Quickstart Onboarding Entry
-
-Use this flow first when you create a new repository from the template:
-
-```powershell
-.\scripts\Start-Onboarding.ps1 -Environment dev
-.\scripts\Validate-DeploymentSetup.ps1 -Environment dev
-.\scripts\Test-OnboardingCompletion.ps1 -Environment dev
-```
-
-If `Test-OnboardingCompletion.ps1` reports incomplete, use the remediation commands printed by the script, then re-run the same three commands above.
-
-### Choosing a configuration mode
-
-- **local-only**: keep values in local repo files and `.env`.
-- **github-hosted**: keep local values and also mirror approved values into GitHub repository variables/secrets for automation scenarios.
-
-Use `README.md` for the full decision matrix and troubleshooting paths.
+Power Platform deployment uses the PAC CLI documented in `PAC_COMMANDS.md`.
+Power Pages Code Sites and Power Apps Code Apps are built locally and uploaded
+directly to the authenticated environment; no onboarding script or completion
+gate is required.
 
 ## Token Reference
 

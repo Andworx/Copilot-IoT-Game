@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{77df893b-04dc-4496-b85b-136c34511e49}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{6C387CAB-8E66-463E-AEDE-E0CEE16ABED8}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{1FBABD9A-AFB0-422A-8865-1A38004A7032}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{BB0BF8F4-374C-43D5-A541-390FE1B86A6F}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="andy_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_Name" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{4b245c84-a47a-4688-a246-91f8d5e038a7}">
+                        <labels>
+                          <label description="Active Device Profile" languagecode="1033" />
+                        </labels>
+                        <control id="andy_activedeviceprofile" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_activedeviceprofile" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{6fe17421-43d8-4602-97c4-e518d566bf26}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Game Mode Enabled" languagecode="1033" />
+                        </labels>
+                        <control id="andy_gamemodeenabled" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="andy_gamemodeenabled" disabled="false" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{efd9393e-a629-4c4e-85e4-a85dc6fd971c}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{83824ffd-0e61-4fd3-bd54-19ddd057c71b}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{a0e64fc3-e3ec-40c5-acfa-9246d4748442}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{890fd9f2-8602-4614-8a46-db00aafc486a}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{01CF0C51-4451-49E7-ADF8-BA7F2E67C478}" colspan="1" rowspan="1">
+              <labels>
+                <label description="Owner" languagecode="1033" />
+              </labels>
+              <control id="header_ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+            </cell>
+            <cell id="{536d4d25-0c87-4c78-8925-e5daa10bffa7}" locklevel="0" colspan="1" rowspan="1">
+              <labels>
+                <label description="Name" languagecode="1033" />
+              </labels>
+              <control id="header_andy_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="andy_name" disabled="false" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{1cae8321-bd55-4351-8411-ec4088d113c0}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{5f7dc515-0338-48c9-b160-11997ea2e989}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{57811bfe-92c5-4828-8b44-7c8fd64851ed}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{847caf91-328d-4943-9266-410cd633ba86}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

@@ -1,0 +1,21 @@
+{
+  "slug": "elevator",
+  "label": "Elevator Control Panel",
+  "dialPosition": 8,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "doorsensorreset", "label": "Door Sensor Reset" },
+    { "physicalPin": "SW3", "key": "floorcalloverride", "label": "Floor Call Override" },
+    { "physicalPin": "SW4", "key": "emergencyphonetest", "label": "Emergency Phone Test" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "ready", "label": "Ready", "when": "power and not floorcalloverride" },
+    { "physicalPin": "LED2", "key": "doorfault", "label": "Door Fault", "when": "not doorsensorreset" },
+    { "physicalPin": "LED3", "key": "inservice", "label": "In Service", "when": "win" },
+    { "physicalPin": "LED4", "key": "alarm", "label": "Alarm", "when": "not win" }
+  ],
+  "win": "power and doorsensorreset and not floorcalloverride",
+  "faultStartingState": { "power": true, "doorsensorreset": false, "floorcalloverride": true, "emergencyphonetest": false },
+  "winMessage": "Elevator back in service."
+}

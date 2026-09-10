@@ -1,0 +1,32 @@
+{
+  "status": "PASS - CAD-only; physical fit and wire bend test required",
+  "part": "tray_L_RP03",
+  "bounds_mm": [
+    145.3,
+    214.0,
+    2.0
+  ],
+  "connected_bodies": 1,
+  "closed_edges": true,
+  "converter_centers_xy_mm": [
+    [
+      -126.0,
+      -66.0
+    ],
+    [
+      -88.0,
+      -73.5
+    ],
+    [
+      -58.0,
+      -70.5
+    ]
+  ],
+  "converter_stagger_mm": 7.5,
+  "power_drop_slots_mm": [
+    12,
+    7
+  ],
+  "power_drop_slot_count": 3,
+  "unchanged_parts_source": "model-rp08-source:3d Models/apache case/full-build-RP02/exports"
+}

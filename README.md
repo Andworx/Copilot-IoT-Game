@@ -2,6 +2,14 @@
 
 Reusable baseline for Power Platform projects built with Dataverse, Power Automate, power pages, Copilot Studio, and Power BI.
 
+## GitHub Actions releases
+
+Use [the CI/CD workflow](docs/CI_CD.md) for routine Function App and
+`restore-and-spin` releases: PR build checks, then automatic deployment after
+relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
+Local publishing commands are for explicitly requested recovery/bootstrap work.
+Other Power Platform components retain their existing PAC workflows.
+
 ## What's Included
 
 | Area | Contents |
@@ -18,66 +26,10 @@ Reusable baseline for Power Platform projects built with Dataverse, Power Automa
 | **.github/instructions** | Copilot coding agent instructions for every layer of the stack |
 | **Claude Code** | `CLAUDE.md` hierarchy + `.claude/commands/` slash commands for Claude Code users |
 
-## First-Run Onboarding Quickstart
+## Deployment Quickstart
 
-This is the fastest supported path for a new repository copy of the template.
-
-1. On GitHub, click **"Use this template"**, create your new repository, then clone it locally.
-2. In VS Code, open the repo and accept the recommended workspace extensions prompt.
-3. Run guided onboarding:
-   `.\scripts\Start-Onboarding.ps1 -Environment dev`
-4. Run setup validation:
-   `.\scripts\Validate-DeploymentSetup.ps1 -Environment dev`
-5. Confirm onboarding completion (used by coding guardrails):
-   `.\scripts\Test-OnboardingCompletion.ps1 -Environment dev`
-6. Run onboarding regression checks (smoke + artifact contract + compatibility):
-   `.\scripts\Test-OnboardingRegression.ps1 -Environment dev`
-
-If step 5 reports complete, you are ready to start implementation work.
-
-### Optional Quickstart Modes
-
-```powershell
-# Preview only (no file writes)
-.\scripts\Start-Onboarding.ps1 -Environment dev -DryRun
-
-# Prerequisites check only (no onboarding prompts)
-.\scripts\Start-Onboarding.ps1 -Environment dev -PreflightOnly
-```
-
-### Configuration Mode Decision Guide
-
-Choose the mode during `Start-Onboarding.ps1` based on where you want configuration stored.
-
-| Mode | Stores values in | Best for | Trade-offs |
-|------|-------------------|----------|------------|
-| **local-only** | `project.tokens.json`, `scripts\config-*.json`, local `.env` | Individual developer setup and local testing | No automatic GitHub variable/secret mirroring |
-| **github-hosted** | Same local files **plus** approved GitHub repository variables/secrets | Team automation and CI workflows that need shared non-secret config + secret bootstrap | Requires GitHub repo access/permissions and careful variable governance |
-
-### Troubleshooting Common Onboarding Failures
-
-These are the most common failures surfaced by onboarding preflight/completion checks.
-
-| Failure | What it means | Fix |
-|---------|----------------|-----|
-| `project.tokens.json exists` fails | Onboarding files were never generated | Run `.\scripts\Start-Onboarding.ps1 -Environment dev` |
-| `config-dev.json exists` fails | Environment config file is missing | Re-run `.\scripts\Start-Onboarding.ps1 -Environment dev` |
-| `.env exists` fails | Local secret file is missing | `Copy-Item .env.example .env` then set `DATAVERSE_CLIENT_SECRET_DEV` |
-| `project.required values are stamped` fails | Required project tokens are still placeholders | Fill values in `project.tokens.json`, then run `.\scripts\Apply-ProjectTokens.ps1 -Environment dev` |
-| `config-dev.json has no YOUR_* placeholders` fails | Config still has template tokens | Run `.\scripts\Apply-ProjectTokens.ps1 -Environment dev` after filling token values |
-| `DATAVERSE_CLIENT_SECRET_DEV is set` fails | Secret key is not present in `.env` | Add `DATAVERSE_CLIENT_SECRET_DEV=<real-secret>` to `.env` |
-| `DATAVERSE_CLIENT_SECRET_DEV is not a placeholder` fails | Secret is still default placeholder text | Replace with a real client secret value |
-
-### Migration Notes (from manual setup)
-
-If you previously used the manual template setup path:
-
-1. Keep your existing workflow if needed (`PROJECT.md` + manual token/apply path is still supported).
-2. For new setups, prefer `Start-Onboarding.ps1` so prompts, validation, and defaults stay aligned with current guardrails.
-3. Validate with `Validate-DeploymentSetup.ps1` and `Test-OnboardingCompletion.ps1` instead of ad-hoc checks.
-4. Use `requirements/onboarding-input-contract.md` for canonical input definitions and validation rules.
-
-### After Onboarding
+Authenticate PAC CLI with the target environment, then build and upload the
+Power Pages Code Site and Power Apps Code App using `PAC_COMMANDS.md`.
 
 1. Rename `scripts/Deploy-Project.ps1` if desired (`Deploy-{YourProject}.ps1`).
 2. Add your project-specific jobs to `Deploy-Project.ps1` (`ValidateSet` and job dispatch).

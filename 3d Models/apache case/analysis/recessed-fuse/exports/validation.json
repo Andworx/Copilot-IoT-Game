@@ -1,0 +1,110 @@
+{
+  "status": "CAD-only candidate validation, physical testing required",
+  "parts": [
+    {
+      "part": "shell_FL",
+      "bounds_mm": [
+        152.994,
+        113.77499999999999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "shell_FR",
+      "bounds_mm": [
+        152.994,
+        113.77499999999999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "shell_RL",
+      "bounds_mm": [
+        152.994,
+        115.274999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "shell_RR",
+      "bounds_mm": [
+        152.994,
+        115.274999,
+        77.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "test_FL",
+      "bounds_mm": [
+        152.994,
+        113.77499999999999,
+        15.98
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "test_RL",
+      "bounds_mm": [
+        152.994,
+        115.274999,
+        15.98
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "tray_L",
+      "bounds_mm": [
+        145.3,
+        214.0,
+        2.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "tray_R",
+      "bounds_mm": [
+        145.3,
+        214.0,
+        2.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "lower_joiner",
+      "bounds_mm": [
+        12.0,
+        32.0,
+        2.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    },
+    {
+      "part": "tray_joiner",
+      "bounds_mm": [
+        50.0,
+        14.0,
+        4.0
+      ],
+      "connected_bodies": 1,
+      "closed_edges": true
+    }
+  ],
+  "fuse_top_mm": 46,
+  "panel_underside_mm": 72,
+  "vertical_gap_mm": 26,
+  "screen_pi_hard_x_gap_mm": 6.5,
+  "lower_joiner_to_tray_gap_mm": 7.5
+}

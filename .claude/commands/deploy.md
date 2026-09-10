@@ -2,36 +2,38 @@
 
 Guide the user through deploying Power Platform components to the target environment.
 
+## Function App and Power Pages
+
+For `azure/` and `power pages/restore-and-spin/`, follow `docs/CI_CD.md`.
+Run both local builds and use a PR to `main`; relevant merged changes trigger
+`.github/workflows/deploy-apps.yml`. For a requested redeploy of current main:
+
+```powershell
+gh workflow run deploy-apps.yml --ref main
+gh run list --workflow deploy-apps.yml --limit 5
+gh run watch <run-id> --exit-status
+```
+
+Inspect the run and report its URL/SHA. Validate the live kiosk/API before marking
+plan items Done. Do not run local cloud publishing unless explicitly asked for
+recovery/bootstrap. If configuration is missing, use the exact settings in
+`docs/CI_CD.md`; never print secrets. PRs and non-main dispatches do not deploy.
+
+## Other components or explicitly requested manual recovery
+
+The following steps apply to Power Apps/solutions and manual recovery/bootstrap.
+
 ## Steps
 
-1. **Confirm environment** — ask which environment to deploy to (dev / test / prod) if not provided as `$ARGUMENTS`
-
-2. **Check prerequisites**
-   - Verify `scripts/config-{env}.json` exists (ask user to copy from `config-{env}.example.json` if missing)
-   - Verify the `DATAVERSE_CLIENT_SECRET_*` environment variable is set for the target environment
-   - Check `.\scripts\Validate-DeploymentSetup.ps1` can be run
-
-3. **Run validation**
-   ```powershell
-   .\scripts\Validate-DeploymentSetup.ps1 -Environment <env>
-   ```
-   Report any failures and help the user resolve them before proceeding.
-
-4. **Select deployment jobs**
-   Show the user which `Deploy-Project.ps1` jobs are available and confirm which to run.
-
-5. **Run deployment**
-   ```powershell
-   .\scripts\Deploy-Project.ps1 -Environment <env> -Job <JobName>
-   ```
-   Use `-DryRun` first if the user wants to preview.
-
-6. **Post-deployment**
-   - Set related plan items in `requirements/PLAN.md` to `⬜ Verify`
-   - Remind the user to perform post-deployment validation before marking items `✅ Done`
+1. **Confirm environment** — ask which environment to deploy to (dev / test / prod) if not provided as `$ARGUMENTS`.
+2. **Confirm PAC authentication** — run `pac auth list` and select or create the profile for the target environment.
+3. **Select the PAC workflow**:
+   - Power Pages Code Site: build in `power pages\restore-and-spin`, then run `pac pages upload-code-site --rootPath "."`.
+   - Power Apps Code App: build in `power apps\game-box-control`, then run `pac code push`.
+4. **Run the relevant build and upload commands** from `PAC_COMMANDS.md`.
+5. **Post-deployment** — activate the Power Pages site on its first deployment if needed, then validate both apps against the target environment.
 
 ## Notes
 
-- Always use `-DryRun` to preview before first real run in a new environment
-- Secrets go in environment variables, never in config files
-- See `scripts/DEPLOYMENT_GUIDE.md` for full reference
+- Do not use the obsolete onboarding or deployment-validation scripts.
+- See `PAC_COMMANDS.md` for the complete PAC CLI reference.

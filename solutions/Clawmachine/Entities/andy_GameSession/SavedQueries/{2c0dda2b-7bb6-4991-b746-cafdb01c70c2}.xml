@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{2c0dda2b-7bb6-4991-b746-cafdb01c70c2}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_sessionname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_gamesessionid">
+          <cell name="andy_sessionname" width="300" />
+          <cell name="andy_machinename" width="150" />
+          <cell name="andy_starttime" width="150" />
+          <cell name="andy_endtime" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_gamesession">
+          <attribute name="andy_gamesessionid" />
+          <attribute name="andy_sessionname" />
+          <attribute name="createdon" />
+          <order attribute="andy_sessionname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="andy_machinename" />
+          <attribute name="andy_starttime" />
+          <attribute name="andy_endtime" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Game Sessions" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

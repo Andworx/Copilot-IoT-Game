@@ -1,0 +1,383 @@
+// --- BEGIN GENERATED RUNTIME TYPES ---
+
+var andy_prizes_statecode;
+(function (andy_prizes_statecode) {
+    andy_prizes_statecode[andy_prizes_statecode["Active"] = 0] = "Active";
+    andy_prizes_statecode[andy_prizes_statecode["Inactive"] = 1] = "Inactive";
+})(andy_prizes_statecode || (andy_prizes_statecode = {}));
+var andy_prizes_statuscode;
+(function (andy_prizes_statuscode) {
+    andy_prizes_statuscode[andy_prizes_statuscode["Active"] = 1] = "Active";
+    andy_prizes_statuscode[andy_prizes_statuscode["Inactive"] = 2] = "Inactive";
+})(andy_prizes_statuscode || (andy_prizes_statuscode = {}));
+var andy_prizes_andy_prizetaken;
+(function (andy_prizes_andy_prizetaken) {
+    andy_prizes_andy_prizetaken[andy_prizes_andy_prizetaken["No"] = 0] = "No";
+    andy_prizes_andy_prizetaken[andy_prizes_andy_prizetaken["Yes"] = 1] = "Yes";
+})(andy_prizes_andy_prizetaken || (andy_prizes_andy_prizetaken = {}));
+var andy_prizetypes_statecode;
+(function (andy_prizetypes_statecode) {
+    andy_prizetypes_statecode[andy_prizetypes_statecode["Active"] = 0] = "Active";
+    andy_prizetypes_statecode[andy_prizetypes_statecode["Inactive"] = 1] = "Inactive";
+})(andy_prizetypes_statecode || (andy_prizetypes_statecode = {}));
+var andy_prizetypes_statuscode;
+(function (andy_prizetypes_statuscode) {
+    andy_prizetypes_statuscode[andy_prizetypes_statuscode["Active"] = 1] = "Active";
+    andy_prizetypes_statuscode[andy_prizetypes_statuscode["Inactive"] = 2] = "Inactive";
+})(andy_prizetypes_statuscode || (andy_prizetypes_statuscode = {}));
+var andy_prizetypes_andy_isfallback;
+(function (andy_prizetypes_andy_isfallback) {
+    andy_prizetypes_andy_isfallback[andy_prizetypes_andy_isfallback["No"] = 0] = "No";
+    andy_prizetypes_andy_isfallback[andy_prizetypes_andy_isfallback["Yes"] = 1] = "Yes";
+})(andy_prizetypes_andy_isfallback || (andy_prizetypes_andy_isfallback = {}));
+
+// --- END GENERATED RUNTIME TYPES ---
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+import React, { useCallback, useEffect, useState } from "react";
+import { Body1, Button, Card, CardHeader, Combobox, Field, MessageBar, MessageBarBody, MessageBarTitle, Option, SpinButton, Spinner, Table, TableBody, TableCell, TableCellLayout, TableHeader, TableHeaderCell, TableRow, Text, Title2, makeStyles, tokens, } from "@fluentui/react-components";
+import { AddRegular, ArrowResetRegular, GiftRegular } from "@fluentui/react-icons";
+// Module-level key aliases — VALUES live on `window` (single source of truth) so
+// they survive the host double-mount on open and stay coherent across module
+// re-evaluation. See references/data-caching.md.
+var CACHE_KEY = "__ppBulkAddPrizes_prizeTypesCache";
+var INFLIGHT_KEY = "__ppBulkAddPrizes_prizeTypesInflight";
+var winAny = window;
+var MIN_QUANTITY = 1;
+var MAX_QUANTITY = 100;
+var useStyles = makeStyles({
+    root: {
+        display: "flex",
+        flexDirection: "column",
+        gap: tokens.spacingVerticalXL,
+        padding: tokens.spacingHorizontalM,
+        maxWidth: "800px",
+        margin: "0 auto",
+        width: "100%",
+        height: "100%",
+        boxSizing: "border-box",
+        overflowY: "auto",
+        position: "relative",
+        contain: "layout",
+        "@media (max-width: 768px)": { padding: tokens.spacingHorizontalS, gap: tokens.spacingVerticalL },
+    },
+    headerRow: {
+        display: "flex",
+        alignItems: "center",
+        gap: tokens.spacingHorizontalS,
+    },
+    headerIcon: {
+        color: tokens.colorBrandForeground1,
+        fontSize: "28px",
+    },
+    formCard: {
+        display: "flex",
+        flexDirection: "column",
+        gap: tokens.spacingVerticalL,
+        padding: tokens.spacingHorizontalL,
+        "@media (max-width: 480px)": { padding: tokens.spacingHorizontalM },
+    },
+    fieldsGrid: {
+        display: "grid",
+        gridTemplateColumns: "2fr 1fr",
+        gap: tokens.spacingHorizontalL,
+        width: "100%",
+        "@media (max-width: 600px)": { gridTemplateColumns: "1fr", gap: tokens.spacingVerticalM },
+    },
+    buttonRow: {
+        display: "flex",
+        gap: tokens.spacingHorizontalM,
+        justifyContent: "flex-end",
+        alignItems: "center",
+        marginTop: tokens.spacingVerticalS,
+        "@media (max-width: 480px)": { flexDirection: "column-reverse", alignItems: "stretch" },
+    },
+    resultsCard: {
+        display: "flex",
+        flexDirection: "column",
+        gap: tokens.spacingVerticalM,
+        padding: tokens.spacingHorizontalL,
+    },
+    tableScroll: {
+        maxHeight: "320px",
+        overflowY: "auto",
+    },
+    nameCell: {
+        overflow: "hidden",
+        minWidth: 0,
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+    },
+    loadingRow: {
+        display: "flex",
+        alignItems: "center",
+        gap: tokens.spacingHorizontalS,
+    },
+});
+var GeneratedComponent = function (_a) {
+    var dataApi = _a.dataApi;
+    var styles = useStyles();
+    var dataReady = !!dataApi;
+    var _b = useState(function () {
+        var cached = winAny[CACHE_KEY];
+        return { prizeTypes: cached !== null && cached !== void 0 ? cached : [], ptLoading: cached === undefined, ptError: null };
+    }), _c = _b[0], prizeTypes = _c.prizeTypes, ptLoading = _c.ptLoading, ptError = _c.ptError, setPtData = _b[1];
+    // Combobox listbox portals to document.body by default, which in the genpage
+    // designer would escape this page's own container. Thread mountNode so the
+    // listbox stays confined to the page (see rules.md > Dialogs and Overlays).
+    var _d = useState(null), mountNode = _d[0], setMountNode = _d[1];
+    var setContainer = useCallback(function (node) { return setMountNode(node); }, []);
+    var _e = useState(""), selectedPrizeTypeId = _e[0], setSelectedPrizeTypeId = _e[1];
+    var _f = useState(""), selectedPrizeTypeName = _f[0], setSelectedPrizeTypeName = _f[1];
+    var _g = useState(MIN_QUANTITY), quantity = _g[0], setQuantity = _g[1];
+    var _h = useState(false), isSubmitting = _h[0], setIsSubmitting = _h[1];
+    var _j = useState(null), message = _j[0], setMessage = _j[1];
+    var _k = useState([]), createdPrizes = _k[0], setCreatedPrizes = _k[1];
+    var _l = useState({}), errors = _l[0], setErrors = _l[1];
+    // Load Prize Types for the picker (de-duped against the host double-mount).
+    useEffect(function () {
+        if (!dataReady)
+            return;
+        var cached = winAny[CACHE_KEY];
+        if (cached !== undefined) {
+            if (prizeTypes !== cached)
+                setPtData({ prizeTypes: cached, ptLoading: false, ptError: null });
+            return;
+        }
+        var cancelled = false;
+        var inflight = winAny[INFLIGHT_KEY];
+        if (!inflight) {
+            inflight = dataApi
+                .queryTable("andy_prizetypes", {
+                select: ["andy_prizetypesid", "andy_prizetypename"],
+                orderBy: "andy_prizetypename asc",
+                pageSize: 200,
+            })
+                .then(function (result) {
+                winAny[CACHE_KEY] = result.rows;
+                return result.rows;
+            })
+                .finally(function () {
+                if (winAny[INFLIGHT_KEY] === inflight)
+                    delete winAny[INFLIGHT_KEY];
+            });
+            winAny[INFLIGHT_KEY] = inflight;
+        }
+        inflight
+            .then(function (rows) {
+            if (!cancelled)
+                setPtData({ prizeTypes: rows, ptLoading: false, ptError: null });
+        })
+            .catch(function (err) {
+            console.error("Failed to load prize types", err);
+            if (!cancelled)
+                setPtData({ prizeTypes: [], ptLoading: false, ptError: "Unable to load prize types. Please try again." });
+        });
+        return function () {
+            cancelled = true;
+        };
+        // Readiness only — never `dataApi` (a new ref every render). See Rule 15.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dataReady]);
+    var handlePrizeTypeSelect = useCallback(function (_, data) {
+        var _a, _b;
+        setSelectedPrizeTypeId((_a = data.optionValue) !== null && _a !== void 0 ? _a : "");
+        setSelectedPrizeTypeName((_b = data.optionText) !== null && _b !== void 0 ? _b : "");
+        setErrors(function (prev) { return (__assign(__assign({}, prev), { prizeType: undefined })); });
+        setMessage(null);
+    }, []);
+    var handleQuantityChange = useCallback(function (_, data) {
+        var next = null;
+        if (typeof data.value === "number" && Number.isFinite(data.value)) {
+            next = data.value;
+        }
+        else if (data.displayValue) {
+            var parsed = parseInt(data.displayValue, 10);
+            if (!Number.isNaN(parsed))
+                next = parsed;
+        }
+        if (next !== null) {
+            setQuantity(next);
+            setErrors(function (prev) { return (__assign(__assign({}, prev), { quantity: undefined })); });
+            setMessage(null);
+        }
+    }, []);
+    var resetForm = useCallback(function () {
+        setSelectedPrizeTypeId("");
+        setSelectedPrizeTypeName("");
+        setQuantity(MIN_QUANTITY);
+        setErrors({});
+        setMessage(null);
+    }, []);
+    var handleSubmit = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var newErrors, created, createdAt, infoNote, i, prizeName, newId, err_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    newErrors = {};
+                    if (!selectedPrizeTypeId)
+                        newErrors.prizeType = "Select a prize type.";
+                    if (!Number.isInteger(quantity) || quantity < MIN_QUANTITY) {
+                        newErrors.quantity = "Enter a whole number of at least ".concat(MIN_QUANTITY, ".");
+                    }
+                    else if (quantity > MAX_QUANTITY) {
+                        newErrors.quantity = "Enter ".concat(MAX_QUANTITY, " or fewer at a time.");
+                    }
+                    if (Object.keys(newErrors).length > 0) {
+                        setErrors(newErrors);
+                        setMessage({ type: "error", text: "Please fix the highlighted fields before creating prizes." });
+                        return [2 /*return*/];
+                    }
+                    setErrors({});
+                    setIsSubmitting(true);
+                    setMessage(null);
+                    created = [];
+                    createdAt = new Date().toLocaleString();
+                    infoNote = "Bulk added on ".concat(createdAt, " via Bulk Add Prizes page");
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 6, 7, 8]);
+                    i = 1;
+                    _a.label = 2;
+                case 2:
+                    if (!(i <= quantity)) return [3 /*break*/, 5];
+                    prizeName = quantity > 1 ? "".concat(selectedPrizeTypeName, " #").concat(i) : selectedPrizeTypeName;
+                    return [4 /*yield*/, dataApi.createRow("andy_prizes", {
+                            andy_prizename: prizeName,
+                            andy_prizeinfo: infoNote,
+                            andy_prizetaken: 0,
+                            _andy_prizetype_value: "/andy_prizetypes(".concat(selectedPrizeTypeId, ")"),
+                        })];
+                case 3:
+                    newId = _a.sent();
+                    created.push({ id: newId, name: prizeName, prizeTypeName: selectedPrizeTypeName, createdAt: createdAt });
+                    _a.label = 4;
+                case 4:
+                    i++;
+                    return [3 /*break*/, 2];
+                case 5:
+                    setCreatedPrizes(function (prev) { return __spreadArray(__spreadArray([], created, true), prev, true); });
+                    setMessage({
+                        type: "success",
+                        text: "Created ".concat(quantity, " ").concat(quantity === 1 ? "prize" : "prizes", " of type \"").concat(selectedPrizeTypeName, "\"."),
+                    });
+                    setQuantity(MIN_QUANTITY);
+                    return [3 /*break*/, 8];
+                case 6:
+                    err_1 = _a.sent();
+                    console.error("Failed to create prizes", err_1);
+                    if (created.length > 0)
+                        setCreatedPrizes(function (prev) { return __spreadArray(__spreadArray([], created, true), prev, true); });
+                    setMessage({
+                        type: "error",
+                        text: created.length > 0
+                            ? "Created ".concat(created.length, " of ").concat(quantity, " prizes before an error occurred. Please try again for the remainder.")
+                            : "Unable to create prizes. Please try again.",
+                    });
+                    return [3 /*break*/, 8];
+                case 7:
+                    setIsSubmitting(false);
+                    return [7 /*endfinally*/];
+                case 8: return [2 /*return*/];
+            }
+        });
+    }); };
+    return (React.createElement("div", { className: styles.root, ref: setContainer },
+        React.createElement("div", { className: styles.headerRow },
+            React.createElement(GiftRegular, { className: styles.headerIcon, "aria-hidden": "true" }),
+            React.createElement("div", null,
+                React.createElement(Title2, { as: "h1", block: true }, "Bulk add prizes"),
+                React.createElement(Body1, { block: true }, "Pick a prize type and quantity to quickly create many prizes at once."))),
+        React.createElement(Card, { className: styles.formCard, "aria-labelledby": "bulk-add-form-title" },
+            React.createElement(CardHeader, { header: React.createElement(Text, { id: "bulk-add-form-title", weight: "semibold" }, "New prizes") }),
+            message && (React.createElement(MessageBar, { intent: message.type === "success" ? "success" : "error" },
+                React.createElement(MessageBarBody, null,
+                    React.createElement(MessageBarTitle, null, message.type === "success" ? "Success" : "Error"),
+                    message.text))),
+            ptError && (React.createElement(MessageBar, { intent: "error" },
+                React.createElement(MessageBarBody, null, ptError))),
+            React.createElement("div", { className: styles.fieldsGrid },
+                React.createElement(Field, { label: "Prize type", required: true, validationState: errors.prizeType ? "error" : "none", validationMessage: errors.prizeType },
+                    React.createElement(Combobox, { placeholder: ptLoading ? "Loading prize types..." : "Select a prize type", value: selectedPrizeTypeName, selectedOptions: selectedPrizeTypeId ? [selectedPrizeTypeId] : [], onOptionSelect: handlePrizeTypeSelect, disabled: ptLoading || isSubmitting, mountNode: mountNode, "data-field": "prizeType" }, prizeTypes.map(function (pt) { return (React.createElement(Option, { key: pt.andy_prizetypesid, value: pt.andy_prizetypesid, text: pt.andy_prizetypename }, pt.andy_prizetypename)); }))),
+                React.createElement(Field, { label: "Quantity", required: true, validationState: errors.quantity ? "error" : "none", validationMessage: errors.quantity },
+                    React.createElement(SpinButton, { min: MIN_QUANTITY, max: MAX_QUANTITY, step: 1, value: quantity, displayValue: String(quantity), onChange: handleQuantityChange, disabled: isSubmitting, "data-field": "quantity" }))),
+            React.createElement("div", { className: styles.buttonRow },
+                React.createElement(Button, { appearance: "secondary", icon: React.createElement(ArrowResetRegular, null), onClick: resetForm, disabled: isSubmitting }, "Reset"),
+                React.createElement(Button, { appearance: "primary", icon: isSubmitting ? React.createElement(Spinner, { size: "tiny" }) : React.createElement(AddRegular, null), onClick: handleSubmit, disabled: isSubmitting || ptLoading }, isSubmitting ? "Creating..." : "Create prizes"))),
+        React.createElement(Card, { className: styles.resultsCard, "aria-labelledby": "created-prizes-title" },
+            React.createElement(CardHeader, { header: React.createElement(Text, { id: "created-prizes-title", weight: "semibold" },
+                    "Created this session (",
+                    createdPrizes.length,
+                    ")") }),
+            createdPrizes.length === 0 ? (React.createElement(Body1, null, "No prizes created yet this session.")) : (React.createElement("div", { className: styles.tableScroll },
+                React.createElement(Table, { "aria-label": "Prizes created this session", size: "small" },
+                    React.createElement(TableHeader, null,
+                        React.createElement(TableRow, null,
+                            React.createElement(TableHeaderCell, null, "Prize name"),
+                            React.createElement(TableHeaderCell, null, "Prize type"),
+                            React.createElement(TableHeaderCell, null, "Created"))),
+                    React.createElement(TableBody, null, createdPrizes.map(function (prize) { return (React.createElement(TableRow, { key: prize.id },
+                        React.createElement(TableCell, null,
+                            React.createElement(TableCellLayout, { className: styles.nameCell, title: prize.name }, prize.name)),
+                        React.createElement(TableCell, null,
+                            React.createElement(TableCellLayout, { className: styles.nameCell, title: prize.prizeTypeName }, prize.prizeTypeName)),
+                        React.createElement(TableCell, null,
+                            React.createElement(TableCellLayout, null, prize.createdAt)))); }))))))));
+};
+export default GeneratedComponent;
+

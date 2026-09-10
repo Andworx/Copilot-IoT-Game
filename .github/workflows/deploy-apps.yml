@@ -1,0 +1,142 @@
+name: Build and deploy apps
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - 'azure/**'
+      - 'power pages/restore-and-spin/**'
+      - '.github/workflows/deploy-apps.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-apps-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build apps
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            azure/package-lock.json
+            power pages/restore-and-spin/package-lock.json
+      - name: Build Function App
+        working-directory: azure
+        run: |
+          npm ci
+          npm run build
+          npm prune --omit=dev
+      - name: Package Function App
+        run: |
+          mkdir -p function-package
+          cp azure/host.json azure/package.json azure/package-lock.json function-package/
+          cp -r azure/dist azure/node_modules function-package/
+          test -f function-package/dist/src/index.js
+          cd function-package
+          zip -qr ../function-app.zip .
+      - name: Build Power Pages Code Site
+        working-directory: power pages/restore-and-spin
+        env:
+          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
+        run: |
+          npm ci
+          npm run build
+          test -f dist/index.html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: function-app
+          path: function-app.zip
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: power-pages
+          path: |
+            power pages/restore-and-spin/dist/
+            power pages/restore-and-spin/powerpages.config.json
+          if-no-files-found: error
+          retention-days: 14
+
+  deploy:
+    name: Deploy production apps
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 30
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_FUNCTIONAPP_NAME: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
+      POWER_PLATFORM_ENVIRONMENT_URL: ${{ vars.POWER_PLATFORM_ENVIRONMENT_URL }}
+      POWER_PLATFORM_TENANT_ID: ${{ vars.POWER_PLATFORM_TENANT_ID }}
+      POWER_PLATFORM_CLIENT_ID: ${{ vars.POWER_PLATFORM_CLIENT_ID }}
+      POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}
+    steps:
+      - name: Validate deployment configuration
+        shell: pwsh
+        run: |
+          $required = @('AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_SUBSCRIPTION_ID', 'AZURE_FUNCTIONAPP_NAME', 'POWER_PLATFORM_ENVIRONMENT_URL', 'POWER_PLATFORM_TENANT_ID', 'POWER_PLATFORM_CLIENT_ID', 'POWER_PLATFORM_CLIENT_SECRET')
+          foreach ($name in $required) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              throw "Missing GitHub deployment setting: $name. See docs/CI_CD.md."
+            }
+          }
+      - uses: actions/download-artifact@v4
+        with:
+          name: function-app
+          path: function-artifact
+      - uses: actions/download-artifact@v4
+        with:
+          name: power-pages
+          path: power-pages-artifact
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+        with:
+          add-tools-to-path: true
+      - name: Authenticate Power Platform
+        shell: pwsh
+        run: |
+          pac auth create --name github-production --tenant "$env:POWER_PLATFORM_TENANT_ID" --applicationId "$env:POWER_PLATFORM_CLIENT_ID" --clientSecret "$env:POWER_PLATFORM_CLIENT_SECRET" --environment "$env:POWER_PLATFORM_ENVIRONMENT_URL"
+          if ($LASTEXITCODE -ne 0) { throw 'Power Platform authentication failed.' }
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Deploy Function App
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
+          package: function-artifact/function-app.zip
+          sku: flexconsumption
+      - name: Upload Power Pages Code Site
+        shell: pwsh
+        working-directory: power-pages-artifact
+        run: |
+          pac pages upload-code-site --rootPath "."
+          if ($LASTEXITCODE -ne 0) { throw 'Power Pages Code Site upload failed.' }
+      - name: Clear PAC credentials
+        if: always()
+        shell: pwsh
+        run: |
+          if (Get-Command pac -ErrorAction SilentlyContinue) {
+            pac auth clear
+            if ($LASTEXITCODE -ne 0) { throw 'PAC credential cleanup failed.' }
+          }

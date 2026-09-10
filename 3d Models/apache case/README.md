@@ -1,10 +1,19 @@
-# APACHE 3800 Parametric IoT Chassis — Fixed-Panel Architecture 2.2
+# APACHE 2800 Parametric IoT Chassis — Fixed-Panel Architecture 3.2
+
+**Current approved package: [RP08 release and print list](releases/RP08/README.md).**
+It contains the production STLs, rear drill guide, electronics-placement guide,
+previews, validation records, release notes, and SHA-256 manifest. Editable RP08
+source is preserved by the `model-rp08-source` Git tag. The rear carrier and
+paper drill guide still require the physical case dry-fit noted by the release.
 
 The consolidated engineering rationale, diagrams, calculations, validation
 gates, and current design status are in [DESIGN_DOCUMENT.md](DESIGN_DOCUMENT.md).
 All purchased, used, planned, and placeholder hardware is tracked in the
 [system bill of materials](BOM.md). The human-maintained revision record is in
-[DESIGN_CHANGELOG.md](DESIGN_CHANGELOG.md).
+[DESIGN_CHANGELOG.md](DESIGN_CHANGELOG.md). The STEP-to-production comparison
+is recorded in [analysis/FIT_ANALYSIS.md](analysis/FIT_ANALYSIS.md), and the
+MIT-licensed third-party reference model is under
+`references/apache-2800-cad-model/`.
 
 This project is a mechanically focused foundation for a portable IoT demo
 console. The current architecture uses a fixed, removable modular control deck
@@ -12,17 +21,21 @@ rather than a moving panel. The source is OpenSCAD, so every important case,
 panel, module, insert, control cutout, and print-splitting dimension is editable
 in `model_params.scad`.
 
-The default case values are placeholders based on a nominal APACHE 3800-sized
-interior. **Do not print the full chassis until every parameter marked
+The enclosure is a Harbor Freight APACHE 2800. Catalogue values are approximate;
+the production insert dimensions come from this project's physical measurements
+and fit prints. **Do not print the full chassis until every parameter marked
 `MEASURE_BEFORE_PRINT` has been checked on the actual case or purchased
 hardware.** Plastic cases vary, and the lower tray normally has draft, ribs,
 corner transitions, and local obstructions that a catalogue bounding box does
 not describe.
 
-Revision 3 uses a directly measured finished chassis footprint of
-**12-1/16 x 9-1/4 inches (306.3875 x 234.95 mm)**. This direct footprint takes
-precedence over the earlier catalogue-derived clearance calculation while
-`use_measured_outer_footprint` is true.
+Revision 5 preserves the physically passed lower footprint of
+**306.3875 x 229.45 mm**. It combines the validated 113.975 mm front span and
+115.475 mm rear span through Z = 16 mm. The full-height Rev 4 print was very
+tight, so the shell now progressively relieves 1.0 mm per width side and
+1.5 mm per depth side above Z = 16 mm. The top outline is 304.3875 x 226.45 mm
+with a 23.5 mm corner radius; verify it with the upper-clearance frame before
+reprinting all four full-height quadrants.
 
 ## What is included
 
@@ -86,18 +99,24 @@ the perimeter support ledge. Its width and depth are:
 ## Fixed modular panel
 
 Ten perimeter holes fasten the panel to inserts in the chassis top rail. Four
-module openings accept independently printable plates. The 220 x 146 mm
+module openings accept independently printable plates. The 220 x 136 mm
 display carrier is centered across the upper panel and is sized around the
 measured original official Raspberry Pi 7-inch Touch Display: 193 x 110 mm
 glass, 155 x 87 mm active area, and 35 mm total depth with the Pi 4B attached.
 It uses an overlay bezel and rear support because there are no front mounting
 holes. Three equal 90 x 74 mm modules form the lower bank: two safety-cover
-toggles; two keyed switches plus two circular rockers; and two mode sockets,
-four 5 mm LEDs, and a provisional captive-cable exit.
+toggles; two keyed switches plus two circular rockers; and four mode sockets
+paired with four 5 mm LEDs. The matching activity uses removable red, blue,
+green, and orange 152.4 mm (6 in) cables rather than one captive pull-out lead.
+Each loose cable has two plugs, permanently marked A and B. Only pin N is
+active in socket N. The initial cable map is red 1A-2B, blue 2A-3B, green
+3A-4B, and orange 4A-1B. Software scans the four protected socket channels to
+detect the resulting pairings. Four sockets support six unique pin-pair cable
+types without adding resistance coding or a second active conductor.
 
 The cutouts derive from the measured hardware in `model_params.scad`. The
 remaining production details are the screen clamp/rear fastener pattern, LED
-holders, captive-cable strain relief, control nut stacks, terminal bends, and
+holders, removable-cable storage, control nut stacks, terminal bends, and
 closed-lid height. Print thin coupons before printing complete module plates.
 
 Service access is obtained by removing the ten perimeter screws and lifting the
@@ -111,14 +130,15 @@ intended to print as one object. Use these production files:
 
 | Group | Files / quantity | Nominal maximum XY footprint |
 |---|---|---|
-| Front chassis | `chassis_front_left` + `chassis_front_right` | 153.1 x 110.0 mm each |
-| Rear chassis | `chassis_rear_left` + `chassis_rear_right` | 153.1 x 124.9 mm each |
-| Fixed control panel | `panel_left` + `panel_right` | About 148.5 x 225.6 mm each |
-| Touchscreen module | `screen_module_provisional` | 220 x 146 mm, measured screen opening |
+| Front chassis | `chassis_front_left` + `chassis_front_right` | About 153.2 x 114.0 mm each |
+| Rear chassis | `chassis_rear_left` + `chassis_rear_right` | About 153.2 x 115.5 mm each |
+| Fixed control panel | `panel_left` + `panel_right` | About 147.5 x 217.1 mm each |
+| Touchscreen module | `screen_module_provisional` | 220 x 136 mm, measured screen opening |
 | Safety-switch module | `rotary_module_provisional` | 90 x 74 mm, two safety-cover toggles |
 | Key/rocker module | `switch_module_provisional` | 90 x 74 mm, two keyed and two rocker switches |
-| Plug-mode/status module | `utility_module_provisional` | 90 x 74 mm, two sockets and four LEDs |
+| Four-cable matching module | `utility_module_provisional` | 90 x 74 mm, four sockets and four LEDs |
 | Chassis seams | `chassis_joiner_x` and `chassis_joiner_y`; print two of each | About 50 x 24 mm |
+| Upper-clearance test | `upper_fit_front/rear_left/right`; use two each of the existing FIT-X/FIT-Y pin joiners | About 152.1 x 113.5 mm each |
 
 The assertions in `model_params.scad` stop a render if a quadrant or panel half
 exceeds the configured X1 Carbon bed dimensions after parameter
@@ -172,6 +192,17 @@ Revision 3 replaces the estimated outer footprint with the measured target
 unchanged. Architecture 2.0 retires the former hinge and moving-panel mechanism
 in favor of the screw-fastened modular deck.
 
+Revision 4 promotes the physically passed 306.3875 x 229.45 mm joined-frame
+test. Its front and rear spans are 113.975 and 115.475 mm. Panel, module, split,
+and equipment-tray dimensions now derive from this production footprint.
+
+The subsequent 77 mm-high Rev 4 shell was very tight even though its low frame
+fit. Revision 5 keeps the proven bottom geometry, then tapers inward above
+16 mm and increases the top corner radius by 2 mm. Every printable assembly
+piece now carries a recessed part ID, orientation mark where applicable, and
+paired seam witness marks. Print the four `upper_fit_*.stl` parts and support
+the joined gauge at the intended top-rail height before printing the new shell.
+
 ## Printing and assembly
 
 Run `export_parts.ps1` from PowerShell to generate the STL set and four PNG
@@ -202,6 +233,23 @@ The design does not require holes through the waterproof shell. Retention can be
 by tuned friction, removable edge shims, existing case geometry, or later
 non-penetrating clamps. Confirm the chosen retention strategy after a physical
 corner/rail fit test.
+
+## Removable electronics tray
+
+The initial mounting design is in [equipment-tray](analysis/equipment-tray/README.md).
+It uses two ventilated 145.3 x 214 x 2 mm halves supported by the eight existing
+chassis seam bosses. The halves replace the former side seam joiners; two narrow
+front/rear cross-joiners tie them together using the existing center inserts.
+The result remains removable without drilling the APACHE floor. The fuse, Pi,
+and converter holes use their measured patterns. The 12 V / 15 A supply is now
+external, entering through an XT60 interface and 12 V master switch whose
+mounting details remain pending receipt and measurement.
+
+Print `analysis/equipment-tray/exports/stl/fit_coupon.stl` and one
+`tray_cross_joiner.stl` first. The tray top is 17.5 mm above the case floor.
+Removing the internal PSU eliminates the former PSU/key-switch collision and
+the 92 mm height candidate. The retained 77 mm chassis still needs a closed-lid
+witness test with the complete screen and control stack.
 
 ## Finalize before a full print
 

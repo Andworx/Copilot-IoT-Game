@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{49ec9093-0dd1-4bb9-89b0-fd57660efd7f}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{fc5157f7-0377-4675-9fe1-8c5a02e858b2}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{7cbdb9d4-4e5a-407b-b7fc-bb36eed7db83}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{f0c9eeff-9324-4fd0-b91f-9c14fdd9ffc2}">
+                        <labels>
+                          <label description="Machine Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_machinename" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_machinename" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{6f47dd9f-f0e7-496f-9cf0-417ea18603ec}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{edccb75d-1d39-4407-9ac8-391277a331ae}">
+                        <labels>
+                          <label description="Location" languagecode="1033" />
+                        </labels>
+                        <control id="andy_location" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_location" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{41063d5c-8b4a-4320-a776-b0a0c24240e0}">
+                        <labels>
+                          <label description="Status" languagecode="1033" />
+                        </labels>
+                        <control id="andy_status" classid="{3ef39988-22bb-4f0b-bbbe-64b5a3748aee}" datafieldname="andy_status" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

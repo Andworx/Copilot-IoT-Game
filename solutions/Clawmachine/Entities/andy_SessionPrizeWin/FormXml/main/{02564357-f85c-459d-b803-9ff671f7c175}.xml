@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{02564357-f85c-459d-b803-9ff671f7c175}</formid>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{b3ae98ef-68ef-405b-b374-7ec00bc70d86}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{e148479f-3d43-470d-9cd0-9b56f0c7cffa}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{b8ad987f-2f46-4b1e-a599-2857e0b82962}">
+                        <labels>
+                          <label description="Win Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_winname" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_winname" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{82c7cad6-d480-4a63-af20-8773319fe0aa}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{c473ecde-69a7-4ba2-8c27-e45ffef3cb65}">
+                        <labels>
+                          <label description="Session Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_sessionname" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_sessionname" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{6e75c68a-029c-4e13-88e8-e0f6ac5472a2}">
+                        <labels>
+                          <label description="Attendee Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_attendeename" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_attendeename" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{05fc5c4c-4c01-4049-b5de-86e429105c84}">
+                        <labels>
+                          <label description="Prize Type" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prizetype" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_prizetype" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{7f334b3b-11a4-4632-80f8-019f6e8174d3}">
+                        <labels>
+                          <label description="Prize Instance" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prizeinstance" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_prizeinstance" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b1447714-7d1b-4260-84e2-20da951ea231}">
+                        <labels>
+                          <label description="Win Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_wintime" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_wintime" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

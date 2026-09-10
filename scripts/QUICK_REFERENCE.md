@@ -12,27 +12,8 @@
 
 ## 30-Second Setup
 
-```powershell
-# Guided onboarding (recommended)
-.\scripts\Start-Onboarding.ps1 -Environment dev
-
-# Preview only
-.\scripts\Start-Onboarding.ps1 -Environment dev -DryRun
-
-# Strict hosted preflight (when GitHub-hosted onboarding is in scope)
-.\scripts\Start-Onboarding.ps1 -Environment dev -ConfigurationMode github-hosted -GitHubRepository YOUR_ORG_NAME/YOUR_PROJECT_ID -PreflightOnly
-
-# Validate the completed setup
-.\scripts\Validate-DeploymentSetup.ps1 -Environment dev
-
-# Check onboarding completion signal used by coding guardrails
-.\scripts\Test-OnboardingCompletion.ps1 -Environment dev
-
-# Run onboarding regression checks (smoke + artifact contract + compatibility)
-.\scripts\Test-OnboardingRegression.ps1 -Environment dev
-```
-
-During onboarding, choose **local-only** to keep configuration in repo files and `.env`, or **github-hosted** to also mirror approved values into GitHub repository variables/secrets.
+Power Pages and Power Apps code assets use PAC CLI directly. Authenticate with
+`pac auth list` / `pac auth create`, then follow `PAC_COMMANDS.md`.
 
 ## Common Commands
 
@@ -62,10 +43,6 @@ During onboarding, choose **local-only** to keep configuration in repo files and
 .\scripts\Deploy-Project.ps1 -Job Import-Tables -Environment dev
 .\scripts\Deploy-Project.ps1 -Job Import-Relationships -Environment dev
 .\scripts\Deploy-Project.ps1 -Job Import-Flows -Environment dev
-
-# Validate setup
-.\scripts\Validate-DeploymentSetup.ps1 -Environment dev
-.\scripts\Validate-DeploymentSetup.ps1 -Environment dev -TestConnection
 
 # Production (requires YES confirmation)
 .\scripts\Deploy-Project.ps1 -Job Export-All -Environment prod
@@ -191,20 +168,15 @@ To add more files or sources, edit `scripts/remote-content.sources.json`.
 
 Each run generates an HTML report that auto-opens in your browser.
 
-## power pages (PAC CLI)
+## power pages (Code Site — restore-and-spin)
 
 ```powershell
-# Download
-pac pages download --overwrite \
-  --path "power pages\\\YOUR_PORTAL_FOLDER" \
-  --webSiteId YOUR_WEBSITE_ID \
-  --modelVersion "2"
-
-# Upload
-pac pages upload \
-  --path "power pages\\\YOUR_PORTAL_FOLDER\YOUR_PORTAL_SLUG" \
-  --modelVersion "2"
+cd "power pages\restore-and-spin"
+npm run build
+pac pages upload-code-site --rootPath "."
 ```
+
+Not the classic `pac pages upload`/`pac pages download` — see `PAC_COMMANDS.md`.
 
 ## Flow Import Modes
 

@@ -2,12 +2,53 @@
 
 These instructions apply to everything under `3d Models/`.
 
+## Canonical location and version folders
+
+- Work in C:\Code Projects\Copilot-IoT-Game\3d Models, not the older OneDrive
+  equipment-tray worktree.
+- Before edits, run Save-ModelVersion.ps1 with a descriptive before-change tag.
+  After creating or updating files and validating them, run it again with an
+  after-change tag. Every new release batch must have a version folder.
+- Export scripts snapshot automatically before and after exports. Keep those
+  hooks in new exporters too. Never overwrite archived versions.
+- Read VERSIONING.md for manifest, storage, and print-approval semantics.
+
+## Modeling version and release workflow
+
+- Follow `MODELING_GIT_PLAN.md` and `MODELING_MIGRATION_DRY_RUN.md` for all
+  Apache-case version, release, and repository-structure work.
+- Treat top-level `3d Models/versions/` only as the ignored local safety-snapshot
+  archive. It is not the tracked modeling workspace.
+- Perform new tracked modeling work only in
+  `apache case/versions/RPNN` on a dedicated `modeling/rpNN-*` branch. Recover
+  the starting source from the preceding release's source tag (for example,
+  recover `model-rp08-source` to begin RP09); do not use curated release meshes
+  as editable source.
+- Keep uncertain fit work and physical coupons under `apache case/calibration/`.
+  Record the physical result before promoting candidate dimensions.
+- Before release, export every affected production part and pass mesh,
+  build-volume, clearance, inheritance, guide, and required physical-fit gates.
+- Tag the final editable source commit as `model-rpNN-source` before removing the
+  tracked working-version folder.
+- Publish approved artifacts under `apache case/releases/RPNN`. A release is a
+  curated package of production meshes, guides, previews, validation, release
+  notes, and a manifest containing the source tag and SHA-256 checksums. Do not
+  copy working source, exporters, intermediate coupons, or logs into a release.
+- Update `apache case/releases/current.json` during promotion and tag the release
+  commit as `model-rpNN`.
+- Never modify an existing release folder after promotion. Any later geometry
+  change starts the next RP version, even when the change is small.
+- RP08 is the current release. Do not create RP09 until an actual production
+  geometry change begins. The legacy `full-build-RP*` working copies were
+  removed after RP08 parity validation; recover historical editable source from
+  `model-rp08-source` or older Git history rather than recreating those folders.
+
 ## Purpose and authoritative files
 
 - This directory owns the physical APACHE-case chassis for the portable
   Copilot-IoT-Game demonstration system.
 - Treat `apache case/model_params.scad` as the authoritative production
-  dimensions and `apache case/apache_3800_chassis.scad` as the
+  dimensions and `apache case/apache_2800_chassis.scad` as the
   authoritative production geometry.
 - Fit-test directories are calibration tools, not production geometry. Do not
   copy a candidate measurement into the production model until the user

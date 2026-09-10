@@ -1,36 +1,21 @@
 # YOUR_PROJECT_NAME — Deployment Guide
 
+## GitHub Actions releases
+
+Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App and
+`restore-and-spin` releases: PR build checks, then automatic deployment after
+relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
+Local publishing commands are for explicitly requested recovery/bootstrap work.
+Other Power Platform components retain their existing PAC workflows.
+
 ## Prerequisites
 
-- **PowerShell 5.1+** (Windows PowerShell or PowerShell 7+)
-- **Azure AD App Registration** with Dataverse API permissions (`user_impersonation`)
-- **Client Secret** for the app registration
-- **PAC CLI** installed for power pages (separate from these scripts)
+- **PAC CLI** installed and authenticated to the target environment
 
-## Quickstart (Recommended)
+## Quickstart
 
-Use the guided onboarding path first, then validate:
-
-```powershell
-# Run from repo root
-.\scripts\Start-Onboarding.ps1 -Environment dev
-.\scripts\Validate-DeploymentSetup.ps1 -Environment dev
-.\scripts\Test-OnboardingCompletion.ps1 -Environment dev
-.\scripts\Test-OnboardingRegression.ps1 -Environment dev
-```
-
-### Optional onboarding modes
-
-```powershell
-# Preview only (no file writes)
-.\scripts\Start-Onboarding.ps1 -Environment dev -DryRun
-
-# Prerequisite checks only
-.\scripts\Start-Onboarding.ps1 -Environment dev -PreflightOnly
-
-# Strict GitHub-hosted prerequisite checks (auth, scope, repo access)
-.\scripts\Start-Onboarding.ps1 -Environment dev -ConfigurationMode github-hosted -GitHubRepository YOUR_ORG_NAME/YOUR_PROJECT_ID -PreflightOnly
-```
+For Power Pages Code Site and Power Apps Code App builds and uploads, use the
+PAC CLI commands in `PAC_COMMANDS.md`.
 
 ### Run CI-safe table definition preflight
 
@@ -40,53 +25,11 @@ Use the guided onboarding path first, then validate:
 
 This validates `tables/**/definition.json` files (excluding `choices` and `relationships`) without making Dataverse API calls.
 
-### Test connectivity
-
-```powershell
-.\scripts\Validate-DeploymentSetup.ps1 -Environment dev -TestConnection
-```
-
-### Confirm onboarding completion signal
-
-```powershell
-.\scripts\Test-OnboardingCompletion.ps1 -Environment dev
-```
-
-### Run onboarding regression checks
-
-```powershell
-.\scripts\Test-OnboardingRegression.ps1 -Environment dev
-```
-
-This script is CI/local-safe and verifies:
-- repeatable happy-path onboarding smoke (`Start-Onboarding.ps1` dry-run)
-- generated onboarding artifact contract fields/format
-- backward compatibility for existing onboarding workflow entry points
-
-Maintenance checklist: `scripts/ONBOARDING_MAINTENANCE_CHECKLIST.md`
-
 ### Run your first export
 
 ```powershell
 .\scripts\Deploy-Project.ps1 -Job Export-Tables -Environment dev
 ```
-
-## Manual setup fallback (legacy path)
-
-Use this only if you intentionally need the manual flow instead of guided onboarding.
-
-```powershell
-# Create local secret file
-Copy-Item .env.example .env
-# Edit .env and set DATAVERSE_CLIENT_SECRET_DEV
-
-# Generate and stamp tokens/config values
-.\scripts\Apply-ProjectTokens.ps1 -Environment dev
-```
-
-> **Security:** Never commit `.env` to source control. It is in `.gitignore`.
-
----
 
 ## Environment Configuration
 
@@ -109,7 +52,7 @@ Each environment has a `config-{name}.json` file. See `config-dev.example.json` 
 1. Copy `config-dev.json` → `config-prod.json`
 2. Change `environmentUrl` to the production URL
 3. Add `DATAVERSE_CLIENT_SECRET_PROD=<secret>` to `.env`
-4. Run: `.\scripts\Validate-DeploymentSetup.ps1 -Environment prod`
+4. Authenticate PAC CLI to the production environment with `pac auth create`.
 
 ### Secrets Lookup Chain
 
@@ -236,10 +179,8 @@ Deploy-Project.ps1              ← Master orchestrator (entry point)
 ├── Import-EmailTemplates.ps1   ← Managed email templates
 ├── Import-Relationships.ps1    ← Cross-table relationships
 ├── Import-Flows.ps1            ← Cloud flow definitions
-├── Test-OnboardingCompletion.ps1 ← Deterministic onboarding-completion checker
-├── Test-OnboardingRegression.ps1 ← Onboarding smoke + contract + compatibility regression checks
 ├── Validate-TableDefinitions.ps1  ← CI-safe table schema preflight
-└── Validate-DeploymentSetup.ps1  ← Pre-flight checks
+└── Sync-BaselineUpdate.ps1       ← Baseline template synchronization
 ```
 
 ---
@@ -256,19 +197,16 @@ Deploy-Project.ps1              ← Master orchestrator (entry point)
 
 ---
 
-## power pages (PAC CLI v2)
+## power pages (Code Site)
+
+`power pages/restore-and-spin` is a Power Pages **Code Site** (React + Vite SPA) — it
+deploys with `pac pages upload-code-site`, not the classic `pac pages upload`/
+`pac pages download`:
 
 ```powershell
-# Download portal files
-pac pages download --overwrite \
-  --path "power pages\\\YOUR_PORTAL_FOLDER" \
-  --webSiteId YOUR_WEBSITE_ID \
-  --modelVersion "2"
-
-# Upload portal files
-pac pages upload \
-  --path "power pages\\\YOUR_PORTAL_FOLDER\YOUR_PORTAL_SLUG" \
-  --modelVersion "2"
+cd "power pages\restore-and-spin"
+npm run build
+pac pages upload-code-site --rootPath "."
 ```
 
-See `PAC_COMMANDS.md` for the full reference.
+See `PAC_COMMANDS.md` for the full reference, including first-deploy activation.

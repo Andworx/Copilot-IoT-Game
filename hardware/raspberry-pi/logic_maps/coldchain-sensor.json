@@ -1,0 +1,21 @@
+{
+  "slug": "coldchain-sensor",
+  "label": "Cold-Chain Warehouse Sensor",
+  "dialPosition": 4,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "calibration", "label": "Calibration" },
+    { "physicalPin": "SW3", "key": "threshold", "label": "Alert Threshold" },
+    { "physicalPin": "SW4", "key": "cloudsync", "label": "Cloud Sync" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "inrange", "label": "In-Range", "when": "power and calibration" },
+    { "physicalPin": "LED2", "key": "alerthigh", "label": "Alert-High", "when": "power and not calibration" },
+    { "physicalPin": "LED3", "key": "alertlow", "label": "Alert-Low", "when": "not win" },
+    { "physicalPin": "LED4", "key": "link", "label": "Link Status", "when": "cloudsync" }
+  ],
+  "win": "power and calibration and cloudsync",
+  "faultStartingState": { "power": true, "calibration": false, "threshold": true, "cloudsync": false },
+  "winMessage": "Cold storage is stable and monitoring is back online."
+}

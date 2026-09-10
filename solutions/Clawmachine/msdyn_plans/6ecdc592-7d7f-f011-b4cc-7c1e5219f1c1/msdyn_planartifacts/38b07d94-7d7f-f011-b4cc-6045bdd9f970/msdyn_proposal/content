@@ -1,0 +1,20 @@
+{
+  "name": "Spinner",
+  "description": "Enable real-time interaction with prize data through integrated SignalR technology in the Spinner feature. Deliver dynamic engagement and instant updates, providing business users with immediate access to current information for improved decision-making and user experience.",
+  "typesOfUsers": [
+    "Booth Attendee"
+  ],
+  "tableSchemaNames": [
+    "andy_Prize",
+    "andy_SessionPrizeWin",
+    "andy_BoothAttendee"
+  ],
+  "userStories": [
+    {
+      "id": "us05",
+      "description": "Access live prize availability data so that immediate decisions can be made on what prize I won",
+      "userType": "Booth Attendee"
+    }
+  ],
+  "version": 1
+}

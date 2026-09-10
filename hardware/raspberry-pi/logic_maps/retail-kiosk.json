@@ -1,0 +1,21 @@
+{
+  "slug": "retail-kiosk",
+  "label": "Retail Payment Kiosk",
+  "dialPosition": 11,
+  "isGameDevice": true,
+  "switches": [
+    { "physicalPin": "SW1", "key": "power", "label": "Power" },
+    { "physicalPin": "SW2", "key": "cardreaderreset", "label": "Card Reader Reset" },
+    { "physicalPin": "SW3", "key": "printerfeed", "label": "Printer Feed" },
+    { "physicalPin": "SW4", "key": "networksync", "label": "Network Sync" }
+  ],
+  "lamps": [
+    { "physicalPin": "LED1", "key": "ready", "label": "Ready", "when": "win" },
+    { "physicalPin": "LED2", "key": "readeroffline", "label": "Reader Offline", "when": "not cardreaderreset" },
+    { "physicalPin": "LED3", "key": "printerjam", "label": "Printer Jam", "when": "printerfeed" },
+    { "physicalPin": "LED4", "key": "synced", "label": "Synced", "when": "networksync" }
+  ],
+  "win": "power and cardreaderreset and networksync",
+  "faultStartingState": { "power": true, "cardreaderreset": false, "printerfeed": true, "networksync": false },
+  "winMessage": "Payment kiosk back online and processing."
+}
