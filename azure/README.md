@@ -1,4 +1,4 @@
-# Restore & Spin — Azure Functions
+# Copilot IoT Game — Azure Functions
 
 Backend for mode selection: the Power App control device calls `POST /api/set-mode`, which
 writes `andy_gameboxstate` and broadcasts the change over SignalR; the kiosk SPA calls
@@ -57,14 +57,15 @@ via `az functionapp config appsettings set`. Runtime is Node 22 on Flex Consumpt
 the Node version note under Prerequisites before ever trying Node 24 again.
 
 **CORS:** `az functionapp cors add --allowed-origins <origin>` per origin that needs to call
-these endpoints from a browser (no wildcard). `http://localhost:5173` (the
-`restore-and-spin` dev server) is allowed today; add the real production URL once that site
-is deployed.
+these endpoints from a browser (no wildcard). `http://localhost:5173` (the kiosk Code
+Site's dev server — `power pages/copilotiotgame`, formerly `restore-and-spin`) is allowed
+today; add the real production URL once that site is deployed.
 
 **Confirmed working end to end (2026-09-08):** `GET /api/kiosk-state` returns real
-Dataverse data, and a live browser tab running `restore-and-spin` navigated automatically
-in response to an external `POST /api/set-mode` call, via the SignalR broadcast — no
-reload, no polling. See `power pages/restore-and-spin/README.md`.
+Dataverse data, and a live browser tab running the kiosk Code Site (`restore-and-spin` at
+the time, since superseded by `copilotiotgame`) navigated automatically in response to an
+external `POST /api/set-mode` call, via the SignalR broadcast — no reload, no polling. See
+`power pages/copilotiotgame/README.md`.
 
 ## Local setup
 
@@ -94,7 +95,7 @@ curl -X POST http://localhost:7071/api/set-mode \
 ## GitHub Actions releases
 
 Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App and
-`restore-and-spin` releases: PR build checks, then automatic deployment after
+`copilotiotgame` releases: PR build checks, then automatic deployment after
 relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
 Local publishing commands are for explicitly requested recovery/bootstrap work.
 Other Power Platform components retain their existing PAC workflows.

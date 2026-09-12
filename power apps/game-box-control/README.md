@@ -1,15 +1,16 @@
 # Game Box Control
 
-Staff control device for the `restore-and-spin` kiosk — a **Power Apps Code App**, not a
+Staff control device for the `copilotiotgame` kiosk — a **Power Apps Code App**, not a
 Canvas app (chosen for a normal React/Vite dev loop instead of the low-code designer; see
 `power pages/docs/GAME_MODE_PLAN.md` §4a for why a control app exists at all instead of a
 physical dial). Picking a tile calls `POST /api/set-mode` on the `azure/` Function App,
 which writes `andy_gameboxstate` and broadcasts the change to every open kiosk screen over
 SignalR.
 
-**Confirmed working end to end, 2026-09-08:** with both this app and `restore-and-spin`
-open in separate browser tabs, clicking "Smart Lock & Security Panel" here moved the kiosk
-tab from `/kiosk/info` to `/kiosk/smart-lock` live, no reload.
+**Confirmed working end to end, 2026-09-08:** with both this app and the kiosk Code Site
+(`restore-and-spin` at the time, since superseded by `copilotiotgame`) open in separate
+browser tabs, clicking "Smart Lock & Security Panel" here moved the kiosk tab from
+`/kiosk/info` to `/kiosk/smart-lock` live, no reload.
 
 Also owns a master "Game Mode" switch, per-tile device enable/disable, and a Prize
 Management section that bulk-creates `andy_Prizes` rows (`POST /api/bulk-create-prizes`)
@@ -22,7 +23,7 @@ there too, as a redundant alternate entry point.
 Near-zero build time for what's really a 12-tile picker, but the real reason: Power Apps
 gives Code Apps **Microsoft Entra ID sign-in for free** — staff sign in with their real org
 account to even open it, no PIN system to build or manage, and it's genuine per-user auth
-rather than a shared secret. `DemoGearMenu.tsx` in `restore-and-spin` stays a dev-only
+rather than a shared secret. `DemoGearMenu.tsx` in `copilotiotgame` stays a dev-only
 shortcut, never the production control surface.
 
 ## Local development
@@ -33,7 +34,7 @@ cp .env.example .env.local   # fill in VITE_SET_MODE_FUNCTION_KEY (az functionap
 npm run dev
 ```
 
-Runs on port 5174 (5173 is `restore-and-spin`'s, so both can run side by side). Needs
+Runs on port 5174 (5173 is `copilotiotgame`'s, so both can run side by side). Needs
 `http://localhost:5174` in the Function App's CORS allowed origins
 (`az functionapp cors add` — already added for this dev port).
 

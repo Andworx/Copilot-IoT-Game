@@ -14,14 +14,14 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 5 | 1 | 0 | 0 | 6 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 6 | 0 | 1 | 0 | 7 |
-| Power Pages | 5 | 0 | 0 | 0 | 5 |
+| Power Pages | 5 | 1 | 0 | 0 | 6 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 1 | 0 | 1 | 1 | 3 |
 | Integration (Azure Functions) | 3 | 2 | 0 | 0 | 5 |
 | Power Apps | 2 | 2 | 0 | 0 | 4 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 22 | 5 | 5 | 2 | 34 |
+| Totals | 22 | 6 | 5 | 2 | 35 |
 
 ## Dataverse
 
@@ -55,6 +55,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `restore-and-spin`: all 11 device pages + content | Code Site content | ✅ Done | GAME_MODE_PLAN.md §11, Phase 7 |
 | `restore-and-spin`: root `SignalRContext` + `useDeviceSync` — fetch current state on load, navigate on `deviceChanged` | Code Site — SPA change | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2c — confirmed 2026-09-08: a live tab moved from `/kiosk/info` to `/kiosk/smart-lock` via an external `set-mode` call, no reload |
 | `copilotiotgame`: Game Mode OFF branch on `KioskDevicePage` + new `SuccessPopup` component; auto-rotate to a random enabled mode via `pick-random-mode` after every completion (both Game Mode states) | Code Site — SPA change (`power pages/copilotiotgame`) | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09) — Game Mode ON keeps today's QR/phone-spin/claim flow unchanged; OFF skips `create-win` entirely (no `andy_gamewin` row, per decision to leave OFF completions unlogged) and shows a client-only success popup instead; both states call `POST /api/pick-random-mode` on completion instead of resetting to the same device. Built clean and deployed via `pac pages upload-code-site` |
+| Retire `restore-and-spin`; repoint `deploy-apps.yml` to build/deploy `copilotiotgame` | Code Site — CI/CD fix | ⬜ Verify | 2026-09-12 — `deploy-apps.yml` had never been repointed after `copilotiotgame` replaced `restore-and-spin` (2026-09-10), so every merge touching the old app's path re-deployed it over the live `CopilotIoTGame` site, silently reverting Game Mode support and the real QR to the old no-Game-Mode/fake-QR prototype. Fixed the workflow, deleted `power pages/restore-and-spin/`, updated docs/instructions referencing it. Verify: after the next deploy, confirm the live site actually serves `copilotiotgame`'s bundle and both Game Mode states behave correctly against the real backend |
 
 ## Plugins
 

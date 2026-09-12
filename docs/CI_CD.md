@@ -1,7 +1,7 @@
 # GitHub Actions deployment
 
 `.github/workflows/deploy-apps.yml` is the release workflow for `azure/`,
-`power apps/game-box-control/`, and `power pages/restore-and-spin/` (site name
+`power apps/game-box-control/`, and `power pages/copilotiotgame/` (site name
 `CopilotIoTGame`). Other site folders, Dataverse solutions, flows, hardware, and
 infrastructure are outside this workflow.
 
@@ -140,8 +140,8 @@ npm --prefix azure ci
 npm --prefix azure run build
 npm --prefix "power apps/game-box-control" ci
 npm --prefix "power apps/game-box-control" run build
-npm --prefix "power pages/restore-and-spin" ci
-npm --prefix "power pages/restore-and-spin" run build
+npm --prefix "power pages/copilotiotgame" ci
+npm --prefix "power pages/copilotiotgame" run build
 
 # Redeploy current main when requested (also available via Actions > Run workflow).
 gh workflow run deploy-apps.yml --ref main

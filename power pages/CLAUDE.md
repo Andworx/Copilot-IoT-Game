@@ -1,13 +1,16 @@
 # Power Pages Conventions (Code Site)
 
-Applies to `power pages/restore-and-spin` — a **Power Pages Code Site** (React 19 + Vite
+Applies to `power pages/copilotiotgame` — a **Power Pages Code Site** (React 19 + Vite
 SPA), not a classic Liquid portal. There is no `web-pages/`, `web-templates/`, or Liquid
-content in this project; all UI is React components under `restore-and-spin/src/`.
+content in this project; all UI is React components under `copilotiotgame/src/`.
+`power pages/restore-and-spin` was the original prototype for this site and has been
+retired (no Game Mode support, a fake placeholder QR) — everything it did has a superseding
+implementation in `copilotiotgame` and the standalone `power pages/prize wheel` app.
 
 ## GitHub Actions releases
 
 Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App and
-`restore-and-spin` releases: PR build checks, then automatic deployment after
+`copilotiotgame` releases: PR build checks, then automatic deployment after
 relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
 Local publishing commands are for explicitly requested recovery/bootstrap work.
 Other Power Platform components retain their existing PAC workflows.
@@ -17,14 +20,14 @@ Other Power Platform components retain their existing PAC workflows.
 - Full command reference: `PAC_COMMANDS.md` at the repo root
 - Always build (`npm run build`) before uploading
 - Upload with `pac pages upload-code-site --rootPath "."`, run from inside
-  `power pages/restore-and-spin` — **never** `pac pages upload`, which targets classic
+  `power pages/copilotiotgame` — **never** `pac pages upload`, which targets classic
   portal-studio sites and will corrupt code site metadata
-- Site name and build-output path live in `restore-and-spin/powerpages.config.json`, not
+- Site name and build-output path live in `copilotiotgame/powerpages.config.json`, not
   passed as CLI flags
 
 ## App structure
 
-See `restore-and-spin/README.md` for the full breakdown. Briefly:
+See `copilotiotgame/README.md` for the full breakdown. Briefly:
 
 - `src/App.tsx` — routes: `/kiosk/info`, `/kiosk/:deviceSlug`, `/play-spin`
 - `src/data/deviceProfiles.ts` — the 11 devices (content spec: `docs/GAME_MODE_PLAN.md` /

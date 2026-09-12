@@ -5,4 +5,4 @@
  */
 export const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
-  "https://func-aw-azcom-copilot-iot-game.azurewebsites.net";
+  "https://func-aw-azcom-iot-game.azurewebsites.net";

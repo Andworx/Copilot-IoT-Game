@@ -199,12 +199,12 @@ Deploy-Project.ps1              ← Master orchestrator (entry point)
 
 ## power pages (Code Site)
 
-`power pages/restore-and-spin` is a Power Pages **Code Site** (React + Vite SPA) — it
+`power pages/copilotiotgame` is a Power Pages **Code Site** (React + Vite SPA) — it
 deploys with `pac pages upload-code-site`, not the classic `pac pages upload`/
 `pac pages download`:
 
 ```powershell
-cd "power pages\restore-and-spin"
+cd "power pages\copilotiotgame"
 npm run build
 pac pages upload-code-site --rootPath "."
 ```

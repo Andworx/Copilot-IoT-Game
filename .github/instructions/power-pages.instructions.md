@@ -1,17 +1,22 @@
 ---
-description: "Use when editing power pages files — the Restore & Spin Code Site (React + Vite SPA) under power pages/restore-and-spin, or its design docs. Covers PAC CLI code-site deployment and app conventions. This is NOT a classic Liquid portal — there is no web-templates/, web-pages/, or website.yml here."
+description: "Use when editing power pages files — the Copilot IoT Game Code Site (React + Vite SPA) under power pages/copilotiotgame, or its design docs. Covers PAC CLI code-site deployment and app conventions. This is NOT a classic Liquid portal — there is no web-templates/, web-pages/, or website.yml here."
 applyTo: "power pages/**"
 ---
 # power pages Conventions (Power Pages Code Site)
 
-`power pages/restore-and-spin` is a **Power Pages Code Site** — a React 19 + Vite SPA, not
+`power pages/copilotiotgame` is a **Power Pages Code Site** — a React 19 + Vite SPA, not
 a classic Liquid portal. Do not introduce Liquid templates, `.webpage.yml`, or
 `web-templates/`-style files here; there is no such structure in this project.
+`power pages/restore-and-spin` was the original prototype for this site and has been
+retired — everything it did (kiosk device pages, Game Mode, the win QR, the phone-facing
+spin flow) has a superseding implementation in `copilotiotgame` (and the standalone
+`power pages/prize wheel` app for the spin flow). Do not resurrect it or treat it as a
+reference implementation.
 
 ## GitHub Actions releases
 
 Use [the CI/CD workflow](../../docs/CI_CD.md) for routine Function App and
-`restore-and-spin` releases: PR build checks, then automatic deployment after
+`copilotiotgame` releases: PR build checks, then automatic deployment after
 relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
 Local publishing commands are for explicitly requested recovery/bootstrap work.
 Other Power Platform components retain their existing PAC workflows.
@@ -19,11 +24,11 @@ Other Power Platform components retain their existing PAC workflows.
 ## Deployment (PAC CLI)
 
 - Full reference: `PAC_COMMANDS.md` at the repo root
-- Build first: `npm run build` from inside `power pages/restore-and-spin`
+- Build first: `npm run build` from inside `power pages/copilotiotgame`
 - Upload: `pac pages upload-code-site --rootPath "."`, run from that same folder
 - **Never** use `pac pages upload` or `pac pages download` on this site — those target
   classic portal-studio sites and will corrupt code-site metadata
-- Site name and build-output path are in `restore-and-spin/powerpages.config.json`, not
+- Site name and build-output path are in `copilotiotgame/powerpages.config.json`, not
   passed as CLI flags
 
 ## App conventions
@@ -53,8 +58,7 @@ Read before making non-trivial changes under `power pages/`. Active references l
 - `power pages/docs/archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md` — current live prize
   schema (`andy_PrizeTypes`/`andy_Prizes`) and migration history; the current source of
   truth for prize data, superseding `PRIZE_ENGINE_SPEC.md`'s original single-table design
-- `power pages/restore-and-spin/README.md` — what's stubbed and where the real wiring goes
-  (Copilot Studio integration, the real prize-claim endpoint, dial-driven navigation)
+- `power pages/copilotiotgame/README.md` — routes, Game Mode behavior, and what's stubbed
 
 ## Table Permissions
 
