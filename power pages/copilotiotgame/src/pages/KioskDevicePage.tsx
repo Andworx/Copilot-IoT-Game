@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { DEVICE_PROFILES } from "../data/deviceProfiles";
 import type { DeviceState } from "../types/game";
@@ -29,6 +29,12 @@ export function KioskDevicePage() {
   const [state, setState] = useState<DeviceState>(() => ({ ...device?.fault }));
   const [telemetryTick, setTelemetryTick] = useState(0);
   const [claimToken, setClaimToken] = useState<string | null>(null);
+  // Guards create-win re-entry synchronously -- `claimToken` state alone isn't enough
+  // because it only updates once the fetch resolves. If gameModeEnabled flips (now live
+  // via SignalR, see below) more than once while a create-win call is still in flight,
+  // checking claimToken would let a second call start before the first has set it,
+  // producing a fresh claimToken/QR each time and making the win screen flicker.
+  const createWinRequestedRef = useRef(false);
   // Null while unknown (still loading) -- default to the ON behavior (today's flow) so a
   // slow/failed fetch never silently drops a real win into the OFF path.
   const [gameModeEnabled, setGameModeEnabled] = useState<boolean | null>(null);
@@ -87,7 +93,8 @@ export function KioskDevicePage() {
       setShowSuccessPopup(true);
       return;
     }
-    if (claimToken) return;
+    if (createWinRequestedRef.current) return;
+    createWinRequestedRef.current = true;
     let cancelled = false;
     fetch(`${API_BASE_URL}/api/create-win`, {
       method: "POST",
@@ -98,7 +105,10 @@ export function KioskDevicePage() {
       .then((data: { claimToken: string }) => {
         if (!cancelled) setClaimToken(data.claimToken);
       })
-      .catch((err) => console.error("Failed to create game win", err));
+      .catch((err) => {
+        console.error("Failed to create game win", err);
+        if (!cancelled) createWinRequestedRef.current = false;
+      });
     return () => {
       cancelled = true;
     };
@@ -129,6 +139,7 @@ export function KioskDevicePage() {
   function handleCompletionReset() {
     setState({ ...device.fault });
     setClaimToken(null);
+    createWinRequestedRef.current = false;
     setShowSuccessPopup(false);
     fetch(`${API_BASE_URL}/api/pick-random-mode`, { method: "POST" }).catch((err) =>
       console.error("Failed to pick a random mode", err)
