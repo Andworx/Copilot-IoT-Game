@@ -3,7 +3,7 @@
 ## GitHub Actions releases
 
 Use [the CI/CD workflow](docs/CI_CD.md) for routine Function App and
-`restore-and-spin` releases: PR build checks, then automatic deployment after
+`copilotiotgame` releases: PR build checks, then automatic deployment after
 relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
 Local publishing commands are for explicitly requested recovery/bootstrap work.
 Other Power Platform components retain their existing PAC workflows.
@@ -52,7 +52,9 @@ pac code push
 > `pac pages upload` / `pac pages download` are classic-portal commands — do not use them
 > on these sites, they will corrupt code-site metadata. Always use `upload-code-site`.
 
-### copilotiotgame
+### copilotiotgame (active CI/CD site)
+
+Routine releases use `deploy-apps.yml`. For explicit manual recovery/bootstrap:
 
 ```powershell
 cd "power pages\copilotiotgame"
@@ -66,17 +68,6 @@ pac pages upload-code-site --rootPath "."
 ```powershell
 cd "power pages\prize wheel"
 npm install
-npm run build
-pac pages upload-code-site --rootPath "."
-```
-
-### restore-and-spin (active CI/CD site)
-
-Routine releases use `deploy-apps.yml`. For explicit manual recovery/bootstrap:
-
-```powershell
-cd "power pages/restore-and-spin"
-npm ci
 npm run build
 pac pages upload-code-site --rootPath "."
 ```

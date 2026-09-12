@@ -72,7 +72,7 @@ instructions: |
   ## Function App and Power Pages CI/CD
 
   - Follow `docs/CI_CD.md`; `.github/workflows/deploy-apps.yml` is authoritative.
-  - Build `azure` and `power pages/restore-and-spin` with `npm ci` and `npm run build`.
+  - Build `azure` and `power pages/copilotiotgame` with `npm ci` and `npm run build`.
   - Use a PR to main. PRs build only; relevant main pushes deploy both apps through production.
   - For a requested redeploy: `gh workflow run deploy-apps.yml --ref main`; inspect the run.
   - Do not use local Function/PAC publishing unless explicitly asked for recovery/bootstrap.

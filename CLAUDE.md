@@ -41,10 +41,10 @@ independent of which mechanism actually created the table.
 
 ## PAC CLI
 
-`power pages/restore-and-spin` is a **Power Pages Code Site** (React + Vite SPA), not a
+`power pages/copilotiotgame` is a **Power Pages Code Site** (React + Vite SPA), not a
 classic Liquid portal — it uses a different PAC CLI command family entirely:
 
-- Build first: `npm run build` (from inside `power pages/restore-and-spin`)
+- Build first: `npm run build` (from inside `power pages/copilotiotgame`)
 - Upload: `pac pages upload-code-site --rootPath "."` (run from inside that folder — reads `powerpages.config.json` for the site name and build output path)
 - **Never** use `pac pages upload` / `pac pages download` on it — those target classic portal-studio sites and will corrupt code site metadata
 - First deploy to a new environment also needs: `pac pages activate --webSiteId <WEBSITE_GUID>`
@@ -56,7 +56,7 @@ classic Liquid portal — it uses a different PAC CLI command family entirely:
 YOUR_PROJECT_ID/
 ├── automations/         # Non-flow automation assets
 │   └── emails/          # Managed email templates (templates.json + HTML body files)
-├── power pages/         # Power Pages Code Site (React + Vite SPA) — see restore-and-spin/
+├── power pages/         # Power Pages Code Site (React + Vite SPA) — see copilotiotgame/
 ├── scripts/             # PowerShell deployment & export scripts
 ├── tables/              # Dataverse table definitions (JSON)
 │   ├── choices/         # Global option sets

@@ -168,10 +168,10 @@ To add more files or sources, edit `scripts/remote-content.sources.json`.
 
 Each run generates an HTML report that auto-opens in your browser.
 
-## power pages (Code Site — restore-and-spin)
+## power pages (Code Site — copilotiotgame)
 
 ```powershell
-cd "power pages\restore-and-spin"
+cd "power pages\copilotiotgame"
 npm run build
 pac pages upload-code-site --rootPath "."
 ```

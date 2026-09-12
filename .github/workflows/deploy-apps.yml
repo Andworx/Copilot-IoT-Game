@@ -8,7 +8,7 @@ on:
     paths:
       - 'azure/**'
       - 'power apps/game-box-control/**'
-      - 'power pages/restore-and-spin/**'
+      - 'power pages/copilotiotgame/**'
       - '.github/workflows/deploy-apps.yml'
   workflow_dispatch:
 
@@ -33,7 +33,7 @@ jobs:
           cache-dependency-path: |
             azure/package-lock.json
             power apps/game-box-control/package-lock.json
-            power pages/restore-and-spin/package-lock.json
+            power pages/copilotiotgame/package-lock.json
       - name: Build Function App
         working-directory: azure
         run: |
@@ -49,7 +49,7 @@ jobs:
           cd function-package
           zip -qr ../function-app.zip .
       - name: Build Power Pages Code Site
-        working-directory: power pages/restore-and-spin
+        working-directory: power pages/copilotiotgame
         env:
           VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
         run: |
@@ -74,8 +74,8 @@ jobs:
         with:
           name: power-pages
           path: |
-            power pages/restore-and-spin/dist/
-            power pages/restore-and-spin/powerpages.config.json
+            power pages/copilotiotgame/dist/
+            power pages/copilotiotgame/powerpages.config.json
           if-no-files-found: error
           retention-days: 14
 

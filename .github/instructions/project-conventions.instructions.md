@@ -11,12 +11,12 @@ description: "Use when working on YOUR_PROJECT_NAME — general conventions for 
 
 ## PAC CLI
 
-`power pages/restore-and-spin` is a **Power Pages Code Site** (React + Vite SPA), not a
+`power pages/copilotiotgame` is a **Power Pages Code Site** (React + Vite SPA), not a
 classic Liquid portal — it uses `pac pages upload-code-site`, not `pac pages upload`/
 `pac pages download`:
 
 ```powershell
-cd "power pages\restore-and-spin"
+cd "power pages\copilotiotgame"
 npm run build
 pac pages upload-code-site --rootPath "."
 ```

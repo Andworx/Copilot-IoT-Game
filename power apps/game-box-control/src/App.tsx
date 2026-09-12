@@ -23,10 +23,10 @@ interface KioskState {
 const DEMO_INFO_KEY = "__demo-info__";
 
 /**
- * Staff control device for the Restore & Spin kiosk (GAME_MODE_PLAN.md §4a).
+ * Staff control device for the Copilot IoT Game kiosk (GAME_MODE_PLAN.md §4a).
  * Picking a tile here calls POST /api/set-mode, which writes
  * andy_gameboxstate and broadcasts the change to every open kiosk screen
- * over SignalR -- confirmed live 2026-09-08, see power pages/restore-and-spin.
+ * over SignalR -- confirmed live 2026-09-08, see power pages/copilotiotgame.
  *
  * Also owns two mode controls added for the Prize Engine consolidation work:
  * - A per-tile enable/disable toggle (andy_deviceprofile.andy_isenabled) --

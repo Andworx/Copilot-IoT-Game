@@ -5,7 +5,7 @@ Reusable baseline for Power Platform projects built with Dataverse, Power Automa
 ## GitHub Actions releases
 
 Use [the CI/CD workflow](docs/CI_CD.md) for routine Function App and
-`restore-and-spin` releases: PR build checks, then automatic deployment after
+`copilotiotgame` releases: PR build checks, then automatic deployment after
 relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
 Local publishing commands are for explicitly requested recovery/bootstrap work.
 Other Power Platform components retain their existing PAC workflows.
