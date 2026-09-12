@@ -112,6 +112,23 @@ inactive site in Power Pages and configure table permissions in its admin UI.
 Subsequent uploads update the active site. Verify `powerpages.config.json` before
 a release; changing its site name can target a different site.
 
+Code Apps also enforce the target environment's Content Security Policy. When a
+frontend calls the Function App directly, add the production Function App origin
+to the environment's Code App `connect-src` allowlist in the Power Platform
+admin center:
+
+```text
+https://func-aw-azcom-iot-game.azurewebsites.net
+```
+
+This is separate from the GitHub Actions `AZURE_FUNCTIONAPP_NAME` variable and
+cannot be configured by `pac code push`. If the allowlist still contains only
+the retired `func-aw-azcom-copilot-iot-game.azurewebsites.net` origin, the
+browser blocks requests before they reach Azure Functions, even though the
+Function App and its CORS settings are healthy. After changing the policy,
+reload the Code App and verify `/api/prize-types`, `/api/device-profiles`, and
+`/api/kiosk-state` in the browser network panel.
+
 ## Copilot, Claude, and Codex procedure
 
 All three assistants use the same workflow, not separate deployment mechanisms.
