@@ -6,6 +6,7 @@ import { HelpFixBar } from "../components/HelpFixBar";
 import { WinOverlay } from "../components/WinOverlay";
 import { SuccessPopup } from "../components/SuccessPopup";
 import { DemoGearMenu } from "../components/DemoGearMenu";
+import { useSignalR } from "../context/SignalRContext";
 import { DialArcPanel } from "../components/layouts/DialArcPanel";
 import { KeypadPanel } from "../components/layouts/KeypadPanel";
 import { DipStripPanel } from "../components/layouts/DipStripPanel";
@@ -22,6 +23,7 @@ import { API_BASE_URL } from "../lib/apiConfig";
 export function KioskDevicePage() {
   const { deviceSlug = "" } = useParams();
   const navigate = useNavigate();
+  const { connection } = useSignalR();
   const device = DEVICE_PROFILES[deviceSlug];
 
   const [state, setState] = useState<DeviceState>(() => ({ ...device?.fault }));
@@ -37,9 +39,11 @@ export function KioskDevicePage() {
     return () => clearInterval(id);
   }, []);
 
-  // Read the Game Mode flag once per device mount -- cheap enough not to need the
-  // window-cache/de-dupe pattern used elsewhere in this project; a stale read only
-  // affects which completion UI shows, not any Dataverse write.
+  // Read the Game Mode flag once per device mount, then stay live via the
+  // gameModeChanged SignalR broadcast (set-game-mode's counterpart to set-mode's
+  // deviceChanged) -- without this listener, toggling Game Mode while the kiosk sits on
+  // the same device had no visible effect until the device happened to rotate and
+  // remount the page, since the initial fetch was never re-run otherwise.
   useEffect(() => {
     let cancelled = false;
     fetch(`${API_BASE_URL}/api/kiosk-state`)
@@ -55,6 +59,17 @@ export function KioskDevicePage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!connection) return;
+    const handler = (payload: { gameModeEnabled: boolean }) => {
+      setGameModeEnabled(payload.gameModeEnabled);
+    };
+    connection.on("gameModeChanged", handler);
+    return () => {
+      connection.off("gameModeChanged", handler);
+    };
+  }, [connection]);
 
   const win = device ? device.checkWin(state) : false;
 

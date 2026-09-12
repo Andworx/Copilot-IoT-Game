@@ -1,4 +1,4 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, output, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getGameBoxState, setGameModeEnabled } from "../lib/dataverse";
 
 interface SetGameModeRequestBody {
@@ -15,8 +15,21 @@ interface SetGameModeRequestBody {
  * flow exactly. Either way, the kiosk auto-picks a new random enabled mode afterward via
  * pick-random-mode -- that behavior doesn't depend on this flag.
  *
+ * Broadcasts gameModeChanged over the same gamebox SignalR hub as set-mode's
+ * deviceChanged, so an already-open kiosk tab picks up the new value immediately instead
+ * of only on its next device-change remount (KioskDevicePage.tsx used to read this flag
+ * once per mount with no live update -- toggling it mid-session on a kiosk sitting on the
+ * same device had no visible effect until the device happened to rotate).
+ *
  * Function-key gated, same posture as set-mode/toggle-device.
  */
+const signalROutput = output.generic({
+  type: "signalR",
+  name: "signalRMessages",
+  hubName: "gamebox",
+  connectionStringSetting: "AzureSignalRConnectionString",
+});
+
 export async function setGameMode(
   request: HttpRequest,
   context: InvocationContext
@@ -35,6 +48,12 @@ export async function setGameMode(
   try {
     const current = await getGameBoxState();
     await setGameModeEnabled(current.id, body.gameModeEnabled);
+
+    context.extraOutputs.set(signalROutput, {
+      target: "gameModeChanged",
+      arguments: [{ gameModeEnabled: body.gameModeEnabled }],
+    });
+
     return { jsonBody: { gameModeEnabled: body.gameModeEnabled } };
   } catch (error) {
     context.error("set-game-mode failed", error);
@@ -46,5 +65,6 @@ app.http("set-game-mode", {
   route: "set-game-mode",
   methods: ["POST"],
   authLevel: "function",
+  extraOutputs: [signalROutput],
   handler: setGameMode,
 });
