@@ -1,18 +1,19 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { countAvailablePrizes } from "../lib/dataverse";
+import { countAllPrizes, countAvailablePrizes } from "../lib/dataverse";
 
 /**
- * GET /api/prize-count -- total untaken andy_Prizes rows, for Game Box Control's
- * at-a-glance "prizes remaining" stat. Anonymous, same posture as prize-types/prizes:
- * a bare count isn't sensitive, only the write (bulk-create-prizes) needs a function key.
+ * GET /api/prize-count -- andy_Prizes stock counts for Game Box Control's Prize
+ * Management screen: `total` (every row ever created) and `available` (still
+ * untaken). Anonymous, same posture as prize-types/prizes: a bare count isn't
+ * sensitive, only the write (bulk-create-prizes) needs a function key.
  */
 export async function prizeCount(
   _request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const available = await countAvailablePrizes();
-    return { jsonBody: { available } };
+    const [total, available] = await Promise.all([countAllPrizes(), countAvailablePrizes()]);
+    return { jsonBody: { total, available } };
   } catch (error) {
     context.error("prize-count failed", error);
     return { status: 500, jsonBody: { error: "Failed to count prizes" } };

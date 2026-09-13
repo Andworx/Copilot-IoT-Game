@@ -314,6 +314,16 @@ export async function countAvailablePrizes(): Promise<number> {
   return body["@odata.count"] ?? 0;
 }
 
+/** Count of every andy_Prizes row regardless of taken status -- the total size of
+ * the prize pool ever created, shown alongside countAvailablePrizes() on the Prize
+ * Management screen so staff can see both "still up for grabs" and "created total"
+ * at a glance. Same cheap $count=true/$top=1 pattern, no filter. */
+export async function countAllPrizes(): Promise<number> {
+  const response = await dataverseFetch(`${PRIZES_SET}?$select=andy_prizesid&$count=true&$top=1`);
+  const body = (await response.json()) as { "@odata.count"?: number };
+  return body["@odata.count"] ?? 0;
+}
+
 /** Creates `quantity` andy_Prizes instance rows bound to one andy_PrizeTypes row, for
  * Game Box Control's bulk-create action (mirrors the Bulk Add Prizes genpage's
  * per-row naming/info note, power apps/bulk-add-prizes/bulk-add-prizes.tsx). */
