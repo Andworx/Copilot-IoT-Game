@@ -37,6 +37,8 @@ const DEMO_INFO_KEY = "__demo-info__";
  *   device completion and show a simple success popup instead (no
  *   andy_gamewin row created). ON restores today's flow exactly.
  */
+type Screen = "controls" | "prizes";
+
 export default function App() {
   const [profiles, setProfiles] = useState<DeviceProfile[]>([]);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
@@ -46,6 +48,10 @@ export default function App() {
   const [settingKey, setSettingKey] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [gameModeBusy, setGameModeBusy] = useState(false);
+  const [screen, setScreen] = useState<Screen>("controls");
+  // null while unknown (still loading) or on a failed fetch -- rendered as "—" rather
+  // than a misleading 0, since 0 is a real, alarm-worthy state (empty prize pool).
+  const [prizeCount, setPrizeCount] = useState<number | null>(null);
 
   const loadState = useCallback(async () => {
     setError(null);
@@ -67,9 +73,25 @@ export default function App() {
     }
   }, []);
 
+  // Separate from loadState (and from PrizeManagement's own loading) so it can be
+  // re-run on its own -- on mount, and again whenever the staff member returns from
+  // the Prize Management screen, without re-fetching device profiles/kiosk state too.
+  const loadPrizeCount = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/prize-count`);
+      if (!res.ok) throw new Error(`prize-count failed: ${res.status}`);
+      const body = (await res.json()) as { available: number };
+      setPrizeCount(body.available);
+    } catch (err) {
+      console.error("Failed to load prize count", err);
+      setPrizeCount(null);
+    }
+  }, []);
+
   useEffect(() => {
     loadState();
-  }, [loadState]);
+    loadPrizeCount();
+  }, [loadState, loadPrizeCount]);
 
   async function setMode(deviceProfileId: string | null, deviceSlug: string | null, deviceName: string | null) {
     setSettingKey(deviceSlug ?? DEMO_INFO_KEY);
@@ -127,6 +149,32 @@ export default function App() {
     }
   }
 
+  if (screen === "prizes") {
+    return (
+      <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem", maxWidth: 720, margin: "0 auto" }}>
+        <button
+          onClick={() => {
+            setScreen("controls");
+            loadPrizeCount();
+          }}
+          style={{
+            border: "none",
+            background: "none",
+            color: "#2563eb",
+            fontWeight: 600,
+            cursor: "pointer",
+            padding: 0,
+            marginBottom: "1rem",
+          }}
+        >
+          ← Back to controls
+        </button>
+        <h1 style={{ marginBottom: "0.25rem" }}>Prize Management</h1>
+        <PrizeManagement />
+      </main>
+    );
+  }
+
   return (
     <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem", maxWidth: 720, margin: "0 auto" }}>
       <h1 style={{ marginBottom: "0.25rem" }}>Game Box Control</h1>
@@ -176,7 +224,40 @@ export default function App() {
         </button>
       </div>
 
-      <PrizeManagement />
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "1rem",
+          padding: "1rem",
+          borderRadius: 8,
+          border: "1px solid #d1d5db",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <div>
+          <div style={{ fontWeight: 600 }}>
+            Prizes remaining: {prizeCount === null ? "—" : prizeCount}
+          </div>
+          <div style={{ fontSize: "0.85rem", color: "#555" }}>Untaken prize instances in Dataverse.</div>
+        </div>
+        <button
+          onClick={() => setScreen("prizes")}
+          style={{
+            padding: "0.6rem 1.2rem",
+            borderRadius: 6,
+            border: "1px solid #2563eb",
+            fontWeight: 600,
+            color: "#2563eb",
+            background: "#fff",
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Manage Prizes
+        </button>
+      </div>
 
       {error && (
         <p style={{ background: "#fdecea", color: "#611a15", padding: "0.75rem 1rem", borderRadius: 6 }}>

@@ -301,6 +301,19 @@ export async function listAllPrizeTypes(): Promise<Array<{ id: string; name: str
   return body.value.map((row) => ({ id: row.andy_prizetypesid, name: row.andy_prizetypename }));
 }
 
+/** Count of untaken andy_Prizes rows still available to be claimed -- for Game Box
+ * Control's at-a-glance stock indicator. Uses $count=true with $top=1 rather than
+ * fetching every row: Dataverse returns the total-matching-rows count in the
+ * "@odata.count" annotation regardless of how many rows are actually returned, so
+ * this stays cheap even once the prize pool grows into the hundreds. */
+export async function countAvailablePrizes(): Promise<number> {
+  const response = await dataverseFetch(
+    `${PRIZES_SET}?$select=andy_prizesid&$filter=andy_prizetaken eq false&$count=true&$top=1`
+  );
+  const body = (await response.json()) as { "@odata.count"?: number };
+  return body["@odata.count"] ?? 0;
+}
+
 /** Creates `quantity` andy_Prizes instance rows bound to one andy_PrizeTypes row, for
  * Game Box Control's bulk-create action (mirrors the Bulk Add Prizes genpage's
  * per-row naming/info note, power apps/bulk-add-prizes/bulk-add-prizes.tsx). */

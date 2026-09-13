@@ -10,3 +10,4 @@ import "./functions/setGameMode";
 import "./functions/pickRandomMode";
 import "./functions/prizeTypes";
 import "./functions/bulkCreatePrizes";
+import "./functions/prizeCount";
