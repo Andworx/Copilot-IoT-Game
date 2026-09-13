@@ -184,13 +184,25 @@ jobs:
         run: |
           # pac just updated power-pages-artifact/.powerpages-site/ in place (new record
           # IDs for anything it created, refreshed checksums for anything it updated).
-          # That copy is thrown away when the runner exits -- copy it back over the
-          # repo's checked-in copy and open a PR if anything actually changed, so the
-          # next deploy still knows about every record instead of running blind again
-          # the way it did before this manifest was included in the deploy artifact at
-          # all (see PR #26). Only touches .powerpages-site/, which is excluded from
-          # this workflow's push trigger below, so merging the PR won't cause another
-          # deploy.
+          # That copy is thrown away when the runner exits -- mirror it back over the
+          # repo's checked-in copy and push straight to main if anything actually
+          # changed, so the next deploy still knows about every record instead of
+          # running blind again the way it did before this manifest was included in
+          # the deploy artifact at all (see PR #26). Only touches .powerpages-site/,
+          # which is excluded from this workflow's push trigger above, so this commit
+          # won't trigger another deploy.
+          #
+          # NOTE: this pushes directly to main rather than opening a PR because this
+          # org disables "Allow GitHub Actions to create and approve pull requests" --
+          # gh pr create fails with GraphQL: createPullRequest not permitted. main has
+          # no branch protection on this plan, so a direct push is the simplest safe
+          # option for this manifest-only, non-redeploying change.
+          #
+          # Mirror (not merge) the destination so renamed/removed manifest entries
+          # don't linger: Copy-Item -Recurse into an *existing* directory nests the
+          # source folder inside it (.powerpages-site/.powerpages-site/...), so the
+          # destination must be removed first.
+          Remove-Item -Path "power pages/copilotiotgame/.powerpages-site" -Recurse -Force -ErrorAction SilentlyContinue
           Copy-Item -Path "power-pages-artifact/.powerpages-site" -Destination "power pages/copilotiotgame/.powerpages-site" -Recurse -Force
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -199,13 +211,9 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($changed)) {
             Write-Host "Power Pages manifest unchanged -- nothing to sync."
           } else {
-            $branch = "chore/sync-powerpages-manifest-$(Get-Date -Format yyyyMMdd-HHmmss)"
-            git checkout -b $branch
             git commit -m "chore(power-pages): sync uploaded code site manifest"
-            git push origin $branch
-            if ($LASTEXITCODE -ne 0) { throw 'Failed to push manifest sync branch.' }
-            gh pr create --title "chore(power-pages): sync uploaded code site manifest" --base main --body "Automated: keeps the Dataverse record manifest in .powerpages-site/ in sync with what this deploy just created/updated in andworx-development, so the next deploy doesn't run blind. Only touches .powerpages-site/ -- safe to merge."
-            if ($LASTEXITCODE -ne 0) { throw 'Failed to open manifest sync PR.' }
+            git push origin HEAD:main
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to push manifest sync commit to main.' }
           }
       - name: Clear PAC credentials
         if: always()

@@ -30,9 +30,10 @@ Other Power Platform components retain their existing PAC workflows.
   can keep serving stale content indefinitely no matter how many times a deploy "succeeds"
   — see `docs/CI_CD.md`'s Power Pages manifest note for the full incident. After any local
   `pac pages upload-code-site` or `download-code-site`, commit the resulting
-  `.powerpages-site/` changes in the same change set. CI does this automatically via an
-  auto-opened `chore(power-pages): sync uploaded code site manifest` PR — merge those
-  promptly.
+  `.powerpages-site/` changes in the same change set. CI does this automatically by
+  pushing a `chore(power-pages): sync uploaded code site manifest` commit straight to
+  `main` after each deploy (this org disables Actions creating PRs, so it can't open one
+  instead) — no action needed unless that step fails.
 
 ## App structure
 
