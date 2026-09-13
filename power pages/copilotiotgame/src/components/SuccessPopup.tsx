@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface SuccessPopupProps {
   winMessage: string;
@@ -17,14 +17,20 @@ const RESET_SECONDS = 10; // Same dwell time as WinOverlay (GAME_MODE_PLAN.md §
 export function SuccessPopup({ winMessage, restoreItems, onReset }: SuccessPopupProps) {
   const [remaining, setRemaining] = useState(RESET_SECONDS);
 
+  // See WinOverlay.tsx for why onReset must stay out of the effect's deps: the parent
+  // re-renders every ~400ms (telemetryTick), which would otherwise clear/restart this
+  // 1000ms timeout before it ever fires, freezing the countdown at RESET_SECONDS.
+  const onResetRef = useRef(onReset);
+  onResetRef.current = onReset;
+
   useEffect(() => {
     if (remaining <= 0) {
-      onReset();
+      onResetRef.current();
       return;
     }
     const id = setTimeout(() => setRemaining((r) => r - 1), 1000);
     return () => clearTimeout(id);
-  }, [remaining, onReset]);
+  }, [remaining]);
 
   return (
     <div className="win-overlay">
