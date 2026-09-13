@@ -49,9 +49,6 @@ export default function App() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [gameModeBusy, setGameModeBusy] = useState(false);
   const [screen, setScreen] = useState<Screen>("controls");
-  // null while unknown (still loading) or on a failed fetch -- rendered as "—" rather
-  // than a misleading 0, since 0 is a real, alarm-worthy state (empty prize pool).
-  const [prizeCount, setPrizeCount] = useState<number | null>(null);
 
   const loadState = useCallback(async () => {
     setError(null);
@@ -73,25 +70,9 @@ export default function App() {
     }
   }, []);
 
-  // Separate from loadState (and from PrizeManagement's own loading) so it can be
-  // re-run on its own -- on mount, and again whenever the staff member returns from
-  // the Prize Management screen, without re-fetching device profiles/kiosk state too.
-  const loadPrizeCount = useCallback(async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/prize-count`);
-      if (!res.ok) throw new Error(`prize-count failed: ${res.status}`);
-      const body = (await res.json()) as { available: number };
-      setPrizeCount(body.available);
-    } catch (err) {
-      console.error("Failed to load prize count", err);
-      setPrizeCount(null);
-    }
-  }, []);
-
   useEffect(() => {
     loadState();
-    loadPrizeCount();
-  }, [loadState, loadPrizeCount]);
+  }, [loadState]);
 
   async function setMode(deviceProfileId: string | null, deviceSlug: string | null, deviceName: string | null) {
     setSettingKey(deviceSlug ?? DEMO_INFO_KEY);
@@ -153,10 +134,7 @@ export default function App() {
     return (
       <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem", maxWidth: 720, margin: "0 auto" }}>
         <button
-          onClick={() => {
-            setScreen("controls");
-            loadPrizeCount();
-          }}
+          onClick={() => setScreen("controls")}
           style={{
             border: "none",
             background: "none",
@@ -237,10 +215,10 @@ export default function App() {
         }}
       >
         <div>
-          <div style={{ fontWeight: 600 }}>
-            Prizes remaining: {prizeCount === null ? "—" : prizeCount}
+          <div style={{ fontWeight: 600 }}>Prize inventory</div>
+          <div style={{ fontSize: "0.85rem", color: "#555" }}>
+            View stock and add more prizes on the Prize Management screen.
           </div>
-          <div style={{ fontSize: "0.85rem", color: "#555" }}>Untaken prize instances in Dataverse.</div>
         </div>
         <button
           onClick={() => setScreen("prizes")}

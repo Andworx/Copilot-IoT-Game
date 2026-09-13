@@ -12,6 +12,11 @@ interface CreatedPrize {
   createdAt: string;
 }
 
+interface PrizeCounts {
+  total: number;
+  available: number;
+}
+
 const MIN_QUANTITY = 1;
 const MAX_QUANTITY = 100;
 
@@ -32,6 +37,9 @@ export default function PrizeManagement() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [created, setCreated] = useState<CreatedPrize[]>([]);
+  // null while unknown (still loading) or on a failed fetch -- rendered as "—" rather
+  // than a misleading 0, since 0 is a real, alarm-worthy state (empty prize pool).
+  const [counts, setCounts] = useState<PrizeCounts | null>(null);
 
   const loadPrizeTypes = useCallback(async () => {
     setTypesLoading(true);
@@ -50,9 +58,22 @@ export default function PrizeManagement() {
     }
   }, []);
 
+  const loadCounts = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/prize-count`);
+      if (!res.ok) throw new Error(`prize-count failed: ${res.status}`);
+      const body = (await res.json()) as PrizeCounts;
+      setCounts(body);
+    } catch (err) {
+      console.error("Failed to load prize counts", err);
+      setCounts(null);
+    }
+  }, []);
+
   useEffect(() => {
     loadPrizeTypes();
-  }, [loadPrizeTypes]);
+    loadCounts();
+  }, [loadPrizeTypes, loadCounts]);
 
   async function handleCreate() {
     const selectedType = prizeTypes.find((t) => t.id === selectedTypeId);
@@ -92,6 +113,7 @@ export default function PrizeManagement() {
         text: `Created ${body.created.length} ${body.created.length === 1 ? "prize" : "prizes"} of type "${selectedType.name}".`,
       });
       setQuantity(MIN_QUANTITY);
+      loadCounts();
     } catch (err) {
       setMessage({ kind: "error", text: err instanceof Error ? err.message : "Failed to create prizes" });
     } finally {
@@ -112,6 +134,28 @@ export default function PrizeManagement() {
       <p style={{ color: "#555", marginTop: 0, fontSize: "0.9rem" }}>
         Pick a prize type and quantity to add new prizes to the pool.
       </p>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "1.5rem",
+          padding: "0.75rem 1rem",
+          borderRadius: 6,
+          border: "1px solid #e5e7eb",
+          background: "#f9fafb",
+          marginBottom: "1rem",
+          fontSize: "0.9rem",
+        }}
+      >
+        <div>
+          <span style={{ color: "#555" }}>Total prizes: </span>
+          <strong>{counts === null ? "—" : counts.total}</strong>
+        </div>
+        <div>
+          <span style={{ color: "#555" }}>Available: </span>
+          <strong>{counts === null ? "—" : counts.available}</strong>
+        </div>
+      </div>
 
       {message && (
         <p
