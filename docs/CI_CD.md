@@ -112,6 +112,34 @@ inactive site in Power Pages and configure table permissions in its admin UI.
 Subsequent uploads update the active site. Verify `powerpages.config.json` before
 a release; changing its site name can target a different site.
 
+**The Power Pages manifest.** `pac pages upload-code-site` only recognizes a
+site's *existing* Dataverse records — and updates them in place — via the
+per-environment manifest at
+`power pages/copilotiotgame/.powerpages-site/.portalconfig/<environment>-manifest.yml`
+(RecordId + checksum per record). Without it, pac has no way to tell "this
+local `index.html` is that existing record," and effectively runs blind. The
+build job's `power-pages` artifact **must** include `.powerpages-site/`
+alongside `dist/` and `powerpages.config.json` — dropping it is exactly what
+happened before this note existed: every deploy reported `Cleanup summary:
+Deleted 0 bundle directories`, and the live site kept serving a stale bundle
+indefinitely no matter how many times the pipeline reported success. If that
+line ever reads `Deleted 0` again after a deploy that should have replaced an
+existing bundle, the manifest is missing or hasn't been synced — check the
+artifact's `path:` list first.
+
+The deploy job commits the post-upload manifest state back automatically:
+`pac` updates `.powerpages-site/` in place as a side effect of uploading (new
+RecordIds for anything it created, refreshed checksums for anything it
+updated), and the "Sync updated Power Pages manifest" step opens a PR with
+that updated state if it differs from what's committed. Merge these
+`chore(power-pages): sync uploaded code site manifest` PRs when they appear —
+skipping them lets the manifest drift, which only bites on structural site
+changes (a new page, a new content snippet, a new web template) since hash-
+named bundle files are already handled by `bundleFilePatterns` cleanup
+regardless of manifest freshness. These PRs only touch `.powerpages-site/**`,
+which is excluded from this workflow's push-trigger paths, so merging one
+does not trigger another deploy.
+
 Code Apps also enforce the target environment's Content Security Policy. When a
 frontend calls the Function App directly, add the production Function App origin
 to the environment's Code App `connect-src` allowlist in the Power Platform
