@@ -130,15 +130,20 @@ artifact's `path:` list first.
 The deploy job commits the post-upload manifest state back automatically:
 `pac` updates `.powerpages-site/` in place as a side effect of uploading (new
 RecordIds for anything it created, refreshed checksums for anything it
-updated), and the "Sync updated Power Pages manifest" step opens a PR with
-that updated state if it differs from what's committed. Merge these
-`chore(power-pages): sync uploaded code site manifest` PRs when they appear —
-skipping them lets the manifest drift, which only bites on structural site
+updated), and the "Sync updated Power Pages manifest" step pushes a
+`chore(power-pages): sync uploaded code site manifest` commit straight to
+`main` if that state differs from what's committed. It pushes directly rather
+than opening a PR because this org has "Allow GitHub Actions to create and
+approve pull requests" disabled, which makes `gh pr create` fail with
+`GraphQL: GitHub Actions is not permitted to create or approve pull requests`;
+`main` has no branch protection on this plan, so a direct push is the
+simplest reliable option for this manifest-only, non-redeploying change. Skipping
+this sync lets the manifest drift, which only bites on structural site
 changes (a new page, a new content snippet, a new web template) since hash-
 named bundle files are already handled by `bundleFilePatterns` cleanup
-regardless of manifest freshness. These PRs only touch `.powerpages-site/**`,
-which is excluded from this workflow's push-trigger paths, so merging one
-does not trigger another deploy.
+regardless of manifest freshness. The commit only touches
+`.powerpages-site/**`, which is excluded from this workflow's push-trigger
+paths, so it does not trigger another deploy.
 
 Code Apps also enforce the target environment's Content Security Policy. When a
 frontend calls the Function App directly, add the production Function App origin
