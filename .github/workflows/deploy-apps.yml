@@ -73,9 +73,15 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: power-pages
+          # .powerpages-site/ carries the per-environment manifest (RecordId + checksum
+          # per Dataverse record) that pac pages upload-code-site needs to recognize an
+          # existing site's records instead of treating every upload as a first-time
+          # init. Without it, every deploy logged "Deleted 0 bundle directories" and the
+          # live site kept serving whatever bundle was there before CI ever ran.
           path: |
             power pages/copilotiotgame/dist/
             power pages/copilotiotgame/powerpages.config.json
+            power pages/copilotiotgame/.powerpages-site/
           if-no-files-found: error
           retention-days: 14
 
