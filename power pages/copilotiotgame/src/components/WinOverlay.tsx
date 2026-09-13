@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { PRIZE_WHEEL_URL } from "../lib/apiConfig";
 
@@ -20,14 +20,21 @@ export function WinOverlay({ winMessage, restoreItems, claimToken, onReset }: Wi
   const [remaining, setRemaining] = useState(RESET_SECONDS);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
+  // KioskDevicePage re-renders every ~400ms (telemetryTick), producing a new onReset
+  // closure each time. Keeping onReset out of the effect's deps (via this ref) stops the
+  // 1000ms setTimeout below from being cleared/restarted before it ever fires -- which
+  // previously left the countdown frozen at RESET_SECONDS forever.
+  const onResetRef = useRef(onReset);
+  onResetRef.current = onReset;
+
   useEffect(() => {
     if (remaining <= 0) {
-      onReset();
+      onResetRef.current();
       return;
     }
     const id = setTimeout(() => setRemaining((r) => r - 1), 1000);
     return () => clearTimeout(id);
-  }, [remaining, onReset]);
+  }, [remaining]);
 
   useEffect(() => {
     let cancelled = false;
