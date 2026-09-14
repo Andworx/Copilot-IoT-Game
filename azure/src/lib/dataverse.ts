@@ -324,6 +324,33 @@ export async function countAllPrizes(): Promise<number> {
   return body["@odata.count"] ?? 0;
 }
 
+async function countPrizesForType(typeId: string, availableOnly: boolean): Promise<number> {
+  const filters = [`_andy_prizetype_value eq ${typeId}`];
+  if (availableOnly) filters.push("andy_prizetaken eq false");
+  const response = await dataverseFetch(
+    `${PRIZES_SET}?$select=andy_prizesid&$filter=${filters.join(" and ")}&$count=true&$top=1`
+  );
+  const body = (await response.json()) as { "@odata.count"?: number };
+  return body["@odata.count"] ?? 0;
+}
+
+/** Per-prize-type inventory counts for Game Box Control. Includes active prize types
+ * with zero rows so staff can distinguish "not stocked yet" from "missing type". */
+export async function countPrizesByType(): Promise<
+  Array<{ typeId: string; typeName: string; total: number; available: number }>
+> {
+  const prizeTypes = await listAllPrizeTypes();
+  return Promise.all(
+    prizeTypes.map(async (type) => {
+      const [total, available] = await Promise.all([
+        countPrizesForType(type.id, false),
+        countPrizesForType(type.id, true),
+      ]);
+      return { typeId: type.id, typeName: type.name, total, available };
+    })
+  );
+}
+
 /** Creates `quantity` andy_Prizes instance rows bound to one andy_PrizeTypes row, for
  * Game Box Control's bulk-create action (mirrors the Bulk Add Prizes genpage's
  * per-row naming/info note, power apps/bulk-add-prizes/bulk-add-prizes.tsx). */
