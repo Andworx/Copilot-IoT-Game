@@ -12,9 +12,17 @@ interface CreatedPrize {
   createdAt: string;
 }
 
+interface PrizeTypeCount {
+  typeId: string;
+  typeName: string;
+  total: number;
+  available: number;
+}
+
 interface PrizeCounts {
   total: number;
   available: number;
+  byType?: PrizeTypeCount[];
 }
 
 const MIN_QUANTITY = 1;
@@ -154,6 +162,46 @@ export default function PrizeManagement() {
         <div>
           <span style={{ color: "#555" }}>Available: </span>
           <strong>{counts === null ? "—" : counts.available}</strong>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <div style={{ fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
+          Prize type quantities
+        </div>
+        <div style={{ overflowX: "auto", border: "1px solid #e5e7eb", borderRadius: 6 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+            <thead>
+              <tr style={{ textAlign: "left", background: "#f9fafb" }}>
+                <th style={{ padding: "0.4rem 0.6rem" }}>Prize type</th>
+                <th style={{ padding: "0.4rem 0.6rem" }}>Total</th>
+                <th style={{ padding: "0.4rem 0.6rem" }}>Available</th>
+              </tr>
+            </thead>
+            <tbody>
+              {counts === null ? (
+                <tr>
+                  <td style={{ padding: "0.4rem 0.6rem", color: "#555" }} colSpan={3}>
+                    Loading prize quantities…
+                  </td>
+                </tr>
+              ) : counts.byType && counts.byType.length > 0 ? (
+                counts.byType.map((type) => (
+                  <tr key={type.typeId}>
+                    <td style={{ padding: "0.4rem 0.6rem" }}>{type.typeName}</td>
+                    <td style={{ padding: "0.4rem 0.6rem" }}>{type.total}</td>
+                    <td style={{ padding: "0.4rem 0.6rem" }}>{type.available}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td style={{ padding: "0.4rem 0.6rem", color: "#555" }} colSpan={3}>
+                    No prize types found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
