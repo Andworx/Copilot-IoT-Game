@@ -1,3 +1,3 @@
 description: A date/time value in GMT format to represent the effective date of the current published terms and conditions. If the terms agreement is enabled, portal users that have not accepted the terms after this date will be asked to accept them the next time they sign in. If the date is not provided, and the terms agreement is enabled, the terms will be presented every time portal users sign in.
-id: f867e794-be19-40f3-b2d8-ad0059119f50
+id: eabda8e6-ce0e-4dc4-85f0-939ff2dd9ff6
 name: Authentication/Registration/TermsPublicationDate
