@@ -65,13 +65,13 @@ jobs:
           npm ci
           npm run build
           test -f dist/index.html
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: function-app
           path: function-app.zip
           if-no-files-found: error
           retention-days: 14
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: power-pages
           # .powerpages-site/ carries the per-environment manifest (RecordId + checksum
