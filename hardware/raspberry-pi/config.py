@@ -5,22 +5,18 @@ reasoning behind each pin choice. Targets a Raspberry Pi 4/400/3B+ using
 gpiozero's default pin factory (RPi.GPIO / lgpio, whichever is installed).
 """
 
-# Toggle switches. SW1-SW4 are read positionally into whichever device's
-# switches[0..3] are active for the current dial position (see
-# logic_maps/<slug>.json). SW5/SW6 are panel utility buttons, not part of any
-# device's win/lamp logic.
+# Panel switches. All six switches are gameplay inputs and are mapped by
+# each logic_maps/<slug>.json restore sequence.
 SWITCH_PINS = {
     "SW1": 5,
     "SW2": 6,
     "SW3": 13,
     "SW4": 19,
-    "SW5": 26,   # utility: re-arm / force telemetry resync
-    "SW6": 21,   # utility: lamp self-test
+    "SW5": 26,
+    "SW6": 21,
 }
 
-# Panel lamps, mapped positionally to whichever device's lamps[0..3] are
-# active. Single-color on/off LEDs — see README for how the on-screen
-# off/green/amber/red states collapse to lit/unlit here.
+# Panel lamps, mapped positionally to each mode's LED logic.
 LED_PINS = {
     "LED1": 17,
     "LED2": 27,
@@ -38,24 +34,3 @@ CONNECTOR_PINS = {
     "J4": 16,
 }
 
-# CD74HC4067 16:1 mux scanning the 12-position rotary switch. EN is tied to
-# GND in hardware (always enabled), so it isn't a GPIO here.
-MUX_SELECT_PINS = {
-    "S0": 4,
-    "S1": 18,
-    "S2": 20,
-    "S3": 7,
-}
-# SIG went through two wrong homes before landing here -- see git history /
-# README for the full story:
-#   - GPIO8 (physical pin 24): part of the Pi's SPI0 group (CE0). Doesn't
-#     reflect real voltage correctly even with a working pull-up. GPIO9/10/11
-#     are the same peripheral group -- avoid them for inputs too.
-#   - GPIO14 (physical pin 8): actively driven by the UART peripheral
-#     (enable_uart=1 in config.txt) -- idles at 3.3V as TXD0, not floating.
-#     GPIO15/RXD0 is the matching pin -- avoid that one too.
-# GPIO2 (physical pin 3) has a genuine board-level pull-up (I2C SDA1, with
-# I2C disabled in software) rather than a software-configured one, sidestepping
-# this whole class of problem. See pulled_input.py.
-MUX_SIG_PIN = 2
-MUX_CHANNEL_COUNT = 12

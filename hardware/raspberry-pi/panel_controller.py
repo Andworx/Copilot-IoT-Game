@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Restore & Spin panel Pi controller.
 
-Reads the 12-position dial, the 6 panel switches, and the 4 connector jacks;
-evaluates the active device's logic_maps/<slug>.json ruleset; drives the 4
-panel LEDs; and publishes state to Azure IoT Hub. See hardware/raspberry-pi/README.md
-for the full wiring diagram, parts list, and design notes.
+Reads the 6 panel switches and 4 connector jacks; applies the mode selected by
+Power Apps/Page (or a local fallback); evaluates logic_maps/<slug>.json; drives
+the 4 panel LEDs; and publishes state to Azure IoT Hub. See
+hardware/raspberry-pi/README.md for the full wiring diagram and design notes.
 """
 import json
 import logging
@@ -12,6 +12,8 @@ import os
 import signal
 import sys
 import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -20,15 +22,14 @@ from gpiozero import LED
 import config
 import safe_eval
 from pulled_input import PulledInput
-from rotary_mux import RotaryMux
 from telemetry import TelemetryClient
 
 LOGIC_MAPS_DIR = Path(__file__).parent / "logic_maps"
 
 SCAN_INTERVAL = 0.05        # seconds between full input scans
-DIAL_CONFIRM_READS = 3      # consecutive matching mux scans before accepting a dial change
 HEARTBEAT_INTERVAL = 30.0   # seconds between full-state heartbeats regardless of change
-SELF_TEST_DURATION = 2.0    # seconds all LEDs stay lit during the SW6 self-test
+MODE_POLL_INTERVAL = 2.0    # seconds between Power App/Page mode checks
+DEFAULT_MODE_SLUG = "thermostat"
 
 log = logging.getLogger("panel_controller")
 
@@ -42,33 +43,31 @@ class PanelController:
         self.connectors = {
             name: PulledInput(pin) for name, pin in config.CONNECTOR_PINS.items()
         }
-        self.mux = RotaryMux(
-            list(config.MUX_SELECT_PINS.values()),
-            config.MUX_SIG_PIN,
-            channels=config.MUX_CHANNEL_COUNT,
-        )
 
         self.telemetry = TelemetryClient()
         self.logic_maps = self._load_logic_maps()
+        self.mode_state_url = os.environ.get("MODE_STATE_URL")
+        self.mode_state_file = Path(os.environ.get("MODE_STATE_FILE", "active_mode.json"))
+        self._mode_source_warning_sent = False
+        self._next_mode_poll = 0.0
 
-        self._dial_position = None
-        self._dial_candidate = None
-        self._dial_candidate_count = 0
         self._active_profile = None
+        self._active_slug = None
         self._last_state_sent = None
         self._last_heartbeat = 0.0
         self._win_latched = False
-        self._self_test_until = 0.0
 
     def _load_logic_maps(self):
         maps = {}
         for path in sorted(LOGIC_MAPS_DIR.glob("*.json")):
             with path.open(encoding="utf-8") as f:
                 profile = json.load(f)
-            maps[profile["dialPosition"]] = profile
-        missing = set(range(1, config.MUX_CHANNEL_COUNT + 1)) - set(maps)
-        if missing:
-            log.warning("No logic_map for dial position(s): %s", sorted(missing))
+            if not profile.get("isGameDevice", True):
+                continue
+            slug = profile["slug"]
+            maps[slug] = profile
+        if len(maps) != 12:
+            log.warning("Expected 12 playable logic maps; found %d", len(maps))
         return maps
 
     def _read_switch_state(self):
@@ -77,9 +76,61 @@ class PanelController:
     def _read_connector_state(self):
         return {name: pin.is_active for name, pin in self.connectors.items()}
 
-    def _apply_profile(self, profile, raw_switches):
-        pin_to_key = {s["physicalPin"]: s["key"] for s in profile["switches"]}
-        state = {key: raw_switches.get(pin, False) for pin, key in pin_to_key.items()}
+    def _read_mode_from_url(self):
+        if not self.mode_state_url:
+            return None
+        try:
+            with urllib.request.urlopen(self.mode_state_url, timeout=1.5) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except (OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
+            log.warning("Mode state URL read failed: %s", exc)
+            return None
+        return payload.get("deviceSlug") or payload.get("slug")
+
+    def _read_mode_from_file(self):
+        if not self.mode_state_file.exists():
+            return None
+        try:
+            text = self.mode_state_file.read_text(encoding="utf-8").strip()
+            if not text:
+                return None
+            if text.startswith("{"):
+                payload = json.loads(text)
+                return payload.get("deviceSlug") or payload.get("slug")
+            return text
+        except (OSError, json.JSONDecodeError) as exc:
+            log.warning("Mode state file read failed: %s", exc)
+            return None
+
+    def _current_requested_slug(self):
+        return (
+            self._read_mode_from_url()
+            or self._read_mode_from_file()
+            or os.environ.get("ACTIVE_DEVICE_SLUG")
+            or DEFAULT_MODE_SLUG
+        )
+
+    def _poll_mode_selection(self):
+        now = time.monotonic()
+        if now < self._next_mode_poll:
+            return
+        self._next_mode_poll = now + MODE_POLL_INTERVAL
+
+        slug = self._current_requested_slug()
+        if slug not in self.logic_maps:
+            if not self._mode_source_warning_sent:
+                log.warning("Requested mode '%s' is not available; keeping current mode", slug)
+                self._mode_source_warning_sent = True
+            return
+        self._mode_source_warning_sent = False
+        if slug != self._active_slug:
+            self._on_mode_change(slug)
+
+    def _apply_profile(self, profile, raw_switches, raw_connectors):
+        raw_controls = {**raw_switches, **raw_connectors}
+        controls = profile.get("restoreSequence") or profile.get("switches", []) + profile.get("connectors", [])
+        pin_to_key = {control["physicalPin"]: control["key"] for control in controls}
+        state = {key: raw_controls.get(pin, False) for pin, key in pin_to_key.items()}
         win = safe_eval.evaluate(profile["win"], state)
         variables = dict(state)
         variables["win"] = win
@@ -93,89 +144,57 @@ class PanelController:
         for pin_name, led in self.leds.items():
             (led.on if lamp_state.get(pin_name, False) else led.off)()
 
-    def _self_test(self):
-        log.info("Self-test: all LEDs on for %.1fs", SELF_TEST_DURATION)
-        for led in self.leds.values():
-            led.on()
-        self._self_test_until = time.monotonic() + SELF_TEST_DURATION
-
-    def _on_dial_change(self, dial_position):
-        log.info("Dial changed to position %d", dial_position)
-        self._dial_position = dial_position
-        self._active_profile = self.logic_maps.get(dial_position)
+    def _on_mode_change(self, slug):
+        profile = self.logic_maps[slug]
+        log.info("Mode changed to %s (%s)", slug, profile.get("label", slug))
+        self._active_slug = slug
+        self._active_profile = profile
         self._win_latched = False
         self._last_state_sent = None
         for led in self.leds.values():
             led.off()
-        if self._active_profile is None:
-            log.warning("No logic_map for dial position %d — LEDs held off.", dial_position)
         self.telemetry.publish(
             {
-                "deviceSlug": self._active_profile.get("slug") if self._active_profile else None,
-                "dialPosition": dial_position,
+                "deviceSlug": slug,
+                "modeIndex": profile.get("modeIndex"),
+                "deviceName": profile.get("label"),
             },
-            "dial_change",
+            "mode_change",
         )
-
-    def _on_rearm(self):
-        log.info("SW5 pressed — re-arm / resync requested")
-        self._win_latched = False
-        self._last_state_sent = None  # forces a fresh state_change publish next loop
 
     def run(self):
         log.info(
-            "Panel controller started. Watching dial + %d switches + %d connectors.",
+            "Panel controller started. Watching Power App/Page mode + %d switches + %d connectors.",
             len(self.switches),
             len(self.connectors),
         )
-        prev_sw5 = False
-        prev_sw6 = False
         try:
             while True:
                 loop_start = time.monotonic()
+                self._poll_mode_selection()
 
-                # --- dial scan with software debounce ---
-                reading = self.mux.scan()
-                if reading is not None:
-                    dial_position = reading + 1
-                    if dial_position == self._dial_candidate:
-                        self._dial_candidate_count += 1
-                    else:
-                        self._dial_candidate = dial_position
-                        self._dial_candidate_count = 1
-                    if (
-                        self._dial_candidate_count >= DIAL_CONFIRM_READS
-                        and dial_position != self._dial_position
-                    ):
-                        self._on_dial_change(dial_position)
-
-                # --- SW5 / SW6 utility buttons (edge-triggered) ---
                 raw_switches = self._read_switch_state()
-                if raw_switches["SW5"] and not prev_sw5:
-                    self._on_rearm()
-                if raw_switches["SW6"] and not prev_sw6:
-                    self._self_test()
-                prev_sw5, prev_sw6 = raw_switches["SW5"], raw_switches["SW6"]
+                raw_connectors = self._read_connector_state()
 
-                if time.monotonic() < self._self_test_until:
-                    time.sleep(max(0.0, SCAN_INTERVAL - (time.monotonic() - loop_start)))
-                    continue
-
-                # --- active device evaluation ---
                 if self._active_profile is not None:
-                    state, win, lamp_state = self._apply_profile(self._active_profile, raw_switches)
+                    state, win, lamp_state = self._apply_profile(
+                        self._active_profile,
+                        raw_switches,
+                        raw_connectors,
+                    )
                     self._drive_leds(lamp_state)
-                    connectors = self._read_connector_state()
 
                     payload_state = {
-                        "deviceSlug": self._active_profile.get("slug", "demo-info"),
-                        "dialPosition": self._dial_position,
-                        "switches": state,
+                        "deviceSlug": self._active_profile.get("slug"),
+                        "deviceName": self._active_profile.get("label"),
+                        "modeIndex": self._active_profile.get("modeIndex"),
+                        "controls": state,
+                        "rawSwitches": raw_switches,
+                        "rawConnectors": raw_connectors,
                         "lamps": {
                             lamp["key"]: lamp_state.get(lamp["physicalPin"], False)
                             for lamp in self._active_profile["lamps"]
                         },
-                        "connectors": connectors,
                         "win": win,
                     }
 
@@ -202,7 +221,6 @@ class PanelController:
         log.info("Shutting down — turning off all LEDs")
         for led in self.leds.values():
             led.off()
-        self.mux.close()
         self.telemetry.close()
 
 

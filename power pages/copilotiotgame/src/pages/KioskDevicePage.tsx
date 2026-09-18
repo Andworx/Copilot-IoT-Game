@@ -15,9 +15,9 @@ import { RadioClusterPanel } from "../components/layouts/RadioClusterPanel";
 import { API_BASE_URL } from "../lib/apiConfig";
 
 /**
- * One route, one component, 11 data-driven instances — GAME_MODE_PLAN.md §6. Keyed by
+ * One route, one component, 12 data-driven playable modes — GAME_MODE_PLAN.md §6. Keyed by
  * `deviceSlug` at the router level (see App.tsx) so React fully remounts this component on
- * every dial change, matching the "no stale state carries over" guarantee from §4 without
+ * every mode change, matching the "no stale state carries over" guarantee from §4 without
  * a hard page reload.
  */
 export function KioskDevicePage() {
@@ -178,10 +178,22 @@ export function KioskDevicePage() {
           <span className="sector-tag">{device.sector}</span>
           <h2>{device.label}</h2>
         </div>
-        <span className="position-badge">DIAL {device.dialPosition} / 12</span>
+        <span className="position-badge">MODE {device.modeIndex} / 12</span>
       </div>
 
       <div className="fault-line" data-mode={win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: win ? device.okText : device.faultText }} />
+
+      <section className="restore-sequence" aria-label="Panel restore order">
+        <div className="restore-sequence-title">Restore order</div>
+        <ol>
+          {device.restoreSequence.map((step) => (
+            <li key={step.physicalPin}>
+              <span>{step.physicalPin}</span>
+              <strong>{step.label}</strong>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       <div className="panel-body">
         {device.layout === "dial-arc" && (

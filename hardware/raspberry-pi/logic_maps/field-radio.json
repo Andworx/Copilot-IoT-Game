@@ -1,21 +1,163 @@
 {
   "slug": "field-radio",
   "label": "Tactical Field Radio",
-  "dialPosition": 6,
+  "modeIndex": 5,
+  "dialPosition": 5,
   "isGameDevice": true,
   "switches": [
-    { "physicalPin": "SW1", "key": "power", "label": "Power" },
-    { "physicalPin": "SW2", "key": "encryption", "label": "Encryption Mode" },
-    { "physicalPin": "SW3", "key": "channelhop", "label": "Channel Hop" },
-    { "physicalPin": "SW4", "key": "transmit", "label": "Transmit Enable" }
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2 - crypto key"
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "channelhop",
+      "label": "Toggle switch 1 - channel hop"
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power"
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "encryption",
+      "label": "Safety switch 2 - encryption"
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1"
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "transmit",
+      "label": "Toggle switch 2 - transmit"
+    }
+  ],
+  "connectors": [
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected"
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected"
+    },
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected"
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected"
+    }
+  ],
+  "restoreSequence": [
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2 - crypto key",
+      "target": true
+    },
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "channelhop",
+      "label": "Toggle switch 1 - channel hop",
+      "target": true
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power",
+      "target": true
+    },
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "encryption",
+      "label": "Safety switch 2 - encryption",
+      "target": true
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1",
+      "target": false
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "transmit",
+      "label": "Toggle switch 2 - transmit",
+      "target": true
+    }
   ],
   "lamps": [
-    { "physicalPin": "LED1", "key": "signal", "label": "Signal Lock", "when": "power and channelhop" },
-    { "physicalPin": "LED2", "key": "encrypted", "label": "Encrypted Link", "when": "power and channelhop and encryption" },
-    { "physicalPin": "LED3", "key": "battery", "label": "Battery Critical", "when": "not win" },
-    { "physicalPin": "LED4", "key": "interference", "label": "Interference", "when": "power and not channelhop" }
+    {
+      "physicalPin": "LED1",
+      "key": "power",
+      "label": "Blue ready lamp",
+      "when": "power"
+    },
+    {
+      "physicalPin": "LED2",
+      "key": "progress",
+      "label": "Yellow progress lamp",
+      "when": "not win"
+    },
+    {
+      "physicalPin": "LED3",
+      "key": "socket_ready",
+      "label": "Orange socket lamp",
+      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+    },
+    {
+      "physicalPin": "LED4",
+      "key": "restored",
+      "label": "Green restored lamp",
+      "when": "win"
+    }
   ],
-  "win": "power and encryption and channelhop and transmit",
-  "faultStartingState": { "power": true, "encryption": false, "channelhop": false, "transmit": true },
+  "win": "keyed_two and socket_j2 and channelhop and not socket_j1 and power and not socket_j4 and encryption and not keyed_one and socket_j3 and transmit",
+  "faultStartingState": {
+    "keyed_two": false,
+    "socket_j2": false,
+    "channelhop": false,
+    "socket_j1": true,
+    "power": false,
+    "socket_j4": true,
+    "encryption": false,
+    "keyed_one": true,
+    "socket_j3": false,
+    "transmit": false
+  },
   "winMessage": "Secure link established with base."
 }

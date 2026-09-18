@@ -24,6 +24,25 @@ export interface ReadoutText {
   ok: string;
 }
 
+export type PhysicalControlKey =
+  | "SW1"
+  | "SW2"
+  | "SW3"
+  | "SW4"
+  | "SW5"
+  | "SW6"
+  | "J1"
+  | "J2"
+  | "J3"
+  | "J4";
+
+export interface RestoreStep {
+  physicalPin: PhysicalControlKey;
+  key: string;
+  label: string;
+  target: boolean;
+}
+
 /**
  * One row of what `andy_deviceprofile` will hold in Dataverse (GAME_MODE_PLAN.md §5) plus
  * the presentation logic (checkWin/computeLamps) that stays in code, not the table —
@@ -33,7 +52,9 @@ export interface DeviceProfile {
   slug: string;
   label: string;
   sector: string;
+  modeIndex: number;
   dialPosition: number;
+  restoreSequence: readonly RestoreStep[];
   isGameDevice: boolean;
   layout: LayoutKind;
   accent: string;

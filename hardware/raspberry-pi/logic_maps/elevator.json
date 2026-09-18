@@ -1,21 +1,163 @@
 {
   "slug": "elevator",
   "label": "Elevator Control Panel",
-  "dialPosition": 8,
+  "modeIndex": 7,
+  "dialPosition": 7,
   "isGameDevice": true,
   "switches": [
-    { "physicalPin": "SW1", "key": "power", "label": "Power" },
-    { "physicalPin": "SW2", "key": "doorsensorreset", "label": "Door Sensor Reset" },
-    { "physicalPin": "SW3", "key": "floorcalloverride", "label": "Floor Call Override" },
-    { "physicalPin": "SW4", "key": "emergencyphonetest", "label": "Emergency Phone Test" }
+    {
+      "physicalPin": "SW2",
+      "key": "brake",
+      "label": "Safety switch 2 - brake release"
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2 - inspection key"
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power"
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "doors",
+      "label": "Toggle switch 1 - doors closed"
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1"
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "inspection",
+      "label": "Toggle switch 2 - inspection mode"
+    }
+  ],
+  "connectors": [
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected"
+    },
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected"
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected"
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected"
+    }
+  ],
+  "restoreSequence": [
+    {
+      "physicalPin": "SW2",
+      "key": "brake",
+      "label": "Safety switch 2 - brake release",
+      "target": true
+    },
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2 - inspection key",
+      "target": true
+    },
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power",
+      "target": true
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "doors",
+      "label": "Toggle switch 1 - doors closed",
+      "target": true
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1",
+      "target": false
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "inspection",
+      "label": "Toggle switch 2 - inspection mode",
+      "target": false
+    }
   ],
   "lamps": [
-    { "physicalPin": "LED1", "key": "ready", "label": "Ready", "when": "power and not floorcalloverride" },
-    { "physicalPin": "LED2", "key": "doorfault", "label": "Door Fault", "when": "not doorsensorreset" },
-    { "physicalPin": "LED3", "key": "inservice", "label": "In Service", "when": "win" },
-    { "physicalPin": "LED4", "key": "alarm", "label": "Alarm", "when": "not win" }
+    {
+      "physicalPin": "LED1",
+      "key": "power",
+      "label": "Blue ready lamp",
+      "when": "power"
+    },
+    {
+      "physicalPin": "LED2",
+      "key": "progress",
+      "label": "Yellow progress lamp",
+      "when": "not win"
+    },
+    {
+      "physicalPin": "LED3",
+      "key": "socket_ready",
+      "label": "Orange socket lamp",
+      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+    },
+    {
+      "physicalPin": "LED4",
+      "key": "restored",
+      "label": "Green restored lamp",
+      "when": "win"
+    }
   ],
-  "win": "power and doorsensorreset and not floorcalloverride",
-  "faultStartingState": { "power": true, "doorsensorreset": false, "floorcalloverride": true, "emergencyphonetest": false },
+  "win": "brake and not socket_j4 and keyed_two and socket_j2 and power and doors and socket_j1 and not keyed_one and not socket_j3 and not inspection",
+  "faultStartingState": {
+    "brake": false,
+    "socket_j4": true,
+    "keyed_two": false,
+    "socket_j2": false,
+    "power": false,
+    "doors": false,
+    "socket_j1": false,
+    "keyed_one": true,
+    "socket_j3": true,
+    "inspection": true
+  },
   "winMessage": "Elevator back in service."
 }

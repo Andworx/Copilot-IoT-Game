@@ -50,10 +50,10 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| `restore-and-spin`: `KioskInfoPage` + `KioskDevicePage`, all 11 devices, 10s reset timer (800×480 viewport) | Code Site pages | ✅ Done | GAME_MODE_PLAN.md §6, Phase 3 |
-| `restore-and-spin`: `/play-spin` page, QR generation on kiosk win, wheel animation | Code Site page | ✅ Done | GAME_MODE_PLAN.md §7, Phase 6 — except real QR encoding (placeholder pattern) and the real claim call (depends on the Integration claim endpoint below) |
-| `restore-and-spin`: all 11 device pages + content | Code Site content | ✅ Done | GAME_MODE_PLAN.md §11, Phase 7 |
-| `restore-and-spin`: root `SignalRContext` + `useDeviceSync` — fetch current state on load, navigate on `deviceChanged` | Code Site — SPA change | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2c — confirmed 2026-09-08: a live tab moved from `/kiosk/info` to `/kiosk/smart-lock` via an external `set-mode` call, no reload |
+| `copilotiotgame`: `KioskInfoPage` + `KioskDevicePage`, all 12 playable modes, 10s reset timer (800×480 viewport) | Code Site pages | ⬜ Verify | Issues #43/#44 — mode cards now mirror the 12 Pi restore sequences and expose ordered restore steps. Verify with local build and live page after deployment. |
+| `copilotiotgame`: `/play-spin` page, QR generation on kiosk win, wheel animation | Code Site page | ✅ Done | GAME_MODE_PLAN.md §7, Phase 6 — except real QR encoding (placeholder pattern) and the real claim call (depends on the Integration claim endpoint below) |
+| `copilotiotgame`: all 12 playable device pages + content | Code Site content | ⬜ Verify | Issue #43 — added `industrial-robot-arm` and synchronized unique restore sequences across page data and Pi logic maps. |
+| `copilotiotgame`: root `SignalRContext` + `useDeviceSync` — fetch current state on load, navigate on `deviceChanged` | Code Site — SPA change | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2c — confirmed 2026-09-08: a live tab moved from `/kiosk/info` to `/kiosk/smart-lock` via an external `set-mode` call, no reload |
 | `copilotiotgame`: Game Mode OFF branch on `KioskDevicePage` + new `SuccessPopup` component; auto-rotate to a random enabled mode via `pick-random-mode` after every completion (both Game Mode states) | Code Site — SPA change (`power pages/copilotiotgame`) | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09) — Game Mode ON keeps today's QR/phone-spin/claim flow unchanged; OFF skips `create-win` entirely (no `andy_gamewin` row, per decision to leave OFF completions unlogged) and shows a client-only success popup instead; both states call `POST /api/pick-random-mode` on completion instead of resetting to the same device. Built clean and deployed via `pac pages upload-code-site` |
 | Retire `restore-and-spin`; repoint `deploy-apps.yml` to build/deploy `copilotiotgame` | Code Site — CI/CD fix | ⬜ Verify | 2026-09-12 — `deploy-apps.yml` had never been repointed after `copilotiotgame` replaced `restore-and-spin` (2026-09-10), so every merge touching the old app's path re-deployed it over the live `CopilotIoTGame` site, silently reverting Game Mode support and the real QR to the old no-Game-Mode/fake-QR prototype. Fixed the workflow, deleted `power pages/restore-and-spin/`, updated docs/instructions referencing it. Verify: after the next deploy, confirm the live site actually serves `copilotiotgame`'s bundle and both Game Mode states behave correctly against the real backend |
 
@@ -73,9 +73,9 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| Panel Pi (`hardware/raspberry-pi/`): switches, LEDs, connector jacks, rotary mux scanner, all 12 `logic_maps/<slug>.json` files, Azure IoT Hub telemetry publisher | Raspberry Pi firmware | ✅ Done | Verified against real hardware 2026-09-07/08; see README.md's wiring diagram and design notes |
-| Panel Pi: add IoT Hub cloud-to-device receive-loop to `panel_controller.py` | Raspberry Pi firmware | ⬜ TODO | GAME_MODE_PLAN.md §4a, Phase 2b — replaces local dial read with an externally-set mode |
-| Physical rotary dial as a third `/api/set-mode` input, once the spare CD74HC4067 is soldered and verified | Raspberry Pi hardware | Future | GAME_MODE_PLAN.md §4a — the first mux chip was confirmed defective during bring-up; not scheduled, the Power App control alone unblocks the demo |
+| Panel Pi (`hardware/raspberry-pi/`): switches, LEDs, connector jacks, all 12 playable `logic_maps/<slug>.json` files, Azure IoT Hub telemetry publisher | Raspberry Pi firmware | ⬜ Verify | Issues #41/#42 — controller now reads all six switches and four sockets, selects mode from Power App/Page state (`kiosk-state` URL, state file, or env fallback), and mirrors the page restore sequences. Verify on the Pi after deployment. |
+| Panel Pi: deploy 12-mode firmware update to hardware | Raspberry Pi firmware | ⬜ TODO | Issue #42 — copy the updated controller/config/logic maps to the Pi, restart the service if needed, and verify each mode against the printed panel. |
+| Physical rotary dial or mux mode input | Raspberry Pi hardware | Future | Removed from the active demo path; the Power App/Page controls active modes for this build. |
 
 ## Integration (Azure Functions)
 

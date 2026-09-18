@@ -7,7 +7,7 @@ import { useDeviceSync } from "./hooks/useDeviceSync";
 /**
  * React Router reuses the same component instance across param changes on the same
  * route — it does not remount just because `:deviceSlug` changed. Keying on the slug
- * here forces a full unmount/remount on every dial change, which is what gives us the
+ * here forces a full unmount/remount on every mode change, which is what gives us the
  * "no stale state carries over" guarantee from GAME_MODE_PLAN.md §4 without a hard
  * page reload.
  */

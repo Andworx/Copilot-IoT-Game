@@ -2,8 +2,8 @@
 
 Each device's `win` and per-lamp `when` fields are small boolean expressions
 over switch/lamp keys, e.g. "power and fan and not mode" — a direct
-transcription of the `checkWin`/`computeLamps` lambdas in
-power pages/restore-and-spin/src/data/deviceProfiles.ts. Rather than eval()
+transcription of the restore-sequence-driven state in
+power pages/copilotiotgame/src/data/deviceProfiles.ts. Rather than eval()
 arbitrary strings from a JSON file, this walks a parsed AST and only permits
 boolean logic (and/or/not), bare names, and True/False/true/false literals.
 """

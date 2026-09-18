@@ -1,21 +1,163 @@
 {
   "slug": "smart-lock",
   "label": "Smart Lock & Security Panel",
-  "dialPosition": 3,
+  "modeIndex": 2,
+  "dialPosition": 2,
   "isGameDevice": true,
   "switches": [
-    { "physicalPin": "SW1", "key": "power", "label": "Power" },
-    { "physicalPin": "SW2", "key": "deadbolt", "label": "Deadbolt Engage" },
-    { "physicalPin": "SW3", "key": "autolock", "label": "Auto-Lock" },
-    { "physicalPin": "SW4", "key": "alarm", "label": "Alarm Arm" }
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1 - service key"
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "deadbolt",
+      "label": "Safety switch 2 - deadbolt"
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power"
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "alarm",
+      "label": "Toggle switch 2 - alarm arm"
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "autolock",
+      "label": "Toggle switch 1 - auto-lock"
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2"
+    }
+  ],
+  "connectors": [
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected"
+    },
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected"
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected"
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected"
+    }
+  ],
+  "restoreSequence": [
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1 - service key",
+      "target": true
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "deadbolt",
+      "label": "Safety switch 2 - deadbolt",
+      "target": true
+    },
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power",
+      "target": true
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "alarm",
+      "label": "Toggle switch 2 - alarm arm",
+      "target": true
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "autolock",
+      "label": "Toggle switch 1 - auto-lock",
+      "target": false
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2",
+      "target": true
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected",
+      "target": true
+    }
   ],
   "lamps": [
-    { "physicalPin": "LED1", "key": "locked", "label": "Locked", "when": "power and deadbolt" },
-    { "physicalPin": "LED2", "key": "ajar", "label": "Unlocked / Ajar", "when": "power and not deadbolt" },
-    { "physicalPin": "LED3", "key": "lowbatt", "label": "Low Battery", "when": "not win" },
-    { "physicalPin": "LED4", "key": "tamper", "label": "Tamper Alert", "when": "not win" }
+    {
+      "physicalPin": "LED1",
+      "key": "power",
+      "label": "Blue ready lamp",
+      "when": "power"
+    },
+    {
+      "physicalPin": "LED2",
+      "key": "progress",
+      "label": "Yellow progress lamp",
+      "when": "not win"
+    },
+    {
+      "physicalPin": "LED3",
+      "key": "socket_ready",
+      "label": "Orange socket lamp",
+      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+    },
+    {
+      "physicalPin": "LED4",
+      "key": "restored",
+      "label": "Green restored lamp",
+      "when": "win"
+    }
   ],
-  "win": "power and deadbolt and alarm",
-  "faultStartingState": { "power": true, "deadbolt": false, "autolock": true, "alarm": false },
+  "win": "not socket_j2 and keyed_one and deadbolt and socket_j4 and power and alarm and not socket_j1 and not autolock and keyed_two and socket_j3",
+  "faultStartingState": {
+    "socket_j2": true,
+    "keyed_one": false,
+    "deadbolt": false,
+    "socket_j4": false,
+    "power": false,
+    "alarm": false,
+    "socket_j1": true,
+    "autolock": true,
+    "keyed_two": false,
+    "socket_j3": false
+  },
   "winMessage": "House is secured now."
 }

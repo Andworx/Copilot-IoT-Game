@@ -500,7 +500,19 @@ input:focus-visible {
 .reset-timer { font-size: 0.78rem; color: var(--color-primary); }
 .reset-timer strong { font-variant-numeric: tabular-nums; font-size: 1rem; }
 
-/* ============ Demo gear menu — stand-in for the physical dial (no hardware yet) ============ */
+.restore-sequence {
+  position: relative; z-index: 1; border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); background: rgba(11, 18, 22, 0.72);
+  padding: 10px 12px; margin: 4px 0 8px;
+}
+.restore-sequence-title { font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 8px; }
+.restore-sequence ol { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 10px; counter-reset: restoreStep; }
+.restore-sequence li { list-style: none; counter-increment: restoreStep; display: grid; grid-template-columns: 18px 42px 1fr; gap: 8px; align-items: center; font-size: 0.66rem; color: var(--color-text); }
+.restore-sequence li::before { content: counter(restoreStep); width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--color-surface-3); color: var(--device-accent); font-size: 0.56rem; }
+.restore-sequence li span { color: var(--color-text-muted); font-family: var(--font-mono); }
+.restore-sequence li strong { color: var(--color-text-bright); font-weight: 600; }
+
+/* ============ Demo gear menu — Power App mode shortcuts ============ */
 
 .gear-btn {
   position: absolute; z-index: 10; bottom: 10px; right: 10px;
