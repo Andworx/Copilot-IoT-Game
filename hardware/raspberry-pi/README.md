@@ -27,6 +27,13 @@ win logic stay aligned. **LED1-LED4** map to each mode's lamp expressions.
 Use `RESTORE-MODES-MANUAL.md` as the operator-facing guide for restoring each
 of the 12 playable modes during demos.
 
+For a paginated manual, open the [print-ready PDF](../../output/pdf/RESTORE-MODES-MANUAL.pdf).
+It has one page per mode and a separate cable reference. Print on US Letter in
+portrait at 100% (or Fit on A4). After editing the Markdown procedures, regenerate
+the PDF with `python hardware/raspberry-pi/build_restore_manual.py` (requires
+`reportlab`) and check the page layout. Keep these links and the PDF current when
+the restoration procedures change.
+
 ## Known open item: telemetry payload schema
 
 `GAME_MODE_PLAN.md` §1/§4 says this panel Pi is **already registered to Azure
