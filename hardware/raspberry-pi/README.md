@@ -143,21 +143,24 @@ These cables are for the later demo bundle and are **independent of the Pi
 harness for now**. They do not add wires to the Pi header or change the J1-J4
 receptacle GPIO mapping above.
 
-Because J1-J4 use all four possible receptacle contact positions, a 2-pin
-Side A to 4-pin quad Side B cable can be built in **6 unique two-contact
-combinations**:
+Because J1-J4 use all four possible receptacle contact positions, the demo
+bundle can be built in **6 unique two-contact combinations**. To match the
+current connector inventory, only the first four cables consume 2-pin Side A
+plugs; Cable 5 and Cable 6 use quad plugs on both ends with unused Side A pins
+3 and 4 left open.
 
-| Cable | Pinout | J contacts covered | Notes |
-|---|---|---|---|
-| Cable 1 | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 4 | J1 and J4 | Matches the requested first cable format |
-| Cable 2 | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 1 | J1 and J2 | Alternate pairing |
-| Cable 3 | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 2 | J1 and J3 | Alternate pairing |
-| Cable 4 | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 2 | J2 and J3 | Alternate pairing |
-| Cable 5 | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 4 | J2 and J4 | Alternate pairing |
-| Cable 6 | Side A pin 1 to Side B pin 2<br>Side A pin 2 to Side B pin 4 | J3 and J4 | Alternate pairing |
+| Cable | Side A plug | Side B plug | Pinout | J contacts covered | Notes |
+|---|---|---|---|---|---|
+| Cable 1 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 4 | J1 and J4 | Matches the requested first cable format |
+| Cable 2 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 1 | J1 and J2 | Alternate pairing |
+| Cable 3 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 2 | J1 and J3 | Alternate pairing |
+| Cable 4 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 2 | J2 and J3 | Alternate pairing |
+| Cable 5 | 4-pin quad plug | 4-pin quad plug | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 4 | J2 and J4 | Leave Side A pins 3 and 4 unused/open |
+| Cable 6 | 4-pin quad plug | 4-pin quad plug | Side A pin 1 to Side B pin 2<br>Side A pin 2 to Side B pin 4 | J3 and J4 | Leave Side A pins 3 and 4 unused/open |
 
 For the current standalone pinout documentation, these 6 cables are the build
-list and no Pi GPIO or GND connection is assigned yet.
+list and no Pi GPIO or GND connection is assigned yet. The J1-J4 receptacle
+wiring stays unchanged.
 
 ## Software design
 
