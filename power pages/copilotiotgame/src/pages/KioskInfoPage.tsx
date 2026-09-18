@@ -2,7 +2,7 @@ import { DEVICE_ORDER, DEVICE_PROFILES } from "../data/deviceProfiles";
 import { DemoGearMenu } from "../components/DemoGearMenu";
 
 /**
- * Dial position 1 — demo/info screen, not a game device (andy_isgamedevice = No).
+ * Demo/info screen, not a game device (andy_isgamedevice = No).
  * GAME_MODE_PLAN.md §0/§11.
  */
 export function KioskInfoPage() {
@@ -13,7 +13,7 @@ export function KioskInfoPage() {
           <span className="live-dot" />
           PANEL LINK: CONNECTED
         </span>
-        <span>DIAL 1 / 12</span>
+        <span>12 PLAYABLE MODES</span>
       </div>
 
       <div className="kiosk-header">
@@ -25,14 +25,14 @@ export function KioskInfoPage() {
 
       <div className="panel-body" style={{ alignItems: "flex-start", gap: 14 }}>
         <p style={{ margin: 0, fontSize: "0.85rem", lineHeight: 1.6, color: "var(--color-text)" }}>
-          Turn the dial to pick a device to troubleshoot. Flip switches, watch the status
-          lamps, and use Help Fix if you get stuck. Restore the device to working order to
-          win a prize.
+          Pick a device mode in the Power App to troubleshoot. Flip switches, connect the
+          socket cables, watch the status lamps, and use Help Fix if you get stuck. Restore
+          the device to working order to win a prize.
         </p>
         <ol style={{ margin: 0, paddingLeft: 18, fontSize: "0.8rem", lineHeight: 1.8, color: "var(--color-text-bright)" }}>
           {DEVICE_ORDER.map((slug) => (
             <li key={slug}>
-              Position {DEVICE_PROFILES[slug].dialPosition}: {DEVICE_PROFILES[slug].label} ({DEVICE_PROFILES[slug].sector})
+              Mode {DEVICE_PROFILES[slug].modeIndex}: {DEVICE_PROFILES[slug].label} ({DEVICE_PROFILES[slug].sector})
             </li>
           ))}
         </ol>

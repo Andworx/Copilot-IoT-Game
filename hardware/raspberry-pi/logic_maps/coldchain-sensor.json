@@ -1,21 +1,163 @@
 {
   "slug": "coldchain-sensor",
   "label": "Cold-Chain Warehouse Sensor",
-  "dialPosition": 4,
+  "modeIndex": 3,
+  "dialPosition": 3,
   "isGameDevice": true,
   "switches": [
-    { "physicalPin": "SW1", "key": "power", "label": "Power" },
-    { "physicalPin": "SW2", "key": "calibration", "label": "Calibration" },
-    { "physicalPin": "SW3", "key": "threshold", "label": "Alert Threshold" },
-    { "physicalPin": "SW4", "key": "cloudsync", "label": "Cloud Sync" }
+    {
+      "physicalPin": "SW4",
+      "key": "cloudsync",
+      "label": "Toggle switch 2 - cloud sync"
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power"
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2"
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "calibration",
+      "label": "Safety switch 2 - calibration"
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1"
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "threshold",
+      "label": "Toggle switch 1 - threshold"
+    }
+  ],
+  "connectors": [
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected"
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected"
+    },
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected"
+    },
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected"
+    }
+  ],
+  "restoreSequence": [
+    {
+      "physicalPin": "SW4",
+      "key": "cloudsync",
+      "label": "Toggle switch 2 - cloud sync",
+      "target": true
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power",
+      "target": true
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2",
+      "target": false
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "calibration",
+      "label": "Safety switch 2 - calibration",
+      "target": true
+    },
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1",
+      "target": false
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "threshold",
+      "label": "Toggle switch 1 - threshold",
+      "target": false
+    },
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected",
+      "target": true
+    }
   ],
   "lamps": [
-    { "physicalPin": "LED1", "key": "inrange", "label": "In-Range", "when": "power and calibration" },
-    { "physicalPin": "LED2", "key": "alerthigh", "label": "Alert-High", "when": "power and not calibration" },
-    { "physicalPin": "LED3", "key": "alertlow", "label": "Alert-Low", "when": "not win" },
-    { "physicalPin": "LED4", "key": "link", "label": "Link Status", "when": "cloudsync" }
+    {
+      "physicalPin": "LED1",
+      "key": "power",
+      "label": "Blue ready lamp",
+      "when": "power"
+    },
+    {
+      "physicalPin": "LED2",
+      "key": "progress",
+      "label": "Yellow progress lamp",
+      "when": "not win"
+    },
+    {
+      "physicalPin": "LED3",
+      "key": "socket_ready",
+      "label": "Orange socket lamp",
+      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+    },
+    {
+      "physicalPin": "LED4",
+      "key": "restored",
+      "label": "Green restored lamp",
+      "when": "win"
+    }
   ],
-  "win": "power and calibration and cloudsync",
-  "faultStartingState": { "power": true, "calibration": false, "threshold": true, "cloudsync": false },
+  "win": "cloudsync and socket_j3 and power and not keyed_two and socket_j1 and calibration and not socket_j4 and not keyed_one and not threshold and socket_j2",
+  "faultStartingState": {
+    "cloudsync": false,
+    "socket_j3": false,
+    "power": false,
+    "keyed_two": true,
+    "socket_j1": false,
+    "calibration": false,
+    "socket_j4": true,
+    "keyed_one": true,
+    "threshold": true,
+    "socket_j2": false
+  },
   "winMessage": "Cold storage is stable and monitoring is back online."
 }

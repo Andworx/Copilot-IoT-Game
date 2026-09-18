@@ -1,21 +1,163 @@
 {
   "slug": "water-pump",
   "label": "Water Pump Station Controller",
-  "dialPosition": 5,
+  "modeIndex": 4,
+  "dialPosition": 4,
   "isGameDevice": true,
   "switches": [
-    { "physicalPin": "SW1", "key": "power", "label": "Power" },
-    { "physicalPin": "SW2", "key": "pumpenable", "label": "Pump Enable" },
-    { "physicalPin": "SW3", "key": "relief", "label": "Pressure Relief" },
-    { "physicalPin": "SW4", "key": "remote", "label": "Remote Override" }
+    {
+      "physicalPin": "SW2",
+      "key": "pumpenable",
+      "label": "Safety switch 2 - pump enable"
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1"
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "remote",
+      "label": "Toggle switch 2 - remote override"
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power"
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2"
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "relief",
+      "label": "Toggle switch 1 - pressure relief"
+    }
+  ],
+  "connectors": [
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected"
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected"
+    },
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected"
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected"
+    }
+  ],
+  "restoreSequence": [
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "pumpenable",
+      "label": "Safety switch 2 - pump enable",
+      "target": true
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1",
+      "target": false
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "remote",
+      "label": "Toggle switch 2 - remote override",
+      "target": false
+    },
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power",
+      "target": true
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2",
+      "target": true
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "relief",
+      "label": "Toggle switch 1 - pressure relief",
+      "target": true
+    }
   ],
   "lamps": [
-    { "physicalPin": "LED1", "key": "running", "label": "Running", "when": "power and pumpenable and not remote" },
-    { "physicalPin": "LED2", "key": "pressureok", "label": "Pressure OK", "when": "true" },
-    { "physicalPin": "LED3", "key": "fault", "label": "Fault", "when": "not win" },
-    { "physicalPin": "LED4", "key": "remoteconn", "label": "Remote-Connected", "when": "remote" }
+    {
+      "physicalPin": "LED1",
+      "key": "power",
+      "label": "Blue ready lamp",
+      "when": "power"
+    },
+    {
+      "physicalPin": "LED2",
+      "key": "progress",
+      "label": "Yellow progress lamp",
+      "when": "not win"
+    },
+    {
+      "physicalPin": "LED3",
+      "key": "socket_ready",
+      "label": "Orange socket lamp",
+      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+    },
+    {
+      "physicalPin": "LED4",
+      "key": "restored",
+      "label": "Green restored lamp",
+      "when": "win"
+    }
   ],
-  "win": "power and pumpenable and relief and not remote",
-  "faultStartingState": { "power": true, "pumpenable": false, "relief": false, "remote": true },
+  "win": "socket_j4 and pumpenable and not keyed_one and not socket_j1 and not remote and socket_j2 and power and not socket_j3 and keyed_two and relief",
+  "faultStartingState": {
+    "socket_j4": false,
+    "pumpenable": false,
+    "keyed_one": true,
+    "socket_j1": true,
+    "remote": true,
+    "socket_j2": false,
+    "power": false,
+    "socket_j3": true,
+    "keyed_two": false,
+    "relief": false
+  },
   "winMessage": "Pump station is back online and operating normally."
 }

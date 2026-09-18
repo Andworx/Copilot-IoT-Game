@@ -1,0 +1,163 @@
+{
+  "slug": "industrial-robot-arm",
+  "label": "Industrial Robot Arm",
+  "modeIndex": 12,
+  "dialPosition": 12,
+  "isGameDevice": true,
+  "switches": [
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - main power"
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2 - teach pendant key"
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "servo",
+      "label": "Toggle switch 1 - servo enable"
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1 - cell access"
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "estop",
+      "label": "Safety switch 2 - E-stop reset"
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "guard",
+      "label": "Toggle switch 2 - guard door"
+    }
+  ],
+  "connectors": [
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected"
+    },
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected"
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected"
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected"
+    }
+  ],
+  "restoreSequence": [
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - main power",
+      "target": true
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2 - teach pendant key",
+      "target": true
+    },
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "servo",
+      "label": "Toggle switch 1 - servo enable",
+      "target": true
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1 - cell access",
+      "target": true
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "estop",
+      "label": "Safety switch 2 - E-stop reset",
+      "target": true
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "guard",
+      "label": "Toggle switch 2 - guard door",
+      "target": false
+    }
+  ],
+  "lamps": [
+    {
+      "physicalPin": "LED1",
+      "key": "power",
+      "label": "Blue ready lamp",
+      "when": "power"
+    },
+    {
+      "physicalPin": "LED2",
+      "key": "progress",
+      "label": "Yellow progress lamp",
+      "when": "not win"
+    },
+    {
+      "physicalPin": "LED3",
+      "key": "socket_ready",
+      "label": "Orange socket lamp",
+      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+    },
+    {
+      "physicalPin": "LED4",
+      "key": "restored",
+      "label": "Green restored lamp",
+      "when": "win"
+    }
+  ],
+  "win": "not socket_j4 and power and keyed_two and socket_j2 and servo and not socket_j1 and keyed_one and estop and socket_j3 and not guard",
+  "faultStartingState": {
+    "socket_j4": true,
+    "power": false,
+    "keyed_two": false,
+    "socket_j2": false,
+    "servo": false,
+    "socket_j1": true,
+    "keyed_one": false,
+    "estop": false,
+    "socket_j3": false,
+    "guard": true
+  },
+  "winMessage": "Robot cell restored \u2014 supervised automation is ready."
+}

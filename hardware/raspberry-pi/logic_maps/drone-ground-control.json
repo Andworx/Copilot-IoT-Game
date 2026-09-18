@@ -1,21 +1,163 @@
 {
   "slug": "drone-ground-control",
   "label": "Drone Ground Control",
-  "dialPosition": 12,
+  "modeIndex": 11,
+  "dialPosition": 11,
   "isGameDevice": true,
   "switches": [
-    { "physicalPin": "SW1", "key": "power", "label": "Power" },
-    { "physicalPin": "SW2", "key": "gpslock", "label": "GPS Lock" },
-    { "physicalPin": "SW3", "key": "rthoverride", "label": "RTH Override" },
-    { "physicalPin": "SW4", "key": "payloadarm", "label": "Payload Arm" }
+    {
+      "physicalPin": "SW4",
+      "key": "uplink",
+      "label": "Toggle switch 2 - uplink"
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2 - flight key"
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "gps",
+      "label": "Safety switch 2 - GPS lock"
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power"
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1"
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "telemetry",
+      "label": "Toggle switch 1 - telemetry"
+    }
+  ],
+  "connectors": [
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected"
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected"
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected"
+    },
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected"
+    }
+  ],
+  "restoreSequence": [
+    {
+      "physicalPin": "J2",
+      "key": "socket_j2",
+      "label": "Socket J2 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW4",
+      "key": "uplink",
+      "label": "Toggle switch 2 - uplink",
+      "target": true
+    },
+    {
+      "physicalPin": "SW6",
+      "key": "keyed_two",
+      "label": "Keyed switch 2 - flight key",
+      "target": true
+    },
+    {
+      "physicalPin": "J1",
+      "key": "socket_j1",
+      "label": "Socket J1 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW2",
+      "key": "gps",
+      "label": "Safety switch 2 - GPS lock",
+      "target": true
+    },
+    {
+      "physicalPin": "J3",
+      "key": "socket_j3",
+      "label": "Socket J3 connected",
+      "target": false
+    },
+    {
+      "physicalPin": "SW1",
+      "key": "power",
+      "label": "Safety switch 1 - power",
+      "target": true
+    },
+    {
+      "physicalPin": "SW5",
+      "key": "keyed_one",
+      "label": "Keyed switch 1",
+      "target": false
+    },
+    {
+      "physicalPin": "J4",
+      "key": "socket_j4",
+      "label": "Socket J4 connected",
+      "target": true
+    },
+    {
+      "physicalPin": "SW3",
+      "key": "telemetry",
+      "label": "Toggle switch 1 - telemetry",
+      "target": true
+    }
   ],
   "lamps": [
-    { "physicalPin": "LED1", "key": "gpslocked", "label": "GPS Locked", "when": "gpslock" },
-    { "physicalPin": "LED2", "key": "linkup", "label": "Link Up", "when": "win" },
-    { "physicalPin": "LED3", "key": "batterycritical", "label": "Battery Critical", "when": "not win" },
-    { "physicalPin": "LED4", "key": "rthactive", "label": "RTH Active", "when": "rthoverride" }
+    {
+      "physicalPin": "LED1",
+      "key": "power",
+      "label": "Blue ready lamp",
+      "when": "power"
+    },
+    {
+      "physicalPin": "LED2",
+      "key": "progress",
+      "label": "Yellow progress lamp",
+      "when": "not win"
+    },
+    {
+      "physicalPin": "LED3",
+      "key": "socket_ready",
+      "label": "Orange socket lamp",
+      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+    },
+    {
+      "physicalPin": "LED4",
+      "key": "restored",
+      "label": "Green restored lamp",
+      "when": "win"
+    }
   ],
-  "win": "power and gpslock and not rthoverride",
-  "faultStartingState": { "power": true, "gpslock": false, "rthoverride": true, "payloadarm": false },
-  "winMessage": "Drone link restored — ready for flight ops."
+  "win": "socket_j2 and uplink and keyed_two and socket_j1 and gps and not socket_j3 and power and not keyed_one and socket_j4 and telemetry",
+  "faultStartingState": {
+    "socket_j2": false,
+    "uplink": false,
+    "keyed_two": false,
+    "socket_j1": false,
+    "gps": false,
+    "socket_j3": true,
+    "power": false,
+    "keyed_one": true,
+    "socket_j4": false,
+    "telemetry": false
+  },
+  "winMessage": "Drone link restored \u2014 ready for flight ops."
 }

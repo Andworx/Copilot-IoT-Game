@@ -1,38 +1,41 @@
 # Panel Pi — Restore & Spin
 
 Python firmware for the physical control panel that drives the
-[`restore-and-spin`](../../power%20pages/restore-and-spin/) kiosk game
-(`GAME_MODE_PLAN.md` in that folder's parent — §0, §4, §11). This is the
+[`copilotiotgame`](../../power%20pages/copilotiotgame/) kiosk game. This is the
 **panel Pi**: it reads 6 physical switches (2 safety switches, 2 toggle
 switches, and 2 keyed switches) and 4 panel-side connector jack inputs; drives
 4 LEDs; and publishes state to Azure IoT Hub. It does
-**not** drive the kiosk touchscreen — that's the separate "kiosk Pi" described
-in `GAME_MODE_PLAN.md` §4, out of scope here.
+**not** drive the kiosk touchscreen.
 
-## Relationship to the documented plan
+## Relationship to the playable modes
 
-`GAME_MODE_PLAN.md` §11 specifies a panel with **4 switches, 4 LEDs**, reused
-across all 11 devices, with device-specific behavior in
-`hardware/raspberry-pi/logic_maps/<slug>.json` files. This build adds two things the
-plan didn't originally call for, per direct request:
+The panel has **12 playable modes** selected by the Power App/Page. The physical
+rotary switch and CD74HC4067 mux are no longer part of the active design. Each
+playable mode uses all 10 physical inputs exactly once in a unique restore
+order:
 
-- **6 physical switches** — SW1-SW2 are safety switches, SW3-SW4 are toggle
-  switches, and SW5-SW6 are keyed switches. SW5-SW6 are panel utility inputs,
-  not part of any device's win/lamp logic: SW5 re-arms/resyncs, SW6 runs a lamp
-  self-test.
-- **4 connector jacks (J1-J4)** — presence/continuity inputs (cable
-  plugged in or not). They're published as telemetry (`connectors` in the
-  payload) but don't currently feed into any device's `win` condition — no
-  existing device profile in `deviceProfiles.ts` models a socket/cable
-  concept. If you want a specific device's fault (e.g. patient-monitor's
-  "Leads Check") to be fixed by plugging in a cable instead of flipping a
-  switch, that's a small edit to that device's `logic_maps/<slug>.json` —
-  flag it and it can be wired in.
+- `SW1-SW2` — safety switches.
+- `SW3-SW4` — toggle switches.
+- `SW5-SW6` — keyed switches.
+- `J1-J4` — panel-side connector jack inputs.
 
-**SW1-SW4 map positionally** to whichever device/mode the Power App has
-selected — index 0 is "Power" on every single device in `deviceProfiles.ts`, so
-SW1 is always the Power switch regardless of the selected mode; SW2-SW4 change
-meaning per device. Likewise **LED1-LED4** map to `lamps[0..3]`.
+The selected mode determines which real-world meaning each control has. The
+same restore sequence is represented in the Power Pages `deviceProfiles.ts` data
+and in the Pi `logic_maps/<slug>.json` files so the screen instructions and Pi
+win logic stay aligned. **LED1-LED4** map to each mode's lamp expressions.
+
+Use `RESTORE-MODES-MANUAL.md` as the operator-facing guide for restoring each
+of the 12 playable modes during demos.
+
+For a paginated manual, open the [print-ready PDF](../../output/pdf/RESTORE-MODES-MANUAL.pdf).
+It is a 100-page participant handbook with seven pages per mode, diagnostic
+guidance, control indexes, and record sheets. For the manual-versus-agent demo,
+use the [facilitator guide](MANUAL-VS-AGENT-DEMO.md) and give participants the PDF,
+not the concise Markdown source. Print single-sided on US Letter in portrait at
+100% for a 100-sheet binder (or Fit on A4). After editing the procedures, regenerate
+the PDF with `python hardware/raspberry-pi/build_restore_manual.py` (requires
+`reportlab`) and check the page layout. Keep these links and the PDF current when
+the restoration procedures change.
 
 ## Known open item: telemetry payload schema
 
@@ -74,8 +77,8 @@ No external resistors are needed except the LED current-limiting resistors.
 | Safety switch 2 | SW2 | GPIO6 | 31 |
 | Toggle switch 1 | SW3 | GPIO13 | 33 |
 | Toggle switch 2 | SW4 | GPIO19 | 35 |
-| Keyed switch 1 (utility: re-arm) | SW5 | GPIO26 | 37 |
-| Keyed switch 2 (utility: self-test) | SW6 | GPIO21 | 40 |
+| Keyed switch 1 | SW5 | GPIO26 | 37 |
+| Keyed switch 2 | SW6 | GPIO21 | 40 |
 | LED 1 (Blue) | LED1 | GPIO17 | 11 |
 | LED 2 (Yellow) | LED2 | GPIO27 | 13 |
 | LED 3 (Orange) | LED3 | GPIO22 | 15 |
@@ -103,8 +106,8 @@ switch harness, LED harness, connector jack harness, and common ground rail.
    GPIO6  ──[SW2 Safety switch 2]── GND
    GPIO13 ──[SW3 Toggle switch 1]── GND
    GPIO19 ──[SW4 Toggle switch 2]── GND
-   GPIO26 ──[SW5 Keyed switch 1]── GND       (utility: re-arm)
-   GPIO21 ──[SW6 Keyed switch 2]── GND       (utility: self-test)
+   GPIO26 ──[SW5 Keyed switch 1]── GND
+   GPIO21 ──[SW6 Keyed switch 2]── GND
 
    GPIO17 ──[330Ω]──▶│── GND   (LED1 blue)
    GPIO27 ──[330Ω]──▶│── GND   (LED2 yellow)
@@ -143,21 +146,24 @@ These cables are for the later demo bundle and are **independent of the Pi
 harness for now**. They do not add wires to the Pi header or change the J1-J4
 receptacle GPIO mapping above.
 
-Because J1-J4 use all four possible receptacle contact positions, a 2-pin
-Side A to 4-pin quad Side B cable can be built in **6 unique two-contact
-combinations**:
+Because J1-J4 use all four possible receptacle contact positions, the demo
+bundle can be built in **6 unique two-contact combinations**. To match the
+current connector inventory, only the first four cables consume 2-pin Side A
+plugs; Cable 5 and Cable 6 use quad plugs on both ends with unused Side A pins
+3 and 4 left open.
 
-| Cable | Pinout | J contacts covered | Notes |
-|---|---|---|---|
-| Cable 1 | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 4 | J1 and J4 | Matches the requested first cable format |
-| Cable 2 | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 1 | J1 and J2 | Alternate pairing |
-| Cable 3 | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 2 | J1 and J3 | Alternate pairing |
-| Cable 4 | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 2 | J2 and J3 | Alternate pairing |
-| Cable 5 | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 4 | J2 and J4 | Alternate pairing |
-| Cable 6 | Side A pin 1 to Side B pin 2<br>Side A pin 2 to Side B pin 4 | J3 and J4 | Alternate pairing |
+| Cable | Side A plug | Side B plug | Pinout | J contacts covered | Notes |
+|---|---|---|---|---|---|
+| Cable 1 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 4 | J1 and J4 | Matches the requested first cable format |
+| Cable 2 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 1 | J1 and J2 | Alternate pairing |
+| Cable 3 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 2 | J1 and J3 | Alternate pairing |
+| Cable 4 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 2 | J2 and J3 | Alternate pairing |
+| Cable 5 | 4-pin quad plug | 4-pin quad plug | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 4 | J2 and J4 | Leave Side A pins 3 and 4 unused/open |
+| Cable 6 | 4-pin quad plug | 4-pin quad plug | Side A pin 1 to Side B pin 2<br>Side A pin 2 to Side B pin 4 | J3 and J4 | Leave Side A pins 3 and 4 unused/open |
 
 For the current standalone pinout documentation, these 6 cables are the build
-list and no Pi GPIO or GND connection is assigned yet.
+list and no Pi GPIO or GND connection is assigned yet. The J1-J4 receptacle
+wiring stays unchanged.
 
 ## Software design
 
@@ -180,19 +186,14 @@ list and no Pi GPIO or GND connection is assigned yet.
   non-blocking) so a slow/dropped network connection never stalls GPIO
   polling. Runs in console-only mode if `AZURE_IOT_CONNECTION_STRING` isn't
   set, for bench-testing without cloud credentials.
-- **`panel_controller.py`** — the main loop: reads SW1-SW4 into
-  that device's switch keys, evaluates `win` and each lamp's `when`
-  expression, drives the 4 LEDs, and publishes telemetry on state change plus
-  a 30s heartbeat. SW5/SW6 are handled as edge-triggered utility buttons
-  outside the per-device logic.
-- **`logic_maps/<slug>.json`** — one file per Power App-selectable device/mode
-  (12 total, including `demo-info.json` for the intro state), each a direct
-  transcription of that device's `fault`/`checkWin`/`computeLamps` from
-  `power pages/restore-and-spin/src/data/deviceProfiles.ts`, collapsed from
-  4-color lamps (off/green/amber/red) to lit/unlit per the single-color LED
-  decision. **These are hand-ported and can drift from `deviceProfiles.ts`
-  if one side changes — there's no shared source of truth yet.** If the web
-  demo's fault/win logic changes, update the matching JSON file here too.
+- **`panel_controller.py`** — the main loop: selects the active mode from the
+  Power App/Page state, reads SW1-SW6 and J1-J4 into that mode's restore keys,
+  evaluates `win` and each lamp's `when` expression, drives the 4 LEDs, and
+  publishes telemetry on mode change, state change, heartbeat, and win.
+- **`logic_maps/<slug>.json`** — one file per Power App-selectable device/mode.
+  There are 12 playable maps plus `demo-info.json` for the intro state. Each
+  playable map includes a `restoreSequence` that mirrors
+  `power pages/copilotiotgame/src/data/deviceProfiles.ts`.
 
 ### Logic map schema
 
