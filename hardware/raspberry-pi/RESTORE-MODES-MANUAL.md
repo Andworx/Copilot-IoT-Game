@@ -1,12 +1,18 @@
 # Pi Panel 12-Mode Restoration User Manual
 
 **For reading and printing:** open the [print-ready PDF](../../output/pdf/RESTORE-MODES-MANUAL.pdf).
-It includes a contents page, a control guide, one page per mode, and a cable
-reference appendix. Print in portrait on US Letter at 100%, or use Fit for A4.
+The participant edition is a 100-page troubleshooting handbook, with seven
+pages per mode, diagnostic guidance, cross-references, control indexes, and
+record sheets. Print single-sided for a 100-sheet binder, in portrait on US
+Letter at 100%, or use Fit for A4.
 
-This Markdown file is the maintained source for the mode procedures. To rebuild
+This concise Markdown file is the maintainer source, not the participant handout.
+For the manual-versus-agent demonstration, see [the facilitator guide](MANUAL-VS-AGENT-DEMO.md).
+To rebuild
 the PDF, install Python's `reportlab` package and run
 `python hardware/raspberry-pi/build_restore_manual.py` from the repository root.
+The generator validates the ordered controls, labels, and target states against
+the Pi logic maps and checks chapter pagination during generation.
 
 Use this guide to restore each playable mode on the physical Pi panel. The Power App/Page selects the mode; the Pi reads the six switches and four sockets.
 

@@ -28,8 +28,11 @@ Use `RESTORE-MODES-MANUAL.md` as the operator-facing guide for restoring each
 of the 12 playable modes during demos.
 
 For a paginated manual, open the [print-ready PDF](../../output/pdf/RESTORE-MODES-MANUAL.pdf).
-It has one page per mode and a separate cable reference. Print on US Letter in
-portrait at 100% (or Fit on A4). After editing the Markdown procedures, regenerate
+It is a 100-page participant handbook with seven pages per mode, diagnostic
+guidance, control indexes, and record sheets. For the manual-versus-agent demo,
+use the [facilitator guide](MANUAL-VS-AGENT-DEMO.md) and give participants the PDF,
+not the concise Markdown source. Print single-sided on US Letter in portrait at
+100% for a 100-sheet binder (or Fit on A4). After editing the procedures, regenerate
 the PDF with `python hardware/raspberry-pi/build_restore_manual.py` (requires
 `reportlab`) and check the page layout. Keep these links and the PDF current when
 the restoration procedures change.
