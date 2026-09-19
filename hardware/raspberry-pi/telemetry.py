@@ -33,9 +33,17 @@ class TelemetryClient:
 
         conn_str = os.environ.get("AZURE_IOT_CONNECTION_STRING")
         if conn_str and IoTHubDeviceClient is not None:
-            self._client = IoTHubDeviceClient.create_from_connection_string(conn_str)
-            self._client.connect()
-            log.info("Connected to Azure IoT Hub")
+            try:
+                self._client = IoTHubDeviceClient.create_from_connection_string(conn_str)
+                self._client.connect()
+                log.info("Connected to Azure IoT Hub")
+            except Exception:
+                log.exception(
+                    "Failed to connect to Azure IoT Hub with the configured "
+                    "AZURE_IOT_CONNECTION_STRING — telemetry will be logged "
+                    "locally only, not sent to Azure IoT Hub."
+                )
+                self._client = None
         else:
             log.warning(
                 "AZURE_IOT_CONNECTION_STRING not set (or azure-iot-device not installed) "
