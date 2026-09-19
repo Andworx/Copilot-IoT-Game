@@ -67,8 +67,11 @@ is stored. Run that workflow (`deploy`) before this change ships, or the trigger
 
 A generic event log for any "thing" (this panel, a claw machine, a future device). Four short,
 filterable columns plus a JSON payload with everything specific to that thing, so a new kind of
-thing is a new payload shape, never a new column. Organization-owned, in the `CopilotIoTGame`
-solution.
+thing is a new payload shape, never a new column. Organization-owned. Create it in the shared
+**`andy_PrizeEngine`** solution (the one the claw machine and this game both build on, where
+`andy_prizes` and `andy_prizetypes` live) so other projects can reuse it, and also add it to
+`CopilotIoTGame` so this repo's `pac solution export` captures the schema. Permissions are granted
+per project, on each project's own security role.
 
 | Display name | Logical name | Type | Meaning |
 |---|---|---|---|
