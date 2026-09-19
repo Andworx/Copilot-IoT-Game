@@ -24,16 +24,14 @@ Other Power Platform components retain their existing PAC workflows.
   portal-studio sites and will corrupt code site metadata
 - Site name and build-output path live in `copilotiotgame/powerpages.config.json`, not
   passed as CLI flags
-- **Never drop `copilotiotgame/.powerpages-site/` from a deploy artifact or a local
-  upload.** It carries the per-environment manifest `pac pages upload-code-site` needs to
-  recognize the site's existing records; without it, uploads run blind and the live site
-  can keep serving stale content indefinitely no matter how many times a deploy "succeeds"
-  — see `docs/CI_CD.md`'s Power Pages manifest note for the full incident. After any local
-  `pac pages upload-code-site` or `download-code-site`, commit the resulting
-  `.powerpages-site/` changes in the same change set. CI does this automatically by
-  pushing a `chore(power-pages): sync uploaded code site manifest` commit straight to
-  `main` after each deploy (this org disables Actions creating PRs, so it can't open one
-  instead) — no action needed unless that step fails.
+- **`pac pages upload-code-site` updates whichever site its `.powerpages-site/` folder
+  points at, and creates a new website if it matches none.** CI downloads the live
+  site's metadata (`pac pages download-code-site --webSiteId <POWER_PAGES_WEBSITE_ID>`)
+  into the deploy artifact before uploading and fails if the uploaded website ID differs
+  — see `docs/CI_CD.md`. Do the same for any local upload: download the live site first,
+  never upload from the checked-in `.powerpages-site/` snapshot, which is stale and would
+  create a duplicate "CopilotIoTGame" website. Find the live site with `pac pages list`
+  (only one is bound to `copilotiotgame.powerappsportals.com`).
 
 ## App structure
 
