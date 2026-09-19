@@ -21,7 +21,7 @@
       "why": "The game Function App (Flex Consumption). Managed as a whole app, never by template: a Microsoft.Web/sites resource replaces all app settings, including secrets.",
       "type": "Microsoft.Web/sites",
       "resource": "func-aw-azcom-iot-game",
-      "query": "{kind: kind, location: location, identity: identity, httpsOnly: properties.httpsOnly, serverFarmId: properties.serverFarmId, publicNetworkAccess: properties.publicNetworkAccess, functionAppConfig: properties.functionAppConfig}"
+      "query": "{kind: kind, location: location, identity: identity.type, httpsOnly: properties.httpsOnly, serverFarmId: properties.serverFarmId, publicNetworkAccess: properties.publicNetworkAccess, functionAppConfig: properties.functionAppConfig}"
     },
     {
       "name": "functionapp-legacy",
