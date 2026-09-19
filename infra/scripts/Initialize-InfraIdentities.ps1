@@ -6,12 +6,10 @@
 .DESCRIPTION
     Creates, in the resource group:
 
-      id-gha-infra-reader    Reader on the resource group plus a what-if custom role
-                             ("Infra What-If Operator"; Reader alone cannot run what-if, and
-                             nested Bicep modules also need deployments/write, which only
-                             records a deployment and cannot change any resource).
-                             Used by the what-if and drift jobs (GitHub environment
-                             `infra-readonly`, no approval needed). Cannot change anything.
+      id-gha-infra-reader    Reader on the resource group. Used only by the drift job that compares
+                             the reference snapshots (GitHub environment `infra-readonly`). Cannot
+                             change anything. It cannot run what-if: ARM checks that the caller could
+                             write each resource in the template, so what-if runs as the deployer.
 
       id-gha-infra-deployer  Used by the deploy job (GitHub environment `infra-deploy`, which
                              should only allow the `main` branch, and require a reviewer where the
@@ -55,7 +53,6 @@ $deployerName = 'id-gha-infra-deployer'
 $receiverRoleId = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'          # Azure Event Hubs Data Receiver
 $rbacAdminRoleId = 'f58310d9-a9f6-439a-9e8d-f62e7b41a168'          # Role Based Access Control Administrator
 $deployRoleName = 'Infra Deployment Operator'
-$whatIfRoleName = 'Infra What-If Operator'
 
 function Invoke-Step($description, [scriptblock]$action) {
     if ($PSCmdlet.ShouldProcess($ResourceGroup, $description)) {
@@ -147,12 +144,6 @@ function New-CustomRole($name, $description, $actions) {
 
 New-CustomRole $deployRoleName 'Create and read resource group deployments (what-if/deploy). No resource write access by itself.' @(
     'Microsoft.Resources/deployments/*', 'Microsoft.Resources/subscriptions/resourceGroups/read')
-# deployments/write is required because what-if evaluates each Bicep module as a nested deployment.
-# It only records deployments: with no resource-level permissions, this role cannot change any resource.
-New-CustomRole $whatIfRoleName 'Run what-if (incl. nested Bicep modules). Can record deployments but has no permission to change any resource.' @(
-    'Microsoft.Resources/deployments/whatIf/action', 'Microsoft.Resources/deployments/write',
-    'Microsoft.Resources/deployments/read', 'Microsoft.Resources/deployments/operations/read',
-    'Microsoft.Resources/subscriptions/resourceGroups/read')
 
 function New-Assignment($identityName, $role, $scope, $extra = @()) {
     $principal = az identity show -g $ResourceGroup -n $identityName --query principalId -o tsv 2>$null
@@ -165,7 +156,6 @@ function New-Assignment($identityName, $role, $scope, $extra = @()) {
 
 # --- reader ---
 New-Assignment $readerName 'Reader' $rgScope
-New-Assignment $readerName $whatIfRoleName $rgScope
 
 # --- deployer ---
 New-Assignment $deployerName 'Reader' $rgScope
