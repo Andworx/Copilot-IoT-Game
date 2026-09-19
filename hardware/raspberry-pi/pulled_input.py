@@ -8,9 +8,10 @@ GND, floating or not, whether it's Button.is_pressed or DigitalInputDevice.
 Raw lgpio calls apply the same pull request correctly (also verified:
 `lgpio.gpio_claim_input(h, pin, lgpio.SET_PULL_UP)` reads back HIGH on a
 genuinely floating pin). Until that gpiozero bug is fixed upstream, every
-panel input that depends on an internal pull -- the 6 switches and the 4
-connector jacks -- goes through this thin wrapper instead of gpiozero's
-Button/DigitalInputDevice.
+panel input that depends on an internal pull -- the 6 switches -- goes
+through this thin wrapper instead of gpiozero's
+Button/DigitalInputDevice. (The cable-socket nodes in cable_matrix.py use raw
+lgpio directly for the same reason.)
 
 Outputs (LEDs) are unaffected by this bug -- an output just drives the line
 directly, no pull configuration involved -- so those still use gpiozero's LED

@@ -69,7 +69,7 @@
       "physicalPin": "J3",
       "key": "socket_j3",
       "label": "Socket J3 connected",
-      "target": true
+      "target": false
     },
     {
       "physicalPin": "SW1",
@@ -146,10 +146,10 @@
       "when": "win"
     }
   ],
-  "win": "cloudsync and socket_j3 and power and not keyed_two and socket_j1 and calibration and not socket_j4 and not keyed_one and not threshold and socket_j2",
+  "win": "cloudsync and not socket_j3 and power and not keyed_two and socket_j1 and calibration and not socket_j4 and not keyed_one and not threshold and socket_j2",
   "faultStartingState": {
     "cloudsync": false,
-    "socket_j3": false,
+    "socket_j3": true,
     "power": false,
     "keyed_two": true,
     "socket_j1": false,

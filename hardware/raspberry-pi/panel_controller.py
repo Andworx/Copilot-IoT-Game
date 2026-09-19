@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Restore & Spin panel Pi controller.
 
-Reads the 6 panel switches and 4 connector jacks; applies the mode selected by
+Reads the 6 panel switches and scans the 4 cable sockets; applies the mode selected by
 Power Apps/Page (or a local fallback); evaluates logic_maps/<slug>.json; drives
 the 4 panel LEDs; and publishes state to Azure IoT Hub. See
 hardware/raspberry-pi/README.md for the full wiring diagram and design notes.
@@ -21,6 +21,7 @@ from gpiozero import LED
 
 import config
 import safe_eval
+from cable_matrix import CableMatrix
 from pulled_input import PulledInput
 from telemetry import TelemetryClient
 
@@ -40,9 +41,7 @@ class PanelController:
             name: PulledInput(pin) for name, pin in config.SWITCH_PINS.items()
         }
         self.leds = {name: LED(pin) for name, pin in config.LED_PINS.items()}
-        self.connectors = {
-            name: PulledInput(pin) for name, pin in config.CONNECTOR_PINS.items()
-        }
+        self.cable_matrix = CableMatrix()
 
         self.telemetry = TelemetryClient()
         self.logic_maps = self._load_logic_maps()
@@ -74,7 +73,10 @@ class PanelController:
         return {name: pin.is_active for name, pin in self.switches.items()}
 
     def _read_connector_state(self):
-        return {name: pin.is_active for name, pin in self.connectors.items()}
+        """Returns (plugged, cables): per-socket presence for the restore logic,
+        and the recognised cables ({"cable": n | None, "sockets": [...]})."""
+        cables, plugged = self.cable_matrix.read()
+        return plugged, cables
 
     def _read_mode_from_url(self):
         if not self.mode_state_url:
@@ -165,9 +167,9 @@ class PanelController:
 
     def run(self):
         log.info(
-            "Panel controller started. Watching Power App/Page mode + %d switches + %d connectors.",
+            "Panel controller started. Watching Power App/Page mode + %d switches + %d cable sockets.",
             len(self.switches),
-            len(self.connectors),
+            len(config.SOCKET_NODES),
         )
         try:
             while True:
@@ -175,7 +177,7 @@ class PanelController:
                 self._poll_mode_selection()
 
                 raw_switches = self._read_switch_state()
-                raw_connectors = self._read_connector_state()
+                raw_connectors, cables = self._read_connector_state()
 
                 if self._active_profile is not None:
                     state, win, lamp_state = self._apply_profile(
@@ -192,6 +194,7 @@ class PanelController:
                         "controls": state,
                         "rawSwitches": raw_switches,
                         "rawConnectors": raw_connectors,
+                        "cables": cables,
                         "lamps": {
                             lamp["key"]: lamp_state.get(lamp["physicalPin"], False)
                             for lamp in self._active_profile["lamps"]
@@ -222,6 +225,7 @@ class PanelController:
         log.info("Shutting down — turning off all LEDs")
         for led in self.leds.values():
             led.off()
+        self.cable_matrix.close()
         self.telemetry.close()
 
 

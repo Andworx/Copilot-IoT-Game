@@ -3,7 +3,7 @@
 Python firmware for the physical control panel that drives the
 [`copilotiotgame`](../../power%20pages/copilotiotgame/) kiosk game. This is the
 **panel Pi**: it reads 6 physical switches (2 safety switches, 2 toggle
-switches, and 2 keyed switches) and 4 panel-side connector jack inputs; drives
+switches, and 2 keyed switches) and scans 4 panel-side cable sockets; drives
 4 LEDs; and publishes state to Azure IoT Hub. It does
 **not** drive the kiosk touchscreen.
 
@@ -17,7 +17,8 @@ order:
 - `SW1-SW2` — safety switches.
 - `SW3-SW4` — toggle switches.
 - `SW5-SW6` — keyed switches.
-- `J1-J4` — panel-side connector jack inputs.
+- `J1-J4` — panel-side cable sockets. A socket reads as connected when a
+  cable is plugged into it (see "Cable matrix" below).
 
 The selected mode determines which real-world meaning each control has. The
 same restore sequence is represented in the Power Pages `deviceProfiles.ts` data
@@ -37,19 +38,16 @@ the PDF with `python hardware/raspberry-pi/build_restore_manual.py` (requires
 `reportlab`) and check the page layout. Keep these links and the PDF current when
 the restoration procedures change.
 
-## Known open item: telemetry payload schema
+## Telemetry payload and the cloud pipeline
 
-`GAME_MODE_PLAN.md` §1/§4 says this panel Pi is **already registered to Azure
-IoT Hub** from the sibling `copilot-iot-service` project, and that this build
-should add the selected device/mode fields "to the same payload already sent
-for switch/LED state." That existing payload schema lives in
-`copilot-iot-service`, which isn't in this repo/workspace, so the JSON shape
-below is a reasonable new design, not a verified match to what the existing
-Azure Function/`andy_iottelemetryevent` table already expects. Reconcile field
-names with that project before wiring this into the live pipeline — see
-"Telemetry payload" below. If downstream code still expects the previous
-logical mode-index field name, map it to the Power App-selected mode rather
-than to any physical selector.
+The payload below is consumed by this repo's `azure/` Function App (`iot-telemetry`
+Event Hub trigger, `azure/src/lib/telemetry.ts`), which relays it to the kiosk over
+SignalR and logs it to `andy_iottelemetryevent`. Keep the two in sync when the shape
+changes. The sibling `copilot-iot-service` app expects an older payload
+(`switches`/`actual_leds`/`active_rule`); if it still reads the same IoT Hub, point it at
+its own consumer group and expect it to ignore or mis-handle these messages. If downstream
+code still expects the previous logical mode-index field name, map it to the Power
+App-selected mode rather than to any physical selector.
 
 ## Parts list
 
@@ -60,15 +58,17 @@ than to any physical selector.
 | 2 | Toggle switches | SW3-SW4 |
 | 2 | Keyed switches | SW5-SW6 |
 | 4 | Single-color LEDs (5mm) + 330Ω resistors | LED1 blue, LED2 yellow, LED3 orange, LED4 green; one resistor each, LED cathode/resistor to GND |
-| 4 | 4-pin panel-mount jacks/receptacles (e.g. 4P4C/RJ9 handset jack, or any 4-pin connector) | J1-J4 — these are the panel-side jack/receptacle inputs; wire only the listed signal contact on each receptacle: J1 pin 3, J2 pin 1, J3 pin 2, J4 pin 4 |
-| 4+ | Demo cables / matching 4-pin plugs | Cable pinouts are documented below. They are independent of the Pi harness for now and do not change the J1-J4 receptacle wiring |
+| 4 | 4-pin panel-mount jacks/receptacles (e.g. 4P4C/RJ9 handset jack, or any 4-pin connector) | J1-J4 — wire the contacts listed under "Cable matrix": J1 pins 1-4, J2/J3/J4 pins 1-2 |
+| 10 | 330-470Ω resistors (optional) | One in series with each socket contact wire, for ESD/short protection |
+| 12 | Demo cables: one 2-pin plug (side A) and one 4-pin quad plug (side B) each | Build list under "Cable matrix" |
 | — | Hookup wire, breadboard/perfboard, pull-up not needed (internal pull-ups used throughout) | |
 
 ## GPIO pinout (BCM numbering)
 
 All inputs use the Pi's **internal pull-up**. Each switch wires its signal pin
-to a GPIO and its return to GND. Each jack/receptacle wires only the listed
-signal contact to a GPIO; no demo cable pinout changes the Pi harness for now.
+to a GPIO and its return to GND. The cable sockets are different: each wired
+socket contact goes to its own GPIO and **nothing on a socket goes to GND**;
+cables are detected by which contacts they bridge (see "Cable matrix").
 No external resistors are needed except the LED current-limiting resistors.
 
 | Function | Signal | BCM GPIO | Physical pin |
@@ -83,21 +83,30 @@ No external resistors are needed except the LED current-limiting resistors.
 | LED 2 (Yellow) | LED2 | GPIO27 | 13 |
 | LED 3 (Orange) | LED3 | GPIO22 | 15 |
 | LED 4 (Green) | LED4 | GPIO23 | 16 |
-| Connector 1 — receptacle pin 3 | J1 | GPIO24 | 18 |
-| Connector 2 — receptacle pin 1 | J2 | GPIO25 | 22 |
-| Connector 3 — receptacle pin 2 | J3 | GPIO12 | 32 |
-| Connector 4 — receptacle pin 4 | J4 | GPIO16 | 36 |
+| J1 pin 1 | J1P1 | GPIO4 | 7 |
+| J1 pin 2 | J1P2 | GPIO18 | 12 |
+| J1 pin 3 | J1P3 | GPIO24 | 18 |
+| J1 pin 4 | J1P4 | GPIO16 | 36 |
+| J2 pin 1 | J2P1 | GPIO25 | 22 |
+| J2 pin 2 | J2P2 | GPIO20 | 38 |
+| J3 pin 1 | J3P1 | GPIO2 | 3 |
+| J3 pin 2 | J3P2 | GPIO12 | 32 |
+| J4 pin 1 | J4P1 | GPIO3 | 5 |
+| J4 pin 2 | J4P2 | GPIO7 | 26 |
 
-**14 of the Pi's 26 usable GPIO pins used, 12 spare** (GPIO2, 3, 4, 7, 8, 9,
-10, 11, 14, 15, 18, 20). GPIO0/1 (ID_SD/ID_SC, reserved for HAT EEPROM) are not
-used. All pin assignments live in `config.py` — change them there, not in
-`panel_controller.py`.
+**20 of the Pi's 26 usable GPIO pins used, 6 spare** (GPIO8, 9, 10, 11, 14, 15 —
+the SPI0 and UART pins, which this project has found unreliable as pulled-up
+inputs; see `pulled_input.py`). GPIO0/1 (ID_SD/ID_SC, reserved for HAT EEPROM)
+are not used. GPIO2/3 have board-level I2C pull-ups, which is fine here since
+the cable scan only ever drives them low. GPIO7 has only been proven as an
+output on this project, so bench-test J4 pin 2 first. All pin assignments live
+in `config.py` — change them there, not in `panel_controller.py`.
 
 ## Wiring diagram
 
 Open the full draw.io wiring diagram in
 [`panel-pi-wiring.drawio`](panel-pi-wiring.drawio). It shows the Pi header,
-switch harness, LED harness, connector jack harness, and common ground rail.
+switch harness, LED harness, cable socket matrix, and common ground rail.
 
 ### Text schematic
 
@@ -114,56 +123,77 @@ switch harness, LED harness, connector jack harness, and common ground rail.
    GPIO22 ──[330Ω]──▶│── GND   (LED3 orange)
    GPIO23 ──[330Ω]──▶│── GND   (LED4 green)
 
-   GPIO24 ──[J1 receptacle pin 3]
-   GPIO25 ──[J2 receptacle pin 1]
-   GPIO12 ──[J3 receptacle pin 2]
-   GPIO16 ──[J4 receptacle pin 4]
-        (J1-J4 receptacle wiring stays Pi-side only for now)
+   GPIO4  ──[330Ω]──[J1 pin 1]     GPIO25 ──[330Ω]──[J2 pin 1]
+   GPIO18 ──[330Ω]──[J1 pin 2]     GPIO20 ──[330Ω]──[J2 pin 2]
+   GPIO24 ──[330Ω]──[J1 pin 3]     GPIO2  ──[330Ω]──[J3 pin 1]
+   GPIO16 ──[330Ω]──[J1 pin 4]     GPIO12 ──[330Ω]──[J3 pin 2]
+   GPIO3  ──[330Ω]──[J4 pin 1]     GPIO7  ──[330Ω]──[J4 pin 2]
+        (no socket contact goes to GND; cables bridge contacts to each other)
 ```
 
-### Connector wiring
+### Cable matrix
 
-Each 4-pin jack/receptacle uses **only one selected contact as the GPIO
-signal** (pulled up internally). This is the Pi panel-side wiring only:
+The four sockets J1-J4 detect **which cable is plugged in and where**, not just
+whether something is plugged in. Every wired socket contact has its own GPIO and
+nothing on a socket goes to GND. A cable only bridges contacts to each other.
 
-| Connector | Receptacle contact wired to Pi GPIO | Pi GPIO |
-|---|---:|---|
-| J1 | Pin 3 | GPIO24 |
-| J2 | Pin 1 | GPIO25 |
-| J3 | Pin 2 | GPIO12 |
-| J4 | Pin 4 | GPIO16 |
+| Socket | Wired contacts | Notes |
+|---|---|---|
+| J1 | pins 1, 2, 3, 4 | The only full quad socket. Takes the side B end of any cable that uses B pin 3 or 4. |
+| J2 | pins 1, 2 | The contacts a 2-pin side A plug lands on. |
+| J3 | pins 1, 2 | Same. |
+| J4 | pins 1, 2 | Same. |
 
-Leave the other receptacle contacts open for now unless a future Pi-side common
-return is intentionally added. The demo cable pinouts below are standalone cable
-documentation and do not change the Pi wiring. This is presence/continuity only
-— the firmware does not try to distinguish one cable from another (see "Known
-open item" above for what a richer per-cable-identity design would need — an ID
-resistor per cable plus an ADC, since the Pi has no built-in analog input).
+The GPIO for each contact is in the pinout table above and in
+`config.SOCKET_NODES`. Leave unlisted contacts open.
 
-### Demo cable pinouts
+**How it is read** (`cable_matrix.py`): every node idles as an input with a
+pull-up. The scan drives one node low, reads the other nine, and repeats for
+each node. A node that follows it low is wired to it through a cable. Only one
+node is driven at a time, and only low, so a wrongly-plugged cable cannot short
+two outputs together. A change is accepted after two identical scans in a row.
+Bridges are grouped by socket pair and matched against the cable build list.
+Two cables at once decode independently.
 
-These cables are for the later demo bundle and are **independent of the Pi
-harness for now**. They do not add wires to the Pi header or change the J1-J4
-receptacle GPIO mapping above.
+**What the controller reports:** `J1`-`J4` are true when a cable with at least
+one visible wire is plugged into that socket, which is what the restore
+sequences use. The telemetry payload also carries
+`cables: [{"cable": 4, "sockets": ["J2", "J3"]}]`. `cable` is `null` for
+something the build list does not recognise, such as a cable with a broken wire.
+A plug that lands only on unwired contacts (for example a side B plug using pin
+3 in J2) reads as unplugged.
 
-Because J1-J4 use all four possible receptacle contact positions, the demo
-bundle can be built in **6 unique two-contact combinations**. To match the
-current connector inventory, only the first four cables consume 2-pin Side A
-plugs; Cable 5 and Cable 6 use quad plugs on both ends with unused Side A pins
-3 and 4 left open.
+### Demo cable build list
 
-| Cable | Side A plug | Side B plug | Pinout | J contacts covered | Notes |
-|---|---|---|---|---|---|
-| Cable 1 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 4 | J1 and J4 | Matches the requested first cable format |
-| Cable 2 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 1 | J1 and J2 | Alternate pairing |
-| Cable 3 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 2 | J1 and J3 | Alternate pairing |
-| Cable 4 | 2-pin plug | 4-pin quad plug | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 2 | J2 and J3 | Alternate pairing |
-| Cable 5 | 4-pin quad plug | 4-pin quad plug | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 4 | J2 and J4 | Leave Side A pins 3 and 4 unused/open |
-| Cable 6 | 4-pin quad plug | 4-pin quad plug | Side A pin 1 to Side B pin 2<br>Side A pin 2 to Side B pin 4 | J3 and J4 | Leave Side A pins 3 and 4 unused/open |
+Side A is always a **2-pin plug** that lands on socket contacts 1 and 2; side B
+is a **4-pin quad plug**. Each cable has two wires. The 12 cables below are all
+of the two-wire patterns, and each produces a different set of bridged contacts,
+so the Pi can tell every one apart.
 
-For the current standalone pinout documentation, these 6 cables are the build
-list and no Pi GPIO or GND connection is assigned yet. The J1-J4 receptacle
-wiring stays unchanged.
+| Cable | Pinout | B end must go in | A end goes in |
+|---|---|---|---|
+| Cable 1 | A1 to B3, A2 to B4 | J1 | J2, J3 or J4 |
+| Cable 2 | A1 to B3, A2 to B1 | J1 | J2, J3 or J4 |
+| Cable 3 | A1 to B3, A2 to B2 | J1 | J2, J3 or J4 |
+| Cable 4 | A1 to B1, A2 to B2 | any socket | any other socket |
+| Cable 5 | A1 to B1, A2 to B4 | J1 | J2, J3 or J4 |
+| Cable 6 | A1 to B2, A2 to B4 | J1 | J2, J3 or J4 |
+| Cable 7 | A1 to B4, A2 to B3 | J1 | J2, J3 or J4 |
+| Cable 8 | A1 to B1, A2 to B3 | J1 | J2, J3 or J4 |
+| Cable 9 | A1 to B2, A2 to B3 | J1 | J2, J3 or J4 |
+| Cable 10 | A1 to B2, A2 to B1 | any socket | any other socket |
+| Cable 11 | A1 to B4, A2 to B1 | J1 | J2, J3 or J4 |
+| Cable 12 | A1 to B4, A2 to B2 | J1 | J2, J3 or J4 |
+
+Cables 4 and 10 are the only ones that work between any pair of sockets. Cable 4
+is a straight 1-to-1, 2-to-2 lead and Cable 10 is crossed. The other ten need
+the quad end in J1. Label both ends (`C7-A`, `C7-B`) so they go in the right
+way round.
+
+Single-wire cables are possible too, but they are not in the catalogue (two of
+them are mirror images the Pi cannot tell apart). Add any you want to `CABLES`
+in `cable_matrix.py`. `python -m unittest test_cable_matrix` (from this folder,
+no Pi needed) checks that no two cables in `CABLES` can be confused.
 
 ## Software design
 
@@ -174,20 +204,23 @@ wiring stays unchanged.
   untrusted strings, even though these JSON files are repo-authored and
   trusted.
 - **`pulled_input.py`** — a raw-`lgpio` replacement for gpiozero's
-  `Button`/`DigitalInputDevice` on every pulled-up input (switches and
-  connectors). Confirmed on real hardware that gpiozero
+  `Button`/`DigitalInputDevice` on every pulled-up switch input. Confirmed on real hardware that gpiozero
   2.0.1.post3's `LGPIOFactory` records a `pull_up=True` request
   (`pin.pull` reports `"up"`) but never actually applies it — every
   floating input reads permanently low regardless of pull_up, while raw
   `lgpio` calls apply the same request correctly. Re-test against a plain
   `gpiozero.DigitalInputDevice`/`Button` before ever reverting this —
   if a future gpiozero release fixes the bug, this workaround can go.
+- **`cable_matrix.py`** — scans the 10 socket contacts (drive one low, read the
+  rest), debounces, and decodes the bridges into per-socket presence and cable
+  numbers. Its `CABLES` table is the cable build list. Tested off-Pi with
+  `python -m unittest test_cable_matrix` (fake GPIO backend, no `lgpio`).
 - **`telemetry.py`** — a background-threaded Azure IoT Hub publisher (queued,
   non-blocking) so a slow/dropped network connection never stalls GPIO
   polling. Runs in console-only mode if `AZURE_IOT_CONNECTION_STRING` isn't
   set, for bench-testing without cloud credentials.
 - **`panel_controller.py`** — the main loop: selects the active mode from the
-  Power App/Page state, reads SW1-SW6 and J1-J4 into that mode's restore keys,
+  Power App/Page state, reads SW1-SW6 and J1-J4 (via the cable matrix) into that mode's restore keys,
   evaluates `win` and each lamp's `when` expression, drives the 4 LEDs, and
   publishes telemetry on mode change, state change, heartbeat, and win.
 - **`logic_maps/<slug>.json`** — one file per Power App-selectable device/mode.
@@ -231,7 +264,8 @@ change, and the moment a device is won:
   "modeIndex": 2,
   "switches": { "power": true, "eco": false, "fan": true, "mode": false },
   "lamps": { "power": true, "heating": true, "cooling": false, "fault": false },
-  "connectors": { "J1": false, "J2": true, "J3": false, "J4": false },
+  "connectors": { "J1": false, "J2": true, "J3": true, "J4": false },
+  "cables": [{ "cable": 4, "sockets": ["J2", "J3"] }],
   "win": true,
   "eventType": "win",
   "timestamp": "2026-09-04T12:34:56.789012+00:00"
@@ -240,7 +274,7 @@ change, and the moment a device is won:
 
 Reconcile this shape with whatever `copilot-iot-service`'s Azure Function
 already expects for `andy_iottelemetryevent` before pointing this at the live
-Function — see "Known open item" above.
+Function — see "Telemetry payload and the cloud pipeline" above.
 
 ## Setup
 
@@ -293,9 +327,18 @@ it in) plus the `Run on boot` steps below.
 ```bash
 sudo cp systemd/restore-and-spin-panel.service /etc/systemd/system/
 sudo systemctl daemon-reload
+sudo systemctl enable systemd-time-wait-sync.service   # makes time-sync.target actually wait for NTP
 sudo systemctl enable --now restore-and-spin-panel.service
 journalctl -u restore-and-spin-panel.service -f   # tail logs
 ```
+
+**Why the time-sync line matters.** The Pi has no battery-backed clock, so after power-up its
+clock is wrong until NTP syncs (minutes later on a slow network; in one incident, hours). IoT Hub
+authenticates the device with a time-based token, so a service that starts first is refused
+("Connection Refused: not authorised") even though the key is right. The unit now waits for time
+sync, and `telemetry.py` retries a refused connection with backoff (30s, 1m, 2m, then every 5m)
+instead of staying offline until restarted. Check a Pi's credential and connectivity, without
+printing the key, with `.venv/bin/python3 check_iot_connection.py`.
 
 Adjust `WorkingDirectory`/`ExecStart`/`EnvironmentFile` in the unit file if
 this repo isn't cloned to `/home/pi/restore-and-spin`.

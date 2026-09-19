@@ -117,7 +117,7 @@
       "physicalPin": "J4",
       "key": "socket_j4",
       "label": "Socket J4 connected",
-      "target": true
+      "target": false
     }
   ],
   "lamps": [
@@ -146,7 +146,7 @@
       "when": "win"
     }
   ],
-  "win": "socket_j1 and not manual and power and socket_j3 and keyed_one and controller and not socket_j2 and not keyed_two and timing and socket_j4",
+  "win": "socket_j1 and not manual and power and socket_j3 and keyed_one and controller and not socket_j2 and not keyed_two and timing and not socket_j4",
   "faultStartingState": {
     "socket_j1": false,
     "manual": true,
@@ -157,7 +157,7 @@
     "socket_j2": true,
     "keyed_two": true,
     "timing": false,
-    "socket_j4": false
+    "socket_j4": true
   },
   "winMessage": "Traffic signal restored to normal cycle."
 }

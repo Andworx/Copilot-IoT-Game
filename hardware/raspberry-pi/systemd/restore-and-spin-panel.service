@@ -1,7 +1,10 @@
 [Unit]
 Description=Restore & Spin panel Pi controller
-After=network-online.target
-Wants=network-online.target
+# The Pi has no battery clock. Starting before network time sync gives IoT Hub a token stamped
+# with the wrong time, which it refuses. time-sync.target only waits if
+# systemd-time-wait-sync.service is enabled (see README "Run on boot").
+After=network-online.target time-sync.target
+Wants=network-online.target time-sync.target
 
 [Service]
 Type=simple
