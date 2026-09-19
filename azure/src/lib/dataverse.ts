@@ -58,8 +58,8 @@ async function dataverseFetch(path: string, init: RequestInit = {}): Promise<Res
 }
 
 /**
- * Writes one panel reading to the existing andy_iottelemetryevent table (created by the
- * sibling copilot-iot-service project). The record is built by lib/telemetry.ts.
+ * Writes one event to the generic andy_iottelemetryevent event log (name, device, type, value
+ * plus a JSON payload; see azure/README.md). The record is built by lib/telemetry.ts.
  */
 export async function createTelemetryEvent(record: Record<string, unknown>): Promise<void> {
   await dataverseFetch("andy_iottelemetryevents", {

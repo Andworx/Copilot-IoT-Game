@@ -68,23 +68,31 @@ export function deriveNeedsHelp(payload: PanelPayload): boolean {
   return payload.win === false;
 }
 
-const flag = (value: boolean | undefined) => (value ? 1 : 0);
+/** Identifies the payload shape for this kind of thing; bump the suffix if the shape changes. */
+export const PAYLOAD_SCHEMA = "restore-and-spin/v1";
 
-function flags(record: Record<string, boolean> | undefined): string | null {
-  if (!record) return null;
-  return JSON.stringify(Object.fromEntries(Object.entries(record).map(([k, v]) => [k, flag(v)])));
+/** andy_payload is a multiline text column; keep the JSON comfortably inside its limit. */
+export const MAX_PAYLOAD_CHARS = 10_000;
+
+/** Events worth a history row. Heartbeats only prove the panel is alive, and mode changes carry no state. */
+const LOGGED_EVENT_TYPES = new Set(["state_change", "win"]);
+
+export function shouldLog(payload: PanelPayload): boolean {
+  return LOGGED_EVENT_TYPES.has(payload.eventType ?? "");
 }
 
-/** e.g. "10:J1-J4;12:J2-J3"; an unrecognised cable is "?". */
-export function summarizeCables(cables: PanelCable[] | undefined): string {
-  return (cables ?? []).map((c) => `${c.cable ?? "?"}:${c.sockets.join("-")}`).join(";");
+function valueFor(payload: PanelPayload): string {
+  if (payload.win === true) return "RESTORED";
+  if (payload.win === false) return "UNRESTORED";
+  return "UNKNOWN";
 }
 
 /**
- * Maps a panel payload onto the existing andy_iottelemetryevent columns (no schema
- * change): switch/socket state and lamp state go in the JSON text columns as 0/1 flags,
- * the mode slug plus any recognised cables go in andy_activerule, and "mismatch" means
- * the panel isn't restored.
+ * Maps a panel reading onto the generic andy_iottelemetryevent event log: four short,
+ * filterable columns (name, device, event type, value) plus `andy_payload`, a JSON
+ * document holding everything specific to this kind of thing. A different device (a claw
+ * machine, another IoT panel) writes the same columns with its own payload and schema tag,
+ * so adding a new thing never needs a new column.
  */
 export function toTelemetryRecord(
   payload: PanelPayload,
@@ -92,21 +100,25 @@ export function toTelemetryRecord(
   now: () => Date = () => new Date()
 ): Record<string, unknown> {
   const timestamp = payload.timestamp ?? now().toISOString();
-  const unrestored = payload.win === false;
-  const cables = summarizeCables(payload.cables);
-  const activeRule = [payload.deviceSlug, cables && `cables=${cables}`].filter(Boolean).join(" ");
-  const switchState = flags({ ...payload.rawSwitches, ...payload.rawConnectors });
+  let body = JSON.stringify({ schema: PAYLOAD_SCHEMA, ...payload, timestamp });
+  if (body.length > MAX_PAYLOAD_CHARS) {
+    // Never fail the write over size: keep the headline fields and flag the cut.
+    body = JSON.stringify({
+      schema: PAYLOAD_SCHEMA,
+      truncated: true,
+      deviceSlug: payload.deviceSlug ?? null,
+      win: payload.win ?? null,
+      eventType: payload.eventType ?? null,
+      timestamp,
+    });
+  }
 
   return {
     andy_name: `${deviceId} ${timestamp}`,
     andy_deviceid: deviceId,
     andy_eventtype: payload.eventType ?? "telemetry-snapshot",
-    andy_value: unrestored ? "MISMATCH" : "OK",
-    andy_mismatch: unrestored,
-    andy_activerule: activeRule || null,
-    andy_switchstate: switchState === "{}" ? null : switchState,
-    andy_ledstate: flags(payload.lamps),
-    andy_expectedledstate: null,
+    andy_value: valueFor(payload),
+    andy_payload: body,
   };
 }
 
