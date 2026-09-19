@@ -100,3 +100,14 @@ src/
 │   ├── KioskInfoPage.tsx, KioskDevicePage.tsx, PlaySpinPage.tsx (placeholder)
 └── styles/theme.css          # shared tokens + all 5 skins
 ```
+
+## Deployment
+
+Releases go through GitHub Actions (`.github/workflows/deploy-apps.yml`); see
+`docs/CI_CD.md`. The pipeline pins the live Power Pages website, downloads its
+`.powerpages-site/` metadata, uploads the build and verifies the site ID.
+
+`.powerpages-site/` is generated state owned by the live site, so it is **not tracked
+in git** (it is git-ignored) and should never be committed, hand-edited or reused
+from an old download. For a manual recovery upload, follow the steps in
+`PAC_COMMANDS.md`, which fetch it fresh with `pac pages download-code-site`.

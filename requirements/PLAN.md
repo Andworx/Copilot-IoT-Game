@@ -14,14 +14,14 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 5 | 1 | 0 | 0 | 6 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
-| Power Pages | 3 | 4 | 0 | 0 | 7 |
+| Power Pages | 4 | 4 | 0 | 0 | 8 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
 | Integration (Azure Functions) | 3 | 7 | 0 | 0 | 10 |
 | Power Apps | 2 | 4 | 0 | 0 | 6 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 13 | 20 | 4 | 2 | 39 |
+| Totals | 14 | 20 | 4 | 2 | 40 |
 
 ## Dataverse
 
@@ -55,7 +55,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `copilotiotgame`: all 12 playable device pages + content | Code Site content | ⬜ Verify | Issue #43 — added `industrial-robot-arm` and synchronized unique restore sequences across page data and Pi logic maps. |
 | `copilotiotgame`: root `SignalRContext` + `useDeviceSync` — fetch current state on load, navigate on `deviceChanged` | Code Site — SPA change | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2c — confirmed 2026-09-08: a live tab moved from `/kiosk/info` to `/kiosk/smart-lock` via an external `set-mode` call, no reload |
 | `copilotiotgame`: Game Mode OFF branch on `KioskDevicePage` + new `SuccessPopup` component; auto-rotate to a random enabled mode via `pick-random-mode` after every completion (both Game Mode states) | Code Site — SPA change (`power pages/copilotiotgame`) | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09) — Game Mode ON keeps today's QR/phone-spin/claim flow unchanged; OFF skips `create-win` entirely (no `andy_gamewin` row, per decision to leave OFF completions unlogged) and shows a client-only success popup instead; both states call `POST /api/pick-random-mode` on completion instead of resetting to the same device. Built clean and deployed via `pac pages upload-code-site` |
-| Retire `restore-and-spin`; repoint `deploy-apps.yml` to build/deploy `copilotiotgame` | Code Site — CI/CD fix | ⬜ Verify | 2026-09-12 — `deploy-apps.yml` had never been repointed after `copilotiotgame` replaced `restore-and-spin` (2026-09-10), so every merge touching the old app's path re-deployed it over the live `CopilotIoTGame` site, silently reverting Game Mode support and the real QR to the old no-Game-Mode/fake-QR prototype. Fixed the workflow, deleted `power pages/restore-and-spin/`, updated docs/instructions referencing it. Verify: after the next deploy, confirm the live site actually serves `copilotiotgame`'s bundle and both Game Mode states behave correctly against the real backend |
+| Retire `restore-and-spin`; repoint `deploy-apps.yml` to build/deploy `copilotiotgame` | Code Site — CI/CD fix | ⬜ Verify | 2026-09-12 — `deploy-apps.yml` had never been repointed after `copilotiotgame` replaced `restore-and-spin` (2026-09-10), so every merge touching the old app's path re-deployed it over the live `CopilotIoTGame` site, silently reverting Game Mode support and the real QR to the old no-Game-Mode/fake-QR prototype. Fixed the workflow, deleted `power pages/restore-and-spin/`, updated docs/instructions referencing it. Verify: after the next deploy, confirm the live site actually serves `copilotiotgame`'s bundle and both Game Mode states behave correctly against the real backend 2026-09-19 — live site confirmed serving `copilotiotgame`'s UI after the deploy-target fix below; Game Mode ON/OFF behaviour against the real backend still to check |
+| CI deploys the Power Pages code site to the **live** website (pinned `POWER_PAGES_WEBSITE_ID`, live metadata via `pac pages download-code-site`, post-upload ID check); document platform-generated CSP console messages | Code Site — CI/CD fix | ✅ Done | Issues #48 / PR #50 — every deploy had been creating a new "CopilotIoTGame" website (six orphans) while the live one was never updated; deploy run 35441457949 updated site `4938f099-…` ("Deleted 4 bundle directories", verify step passed, one CopilotIoTGame site remains) and the portal serves the new build (a stale browser cache showed the platform error until cleared; private window OK). Inline-script CSP console errors are Power Pages' own private-site banner/wrapper, not repo output |
 | `copilotiotgame`: live panel state from `SendTelemetryUpdate` (controls, cables, link status) and Help Fix over Direct Line with static-steps fallback | Code Site — SPA change | ⬜ Verify | Verified in a browser against a mock SignalR/Direct Line backend (live/offline status, other-mode readings ignored, agent reply, fallback, win flip). Needs verification against the real pipeline after deployment. |
 
 ## Plugins

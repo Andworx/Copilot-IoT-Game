@@ -1,0 +1,164 @@
+name: Infrastructure
+
+# Azure infrastructure this repo owns (infra/main.bicep). See infra/README.md.
+#
+#   PRs / pushes   Compile + lint the Bicep and check the reference manifest. No cloud credentials.
+#   what-if        Read-only preview against the live resource group (environment infra-readonly).
+#   drift          Read-only: what-if must show no changes, and the IoT Hub/DPS/Function App/storage
+#                  snapshots under infra/reference must match live. Also runs weekly.
+#   deploy         Applies main.bicep and merges the Function App's telemetry settings. Only from
+#                  `main`, only through the `infra-deploy` environment (which only accepts `main`).
+#
+# The deploy identity has write access to the Event Hub namespace, SignalR and the game Function App
+# only. It cannot modify the IoT Hub, DPS, or the legacy Function App (infra/scripts/Initialize-InfraIdentities.ps1).
+
+on:
+  pull_request:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deploy-infra.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deploy-infra.yml'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'What to run against Azure'
+        required: true
+        default: what-if
+        type: choice
+        options: [what-if, drift, deploy]
+  schedule:
+    - cron: '0 13 * * 1'   # weekly drift check, Mondays
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infra-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AZURE_INFRA_RESOURCE_GROUP: rg-aw-azcom-iot-copilot
+  GAME_FUNCTION_APP: func-aw-azcom-iot-game
+  GAME_CONSUMER_GROUP: gamefunc
+
+jobs:
+  validate:
+    name: Validate Bicep
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compile and lint
+        run: |
+          az bicep build --file infra/main.bicep --stdout > /dev/null
+          az bicep build-params --file infra/main.prod.bicepparam --stdout > /dev/null
+          lint="$(az bicep lint --file infra/main.bicep 2>&1)"
+          echo "$lint"
+          if echo "$lint" | grep -qi "error"; then exit 1; fi
+      - name: Reference manifest is valid JSON with a snapshot per resource
+        shell: pwsh
+        run: |
+          $manifest = Get-Content infra/reference/manifest.json -Raw | ConvertFrom-Json
+          foreach ($r in $manifest.resources) {
+            if (-not (Test-Path "infra/reference/snapshots/$($r.name).json")) { throw "Missing snapshot for $($r.name); run Invoke-ReferenceSnapshot.ps1 -Mode Export" }
+          }
+          Write-Host "$($manifest.resources.Count) reference snapshots present"
+
+  what-if:
+    name: What-if (read-only)
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'what-if'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: infra-readonly
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_INFRA_READER_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: What-if
+        run: |
+          az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP" \
+            -f infra/main.bicep -p infra/main.prod.bicepparam --no-prompt
+
+  drift:
+    name: Drift check (read-only)
+    if: (github.event_name == 'workflow_dispatch' && inputs.action == 'drift') || github.event_name == 'schedule'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: infra-readonly
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_INFRA_READER_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Owned resources match main.bicep (no Create/Modify/Delete)
+        run: |
+          az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP" \
+            -f infra/main.bicep -p infra/main.prod.bicepparam --no-pretty-print -o json \
+            > whatif.json
+          python3 - <<'PY'
+          import json, sys
+          changes = [c for c in json.load(open("whatif.json"))["changes"]
+                     if c["changeType"] in ("Create", "Modify", "Delete")]
+          for c in changes:
+              print(c["changeType"], c["resourceId"].split("/providers/")[-1])
+          sys.exit(1 if changes else 0)
+          PY
+      - name: Reference resources match their snapshots
+        shell: pwsh
+        run: ./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check
+
+  deploy:
+    name: Deploy
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'deploy' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: infra-deploy
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Give the Function App a managed identity (idempotent)
+        run: |
+          principal="$(az functionapp identity assign -g "$AZURE_INFRA_RESOURCE_GROUP" -n "$GAME_FUNCTION_APP" --query principalId -o tsv)"
+          echo "::add-mask::$principal"
+          echo "FUNCTION_APP_PRINCIPAL_ID=$principal" >> "$GITHUB_ENV"
+      - name: Deploy infra/main.bicep (incremental)
+        id: deploy
+        run: |
+          az deployment group create -g "$AZURE_INFRA_RESOURCE_GROUP" \
+            -f infra/main.bicep -p infra/main.prod.bicepparam --mode Incremental \
+            --query properties.outputs -o json > outputs.json
+          echo "fqns=$(jq -r .eventHubFullyQualifiedNamespace.value outputs.json)" >> "$GITHUB_OUTPUT"
+          echo "hub=$(jq -r .eventHubName.value outputs.json)" >> "$GITHUB_OUTPUT"
+      - name: Merge the telemetry settings into the Function App (never replaces)
+        shell: pwsh
+        run: |
+          ./infra/scripts/Set-FunctionAppSettings.ps1 `
+            -ResourceGroup $env:AZURE_INFRA_RESOURCE_GROUP `
+            -FunctionAppName $env:GAME_FUNCTION_APP `
+            -EventHubFullyQualifiedNamespace '${{ steps.deploy.outputs.fqns }}' `
+            -EventHubName '${{ steps.deploy.outputs.hub }}' `
+            -ConsumerGroup $env:GAME_CONSUMER_GROUP
+      - name: Reference resources still match their snapshots
+        shell: pwsh
+        run: ./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check
