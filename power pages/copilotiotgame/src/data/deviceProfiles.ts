@@ -47,7 +47,7 @@ const RESTORE_SEQUENCES = {
   ],
   "coldchain-sensor": [
     { physicalPin: "SW4", key: "cloudsync", label: "Toggle switch 2 - cloud sync", target: true },
-    { physicalPin: "J3", key: "socket_j3", label: "Socket J3 connected", target: true },
+    { physicalPin: "J3", key: "socket_j3", label: "Socket J3 connected", target: false },
     { physicalPin: "SW1", key: "power", label: "Safety switch 1 - power", target: true },
     { physicalPin: "SW6", key: "keyed_two", label: "Keyed switch 2", target: false },
     { physicalPin: "J1", key: "socket_j1", label: "Socket J1 connected", target: true },
@@ -115,7 +115,7 @@ const RESTORE_SEQUENCES = {
     { physicalPin: "J2", key: "socket_j2", label: "Socket J2 connected", target: false },
     { physicalPin: "SW6", key: "keyed_two", label: "Keyed switch 2", target: false },
     { physicalPin: "SW3", key: "timing", label: "Toggle switch 1 - timing plan", target: true },
-    { physicalPin: "J4", key: "socket_j4", label: "Socket J4 connected", target: true },
+    { physicalPin: "J4", key: "socket_j4", label: "Socket J4 connected", target: false },
   ],
   "patient-monitor": [
     { physicalPin: "SW5", key: "keyed_one", label: "Keyed switch 1 - nurse key", target: true },
@@ -142,7 +142,7 @@ const RESTORE_SEQUENCES = {
     { physicalPin: "SW5", key: "keyed_one", label: "Keyed switch 1", target: false },
   ],
   "drone-ground-control": [
-    { physicalPin: "J2", key: "socket_j2", label: "Socket J2 connected", target: true },
+    { physicalPin: "J2", key: "socket_j2", label: "Socket J2 connected", target: false },
     { physicalPin: "SW4", key: "uplink", label: "Toggle switch 2 - uplink", target: true },
     { physicalPin: "SW6", key: "keyed_two", label: "Keyed switch 2 - flight key", target: true },
     { physicalPin: "J1", key: "socket_j1", label: "Socket J1 connected", target: true },

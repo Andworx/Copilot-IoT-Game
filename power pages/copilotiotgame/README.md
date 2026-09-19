@@ -49,12 +49,29 @@ real win into the wrong path):
 Both states auto-rotate to a new random *enabled* device (`POST /api/pick-random-mode`)
 after the reset timer elapses.
 
+## Live panel state
+
+The panel Pi's readings reach the page as `SendTelemetryUpdate` on the same SignalR hub as
+`deviceChanged` (Pi → IoT Hub → Event Hub → the Function App's `iot-telemetry` trigger →
+SignalR; see `azure/README.md`). `hooks/usePanelTelemetry.ts` keeps the latest reading
+for the current device:
+
+- **Live** (a reading for this mode in the last 45 s; the Pi heartbeats every 30 s): the
+  on-screen controls mirror the Pi's `controls` (same keys as `deviceProfiles.ts`), taps
+  are ignored, the header shows the real "last update" age, and the footer lists the
+  cables the Pi sees (`#4 J1↔J2`).
+- **No signal:** the controls stay tappable so the kiosk still works as a standalone demo.
+
+Help Fix sends the agent one structured prompt (`lib/quickFixPrompt.ts`): each control's
+current vs. target state, the cables plugged in, and "reply with only a numbered list".
+
 ## What's stubbed, and where the real wiring goes
 
-- **Copilot Studio / Help-Fix.** `HelpFixBar` renders each device's static `steps` array.
-  The real Direct Line integration (matching the sibling `iot-panel-dashboard` app's
-  `AgentButton.tsx`/`useAgentChat.ts` pattern) is being built separately — see
-  `GAME_MODE_PLAN.md` §8.
+- **Copilot Studio agent.** Help Fix already talks to the agent over Direct Line
+  (`hooks/useAgentChat.ts`, ported from the sibling `iot-panel-dashboard`), via
+  `GET /api/directline-token`. Until `DIRECTLINE_SECRET` is set on the Function App the
+  token call returns 503 and the bar falls back to the device's static `steps`. The
+  agent's own topics are built separately — see `GAME_MODE_PLAN.md` §8.
 - **`/play-spin`.** Unbuilt placeholder — see the Routes table above.
 
 **Done, no longer stubbed (vs. the old `restore-and-spin` prototype):** the win QR is a
@@ -70,7 +87,11 @@ src/
 ├── types/game.ts
 ├── context/SignalRContext.tsx  # one SignalR connection for the whole app (GAME_MODE_PLAN.md §4a)
 ├── hooks/useDeviceSync.ts      # fetch-on-load + navigate-on-broadcast (GAME_MODE_PLAN.md §4a)
+├── hooks/usePanelTelemetry.ts  # live panel state from SendTelemetryUpdate
+├── hooks/useAgentChat.ts       # Direct Line quick-fix request/reply
 ├── lib/apiConfig.ts            # azure/ Functions base URL + prize wheel app URL
+├── lib/quickFixPrompt.ts       # the structured prompt Help Fix sends
+├── types/telemetry.ts          # the Pi payload as relayed by the Function App
 ├── components/
 │   ├── LampDot.tsx, TactileButton.tsx, DialTicks.tsx   # shared primitives
 │   ├── HelpFixBar.tsx, WinOverlay.tsx, SuccessPopup.tsx, DemoGearMenu.tsx

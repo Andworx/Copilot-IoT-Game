@@ -18,7 +18,7 @@ export function SuccessPopup({ winMessage, restoreItems, onReset }: SuccessPopup
   const [remaining, setRemaining] = useState(RESET_SECONDS);
 
   // See WinOverlay.tsx for why onReset must stay out of the effect's deps: the parent
-  // re-renders every ~400ms (telemetryTick), which would otherwise clear/restart this
+  // re-renders every second (live panel clock), which would otherwise clear/restart this
   // 1000ms timeout before it ever fires, freezing the countdown at RESET_SECONDS.
   const onResetRef = useRef(onReset);
   onResetRef.current = onReset;

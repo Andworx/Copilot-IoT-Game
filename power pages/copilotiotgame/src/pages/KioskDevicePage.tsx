@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { DEVICE_PROFILES } from "../data/deviceProfiles";
 import type { DeviceState } from "../types/game";
 import { HelpFixBar } from "../components/HelpFixBar";
+import { usePanelTelemetry } from "../hooks/usePanelTelemetry";
+import { buildQuickFixPrompt } from "../lib/quickFixPrompt";
 import { WinOverlay } from "../components/WinOverlay";
 import { SuccessPopup } from "../components/SuccessPopup";
 import { DemoGearMenu } from "../components/DemoGearMenu";
@@ -27,7 +29,7 @@ export function KioskDevicePage() {
   const device = DEVICE_PROFILES[deviceSlug];
 
   const [state, setState] = useState<DeviceState>(() => ({ ...device?.fault }));
-  const [telemetryTick, setTelemetryTick] = useState(0);
+  const { reading, isLive, ageSeconds } = usePanelTelemetry(deviceSlug);
   const [claimToken, setClaimToken] = useState<string | null>(null);
   // Guards create-win re-entry synchronously -- `claimToken` state alone isn't enough
   // because it only updates once the fetch resolves. If gameModeEnabled flips (now live
@@ -40,10 +42,11 @@ export function KioskDevicePage() {
   const [gameModeEnabled, setGameModeEnabled] = useState<boolean | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
+  // Live panel: mirror the Pi's controls (same keys as `state`). Without a live signal the
+  // on-screen controls stay playable so the kiosk still works as a standalone demo.
   useEffect(() => {
-    const id = setInterval(() => setTelemetryTick((t) => (t + 0.4) % 6), 400);
-    return () => clearInterval(id);
-  }, []);
+    if (reading?.controls) setState((prev) => ({ ...prev, ...reading.controls }));
+  }, [reading]);
 
   // Read the Game Mode flag once per device mount, then stay live via the
   // gameModeChanged SignalR broadcast (set-game-mode's counterpart to set-mode's
@@ -126,6 +129,7 @@ export function KioskDevicePage() {
   const lamps = device.computeLamps(state, win);
 
   function handleToggle(key: string) {
+    if (isLive) return; // the physical panel is the source of truth while it is connected
     setState((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
@@ -168,9 +172,9 @@ export function KioskDevicePage() {
       <div className="status-bar">
         <span>
           <span className="live-dot" />
-          PANEL LINK: CONNECTED
+          PANEL LINK: {isLive ? "CONNECTED" : "NO SIGNAL — DEMO CONTROLS"}
         </span>
-        <span>LAST UPDATE {telemetryTick.toFixed(1)}s AGO</span>
+        <span>{isLive ? `LAST UPDATE ${ageSeconds}s AGO` : "TAP THE CONTROLS TO PLAY"}</span>
       </div>
 
       <div className="kiosk-header">
@@ -213,12 +217,26 @@ export function KioskDevicePage() {
         )}
       </div>
 
-      <HelpFixBar isAlert={!win} steps={device.steps} />
+      <HelpFixBar
+        isAlert={!win}
+        steps={device.steps}
+        getPrompt={() => buildQuickFixPrompt(device, state, reading?.cables)}
+      />
 
       <div className="telemetry-strip">
         <span>
-          PANEL_LINK: <span className="live">CONNECTED</span>
+          PANEL_LINK: {isLive ? <span className="live">CONNECTED</span> : "OFFLINE"}
         </span>
+        {isLive && reading?.cables && (
+          <span>
+            CABLES:{" "}
+            {reading.cables.length === 0
+              ? "NONE"
+              : reading.cables
+                  .map((c) => `${c.cable === null ? "?" : `#${c.cable}`} ${c.sockets.join("↔")}`)
+                  .join("  ")}
+          </span>
+        )}
         <span>UNIT: game-panel-01</span>
       </div>
 
