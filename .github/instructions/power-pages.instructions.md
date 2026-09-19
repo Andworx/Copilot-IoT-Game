@@ -27,7 +27,16 @@ Other Power Platform components retain their existing PAC workflows.
 - Build first: `npm run build` from inside `power pages/copilotiotgame`
 - Upload: `pac pages upload-code-site --rootPath "."`, run from that same folder
 - **Never** use `pac pages upload` or `pac pages download` on this site — those target
-  classic portal-studio sites and will corrupt code-site metadata
+  classic portal-studio sites and will corrupt code-site metadata. The code-site variant
+  `pac pages download-code-site --webSiteId <id>` is the correct download command
+- `upload-code-site` has no website-ID option: it updates the site its `.powerpages-site/`
+  folder describes and creates a **new website** if nothing matches. CI pins the live
+  site (`POWER_PAGES_WEBSITE_ID`), downloads its `.powerpages-site/`, uploads, then
+  verifies the ID (see `docs/CI_CD.md`). Never upload from the checked-in
+  `.powerpages-site/` snapshot; it is stale and creates duplicate websites. Only the
+  site bound to `copilotiotgame.powerappsportals.com` is live
+- Console CSP errors about blocked inline scripts on the portal come from Power Pages'
+  own private-site banner and page wrapper; this repo emits no inline scripts
 - Site name and build-output path are in `copilotiotgame/powerpages.config.json`, not
   passed as CLI flags
 
