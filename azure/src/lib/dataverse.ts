@@ -57,6 +57,17 @@ async function dataverseFetch(path: string, init: RequestInit = {}): Promise<Res
   return response;
 }
 
+/**
+ * Writes one panel reading to the existing andy_iottelemetryevent table (created by the
+ * sibling copilot-iot-service project). The record is built by lib/telemetry.ts.
+ */
+export async function createTelemetryEvent(record: Record<string, unknown>): Promise<void> {
+  await dataverseFetch("andy_iottelemetryevents", {
+    method: "POST",
+    body: JSON.stringify(record),
+  });
+}
+
 /** GUID-shaped strings only -- claim tokens and ids get interpolated into OData
  * $filter strings, so this is the injection guard for that. */
 function isGuidLike(value: string): boolean {
