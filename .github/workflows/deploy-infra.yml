@@ -3,9 +3,12 @@ name: Infrastructure
 # Azure infrastructure this repo owns (infra/main.bicep). See infra/README.md.
 #
 #   PRs / pushes   Compile + lint the Bicep and check the reference manifest. No cloud credentials.
-#   what-if        Read-only preview against the live resource group (environment infra-readonly).
-#   drift          Read-only: what-if must show no changes, and the IoT Hub/DPS/Function App/storage
-#                  snapshots under infra/reference must match live. Also runs weekly.
+#   what-if        Preview against the live resource group. Changes nothing, but ARM requires write
+#                  permission on the template's resources to evaluate it, so it runs as the deployer
+#                  identity (environment infra-deploy, main only).
+#   drift          Two jobs, also weekly: Bicep vs live (what-if must show no changes; deployer identity)
+#                  and the IoT Hub/DPS/Function App/storage snapshots under infra/reference vs live
+#                  (read-only reader identity, environment infra-readonly).
 #   deploy         Applies main.bicep and merges the Function App's telemetry settings. Only from
 #                  `main`, only through the `infra-deploy` environment (which only accepts `main`).
 #
@@ -67,12 +70,16 @@ jobs:
           }
           Write-Host "$($manifest.resources.Count) reference snapshots present"
 
+  # ARM's what-if checks that the caller could WRITE every resource in the template (it fails with
+  # "Authorization failed for template resource ... Microsoft.EventHub/namespaces/write" for a
+  # read-only identity), even though what-if itself changes nothing. So the template checks run as
+  # the deployer identity; only the snapshot check runs as the read-only reader.
   what-if:
-    name: What-if (read-only)
+    name: What-if (changes nothing)
     if: github.event_name == 'workflow_dispatch' && inputs.action == 'what-if'
     needs: validate
     runs-on: ubuntu-latest
-    environment: infra-readonly
+    environment: infra-deploy
     permissions:
       contents: read
       id-token: write
@@ -80,16 +87,43 @@ jobs:
       - uses: actions/checkout@v7
       - uses: azure/login@v3
         with:
-          client-id: ${{ vars.AZURE_INFRA_READER_CLIENT_ID }}
+          client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       - name: What-if
         run: |
-          az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP" \
-            -f infra/main.bicep -p infra/main.prod.bicepparam --no-prompt
+          az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP"             -f infra/main.bicep -p infra/main.prod.bicepparam --no-prompt
 
   drift:
-    name: Drift check (read-only)
+    name: Drift check - Bicep vs live (changes nothing)
+    if: (github.event_name == 'workflow_dispatch' && inputs.action == 'drift') || github.event_name == 'schedule'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: infra-deploy
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Owned resources match main.bicep (no Create/Modify/Delete)
+        run: |
+          az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP"             -f infra/main.bicep -p infra/main.prod.bicepparam --no-pretty-print -o json             > whatif.json
+          python3 - <<'PY'
+          import json, sys
+          changes = [c for c in json.load(open("whatif.json"))["changes"]
+                     if c["changeType"] in ("Create", "Modify", "Delete")]
+          for c in changes:
+              print(c["changeType"], c["resourceId"].split("/providers/")[-1])
+          sys.exit(1 if changes else 0)
+          PY
+
+  snapshots:
+    name: Drift check - reference snapshots (read-only)
     if: (github.event_name == 'workflow_dispatch' && inputs.action == 'drift') || github.event_name == 'schedule'
     needs: validate
     runs-on: ubuntu-latest
@@ -104,19 +138,6 @@ jobs:
           client-id: ${{ vars.AZURE_INFRA_READER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - name: Owned resources match main.bicep (no Create/Modify/Delete)
-        run: |
-          az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP" \
-            -f infra/main.bicep -p infra/main.prod.bicepparam --no-pretty-print -o json \
-            > whatif.json
-          python3 - <<'PY'
-          import json, sys
-          changes = [c for c in json.load(open("whatif.json"))["changes"]
-                     if c["changeType"] in ("Create", "Modify", "Delete")]
-          for c in changes:
-              print(c["changeType"], c["resourceId"].split("/providers/")[-1])
-          sys.exit(1 if changes else 0)
-          PY
       - name: Reference resources match their snapshots
         shell: pwsh
         run: ./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check
