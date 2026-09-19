@@ -84,8 +84,8 @@ the release order and troubleshooting are in [docs/CI_CD.md](../docs/CI_CD.md#in
 | Trigger | Runs | Cloud access |
 |---|---|---|
 | PR or push touching `infra/**` | Bicep compile + lint, manifest check | none |
-| Manual `what-if` | read-only preview | `infra-readonly` |
-| Manual `drift`, and weekly | what-if must show no Create/Modify/Delete, and every snapshot must match | `infra-readonly` |
+| Manual `what-if` | preview; changes nothing | `infra-deploy` (deployer identity, `main` only) |
+| Manual `drift`, and weekly | `drift`: what-if must show no Create/Modify/Delete (`infra-deploy`); `snapshots`: every snapshot must match live (`infra-readonly`, read-only) |
 | Manual `deploy` (from `main` only) | assign the Function App a managed identity, deploy `main.bicep`, merge the settings, re-check snapshots | `infra-deploy` (`main` only) |
 
 The first `deploy` creates the `gamefunc` consumer group and the Function App's managed
@@ -99,7 +99,7 @@ has nothing to read.
 1. Run `scripts/Initialize-InfraIdentities.ps1` (try `-WhatIf` first) as someone with Owner
    or User Access Administrator on the resource group. It creates two managed identities with
    GitHub OIDC credentials:
-   - `id-gha-infra-reader`: Reader plus a what-if-only custom role.
+   - `id-gha-infra-reader`: Reader only. It runs the snapshot drift check. It cannot run `what-if`: ARM checks that the caller could write each resource in the template, so `what-if` runs as the deployer.
    - `id-gha-infra-deployer`: deployments-only custom role; Contributor on the Event Hub
      namespace, the SignalR service and the game Function App **only**; and permission to
      assign only the Event Hubs Data Receiver role, only on the hub.

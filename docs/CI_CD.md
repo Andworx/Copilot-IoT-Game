@@ -18,7 +18,7 @@ Other site folders, Dataverse solutions, flows, and the Pi firmware are outside 
 | File | `deploy-apps.yml` | `deploy-infra.yml` |
 | Covers | Function App code, Game Box Control, Code Site | `infra/`: Event Hub, consumer groups, SignalR, Function App Event Hub access |
 | When it deploys | automatically on merge to `main` | never automatically; `deploy` is a manual action, allowed from `main` only |
-| GitHub environment | `production` | `infra-readonly` (what-if, drift) and `infra-deploy` (deploy) |
+| GitHub environment | `production` | `infra-deploy` (what-if, drift, deploy) and `infra-readonly` (snapshot drift check) |
 | Azure identity | `id-gha-copilot-iot-game-deploy` | `id-gha-infra-reader` and `id-gha-infra-deployer`, least privilege |
 | Details | [Application workflow](#application-workflow-flow) and the sections below | [Infrastructure workflow](#infrastructure-workflow-deploy-infrayml) |
 
@@ -227,8 +227,8 @@ write access to it. See [`infra/README.md`](../infra/README.md) for why.
 | Trigger | Jobs that run | Azure access |
 |---|---|---|
 | PR or push touching `infra/**` or the workflow | `validate`: compile and lint the Bicep, confirm every reference snapshot exists | none |
-| Manual, `action = what-if` | `validate`, then `what-if`: read-only preview against the live resource group | `infra-readonly` |
-| Manual, `action = drift`, and every Monday 13:00 UTC | `validate`, then `drift`: `what-if` must show no Create/Modify/Delete, and each snapshot in `infra/reference/` must match live | `infra-readonly` |
+| Manual, `action = what-if` | `validate`, then `what-if`: preview against the live resource group; changes nothing | `infra-deploy` (deployer identity, `main` only) |
+| Manual, `action = drift`, and every Monday 13:00 UTC | `validate`, then two jobs: `drift` (`what-if` must show no Create/Modify/Delete; changes nothing) and `snapshots` (each snapshot in `infra/reference/` must match live) | `drift`: `infra-deploy`; `snapshots`: `infra-readonly` |
 | Manual, `action = deploy`, from `main` only | `validate`, then `deploy`: assign the game Function App a managed identity, deploy `main.bicep` (incremental), merge the telemetry settings, re-check snapshots | `infra-deploy` (`main` only) |
 
 Nothing deploys automatically. Merging an infra change does not change Azure until someone runs
@@ -244,8 +244,8 @@ branch rule. The existing `production` environment and its identity
 
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
-| `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group, plus a what-if-only custom role (`Infra What-If Operator`). Cannot change anything. | none, because the weekly drift check runs unattended |
-| `infra-deploy` | `id-gha-infra-deployer` | `Infra Deployment Operator` (deployments only) and Reader on the resource group; Contributor on the Event Hub namespace, the SignalR service and `func-aw-azcom-iot-game` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Used only by the `snapshots` drift job. | none, because the weekly drift check runs unattended |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs `what-if`, the Bicep `drift` check and `deploy`. `Infra Deployment Operator` (deployments only) and Reader on the resource group; Contributor on the Event Hub namespace, the SignalR service and `func-aw-azcom-iot-game` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
@@ -343,6 +343,7 @@ leaves every other setting alone.
 |---|---|
 | `AADSTS700213` / no matching federated identity | The job's environment name does not match the identity's credential (`infra-readonly` / `infra-deploy`), or the environment does not exist |
 | `AuthorizationFailed` on `what-if` or `deploy` | The identity's role assignment is missing; re-run `Initialize-InfraIdentities.ps1` |
+| `Authorization failed for template resource ... /write` on `what-if` | `what-if` was run as a read-only identity. ARM checks that the caller could *write* every resource in the template, even though what-if changes nothing, so `what-if` and the Bicep `drift` check run as the deployer identity, not the reader |
 | `drift` fails on the `what-if` step | The live Event Hub or SignalR differs from `infra/`. Read the listed changes: either fix Azure or update the Bicep |
 | `drift` fails on a snapshot | An out-of-band change to the IoT Hub, DPS, a Function App, storage or App Insights. Investigate; if intended, run `Invoke-ReferenceSnapshot.ps1 -Mode Export` (PowerShell 7) and commit |
 | `deploy` job does not start | Not run from `main` (the environment only accepts `main`) |
