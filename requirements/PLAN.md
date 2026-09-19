@@ -18,10 +18,10 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
-| Integration (Azure Functions) | 3 | 7 | 0 | 0 | 10 |
+| Integration (Azure Functions) | 5 | 5 | 0 | 0 | 10 |
 | Power Apps | 2 | 4 | 0 | 0 | 6 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 14 | 20 | 4 | 2 | 40 |
+| Totals | 16 | 18 | 4 | 2 | 40 |
 
 ## Dataverse
 
@@ -92,8 +92,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Consolidated Azure deployment target | Azure Function App + GitHub Actions | ⬜ Verify | Issue #13 — new Node 22 Flex Consumption Function App `func-aw-azcom-iot-game` created in `rg-aw-azcom-iot-copilot` with dedicated storage `stawazcomiotgamefn`, shared Serverless SignalR `signalr-aw-iot-copilot`, app settings, CORS, GitHub variable update, and Website Contributor RBAC for the GitHub OIDC identity. Needs `⬜ Verify`: full GitHub deployment from `main`, Power Pages build using the new API base URL, and end-to-end Function/SignalR smoke test before deleting the old resource group. |
 | Event Hub trigger `iot-telemetry`: panel Pi telemetry → SignalR `SendTelemetryUpdate`/`TriggerAgentHelp` (gamebox hub) + `andy_iottelemetryevent` row | Azure Function (`azure/`) | ⬜ Verify | GAME_MODE_PLAN.md §1 pipeline rebuilt in this repo. Unit-tested (`npm test`). Run Infrastructure > deploy first (creates the dedicated `gamefunc` consumer group, gives the app an identity with Event Hubs Data Receiver, sets the identity-based settings; no key stored). The app's Dataverse user also needs Create on `andy_iottelemetryevent`. |
 | `GET /api/directline-token` | Azure Function (`azure/`) | ⬜ Verify | Exchanges the server-side `DIRECTLINE_SECRET` for a short-lived Direct Line token; returns 503 (kiosk falls back to static steps) until the secret is set once the Copilot Studio agent is ready. |
-| `infra/`: Bicep for the Event Hub namespace/hub/consumer groups, SignalR, and Function App read access; `deploy-infra.yml` (what-if, drift, gated deploy) | Infrastructure as code | ⬜ Verify | `what-if` against live shows only the new `gamefunc` consumer group. Needs the one-time bootstrap (`infra/scripts/Initialize-InfraIdentities.ps1`, two GitHub environments, two variables), then the workflow's `what-if` (expect one Create, `gamefunc`), `deploy`, and a clean `drift` run. Environments `infra-readonly`/`infra-deploy` exist; `infra-deploy` is `main`-only with no reviewer (Free plan). |
-| Tier 3 reference snapshots + drift check for IoT Hub, DPS, Function Apps, plans, storage, App Insights | Infrastructure reference | ⬜ Verify | Verified locally: `Invoke-ReferenceSnapshot.ps1 -Mode Check` is clean and fails with a diff when a snapshot is altered. The deploy identity has no write access to these resources. |
+| `infra/`: Bicep for the Event Hub namespace/hub/consumer groups, SignalR, and Function App read access; `deploy-infra.yml` (what-if, drift, gated deploy) | Infrastructure as code | ✅ Done | Verified 2026-09-19 through the workflow on `main`: `what-if` showed one Create (`gamefunc`), `deploy` created it, gave the game Function App a managed identity with Event Hubs Data Receiver on the hub only, and merged the three telemetry settings (all existing settings intact); `drift` then passed clean. The IoT Hub route and all Tier 3 resources were untouched. See `docs/CI_CD.md`. |
+| Tier 3 reference snapshots + drift check for IoT Hub, DPS, Function Apps, plans, storage, App Insights | Infrastructure reference | ✅ Done | Verified in CI: the read-only reader identity's `snapshots` job passes against live, and the deploy job's post-check caught the one intended change (the Function App's new identity). |
 | Legacy `func-aw-iot-copilot`: ignore non-panel telemetry (no more junk `andy_iottelemetryevent` rows or bogus help broadcasts) | Azure Function (`Andworx/copilot-iot-service`) | ⬜ Verify | PR Andworx/copilot-iot-service#205, tested against the real handler with stubbed SDKs. Deploys on merge there. Junk rows already written are not cleaned up. |
 
 ## Power Apps
