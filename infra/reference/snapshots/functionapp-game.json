@@ -1,0 +1,34 @@
+{
+  "functionAppConfig": {
+    "deployment": {
+      "storage": {
+        "authentication": {
+          "storageAccountConnectionStringName": "DEPLOYMENT_STORAGE_CONNECTION_STRING",
+          "type": "StorageAccountConnectionString",
+          "userAssignedIdentityResourceId": null
+        },
+        "type": "blobContainer",
+        "value": "https://stawazcomiotgamefn.blob.core.windows.net/app-package-funcawazcomiotgame-0968767"
+      }
+    },
+    "runtime": {
+      "name": "node",
+      "version": "22"
+    },
+    "scaleAndConcurrency": {
+      "alwaysReady": [],
+      "instanceMemoryMB": 2048,
+      "maximumInstanceCount": 100,
+      "triggers": null
+    },
+    "siteUpdateStrategy": {
+      "type": "Recreate"
+    }
+  },
+  "httpsOnly": true,
+  "identity": null,
+  "kind": "functionapp,linux",
+  "location": "East US",
+  "publicNetworkAccess": "Enabled",
+  "serverFarmId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Web/serverfarms/ASP-rgawazcomiotcopilot-ec55"
+}

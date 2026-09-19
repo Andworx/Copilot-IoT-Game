@@ -1,0 +1,13 @@
+{
+  "httpsOnly": false,
+  "identity": {
+    "principalId": "f9b90d0a-bd94-46ae-8dbb-628b5169a876",
+    "tenantId": "7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8",
+    "type": "SystemAssigned",
+    "userAssignedIdentities": null
+  },
+  "kind": "functionapp",
+  "location": "East US",
+  "publicNetworkAccess": "Enabled",
+  "serverFarmId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Web/serverfarms/EastUSPlan"
+}

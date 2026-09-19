@@ -1,0 +1,54 @@
+{
+  "builtInEndpoint": {
+    "partitionCount": 4,
+    "retentionTimeInDays": 1
+  },
+  "cloudToDevice": {
+    "defaultTtlAsIso8601": "PT1H",
+    "maxDeliveryCount": 10
+  },
+  "enrichments": null,
+  "eventHubEndpoints": [
+    {
+      "authenticationType": null,
+      "name": "endpoint-iotpanel",
+      "resourceGroup": "rg-aw-azcom-iot-copilot",
+      "subscriptionId": "2e291b4a-5f03-4dcd-bb56-09643c729adc"
+    }
+  ],
+  "fallbackRoute": {
+    "condition": "true",
+    "endpointNames": [
+      "events"
+    ],
+    "isEnabled": true,
+    "name": "$fallback",
+    "source": "DeviceMessages"
+  },
+  "features": "RootCertificateV2",
+  "ipFilterRules": [],
+  "location": "eastus",
+  "minTlsVersion": "1.2",
+  "routes": [
+    {
+      "condition": "true",
+      "endpointNames": [
+        "endpoint-iotpanel"
+      ],
+      "isEnabled": true,
+      "name": "route-iotpanel",
+      "source": "DeviceMessages"
+    }
+  ],
+  "sku": {
+    "capacity": 1,
+    "family": null,
+    "model": null,
+    "name": "S1",
+    "size": null,
+    "tier": "Standard"
+  },
+  "tags": {
+    "project": "iot-copilot env=dev owner=andworx"
+  }
+}

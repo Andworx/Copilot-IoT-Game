@@ -1,11 +1,37 @@
 # GitHub Actions deployment
 
-`.github/workflows/deploy-apps.yml` is the release workflow for `azure/`,
-`power apps/game-box-control/`, and `power pages/copilotiotgame/` (site name
-`CopilotIoTGame`). Other site folders, Dataverse solutions, flows, hardware, and
-infrastructure are outside this workflow.
+Two workflows release this repo:
 
-## Flow
+- `.github/workflows/deploy-apps.yml` releases `azure/` (the Function App),
+  `power apps/game-box-control/`, and `power pages/copilotiotgame/` (site name
+  `CopilotIoTGame`). It deploys automatically when a relevant change merges to `main`.
+- `.github/workflows/deploy-infra.yml` manages the Azure resources in `infra/` (Event Hub,
+  SignalR, and the Function App's access to the hub). It only runs on request, and every
+  Azure-touching job is manual, read-only, or scheduled drift detection.
+
+Other site folders, Dataverse solutions, flows, and the Pi firmware are outside both workflows.
+
+## How the pieces fit
+
+| | Application workflow | Infrastructure workflow |
+|---|---|---|
+| File | `deploy-apps.yml` | `deploy-infra.yml` |
+| Covers | Function App code, Game Box Control, Code Site | `infra/`: Event Hub, consumer groups, SignalR, Function App Event Hub access |
+| When it deploys | automatically on merge to `main` | never automatically; `deploy` is a manual action, allowed from `main` only |
+| GitHub environment | `production` | `infra-readonly` (what-if, drift) and `infra-deploy` (deploy) |
+| Azure identity | `id-gha-copilot-iot-game-deploy` | `id-gha-infra-reader` and `id-gha-infra-deployer`, least privilege |
+| Details | [Application workflow](#application-workflow-flow) and the sections below | [Infrastructure workflow](#infrastructure-workflow-deploy-infrayml) |
+
+Not deployed by CI: the IoT Hub and DPS (recorded and drift-checked only, and the infra
+identity cannot write to them), Dataverse solutions and Power Platform components (PAC), the
+Copilot Studio agent, and the panel Pi firmware (`hardware/raspberry-pi/deploy.ps1`, copied over
+SSH and restarted by hand).
+
+Everything targets one Azure tenant, subscription, and resource group
+(`rg-aw-azcom-iot-copilot`) and one Power Platform environment. The GitHub environments are
+credential and branch gates, not separate deployment targets.
+
+## Application workflow: flow
 
 1. Work on a feature branch and open a PR to `main`. Every PR runs `Build apps`:
    Node 22, `npm ci`, and TypeScript/production builds for the Function App, the
@@ -27,7 +53,7 @@ push. GitHub may replace an older pending run with a newer one. This is not an
 atomic release: if the site upload fails, the backend may already be updated.
 Keep backend changes compatible with the previous frontend during rollout.
 
-## One-time configuration
+## Application workflow: one-time configuration
 
 Create a GitHub environment named `production`. Restrict deployment branches to
 `main`; add required reviewers if your release policy requires them. Protect
@@ -154,6 +180,144 @@ Function App and its CORS settings are healthy. After changing the policy,
 reload the Code App and verify `/api/prize-types`, `/api/device-profiles`, and
 `/api/kiosk-state` in the browser network panel.
 
+## Infrastructure workflow (`deploy-infra.yml`)
+
+`.github/workflows/deploy-infra.yml` manages the Azure resources this repo owns, defined in
+[`infra/`](../infra/README.md): the Event Hub namespace, the `iot-telemetry` hub and its
+consumer groups, the SignalR service, and the game Function App's read access to the hub. It
+is separate from `deploy-apps.yml` on purpose: infrastructure changes rarely, and a mistake
+there can stop telemetry for every device, so it is previewed, drift-checked, and applied only
+on request.
+
+Everything else in the resource group (IoT Hub, DPS, both Function Apps, plans, storage,
+App Insights) is **recorded and drift-checked but never deployed**. The deploy identity has no
+write access to it. See [`infra/README.md`](../infra/README.md) for why.
+
+### What triggers what
+
+| Trigger | Jobs that run | Azure access |
+|---|---|---|
+| PR or push touching `infra/**` or the workflow | `validate`: compile and lint the Bicep, confirm every reference snapshot exists | none |
+| Manual, `action = what-if` | `validate`, then `what-if`: read-only preview against the live resource group | `infra-readonly` |
+| Manual, `action = drift`, and every Monday 13:00 UTC | `validate`, then `drift`: `what-if` must show no Create/Modify/Delete, and each snapshot in `infra/reference/` must match live | `infra-readonly` |
+| Manual, `action = deploy`, from `main` only | `validate`, then `deploy`: assign the game Function App a managed identity, deploy `main.bicep` (incremental), merge the telemetry settings, re-check snapshots | `infra-deploy` (`main` only) |
+
+Nothing deploys automatically. Merging an infra change does not change Azure until someone runs
+`deploy`.
+
+### GitHub environments, Azure identities, and permissions
+
+The two environments below are **GitHub Actions environments**, not Azure or Power Platform
+environments: everything still targets the one tenant, one subscription, and one resource group
+(`rg-aw-azcom-iot-copilot`). They exist so each kind of job gets its own credential and its own
+branch rule. The existing `production` environment and its identity
+(`id-gha-copilot-iot-game-deploy`) are for the app workflow and are unchanged.
+
+| GitHub environment | Azure identity | What that identity can do | Protection |
+|---|---|---|---|
+| `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group, plus a what-if-only custom role (`Infra What-If Operator`). Cannot change anything. | none, because the weekly drift check runs unattended |
+| `infra-deploy` | `id-gha-infra-deployer` | `Infra Deployment Operator` (deployments only) and Reader on the resource group; Contributor on the Event Hub namespace, the SignalR service and `func-aw-azcom-iot-game` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+
+The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
+does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
+(nothing deploys on merge), the environment only accepts `main` (so the Azure login is unavailable to any
+other branch), `main` itself is protected by PR review, and the deploy identity can only change the
+Event Hub, SignalR and the game Function App. `what-if` shows exactly what a deploy would do. If the org
+later moves to a plan with required reviewers, add one to `infra-deploy`; no workflow change is needed.
+
+Each identity's GitHub credential is bound to its environment name, so a job can only log in as
+the identity that matches its environment. The deploy job can never modify the IoT Hub, DPS,
+the legacy Function App, or storage, because the identity has no permission to.
+
+### One-time setup
+
+1. **Azure identities and roles.** Someone with Owner or User Access Administrator on the
+   resource group runs `infra/scripts/Initialize-InfraIdentities.ps1`. Try `-PreflightOnly` first
+   (it confirms the permission and changes nothing) or `-WhatIf`. The script is safe to re-run.
+   Contributor is not enough: it can create the identities but not the roles.
+2. **GitHub environments** (Settings > Environments):
+   - `infra-readonly`: no protection rules.
+   - `infra-deploy`: **Deployment branches: selected branches, `main`**. Add **Required
+     reviewers** too if the plan allows it. Create it with these rules *before* the first run,
+     because GitHub creates a missing environment on first use with no protection at all.
+3. **Repository variables** (Settings > Secrets and variables > Actions > **Variables**, not
+   Secrets: they are client IDs, not secrets, and the workflow reads `vars.*`):
+
+   | Variable | Value |
+   |---|---|
+   | `AZURE_INFRA_READER_CLIENT_ID` | client ID of `id-gha-infra-reader` |
+   | `AZURE_INFRA_DEPLOYER_CLIENT_ID` | client ID of `id-gha-infra-deployer` |
+   | `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` | already set for the app workflow; shared |
+
+   The infra workflow uses no secrets. Get the client IDs with
+   `az identity show -g rg-aw-azcom-iot-copilot -n <identity> --query clientId -o tsv`.
+4. **Workflow on `main`.** `workflow_dispatch` only works for a workflow file on the default
+   branch, so merge the PR that adds it before running any of the manual actions.
+
+### Running it
+
+```powershell
+gh workflow run deploy-infra.yml --ref main -f action=what-if   # preview, read-only
+gh workflow run deploy-infra.yml --ref main -f action=drift     # also runs weekly
+gh workflow run deploy-infra.yml --ref main -f action=deploy    # main only
+gh run list --workflow deploy-infra.yml --limit 5
+gh run watch <run-id> --exit-status
+```
+
+Or use Actions > Infrastructure > Run workflow. Read-only checks also work locally with the Azure
+CLI and PowerShell 7 (`pwsh`): `az deployment group what-if ...` and
+`./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check` (commands in `infra/README.md`).
+
+Always run `what-if` and read it before `deploy`. The expected result today is a single Create
+(the `gamefunc` consumer group) until the first deploy, then no changes.
+
+### Release order
+
+App changes that depend on new infrastructure need the infrastructure first, because merging to
+`main` deploys the apps automatically. The telemetry function needs the `gamefunc` consumer
+group, the Function App's managed identity, and its Event Hub role before it can read anything.
+
+```mermaid
+flowchart TB
+  PR[Pull request] -->|"Build apps + Validate Bicep, no cloud credentials"| Merge[Merge to main]
+  Merge -->|"app code changed: automatic"| Apps["Deploy production apps (deploy-apps.yml)"]
+  Merge -->|"infra changed: nothing happens yet"| Manual[Run Infrastructure manually]
+  Manual --> WI[what-if: read the preview] --> Drift[drift: expect only the intended change] --> Deploy["deploy: main only"]
+  Deploy -.->|"must finish first when the app needs it"| Apps
+```
+
+For the telemetry pipeline, in order:
+
+1. Merge the infra PR (this adds the workflow to `main`).
+2. Run `what-if`, then `drift`, then `deploy`.
+3. Merge the application PR; `deploy-apps.yml` ships the telemetry function.
+4. Restart the panel Pi service, then verify the live path (Pi to kiosk).
+5. Keep the plan items at Verify until step 4 passes.
+
+### Settings: what CI sets and what stays manual
+
+`deploy` merges these into the game Function App. It only adds or updates these names and
+leaves every other setting alone.
+
+| Setting | Set by | Notes |
+|---|---|---|
+| `IoTHubEventHubConnectionString__fullyQualifiedNamespace` | infra `deploy` | identity-based Event Hub access, so no key is stored |
+| `IOT_EVENTHUB_NAME`, `IOT_EVENTHUB_CONSUMER_GROUP` | infra `deploy` | `iot-telemetry`, and `gamefunc`, a group used by this app only |
+| `DATAVERSE_*`, `AzureSignalRConnectionString` | by hand, already set | secrets are never written by CI |
+| `DIRECTLINE_SECRET` | by hand, when the Copilot Studio agent is ready | until set, `/api/directline-token` returns 503 and the kiosk shows the standard steps |
+
+### Troubleshooting
+
+| Symptom | Likely cause |
+|---|---|
+| `AADSTS700213` / no matching federated identity | The job's environment name does not match the identity's credential (`infra-readonly` / `infra-deploy`), or the environment does not exist |
+| `AuthorizationFailed` on `what-if` or `deploy` | The identity's role assignment is missing; re-run `Initialize-InfraIdentities.ps1` |
+| `drift` fails on the `what-if` step | The live Event Hub or SignalR differs from `infra/`. Read the listed changes: either fix Azure or update the Bicep |
+| `drift` fails on a snapshot | An out-of-band change to the IoT Hub, DPS, a Function App, storage or App Insights. Investigate; if intended, run `Invoke-ReferenceSnapshot.ps1 -Mode Export` (PowerShell 7) and commit |
+| `deploy` job does not start | Not run from `main` (the environment only accepts `main`) |
+| Telemetry function does not start after `deploy` | Role assignments can take a few minutes to take effect; check the Function App's log stream, and confirm the three settings above exist |
+| Legacy `func-aw-iot-copilot` still writes junk rows | Its fix is in `Andworx/copilot-iot-service` (PR #205), which deploys from that repo |
+
 ## Copilot, Claude, and Codex procedure
 
 All three assistants use the same workflow, not separate deployment mechanisms.
@@ -174,6 +338,19 @@ gh run list --workflow deploy-apps.yml --limit 5
 gh run watch <run-id> --exit-status
 gh run view <run-id> --log-failed
 ```
+
+Infrastructure follows the same rule (see [Infrastructure workflow](#infrastructure-workflow-deploy-infrayml)):
+
+```powershell
+gh workflow run deploy-infra.yml --ref main -f action=what-if   # read-only preview
+gh workflow run deploy-infra.yml --ref main -f action=drift     # read-only check
+gh workflow run deploy-infra.yml --ref main -f action=deploy    # only when explicitly asked
+```
+
+Run `what-if` and show its output before `deploy`, and never run `deploy` unprompted. Do not
+run `Initialize-InfraIdentities.ps1`, `az deployment group create`, or
+`Set-FunctionAppSettings.ps1` locally; the read-only checks (`what-if`, `Invoke-ReferenceSnapshot.ps1
+-Mode Check`) are fine. Never change the IoT Hub or DPS from this repo.
 
 Manual dispatch on any other branch builds only; deployment is restricted to main.
 The workflow must first be merged to the default branch to appear for dispatch.
