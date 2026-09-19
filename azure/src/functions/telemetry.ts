@@ -4,6 +4,7 @@ import {
   buildSignalRMessages,
   parsePayload,
   resolveDeviceId,
+  shouldLog,
   toTelemetryRecord,
   type SignalRMessage,
 } from "../lib/telemetry";
@@ -50,8 +51,8 @@ export async function iotTelemetry(events: unknown[], context: InvocationContext
     const deviceId = resolveDeviceId(payload, systemProperties?.[index]);
     signalRMessages.push(...buildSignalRMessages(payload, deviceId));
 
-    // Mode changes carry no panel state worth a row; everything else is logged.
-    if (payload.eventType !== "mode_change") {
+    // Only real events get a history row (state changes and wins), not heartbeats or mode changes.
+    if (shouldLog(payload)) {
       dataverseWrites.push(
         createTelemetryEvent(toTelemetryRecord(payload, deviceId)).catch((error) => {
           context.warn(`Dataverse telemetry write failed (non-blocking): ${String(error)}`);

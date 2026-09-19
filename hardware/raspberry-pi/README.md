@@ -42,7 +42,8 @@ the restoration procedures change.
 
 The payload below is consumed by this repo's `azure/` Function App (`iot-telemetry`
 Event Hub trigger, `azure/src/lib/telemetry.ts`), which relays it to the kiosk over
-SignalR and logs it to `andy_iottelemetryevent`. Keep the two in sync when the shape
+SignalR and logs each state change and win to the `andy_iottelemetryevent` event log (the full
+payload goes into its JSON `andy_payload` column). Keep the two in sync when the shape
 changes. The sibling `copilot-iot-service` app expects an older payload
 (`switches`/`actual_leds`/`active_rule`); if it still reads the same IoT Hub, point it at
 its own consumer group and expect it to ignore or mis-handle these messages. If downstream
@@ -272,9 +273,8 @@ change, and the moment a device is won:
 }
 ```
 
-Reconcile this shape with whatever `copilot-iot-service`'s Azure Function
-already expects for `andy_iottelemetryevent` before pointing this at the live
-Function — see "Telemetry payload and the cloud pipeline" above.
+New fields need no schema change: the event log stores the whole payload as JSON. See
+"Telemetry payload and the cloud pipeline" above.
 
 ## Setup
 
