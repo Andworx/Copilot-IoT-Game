@@ -20,7 +20,7 @@ export function WinOverlay({ winMessage, restoreItems, claimToken, onReset }: Wi
   const [remaining, setRemaining] = useState(RESET_SECONDS);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
-  // KioskDevicePage re-renders every ~400ms (telemetryTick), producing a new onReset
+  // KioskDevicePage re-renders every second (live panel clock), producing a new onReset
   // closure each time. Keeping onReset out of the effect's deps (via this ref) stops the
   // 1000ms setTimeout below from being cleared/restarted before it ever fires -- which
   // previously left the countdown frozen at RESET_SECONDS forever.

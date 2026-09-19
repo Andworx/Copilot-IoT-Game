@@ -13,15 +13,15 @@ that document is the source of truth for scope/design; this file mirrors its sta
 |---|---:|---:|---:|---:|---:|
 | Dataverse | 5 | 1 | 0 | 0 | 6 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
-| Agents | 6 | 0 | 1 | 0 | 7 |
-| Power Pages | 6 | 1 | 0 | 0 | 7 |
+| Agents | 0 | 0 | 1 | 0 | 1 |
+| Power Pages | 4 | 4 | 0 | 0 | 8 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
-| Hardware | 1 | 0 | 1 | 1 | 3 |
-| Integration (Azure Functions) | 3 | 2 | 0 | 0 | 5 |
-| Power Apps | 2 | 2 | 0 | 0 | 4 |
+| Hardware | 0 | 4 | 0 | 1 | 5 |
+| Integration (Azure Functions) | 5 | 5 | 0 | 0 | 10 |
+| Power Apps | 2 | 4 | 0 | 0 | 6 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 23 | 6 | 5 | 2 | 36 |
+| Totals | 16 | 18 | 4 | 2 | 40 |
 
 ## Dataverse
 
@@ -57,6 +57,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `copilotiotgame`: Game Mode OFF branch on `KioskDevicePage` + new `SuccessPopup` component; auto-rotate to a random enabled mode via `pick-random-mode` after every completion (both Game Mode states) | Code Site — SPA change (`power pages/copilotiotgame`) | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09) — Game Mode ON keeps today's QR/phone-spin/claim flow unchanged; OFF skips `create-win` entirely (no `andy_gamewin` row, per decision to leave OFF completions unlogged) and shows a client-only success popup instead; both states call `POST /api/pick-random-mode` on completion instead of resetting to the same device. Built clean and deployed via `pac pages upload-code-site` |
 | Retire `restore-and-spin`; repoint `deploy-apps.yml` to build/deploy `copilotiotgame` | Code Site — CI/CD fix | ⬜ Verify | 2026-09-12 — `deploy-apps.yml` had never been repointed after `copilotiotgame` replaced `restore-and-spin` (2026-09-10), so every merge touching the old app's path re-deployed it over the live `CopilotIoTGame` site, silently reverting Game Mode support and the real QR to the old no-Game-Mode/fake-QR prototype. Fixed the workflow, deleted `power pages/restore-and-spin/`, updated docs/instructions referencing it. Verify: after the next deploy, confirm the live site actually serves `copilotiotgame`'s bundle and both Game Mode states behave correctly against the real backend 2026-09-19 — live site confirmed serving `copilotiotgame`'s UI after the deploy-target fix below; Game Mode ON/OFF behaviour against the real backend still to check |
 | CI deploys the Power Pages code site to the **live** website (pinned `POWER_PAGES_WEBSITE_ID`, live metadata via `pac pages download-code-site`, post-upload ID check); document platform-generated CSP console messages | Code Site — CI/CD fix | ✅ Done | Issues #48 / PR #50 — every deploy had been creating a new "CopilotIoTGame" website (six orphans) while the live one was never updated; deploy run 35441457949 updated site `4938f099-…` ("Deleted 4 bundle directories", verify step passed, one CopilotIoTGame site remains) and the portal serves the new build (a stale browser cache showed the platform error until cleared; private window OK). Inline-script CSP console errors are Power Pages' own private-site banner/wrapper, not repo output |
+| `copilotiotgame`: live panel state from `SendTelemetryUpdate` (controls, cables, link status) and Help Fix over Direct Line with static-steps fallback | Code Site — SPA change | ⬜ Verify | Verified in a browser against a mock SignalR/Direct Line backend (live/offline status, other-mode readings ignored, agent reply, fallback, win flip). Needs verification against the real pipeline after deployment. |
 
 ## Plugins
 
@@ -75,8 +76,10 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Item | Type | Status | Notes |
 |---|---|---|---|
 | Panel Pi (`hardware/raspberry-pi/`): switches, LEDs, connector jacks, all 12 playable `logic_maps/<slug>.json` files, Azure IoT Hub telemetry publisher | Raspberry Pi firmware | ⬜ Verify | Issues #41/#42 — controller now reads all six switches and four sockets, selects mode from Power App/Page state (`kiosk-state` URL, state file, or env fallback), and mirrors the page restore sequences. Verify on the Pi after deployment. |
-| Panel Pi: deploy 12-mode firmware update to hardware | Raspberry Pi firmware | ⬜ TODO | Issue #42 — copy the updated controller/config/logic maps to the Pi, restart the service if needed, and verify each mode against the printed panel. |
+| Panel Pi: deploy 12-mode firmware update to hardware | Raspberry Pi firmware | ⬜ Verify | Issue #42 — cable-matrix firmware, 12 logic maps, telemetry reconnect, `diagnose_cables.py` and `check_iot_connection.py` copied to `pi@iotcase` (`.env` untouched); unit tests pass on the Pi and the hub accepts its credential. Found: the Pi has no battery clock, so the service started ~13 h behind real time and IoT Hub refused the time-based token; it never retried. `telemetry.py` now retries with backoff and the unit waits for time sync. Still to do on the Pi (needs sudo): install the updated unit, `systemctl enable systemd-time-wait-sync.service`, restart the service; then run `diagnose_cables.py --watch` against real cables and check each mode against the printed panel. |
 | Physical rotary dial or mux mode input | Raspberry Pi hardware | Future | Removed from the active demo path; the Power App/Page controls active modes for this build. |
+| Panel Pi cable matrix: 10 socket contacts (J1 pins 1-4, J2/J3/J4 pins 1-2), 12 two-wire demo cables, `cable_matrix.py` scan/decode, cables in telemetry | Raspberry Pi firmware + wiring | ⬜ Verify | Replaces the unwired one-contact-per-socket design (no cable could ever read as connected). Needs the physical rewire (move the J4 pin 4 wire to J1 pin 4, add six wires), deploy, then a bench test of every socket and GPIO7 (J4 pin 2). Diagram/README/manual/PDF updated; `python -m unittest test_cable_matrix` passes off-Pi. |
+| Cold-chain, drone, and traffic-signal modes changed from 3 to 2 required sockets | Logic maps + `deviceProfiles.ts` + manual/PDF | ⬜ Verify | A cable only reads when both ends are plugged in, so required-connected sockets must be even; a test in `test_cable_matrix.py` now enforces this for all 12 modes. Needs the Code Site redeploy alongside the Pi update. |
 
 ## Integration (Azure Functions)
 
@@ -87,6 +90,11 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `POST /api/prizes`, `POST /api/create-win`, `POST /api/claim-prize` (validate token → weighted-pick prize **type** → atomic-claim a prize **instance**, falling back to the designated fallback type → mark claimed) | Azure Function endpoints (`azure/`) | ⬜ Verify | `power pages/docs/archive/PRIZE_CODE_MIGRATION.md` — rewritten against the new `andy_PrizeTypes`/`andy_Prizes` split (was the old single-row `andy_prize` decrement), deployed to `func-aw-azcom-copilot-iot-game` and smoke-tested live 2026-09-09 (all 3 endpoints + a real claim verified against `andy_gamewin`'s binds); fixed a live-only OData `in`-operator rejection along the way. Needs `⬜ Verify`: seeded Prize Type data has only 1 active non-fallback type (`Trick or Treat Candy`) with zero instance stock, so every real claim currently falls through to the fallback (`Pin or Sticker`) — see `power pages/docs/archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md` for the maker-portal decision needed (add instance stock and/or reactivate the other 3 seeded types) |
 | `POST /api/toggle-device`, `POST /api/set-game-mode`, `POST /api/pick-random-mode` | Azure Function endpoints (`azure/`) | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09) — `toggle-device`/`set-game-mode` are function-key gated like `set-mode`; `pick-random-mode` is anonymous like `create-win`/`claim-prize` (kiosk-triggered, no staff auth available) and reuses the existing `setActiveDeviceProfile` write + `deviceChanged` SignalR broadcast. Deployed and smoke-tested live: confirmed a disabled device is never picked, `kiosk-state`/`device-profiles` correctly surface the new flags |
 | Consolidated Azure deployment target | Azure Function App + GitHub Actions | ⬜ Verify | Issue #13 — new Node 22 Flex Consumption Function App `func-aw-azcom-iot-game` created in `rg-aw-azcom-iot-copilot` with dedicated storage `stawazcomiotgamefn`, shared Serverless SignalR `signalr-aw-iot-copilot`, app settings, CORS, GitHub variable update, and Website Contributor RBAC for the GitHub OIDC identity. Needs `⬜ Verify`: full GitHub deployment from `main`, Power Pages build using the new API base URL, and end-to-end Function/SignalR smoke test before deleting the old resource group. |
+| Event Hub trigger `iot-telemetry`: panel Pi telemetry → SignalR `SendTelemetryUpdate`/`TriggerAgentHelp` (gamebox hub) + `andy_iottelemetryevent` row | Azure Function (`azure/`) | ⬜ Verify | GAME_MODE_PLAN.md §1 pipeline rebuilt in this repo. Unit-tested (`npm test`). Run Infrastructure > deploy first (creates the dedicated `gamefunc` consumer group, gives the app an identity with Event Hubs Data Receiver, sets the identity-based settings; no key stored). The app's Dataverse user also needs Create on `andy_iottelemetryevent`. |
+| `GET /api/directline-token` | Azure Function (`azure/`) | ⬜ Verify | Exchanges the server-side `DIRECTLINE_SECRET` for a short-lived Direct Line token; returns 503 (kiosk falls back to static steps) until the secret is set once the Copilot Studio agent is ready. |
+| `infra/`: Bicep for the Event Hub namespace/hub/consumer groups, SignalR, and Function App read access; `deploy-infra.yml` (what-if, drift, gated deploy) | Infrastructure as code | ✅ Done | Verified 2026-09-19 through the workflow on `main`: `what-if` showed one Create (`gamefunc`), `deploy` created it, gave the game Function App a managed identity with Event Hubs Data Receiver on the hub only, and merged the three telemetry settings (all existing settings intact); `drift` then passed clean. The IoT Hub route and all Tier 3 resources were untouched. See `docs/CI_CD.md`. |
+| Tier 3 reference snapshots + drift check for IoT Hub, DPS, Function Apps, plans, storage, App Insights | Infrastructure reference | ✅ Done | Verified in CI: the read-only reader identity's `snapshots` job passes against live, and the deploy job's post-check caught the one intended change (the Function App's new identity). |
+| Legacy `func-aw-iot-copilot`: ignore non-panel telemetry (no more junk `andy_iottelemetryevent` rows or bogus help broadcasts) | Azure Function (`Andworx/copilot-iot-service`) | ⬜ Verify | PR Andworx/copilot-iot-service#205, tested against the real handler with stubbed SDKs. Deploys on merge there. Junk rows already written are not cleaned up. |
 
 ## Power Apps
 

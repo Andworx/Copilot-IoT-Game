@@ -11,3 +11,5 @@ import "./functions/pickRandomMode";
 import "./functions/prizeTypes";
 import "./functions/bulkCreatePrizes";
 import "./functions/prizeCount";
+import "./functions/telemetry";
+import "./functions/directlineToken";

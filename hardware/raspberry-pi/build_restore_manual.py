@@ -132,7 +132,7 @@ page('sockets','Socket interpretation','GENERAL GUIDANCE / 03',
     h('After changing a cable'),
     'Inspect every input involved in the change. A cable arrangement may involve more than one connection; the procedure still specifies the state of each named input. Recheck earlier steps if a later adjustment disturbed them.',
     h('Cable preparation is separate'),
-    'The appendix preserves the demo bundle pinout reference. Those pinouts are independent of the Pi harness. During restoration, work from socket labels and required states in the active chapter.',
+    'The appendix lists the demo cable pinouts. During restoration, work from socket labels and required states in the active chapter.',
     'Socket index: page '+ref('index-j1')+'. Cable reference: page '+ref('cables')+'.')
 page('leds','Indicator interpretation','GENERAL GUIDANCE / 04',
     tb([['Light','Meaning when lit','Does not establish'],['LED1 / Blue','Ready/power condition active.','All ten inputs match.'],['LED2 / Yellow','Restoration still in progress.','Which input is incorrect.'],['LED3 / Orange','At least one socket connected.','Correct socket combination.'],['LED4 / Green','Current mode restored.','Another mode is restored.']], [100,204,200]),
@@ -252,17 +252,17 @@ for group, controls in [('sw1',['SW1','SW2','SW3']),('sw2',['SW4','SW5','SW6']),
         'An entry such as "3 / 12" means step 3 on page 12. It is not a switch position or target value. The referenced instruction supplies the required state and mode-specific meaning.',
         h('Use during a recheck'),
         'Use the index when a named control needs inspection after the full procedure. It does not replace mode confirmation or the acceptance check. After adjusting, preserve earlier correct settings and inspect LED4.')
-cables=[['Cable','Pinout','Contacts covered']]
+cables=[['Cable','Pinout','Where it plugs']]
 for line in SOURCE.splitlines():
     if re.match(r'^\| Cable \d',line): cables.append([v.strip() for v in line.strip('|').split('|')])
 page('cables','Demo cable build reference','REFERENCE / DEMO PREPARATION',
-    'For preparing the demo cable bundle. Cable wiring is independent of the Pi harness and does not change the panel receptacle wiring. This is not a mode selection table.',
-    tb(cables,[65,299,140]),h('Plug types'),
-    'Cables 1-4 use a 2-pin Side A plug and a 4-pin Side B plug. Cables 5-6 use 4-pin plugs on both ends; leave Side A pins 3 and 4 open. Side A and Side B identify the cable ends.',
-    h('Contact coverage'),
-    'The last column records the named contact pair associated with a pinout. It does not establish which socket states a mode requires. Use the active chapter for restoration targets.',
+    'For preparing the demo cable bundle. Each cable has a different wiring pattern, so the panel can tell the cables apart. This is not a mode selection table.',
+    tb(cables,[65,259,180]),h('Plug types'),
+    'Every cable uses a 2-pin Side A plug and a 4-pin Side B plug. Side A and Side B identify the cable ends; label both. "A1 to B3" means Side A pin 1 to Side B pin 3.',
+    h('Where it plugs'),
+    'The last column records which sockets a cable works in. It does not establish which socket states a mode requires. Use the active chapter for restoration targets.',
     h('Panel harness reference'),
-    'hardware/raspberry-pi/README.md in the repository contains the wiring and GPIO reference. The cable description does not assign a new Pi GPIO or ground connection.')
+    'hardware/raspberry-pi/README.md in the repository contains the wiring and GPIO reference.')
 page('glossary','Terminology','REFERENCE / READING THE MANUAL',
     tb([['Term','Meaning in this handbook'],['Acceptance check','Final review of mode, inputs, and LED4.'],['Closed','ON state of a switch input.'],['Connected','Required plugged-in state of a socket input.'],['Control identifier','Physical label such as SW3 or J2.'],['Fault starting state','Deliberately unrestored initial configuration.'],['Function label','Scenario meaning assigned to an input.'],['Mode','One of twelve scenarios selected through the app.'],['Open','OFF for a switch; unplugged/open for a socket.'],['Restoration target','Required final condition of a named input.'],['Restore order','Documented method for checking ten inputs.'],['Selected configuration','Current inputs evaluated for the active mode.'],['Success indication','LED4 green for the selected mode.'],['Unknown','Condition not observed or not determined.']], [140,364]),
     'These terms describe the demonstration panel. Similar terminology in real devices does not extend the scope of this handbook.')

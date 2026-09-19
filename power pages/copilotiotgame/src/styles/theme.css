@@ -485,6 +485,8 @@ input:focus-visible {
 .fix-sheet.is-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
 .fix-sheet .fix-title { font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 8px; }
 .fix-sheet ol { margin: 0; padding-left: 18px; font-size: 0.78rem; line-height: 1.7; color: var(--color-text-bright); }
+.fix-sheet .fix-note { font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 6px; }
+.fix-sheet .fix-response { font-size: 0.78rem; line-height: 1.7; color: var(--color-text-bright); white-space: pre-wrap; max-height: 180px; overflow-y: auto; }
 
 .win-overlay {
   position: absolute; inset: 0; z-index: 3; background: rgba(4, 6, 4, 0.97);

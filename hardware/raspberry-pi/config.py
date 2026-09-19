@@ -24,13 +24,17 @@ LED_PINS = {
     "LED4": 23,
 }
 
-# Presence/continuity jacks (4 pins per socket, only 1 used per README). Each
-# entry is the GPIO wired to that socket's signal pin; a cable plugged in
-# bridges signal to the socket's ground pin, reading the GPIO LOW.
-CONNECTOR_PINS = {
-    "J1": 24,
-    "J2": 25,
-    "J3": 12,
-    "J4": 16,
+# Cable-matrix sockets. Each 4-pin socket wires only the listed contacts, each
+# to its own GPIO: {socket: {contact pin: BCM GPIO}}. Nothing on a socket goes
+# to GND; cables are identified by which contacts they bridge (see
+# cable_matrix.py and the README's "Cable matrix" section).
+#   J1 is the only full quad socket, so it is the only socket that can take the
+#   B end of a cable that uses B pin 3 or 4. J2-J4 wire pins 1 and 2, the
+#   contacts a 2-pin side A plug lands on.
+SOCKET_NODES = {
+    "J1": {1: 4, 2: 18, 3: 24, 4: 16},
+    "J2": {1: 25, 2: 20},
+    "J3": {1: 2, 2: 12},
+    "J4": {1: 3, 2: 7},
 }
 

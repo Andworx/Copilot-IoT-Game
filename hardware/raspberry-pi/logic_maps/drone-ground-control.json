@@ -63,7 +63,7 @@
       "physicalPin": "J2",
       "key": "socket_j2",
       "label": "Socket J2 connected",
-      "target": true
+      "target": false
     },
     {
       "physicalPin": "SW4",
@@ -146,9 +146,9 @@
       "when": "win"
     }
   ],
-  "win": "socket_j2 and uplink and keyed_two and socket_j1 and gps and not socket_j3 and power and not keyed_one and socket_j4 and telemetry",
+  "win": "not socket_j2 and uplink and keyed_two and socket_j1 and gps and not socket_j3 and power and not keyed_one and socket_j4 and telemetry",
   "faultStartingState": {
-    "socket_j2": false,
+    "socket_j2": true,
     "uplink": false,
     "keyed_two": false,
     "socket_j1": false,
@@ -159,5 +159,5 @@
     "socket_j4": false,
     "telemetry": false
   },
-  "winMessage": "Drone link restored \u2014 ready for flight ops."
+  "winMessage": "Drone link restored — ready for flight ops."
 }

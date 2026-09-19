@@ -9,6 +9,12 @@
     "DATAVERSE_CLIENT_ID": "<app-registration-client-id>",
     "DATAVERSE_CLIENT_SECRET": "<app-registration-client-secret>",
 
-    "AzureSignalRConnectionString": "<azure-signalr-service-connection-string>"
+    "AzureSignalRConnectionString": "<azure-signalr-service-connection-string>",
+
+    "IoTHubEventHubConnectionString": "Endpoint=sb://<namespace>.servicebus.windows.net/;SharedAccessKeyName=<policy>;SharedAccessKey=<key>;EntityPath=<event-hub>",
+    "IOT_EVENTHUB_NAME": "<event-hub-name>",
+    "IOT_EVENTHUB_CONSUMER_GROUP": "<consumer-group-dedicated-to-this-app>",
+
+    "DIRECTLINE_SECRET": ""
   }
 }

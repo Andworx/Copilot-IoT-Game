@@ -16,6 +16,8 @@ isn't actually built yet, so this lives here instead, in this repo.
 | `/api/negotiate` | POST | anonymous | SignalR connection bootstrap for the kiosk SPA |
 | `/api/kiosk-state` | GET | anonymous | Current active device, for a freshly-loaded page |
 | `/api/set-mode` | POST | function key | Sets the active device, broadcasts `deviceChanged` |
+| `/api/directline-token` | GET | anonymous | Exchanges the server-side `DIRECTLINE_SECRET` for a short-lived Direct Line token (503 until the secret is set) |
+| `iot-telemetry` | Event Hub trigger | — | Panel Pi telemetry → SignalR `SendTelemetryUpdate` / `TriggerAgentHelp` (gamebox hub) + an `andy_iottelemetryevent` row |
 
 `set-mode`'s function key is what stands in for "only the Power App can call this" right
 now — the Power App's custom connector holds the key. `GAME_MODE_PLAN.md` §4a describes
@@ -27,6 +29,42 @@ Function looking it up from `deviceProfileId` server-side. The Power App already
 values from its data source, so this avoids an extra Dataverse round-trip, but it does mean
 a buggy/malicious caller could send a mismatched slug. Fine behind a function key for now;
 revisit if `set-mode` ever gets a less trusted caller.
+
+## Panel telemetry pipeline
+
+```
+panel Pi → IoT Hub → built-in Event Hub endpoint → iot-telemetry (this app)
+                                                    ├→ SignalR "gamebox" hub → kiosk page
+                                                    └→ Dataverse andy_iottelemetryevent
+```
+
+The payload is what `hardware/raspberry-pi/panel_controller.py` publishes (`deviceSlug`,
+`controls`, `rawSwitches`, `rawConnectors`, `cables`, `lamps`, `win`, `eventType`).
+`lib/telemetry.ts` holds the mapping and is unit-tested (`npm test`):
+
+- **`SendTelemetryUpdate`** — every reading, relayed unchanged as `data`.
+- **`TriggerAgentHelp`** — also sent while the panel isn't restored (`win === false`, not
+  for `mode_change` events). Nothing on the kiosk consumes it yet; it's there for the
+  troubleshooting agent / dispatch flow.
+- **Dataverse** — existing `andy_iottelemetryevent` columns, no schema change: switch and
+  socket state and lamp state as JSON 0/1 flags, `andy_activerule` = mode slug plus
+  recognised cables (`thermostat cables=4:J1-J2`), `andy_mismatch` = not restored. A failed
+  write is logged and never blocks the SignalR broadcast; `mode_change` events aren't logged.
+
+App settings for this pipeline. **Deployed environments get these from the Infrastructure
+workflow** (`infra/README.md`): it creates the `gamefunc` consumer group, gives the Function App a
+managed identity with Event Hubs Data Receiver on the hub, and merges the settings below. No Event Hub key
+is stored. Run that workflow (`deploy`) before this change ships, or the trigger has nothing to read.
+
+| Setting | Deployed value | Local dev (`local.settings.json`) |
+|---|---|---|
+| `IoTHubEventHubConnectionString__fullyQualifiedNamespace` | `evhns-aw-iot-copilot.servicebus.windows.net` (identity-based) | not used |
+| `IoTHubEventHubConnectionString` | not set | Event Hub connection string with `EntityPath`, since local runs have no managed identity |
+| `IOT_EVENTHUB_NAME` | `iot-telemetry` | your hub |
+| `IOT_EVENTHUB_CONSUMER_GROUP` | `gamefunc` (dedicated to this app; never `funcapp` or `$Default`) | a group of your own |
+| `DIRECTLINE_SECRET` | the Copilot Studio agent's secret, set by hand once the agent is ready. Until then `/api/directline-token` returns 503 and the kiosk shows the static steps | optional |
+
+The Function App's Dataverse application user also needs Create on `andy_iottelemetryevent`.
 
 ## Prerequisites
 
@@ -127,7 +165,11 @@ azure/
     ├── functions/
     │   ├── negotiate.ts
     │   ├── kioskState.ts
-    │   └── setMode.ts
-    └── lib/
-        └── dataverse.ts             # MSAL client-credentials auth + Web API helpers
+    │   ├── setMode.ts
+    │   ├── telemetry.ts             # Event Hub trigger → SignalR + Dataverse
+    │   └── directlineToken.ts
+    ├── lib/
+    │   ├── dataverse.ts             # MSAL client-credentials auth + Web API helpers
+    │   └── telemetry.ts             # pure payload → SignalR/Dataverse mapping (unit-tested)
+    └── ../test/telemetry.test.ts    # node:test; run with `npm test`
 ```

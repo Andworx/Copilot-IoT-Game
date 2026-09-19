@@ -57,16 +57,22 @@ flowchart TB
 
 ## Demo cable build reference
 
-Use the existing cable bundle documentation below when preparing the demo cables. Cable wiring is independent of the Pi harness.
+Use this list when preparing the demo cables. Every cable has a 2-pin plug on Side A and a 4-pin quad plug on Side B, and every cable has a different wiring pattern, so the panel can tell them apart. Label both ends (for example `C7-A` and `C7-B`). `A1 to B3` means Side A pin 1 to Side B pin 3.
 
-| Cable | Pinout | Contacts covered |
+| Cable | Pinout | Where it plugs |
 |---|---|---|
-| Cable 1 | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 4 | J1 and J4 |
-| Cable 2 | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 1 | J1 and J2 |
-| Cable 3 | Side A pin 1 to Side B pin 3<br>Side A pin 2 to Side B pin 2 | J1 and J3 |
-| Cable 4 | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 2 | J2 and J3 |
-| Cable 5 | Side A pin 1 to Side B pin 1<br>Side A pin 2 to Side B pin 4 | J2 and J4 |
-| Cable 6 | Side A pin 1 to Side B pin 2<br>Side A pin 2 to Side B pin 4 | J3 and J4 |
+| Cable 1 | A1 to B3; A2 to B4 | B in J1; A in J2, J3 or J4 |
+| Cable 2 | A1 to B3; A2 to B1 | B in J1; A in J2, J3 or J4 |
+| Cable 3 | A1 to B3; A2 to B2 | B in J1; A in J2, J3 or J4 |
+| Cable 4 | A1 to B1; A2 to B2 | Any two sockets |
+| Cable 5 | A1 to B1; A2 to B4 | B in J1; A in J2, J3 or J4 |
+| Cable 6 | A1 to B2; A2 to B4 | B in J1; A in J2, J3 or J4 |
+| Cable 7 | A1 to B4; A2 to B3 | B in J1; A in J2, J3 or J4 |
+| Cable 8 | A1 to B1; A2 to B3 | B in J1; A in J2, J3 or J4 |
+| Cable 9 | A1 to B2; A2 to B3 | B in J1; A in J2, J3 or J4 |
+| Cable 10 | A1 to B2; A2 to B1 | Any two sockets |
+| Cable 11 | A1 to B4; A2 to B1 | B in J1; A in J2, J3 or J4 |
+| Cable 12 | A1 to B4; A2 to B2 | B in J1; A in J2, J3 or J4 |
 
 ## Before each run
 
@@ -180,7 +186,7 @@ flowchart LR
 | Step | Control | Label | Target state | Action |
 |---:|---|---|---|---|
 | 1 | SW4 | Toggle switch 2 - cloud sync | Connected / ON | Set ON / closed |
-| 2 | J3 | Socket J3 connected | Connected / ON | Plug in / connected |
+| 2 | J3 | Socket J3 connected | Open / OFF | Unplug / open |
 | 3 | SW1 | Safety switch 1 - power | Connected / ON | Set ON / closed |
 | 4 | SW6 | Keyed switch 2 | Open / OFF | Set OFF / open |
 | 5 | J1 | Socket J1 connected | Connected / ON | Plug in / connected |
@@ -197,7 +203,7 @@ flowchart LR
   start([Start restoration])
   s1["1. SW4 ON"]
   start --> s1
-  s2["2. J3 ON"]
+  s2["2. J3 OFF"]
   s1 --> s2
   s3["3. SW1 ON"]
   s2 --> s3
@@ -428,7 +434,7 @@ flowchart LR
 | 7 | J2 | Socket J2 connected | Open / OFF | Unplug / open |
 | 8 | SW6 | Keyed switch 2 | Open / OFF | Set OFF / open |
 | 9 | SW3 | Toggle switch 1 - timing plan | Connected / ON | Set ON / closed |
-| 10 | J4 | Socket J4 connected | Connected / ON | Plug in / connected |
+| 10 | J4 | Socket J4 connected | Open / OFF | Unplug / open |
 
 **Step diagram**
 
@@ -453,7 +459,7 @@ flowchart LR
   s7 --> s8
   s9["9. SW3 ON"]
   s8 --> s9
-  s10["10. J4 ON"]
+  s10["10. J4 OFF"]
   s9 --> s10
   done([LED4 green = restored])
   s10 --> done
@@ -563,7 +569,7 @@ flowchart LR
 
 | Step | Control | Label | Target state | Action |
 |---:|---|---|---|---|
-| 1 | J2 | Socket J2 connected | Connected / ON | Plug in / connected |
+| 1 | J2 | Socket J2 connected | Open / OFF | Unplug / open |
 | 2 | SW4 | Toggle switch 2 - uplink | Connected / ON | Set ON / closed |
 | 3 | SW6 | Keyed switch 2 - flight key | Connected / ON | Set ON / closed |
 | 4 | J1 | Socket J1 connected | Connected / ON | Plug in / connected |
@@ -579,7 +585,7 @@ flowchart LR
 ```mermaid
 flowchart LR
   start([Start restoration])
-  s1["1. J2 ON"]
+  s1["1. J2 OFF"]
   start --> s1
   s2["2. SW4 ON"]
   s1 --> s2

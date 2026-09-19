@@ -2,13 +2,14 @@
   "name": "restore-and-spin-functions",
   "version": "1.0.0",
   "private": true,
-  "description": "Azure Functions backend for the Restore & Spin kiosk: mode selection (set-mode/kiosk-state) and the SignalR negotiate endpoint. See GAME_MODE_PLAN.md §4a.",
+  "description": "Azure Functions backend for the Restore & Spin kiosk: mode selection (set-mode/kiosk-state), the SignalR negotiate endpoint, the panel telemetry pipeline (Event Hub -> SignalR/Dataverse), and the Direct Line token endpoint. See GAME_MODE_PLAN.md §4a.",
   "main": "dist/src/index.js",
   "scripts": {
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "prestart": "npm run build",
-    "start": "func start"
+    "start": "func start",
+    "test": "tsc -p . && node --test \"dist/test/**/*.test.js\""
   },
   "dependencies": {
     "@azure/functions": "^4.5.1",
