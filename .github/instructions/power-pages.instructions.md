@@ -32,9 +32,10 @@ Other Power Platform components retain their existing PAC workflows.
 - `upload-code-site` has no website-ID option: it updates the site its `.powerpages-site/`
   folder describes and creates a **new website** if nothing matches. CI pins the live
   site (`POWER_PAGES_WEBSITE_ID`), downloads its `.powerpages-site/`, uploads, then
-  verifies the ID (see `docs/CI_CD.md`). Never upload from the checked-in
-  `.powerpages-site/` snapshot; it is stale and creates duplicate websites. Only the
-  site bound to `copilotiotgame.powerappsportals.com` is live
+  verifies the ID (see `docs/CI_CD.md`). `.powerpages-site/` is generated, git-ignored
+  state that belongs to the live site: never commit it, hand-edit it, or reuse an old
+  copy (a stale one creates duplicate websites). Only the site bound to
+  `copilotiotgame.powerappsportals.com` is live
 - Console CSP errors about blocked inline scripts on the portal come from Power Pages'
   own private-site banner and page wrapper; this repo emits no inline scripts
 - Site name and build-output path are in `copilotiotgame/powerpages.config.json`, not

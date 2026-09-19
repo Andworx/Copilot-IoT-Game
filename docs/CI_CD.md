@@ -128,8 +128,24 @@ and, before uploading, runs `pac pages download-code-site --webSiteId` to fetch
 that site's real `.powerpages-site/` into the artifact. The download fails the
 deploy if the site cannot be fetched, and a post-upload step fails it if the
 uploaded website ID is not the pinned one, so a wrong target is loud instead of
-silent. Nothing is committed back to `main`; the `.powerpages-site/` folder
-checked into the repo is a reference snapshot that CI ignores.
+silent. Nothing is committed back to `main`.
+
+**How `.powerpages-site/` is meant to be used.** It is generated state owned by
+the live site (record IDs, checksums, the site's pages, templates, settings and
+web files), not source code, so it is deliberately **not tracked in git** and is
+listed in `power pages/copilotiotgame/.gitignore`. It used to be committed; every
+upload rewrote its IDs and the committed copy drifted away from the live site,
+which is what caused the duplicate-website incident. Rules:
+
+- CI never needs it in the repo: the deploy job downloads it from the live site
+  on every run and discards it afterwards.
+- Locally you only need it for an explicit manual recovery upload. Get it with
+  `pac pages download-code-site --webSiteId <live id>` (steps in
+  `PAC_COMMANDS.md`), upload immediately, and leave it uncommitted.
+- Never hand-edit it, copy it between environments, or reuse an old download:
+  stale IDs make `pac` create a new website instead of updating the live one.
+- If a copy is lying around and you are unsure about it, delete it. It is always
+  recoverable from the live site.
 
 **Browser console CSP messages.** The portal sends its own
 `Content-Security-Policy` header (`script-src 'self' content.powerapps.com ...

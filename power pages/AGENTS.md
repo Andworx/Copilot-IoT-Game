@@ -31,10 +31,14 @@ Other Power Platform components retain their existing PAC workflows.
   points at, and creates a new website if it matches none.** CI downloads the live
   site's metadata (`pac pages download-code-site --webSiteId <POWER_PAGES_WEBSITE_ID>`)
   into the deploy artifact before uploading and fails if the uploaded website ID differs
-  — see `docs/CI_CD.md`. Do the same for any local upload: download the live site first,
-  never upload from the checked-in `.powerpages-site/` snapshot, which is stale and would
-  create a duplicate "CopilotIoTGame" website. Find the live site with `pac pages list`
-  (only one is bound to `copilotiotgame.powerappsportals.com`).
+  — see `docs/CI_CD.md`. Find the live site with `pac pages list` (only one is bound to
+  `copilotiotgame.powerappsportals.com`).
+- **`.powerpages-site/` is generated, git-ignored state — never commit it.** It belongs
+  to the live site, is not in the repo (it used to be, and its drifting IDs caused a
+  duplicate-website incident), and CI downloads a fresh copy on every deploy. For a
+  manual recovery upload, download it with `download-code-site` (steps in
+  `PAC_COMMANDS.md`), upload right away, and leave it uncommitted. Never hand-edit it,
+  copy it between environments, or reuse an old download. If unsure, delete it.
 - The portal's browser console shows `Executing inline script violates the following
   Content Security Policy directive ...` errors at `(index):30/53/59`. These come from
   Power Pages' own private-site banner and page wrapper (the hashes change per load);

@@ -57,8 +57,9 @@ pac code push
 Routine releases use `deploy-apps.yml`, which pins the live site and downloads its
 metadata before uploading (see `docs/CI_CD.md`). For explicit manual recovery, do the
 same: `upload-code-site` has no website-ID option and creates a **new website** when
-its `.powerpages-site/` folder does not match one, and the copy checked into the repo
-is stale.
+its `.powerpages-site/` folder does not match one. That folder is generated, git-ignored
+state owned by the live site (it is not in the repo): download it fresh, upload right
+away, and never commit, hand-edit, or reuse it.
 
 ```powershell
 cd "power pages\copilotiotgame"
@@ -67,7 +68,7 @@ npm run build
 # Live site = the one bound to copilotiotgame.powerappsportals.com
 pac pages list
 pac pages download-code-site --path "$env:TEMP\live-site" --webSiteId 4938f099-b8dd-485f-a5c2-3c4ad4b7e02a --overwrite
-Remove-Item ".powerpages-site" -Recurse -Force
+Remove-Item ".powerpages-site" -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item (Get-ChildItem "$env:TEMP\live-site" -Recurse -Directory -Force -Filter ".powerpages-site" | Select-Object -First 1).FullName ".powerpages-site" -Recurse
 pac pages upload-code-site --rootPath "."
 ```

@@ -20,10 +20,11 @@ The authoritative workflow is `.github/workflows/deploy-apps.yml`.
 - `upload-code-site` has no website-ID option: it updates the site its
   `.powerpages-site/` folder describes and **creates a new website** if nothing
   matches. CI pins the live site (`POWER_PAGES_WEBSITE_ID`), downloads its metadata
-  with `pac pages download-code-site --webSiteId`, uploads, then verifies the ID. Never
-  upload from the checked-in `.powerpages-site/` snapshot; it is stale and creates
-  duplicate "CopilotIoTGame" websites. Only the site bound to
-  `copilotiotgame.powerappsportals.com` is live (`pac pages list` shows the rest).
+  with `pac pages download-code-site --webSiteId`, uploads, then verifies the ID.
+  `.powerpages-site/` is generated, git-ignored state that belongs to the live site:
+  never commit it, hand-edit it, or reuse an old copy (a stale one creates duplicate
+  "CopilotIoTGame" websites). Only the site bound to `copilotiotgame.powerappsportals.com`
+  is live (`pac pages list` shows the rest).
 - Browser console CSP errors about blocked inline scripts on the portal (for example
   `(index):30`) come from Power Pages' own private-site banner and page wrapper, not
   from this repo's build output. Do not chase them in source; see `docs/CI_CD.md`.
