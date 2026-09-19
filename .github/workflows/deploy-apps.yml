@@ -74,15 +74,12 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: power-pages
-          # .powerpages-site/ carries the per-environment manifest (RecordId + checksum
-          # per Dataverse record) that pac pages upload-code-site needs to recognize an
-          # existing site's records instead of treating every upload as a first-time
-          # init. Without it, every deploy logged "Deleted 0 bundle directories" and the
-          # live site kept serving whatever bundle was there before CI ever ran.
+          # .powerpages-site/ (site metadata + manifest) is deliberately NOT built from the
+          # repo: the deploy job downloads it from the live site by website ID so
+          # pac pages upload-code-site updates that site instead of creating a new one.
           path: |
             power pages/copilotiotgame/dist/
             power pages/copilotiotgame/powerpages.config.json
-            power pages/copilotiotgame/.powerpages-site/
           if-no-files-found: error
           retention-days: 14
 
@@ -94,8 +91,7 @@ jobs:
     timeout-minutes: 30
     environment: production
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
       id-token: write
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
@@ -106,6 +102,7 @@ jobs:
       POWER_PLATFORM_TENANT_ID: ${{ vars.POWER_PLATFORM_TENANT_ID }}
       POWER_PLATFORM_CLIENT_ID: ${{ vars.POWER_PLATFORM_CLIENT_ID }}
       POWER_PLATFORM_SOLUTION_NAME: ${{ vars.POWER_PLATFORM_SOLUTION_NAME || 'CopilotIoTGame' }}
+      POWER_PAGES_WEBSITE_ID: ${{ vars.POWER_PAGES_WEBSITE_ID || '4938f099-b8dd-485f-a5c2-3c4ad4b7e02a' }}
       POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}
       VITE_SET_MODE_FUNCTION_KEY: ${{ secrets.CODE_APP_SET_MODE_FUNCTION_KEY }}
       VITE_TOGGLE_DEVICE_FUNCTION_KEY: ${{ secrets.CODE_APP_TOGGLE_DEVICE_FUNCTION_KEY }}
@@ -171,50 +168,39 @@ jobs:
         run: |
           pac code push --environment "$env:POWER_PLATFORM_ENVIRONMENT_URL" --solutionName "$env:POWER_PLATFORM_SOLUTION_NAME"
           if ($LASTEXITCODE -ne 0) { throw 'Power Apps Code App push failed.' }
+      - name: Fetch live Power Pages site metadata
+        shell: pwsh
+        run: |
+          # pac pages upload-code-site has no website-ID parameter: it matches the
+          # target site through the .powerpages-site/ folder next to the compiled
+          # code. A checked-in copy drifts (every upload rewrote its IDs, so each
+          # deploy created a brand-new "CopilotIoTGame" website and the live one was
+          # never touched). Download the live site's real metadata by ID instead, and
+          # stop here rather than letting pac create a new site if that fails.
+          $download = Join-Path $env:RUNNER_TEMP 'live-site'
+          pac pages download-code-site --path $download --webSiteId $env:POWER_PAGES_WEBSITE_ID --overwrite
+          if ($LASTEXITCODE -ne 0) { throw "Could not download Power Pages website $env:POWER_PAGES_WEBSITE_ID. Refusing to upload, which would create a new site." }
+          $meta = Get-ChildItem $download -Recurse -Directory -Force -Filter '.powerpages-site' | Select-Object -First 1
+          if (-not $meta) { throw 'Downloaded site has no .powerpages-site folder.' }
+          $id = (Select-String -Path (Join-Path $meta.FullName 'website.yml') -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
+          if ($id -ne $env:POWER_PAGES_WEBSITE_ID) { throw "Downloaded website id $id does not match $env:POWER_PAGES_WEBSITE_ID." }
+          Remove-Item 'power-pages-artifact/.powerpages-site' -Recurse -Force -ErrorAction SilentlyContinue
+          Copy-Item $meta.FullName 'power-pages-artifact/.powerpages-site' -Recurse
       - name: Upload Power Pages Code Site
         shell: pwsh
         working-directory: power-pages-artifact
         run: |
           pac pages upload-code-site --rootPath "."
           if ($LASTEXITCODE -ne 0) { throw 'Power Pages Code Site upload failed.' }
-      - name: Sync updated Power Pages manifest
+      - name: Verify Power Pages upload targeted the live site
         shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
+        working-directory: power-pages-artifact
         run: |
-          # pac just updated power-pages-artifact/.powerpages-site/ in place (new record
-          # IDs for anything it created, refreshed checksums for anything it updated).
-          # That copy is thrown away when the runner exits -- mirror it back over the
-          # repo's checked-in copy and push straight to main if anything actually
-          # changed, so the next deploy still knows about every record instead of
-          # running blind again the way it did before this manifest was included in
-          # the deploy artifact at all (see PR #26). Only touches .powerpages-site/,
-          # which is excluded from this workflow's push trigger above, so this commit
-          # won't trigger another deploy.
-          #
-          # NOTE: this pushes directly to main rather than opening a PR because this
-          # org disables "Allow GitHub Actions to create and approve pull requests" --
-          # gh pr create fails with GraphQL: createPullRequest not permitted. main has
-          # no branch protection on this plan, so a direct push is the simplest safe
-          # option for this manifest-only, non-redeploying change.
-          #
-          # Mirror (not merge) the destination so renamed/removed manifest entries
-          # don't linger: Copy-Item -Recurse into an *existing* directory nests the
-          # source folder inside it (.powerpages-site/.powerpages-site/...), so the
-          # destination must be removed first.
-          Remove-Item -Path "power pages/copilotiotgame/.powerpages-site" -Recurse -Force -ErrorAction SilentlyContinue
-          Copy-Item -Path "power-pages-artifact/.powerpages-site" -Destination "power pages/copilotiotgame/.powerpages-site" -Recurse -Force
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "power pages/copilotiotgame/.powerpages-site"
-          $changed = git status --porcelain -- "power pages/copilotiotgame/.powerpages-site"
-          if ([string]::IsNullOrWhiteSpace($changed)) {
-            Write-Host "Power Pages manifest unchanged -- nothing to sync."
-          } else {
-            git commit -m "chore(power-pages): sync uploaded code site manifest"
-            git push origin HEAD:main
-            if ($LASTEXITCODE -ne 0) { throw 'Failed to push manifest sync commit to main.' }
+          $id = (Select-String -Path '.powerpages-site/website.yml' -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
+          if ($id -ne $env:POWER_PAGES_WEBSITE_ID) {
+            throw "Upload used website $id instead of $env:POWER_PAGES_WEBSITE_ID; a duplicate site was created and must be deleted."
           }
+          Write-Host "Power Pages upload targeted website $id."
       - name: Clear PAC credentials
         if: always()
         shell: pwsh

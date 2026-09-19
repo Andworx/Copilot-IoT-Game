@@ -112,38 +112,30 @@ inactive site in Power Pages and configure table permissions in its admin UI.
 Subsequent uploads update the active site. Verify `powerpages.config.json` before
 a release; changing its site name can target a different site.
 
-**The Power Pages manifest.** `pac pages upload-code-site` only recognizes a
-site's *existing* Dataverse records — and updates them in place — via the
-per-environment manifest at
-`power pages/copilotiotgame/.powerpages-site/.portalconfig/<environment>-manifest.yml`
-(RecordId + checksum per record). Without it, pac has no way to tell "this
-local `index.html` is that existing record," and effectively runs blind. The
-build job's `power-pages` artifact **must** include `.powerpages-site/`
-alongside `dist/` and `powerpages.config.json` — dropping it is exactly what
-happened before this note existed: every deploy reported `Cleanup summary:
-Deleted 0 bundle directories`, and the live site kept serving a stale bundle
-indefinitely no matter how many times the pipeline reported success. If that
-line ever reads `Deleted 0` again after a deploy that should have replaced an
-existing bundle, the manifest is missing or hasn't been synced — check the
-artifact's `path:` list first.
+**Which Power Pages site gets updated.** `pac pages upload-code-site` has no
+website-ID parameter. It finds the site to update from the `.powerpages-site/`
+folder (site metadata plus the per-environment manifest of RecordId + checksum
+per record) sitting next to the compiled code, and creates a brand-new website
+when that folder does not match a site in the environment. A checked-in copy
+cannot be trusted for this: every upload rewrote the copy's IDs, so each deploy
+created another "CopilotIoTGame" website and the live one (bound to
+`copilotiotgame.powerappsportals.com`) was never updated, while every run still
+reported success.
 
-The deploy job commits the post-upload manifest state back automatically:
-`pac` updates `.powerpages-site/` in place as a side effect of uploading (new
-RecordIds for anything it created, refreshed checksums for anything it
-updated), and the "Sync updated Power Pages manifest" step pushes a
-`chore(power-pages): sync uploaded code site manifest` commit straight to
-`main` if that state differs from what's committed. It pushes directly rather
-than opening a PR because this org has "Allow GitHub Actions to create and
-approve pull requests" disabled, which makes `gh pr create` fail with
-`GraphQL: GitHub Actions is not permitted to create or approve pull requests`;
-`main` has no branch protection on this plan, so a direct push is the
-simplest reliable option for this manifest-only, non-redeploying change. Skipping
-this sync lets the manifest drift, which only bites on structural site
-changes (a new page, a new content snippet, a new web template) since hash-
-named bundle files are already handled by `bundleFilePatterns` cleanup
-regardless of manifest freshness. The commit only touches
-`.powerpages-site/**`, which is excluded from this workflow's push-trigger
-paths, so it does not trigger another deploy.
+The deploy job therefore pins the live site by ID (`POWER_PAGES_WEBSITE_ID`,
+a repository variable that defaults to `4938f099-b8dd-485f-a5c2-3c4ad4b7e02a`)
+and, before uploading, runs `pac pages download-code-site --webSiteId` to fetch
+that site's real `.powerpages-site/` into the artifact. The download fails the
+deploy if the site cannot be fetched, and a post-upload step fails it if the
+uploaded website ID is not the pinned one, so a wrong target is loud instead of
+silent. Nothing is committed back to `main`; the `.powerpages-site/` folder
+checked into the repo is a reference snapshot that CI ignores.
+
+If the live site is ever recreated, look up its new ID with `pac pages list`
+(the one whose `primarydomainname` is the portal's domain) and set the
+`POWER_PAGES_WEBSITE_ID` repository variable. Duplicate "CopilotIoTGame"
+websites in the environment are always mistakes and can be deleted, but check
+the domain first: only one is bound to the portal URL.
 
 Code Apps also enforce the target environment's Content Security Policy. When a
 frontend calls the Function App directly, add the production Function App origin
