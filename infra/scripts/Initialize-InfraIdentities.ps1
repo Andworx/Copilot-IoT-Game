@@ -109,28 +109,40 @@ foreach ($item in @(
 # --- custom roles ---
 # Plain .NET file calls: -WhatIf would suppress the cmdlet equivalents and break the dry run.
 function New-CustomRole($name, $description, $actions) {
-    # Creates the role, or updates it if it already exists (so re-running picks up permission changes).
-    $existingId = az role definition list --name $name --scope $rgScope --query '[0].name' -o tsv
-    $definition = @{
-        Name = $name
-        Description = $description
-        Actions = $actions
-        NotActions = @()
-        AssignableScopes = @($rgScope)
-    }
-    if ($existingId) { $definition.Id = $existingId }
+    # Creates the role. If it exists: does nothing when it already matches, otherwise updates it,
+    # so re-running applies permission changes. `az role definition update` needs the same shape
+    # `az role definition list` returns (roleName/permissions), not the create-only shape.
+    $existing = az role definition list --name $name --scope $rgScope -o json | ConvertFrom-Json | Select-Object -First 1
     $roleFile = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($roleFile, ($definition | ConvertTo-Json))
-    if ($existingId) {
-        Invoke-Step "update custom role '$name'" {
-            az role definition update --role-definition $roleFile --only-show-errors --output none
+    try {
+        if ($existing) {
+            $current = @($existing.permissions[0].actions) | Sort-Object
+            $wanted = @($actions) | Sort-Object
+            if (-not (Compare-Object $current $wanted) -and $existing.description -eq $description) {
+                Write-Host "custom role '$name' is already up to date"
+                return
+            }
+            $existing.description = $description
+            $existing.permissions = @(@{ actions = @($actions); notActions = @(); dataActions = @(); notDataActions = @() })
+            [System.IO.File]::WriteAllText($roleFile, ($existing | ConvertTo-Json -Depth 10))
+            Invoke-Step "update custom role '$name'" {
+                az role definition update --role-definition $roleFile --only-show-errors --output none
+            }
+        } else {
+            [System.IO.File]::WriteAllText($roleFile, (@{
+                Name = $name
+                Description = $description
+                Actions = $actions
+                NotActions = @()
+                AssignableScopes = @($rgScope)
+            } | ConvertTo-Json))
+            Invoke-Step "create custom role '$name'" {
+                az role definition create --role-definition $roleFile --only-show-errors --output none
+            }
         }
-    } else {
-        Invoke-Step "create custom role '$name'" {
-            az role definition create --role-definition $roleFile --only-show-errors --output none
-        }
+    } finally {
+        [System.IO.File]::Delete($roleFile)
     }
-    [System.IO.File]::Delete($roleFile)
 }
 
 New-CustomRole $deployRoleName 'Create and read resource group deployments (what-if/deploy). No resource write access by itself.' @(
