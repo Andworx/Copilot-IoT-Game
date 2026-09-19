@@ -1,0 +1,19 @@
+{
+  "allocationPolicy": "Hashed",
+  "linkedHubs": [
+    {
+      "allocationWeight": null,
+      "location": "eastus",
+      "name": "iothub-aw-iot-copilot.azure-devices.net"
+    }
+  ],
+  "location": "eastus",
+  "sku": {
+    "capacity": 1,
+    "family": null,
+    "model": null,
+    "name": "S1",
+    "size": null,
+    "tier": "Standard"
+  }
+}
