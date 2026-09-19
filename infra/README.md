@@ -108,7 +108,8 @@ has nothing to read.
    plan does not, see `docs/CI_CD.md`).
 3. Add the repository variables `AZURE_INFRA_READER_CLIENT_ID` and
    `AZURE_INFRA_DEPLOYER_CLIENT_ID` (the script prints the values).
-4. Run the workflow with `what-if`, then `drift`, before the first `deploy`. The role
+4. Run the workflow with `what-if` first, then `deploy`, then `drift` to confirm it is clean
+   (`drift` fails until the first deploy because the `gamefunc` group is still pending). The role
    assignments and the what-if permissions have not yet been exercised by CI.
 
 ## Known gaps and things worth changing later

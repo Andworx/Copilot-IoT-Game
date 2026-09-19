@@ -269,7 +269,8 @@ CLI and PowerShell 7 (`pwsh`): `az deployment group what-if ...` and
 `./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check` (commands in `infra/README.md`).
 
 Always run `what-if` and read it before `deploy`. The expected result today is a single Create
-(the `gamefunc` consumer group) until the first deploy, then no changes.
+(the `gamefunc` consumer group) until the first deploy, then no changes. That is also why `drift`
+fails until the first deploy has run: it treats any pending change as drift.
 
 ### Release order
 
@@ -289,7 +290,8 @@ flowchart TB
 For the telemetry pipeline, in order:
 
 1. Merge the infra PR (this adds the workflow to `main`).
-2. Run `what-if`, then `drift`, then `deploy`.
+2. Run `what-if` and read it (expect one Create: the `gamefunc` consumer group), then `deploy`, then
+   `drift`, which should now pass clean. Before the first deploy `drift` fails on that pending Create.
 3. Merge the application PR; `deploy-apps.yml` ships the telemetry function.
 4. Restart the panel Pi service, then verify the live path (Pi to kiosk).
 5. Keep the plan items at Verify until step 4 passes.
