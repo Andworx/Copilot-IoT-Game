@@ -244,7 +244,7 @@ branch rule. The existing `production` environment and its identity
 
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
-| `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group, plus a what-if-only custom role (`Infra What-If Operator`). Cannot change anything. | none, because the weekly drift check runs unattended |
+| `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group, plus a what-if custom role (`Infra What-If Operator`: what-if and, because Bicep modules run as nested deployments, `deployments/write`). It has no resource permissions, so it cannot change anything. | none, because the weekly drift check runs unattended |
 | `infra-deploy` | `id-gha-infra-deployer` | `Infra Deployment Operator` (deployments only) and Reader on the resource group; Contributor on the Event Hub namespace, the SignalR service and `func-aw-azcom-iot-game` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which

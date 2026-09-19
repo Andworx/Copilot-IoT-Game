@@ -99,7 +99,7 @@ has nothing to read.
 1. Run `scripts/Initialize-InfraIdentities.ps1` (try `-WhatIf` first) as someone with Owner
    or User Access Administrator on the resource group. It creates two managed identities with
    GitHub OIDC credentials:
-   - `id-gha-infra-reader`: Reader plus a what-if-only custom role.
+   - `id-gha-infra-reader`: Reader plus a what-if custom role (what-if and `deployments/write`, which nested Bicep modules need; no resource permissions, so it cannot change anything).
    - `id-gha-infra-deployer`: deployments-only custom role; Contributor on the Event Hub
      namespace, the SignalR service and the game Function App **only**; and permission to
      assign only the Event Hubs Data Receiver role, only on the hub.

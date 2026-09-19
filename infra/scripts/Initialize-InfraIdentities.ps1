@@ -6,8 +6,10 @@
 .DESCRIPTION
     Creates, in the resource group:
 
-      id-gha-infra-reader    Reader on the resource group plus a what-if-only custom role
-                             ("Infra What-If Operator"; Reader alone cannot run what-if).
+      id-gha-infra-reader    Reader on the resource group plus a what-if custom role
+                             ("Infra What-If Operator"; Reader alone cannot run what-if, and
+                             nested Bicep modules also need deployments/write, which only
+                             records a deployment and cannot change any resource).
                              Used by the what-if and drift jobs (GitHub environment
                              `infra-readonly`, no approval needed). Cannot change anything.
 
@@ -107,26 +109,38 @@ foreach ($item in @(
 # --- custom roles ---
 # Plain .NET file calls: -WhatIf would suppress the cmdlet equivalents and break the dry run.
 function New-CustomRole($name, $description, $actions) {
-    if (az role definition list --name $name --scope $rgScope --query '[0].name' -o tsv) { return }
-    $roleFile = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($roleFile, (@{
+    # Creates the role, or updates it if it already exists (so re-running picks up permission changes).
+    $existingId = az role definition list --name $name --scope $rgScope --query '[0].name' -o tsv
+    $definition = @{
         Name = $name
         Description = $description
         Actions = $actions
         NotActions = @()
         AssignableScopes = @($rgScope)
-    } | ConvertTo-Json))
-    Invoke-Step "create custom role '$name'" {
-        az role definition create --role-definition $roleFile --only-show-errors --output none
+    }
+    if ($existingId) { $definition.Id = $existingId }
+    $roleFile = [System.IO.Path]::GetTempFileName()
+    [System.IO.File]::WriteAllText($roleFile, ($definition | ConvertTo-Json))
+    if ($existingId) {
+        Invoke-Step "update custom role '$name'" {
+            az role definition update --role-definition $roleFile --only-show-errors --output none
+        }
+    } else {
+        Invoke-Step "create custom role '$name'" {
+            az role definition create --role-definition $roleFile --only-show-errors --output none
+        }
     }
     [System.IO.File]::Delete($roleFile)
 }
 
 New-CustomRole $deployRoleName 'Create and read resource group deployments (what-if/deploy). No resource write access by itself.' @(
     'Microsoft.Resources/deployments/*', 'Microsoft.Resources/subscriptions/resourceGroups/read')
-New-CustomRole $whatIfRoleName 'Run what-if and read deployments. Cannot create or change anything.' @(
-    'Microsoft.Resources/deployments/whatIf/action', 'Microsoft.Resources/deployments/read',
-    'Microsoft.Resources/deployments/operations/read', 'Microsoft.Resources/subscriptions/resourceGroups/read')
+# deployments/write is required because what-if evaluates each Bicep module as a nested deployment.
+# It only records deployments: with no resource-level permissions, this role cannot change any resource.
+New-CustomRole $whatIfRoleName 'Run what-if (incl. nested Bicep modules). Can record deployments but has no permission to change any resource.' @(
+    'Microsoft.Resources/deployments/whatIf/action', 'Microsoft.Resources/deployments/write',
+    'Microsoft.Resources/deployments/read', 'Microsoft.Resources/deployments/operations/read',
+    'Microsoft.Resources/subscriptions/resourceGroups/read')
 
 function New-Assignment($identityName, $role, $scope, $extra = @()) {
     $principal = az identity show -g $ResourceGroup -n $identityName --query principalId -o tsv 2>$null
