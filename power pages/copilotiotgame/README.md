@@ -62,8 +62,9 @@ for the current device:
   cables the Pi sees (`#4 J1↔J2`).
 - **No signal:** the controls stay tappable so the kiosk still works as a standalone demo.
 
-Help Fix sends the agent one structured prompt (`lib/quickFixPrompt.ts`): each control's
-current vs. target state, the cables plugged in, and "reply with only a numbered list".
+Help Fix appears only while the current mode is unresolved, then sends the agent one
+structured prompt (`lib/quickFixPrompt.ts`): the active mode, each control's current vs.
+target state, the cables plugged in, and "reply with only a numbered list".
 
 ## What's stubbed, and where the real wiring goes
 

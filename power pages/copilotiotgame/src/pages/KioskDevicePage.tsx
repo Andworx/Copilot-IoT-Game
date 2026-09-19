@@ -217,11 +217,13 @@ export function KioskDevicePage() {
         )}
       </div>
 
-      <HelpFixBar
-        isAlert={!win}
-        steps={device.steps}
-        getPrompt={() => buildQuickFixPrompt(device, state, reading?.cables)}
-      />
+      {!win && (
+        <HelpFixBar
+          isAlert
+          steps={device.steps}
+          getPrompt={() => buildQuickFixPrompt(device, state, reading?.cables)}
+        />
+      )}
 
       <div className="telemetry-strip">
         <span>
