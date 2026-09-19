@@ -107,6 +107,7 @@ class PanelController:
             self._read_mode_from_url()
             or self._read_mode_from_file()
             or os.environ.get("ACTIVE_DEVICE_SLUG")
+            or self._active_slug
             or DEFAULT_MODE_SLUG
         )
 

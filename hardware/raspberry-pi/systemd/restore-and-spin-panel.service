@@ -8,7 +8,7 @@ Type=simple
 User=pi
 WorkingDirectory=/home/pi/restore-and-spin/hardware/raspberry-pi
 EnvironmentFile=/home/pi/restore-and-spin/hardware/raspberry-pi/.env
-ExecStart=/usr/bin/python3 /home/pi/restore-and-spin/hardware/raspberry-pi/panel_controller.py
+ExecStart=/home/pi/restore-and-spin/hardware/raspberry-pi/.venv/bin/python3 /home/pi/restore-and-spin/hardware/raspberry-pi/panel_controller.py
 Restart=on-failure
 RestartSec=5
 
