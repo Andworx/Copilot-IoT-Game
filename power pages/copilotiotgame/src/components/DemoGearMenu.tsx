@@ -4,6 +4,9 @@ import { DEVICE_ORDER, DEVICE_PROFILES } from "../data/deviceProfiles";
 
 interface DemoGearMenuProps {
   currentSlug: string; // "info" or a device slug
+  azureConnected?: boolean;
+  iotConnected?: boolean;
+  iotAgeSeconds?: number;
 }
 
 /**
@@ -11,7 +14,7 @@ interface DemoGearMenuProps {
  * Kept deliberately simple: no confirmation, no animation — it's a shortcut, not part of
  * the game itself.
  */
-export function DemoGearMenu({ currentSlug }: DemoGearMenuProps) {
+export function DemoGearMenu({ currentSlug, azureConnected = false, iotConnected = false, iotAgeSeconds }: DemoGearMenuProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -44,6 +47,18 @@ export function DemoGearMenu({ currentSlug }: DemoGearMenuProps) {
 
       {open && (
         <div className="gear-menu" role="menu">
+          <div className="gear-status" aria-label="Connection status">
+            <div>
+              <span>IoT device</span>
+              <strong data-state={iotConnected ? "connected" : "offline"}>
+                {iotConnected ? `Connected${iotAgeSeconds === undefined ? "" : ` · ${iotAgeSeconds}s ago`}` : "Offline"}
+              </strong>
+            </div>
+            <div>
+              <span>Azure</span>
+              <strong data-state={azureConnected ? "connected" : "offline"}>{azureConnected ? "Connected" : "Offline"}</strong>
+            </div>
+          </div>
           <div className="gear-menu-title">Demo — jump to mode</div>
           <button type="button" role="menuitem" className={currentSlug === "info" ? "is-current" : undefined} onClick={() => go("/kiosk/info")}>
             Info — Demo / How to Play

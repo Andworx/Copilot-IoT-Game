@@ -22,14 +22,14 @@ export function HelpFixBar({ isAlert, steps, getPrompt }: HelpFixBarProps) {
   const [open, setOpen] = useState(false);
   const { status, response, sendPrompt, reset } = useAgentChat();
 
-  function toggle() {
-    if (open) {
-      reset();
-      setOpen(false);
-      return;
-    }
+  function openHelp() {
     setOpen(true);
     void sendPrompt(getPrompt());
+  }
+
+  function closeHelp() {
+    reset();
+    setOpen(false);
   }
 
   const showAgentReply = status === "done" && response;
@@ -37,20 +37,27 @@ export function HelpFixBar({ isAlert, steps, getPrompt }: HelpFixBarProps) {
 
   return (
     <>
-      <div className="help-fix-row">
-        <div className="rule" />
-        <button
-          type="button"
-          className={`help-fix-btn${isAlert ? " is-alert" : ""}`}
-          onClick={toggle}
-          aria-expanded={open}
-        >
-          {open && status === "loading" ? "Asking agent…" : "Help Fix"}
-        </button>
-        <div className="rule" />
-      </div>
+      {!open && (
+        <div className="help-fix-row">
+          <div className="rule" />
+          <button
+            type="button"
+            className={`help-fix-btn${isAlert ? " is-alert" : ""}`}
+            onClick={openHelp}
+            aria-expanded={open}
+          >
+            Help Fix
+          </button>
+          <div className="rule" />
+        </div>
+      )}
 
-      <div className={`fix-sheet${open ? " is-open" : ""}`}>
+      <div className={`fix-sheet${open ? " is-open" : ""}`} aria-hidden={!open}>
+        {open && (
+          <button type="button" className="fix-close-btn" onClick={closeHelp} aria-label="Close Help Fix">
+            Close
+          </button>
+        )}
         {status === "loading" && <div className="fix-note">Analysing panel state…</div>}
         {showAgentReply && <div className="fix-response">{response}</div>}
         {showFallback && (

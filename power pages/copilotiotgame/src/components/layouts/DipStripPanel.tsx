@@ -9,6 +9,7 @@ interface LayoutProps {
   lampColors: Record<string, LampColor>;
   win: boolean;
   onToggle: (key: string) => void;
+  disabled?: boolean;
 }
 
 const SPARK_POINTS = 16;
@@ -16,7 +17,7 @@ const SPARK_WIDTH = 92;
 const SPARK_HEIGHT = 28;
 
 /** DIP-switch bank + live sparkline + LED strip — positional, see DialArcPanel's note. */
-export function DipStripPanel({ device, state, lampColors, win, onToggle }: LayoutProps) {
+export function DipStripPanel({ device, state, lampColors, win, onToggle, disabled }: LayoutProps) {
   const { switches, lamps, readout } = device;
   const [points, setPoints] = useState<number[]>(() => Array(SPARK_POINTS).fill(14));
   const winRef = useRef(win);
@@ -42,7 +43,7 @@ export function DipStripPanel({ device, state, lampColors, win, onToggle }: Layo
     <div className="cc-layout">
       <div className="cc-dip-row">
         {switches.map((sw) => (
-          <TactileButton key={sw.key} className="cc-dip" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)}>
+          <TactileButton key={sw.key} className="cc-dip" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} disabled={disabled}>
             {sw.label.slice(0, 3).toUpperCase()}
           </TactileButton>
         ))}

@@ -42,8 +42,8 @@ export function KioskDevicePage() {
   const [gameModeEnabled, setGameModeEnabled] = useState<boolean | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-  // Live panel: mirror the Pi's controls (same keys as `state`). Without a live signal the
-  // on-screen controls stay playable so the kiosk still works as a standalone demo.
+  // Live panel: mirror the Pi's controls (same keys as `state`). The physical panel is
+  // the only source of truth for state changes; the on-screen controls are read-only.
   useEffect(() => {
     if (reading?.controls) setState((prev) => ({ ...prev, ...reading.controls }));
   }, [reading]);
@@ -129,8 +129,7 @@ export function KioskDevicePage() {
   const lamps = device.computeLamps(state, win);
 
   function handleToggle(key: string) {
-    if (isLive) return; // the physical panel is the source of truth while it is connected
-    setState((prev) => ({ ...prev, [key]: !prev[key] }));
+    void key;
   }
 
   // Fires when the win/success overlay's own dwell timer elapses, in both Game Mode
@@ -169,14 +168,6 @@ export function KioskDevicePage() {
         </>
       )}
 
-      <div className="status-bar">
-        <span>
-          <span className="live-dot" />
-          PANEL LINK: {isLive ? "CONNECTED" : "NO SIGNAL — DEMO CONTROLS"}
-        </span>
-        <span>{isLive ? `LAST UPDATE ${ageSeconds}s AGO` : "TAP THE CONTROLS TO PLAY"}</span>
-      </div>
-
       <div className="kiosk-header">
         <div>
           <span className="sector-tag">{device.sector}</span>
@@ -187,33 +178,21 @@ export function KioskDevicePage() {
 
       <div className="fault-line" data-mode={win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: win ? device.okText : device.faultText }} />
 
-      <section className="restore-sequence" aria-label="Panel restore order">
-        <div className="restore-sequence-title">Restore order</div>
-        <ol>
-          {device.restoreSequence.map((step) => (
-            <li key={step.physicalPin}>
-              <span>{step.physicalPin}</span>
-              <strong>{step.label}</strong>
-            </li>
-          ))}
-        </ol>
-      </section>
-
       <div className="panel-body">
         {device.layout === "dial-arc" && (
-          <DialArcPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} />
+          <DialArcPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} disabled />
         )}
         {device.layout === "keypad" && (
-          <KeypadPanel device={device} state={state} lampColors={lamps} win={win} onToggle={handleToggle} />
+          <KeypadPanel device={device} state={state} lampColors={lamps} win={win} onToggle={handleToggle} disabled />
         )}
         {device.layout === "dip-strip" && (
-          <DipStripPanel device={device} state={state} lampColors={lamps} win={win} onToggle={handleToggle} />
+          <DipStripPanel device={device} state={state} lampColors={lamps} win={win} onToggle={handleToggle} disabled />
         )}
         {device.layout === "paired-columns" && (
-          <PairedColumnsPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} />
+          <PairedColumnsPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} disabled />
         )}
         {device.layout === "radio-cluster" && (
-          <RadioClusterPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} />
+          <RadioClusterPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} disabled />
         )}
       </div>
 
@@ -224,23 +203,6 @@ export function KioskDevicePage() {
           getPrompt={() => buildQuickFixPrompt(device, state, reading?.cables)}
         />
       )}
-
-      <div className="telemetry-strip">
-        <span>
-          PANEL_LINK: {isLive ? <span className="live">CONNECTED</span> : "OFFLINE"}
-        </span>
-        {isLive && reading?.cables && (
-          <span>
-            CABLES:{" "}
-            {reading.cables.length === 0
-              ? "NONE"
-              : reading.cables
-                  .map((c) => `${c.cable === null ? "?" : `#${c.cable}`} ${c.sockets.join("↔")}`)
-                  .join("  ")}
-          </span>
-        )}
-        <span>UNIT: game-panel-01</span>
-      </div>
 
       {win && gameModeEnabled && claimToken && (
         <WinOverlay
@@ -259,7 +221,7 @@ export function KioskDevicePage() {
         />
       )}
 
-      <DemoGearMenu currentSlug={device.slug} />
+      <DemoGearMenu currentSlug={device.slug} azureConnected={!!connection} iotConnected={isLive} iotAgeSeconds={ageSeconds ?? undefined} />
     </div>
   );
 }

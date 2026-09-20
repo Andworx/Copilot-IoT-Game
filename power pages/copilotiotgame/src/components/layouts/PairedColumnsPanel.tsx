@@ -7,6 +7,7 @@ interface LayoutProps {
   state: DeviceState;
   lampColors: Record<string, LampColor>;
   onToggle: (key: string) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -15,7 +16,7 @@ interface LayoutProps {
  * "relief"-equivalent control by position) since that's the one whose state means
  * "problem resolved" across every device this layout has been used for so far.
  */
-export function PairedColumnsPanel({ device, state, lampColors, onToggle }: LayoutProps) {
+export function PairedColumnsPanel({ device, state, lampColors, onToggle, disabled }: LayoutProps) {
   const { switches, lamps } = device;
   const gaugeSwitch = switches[2];
   const needleAngle = state[gaugeSwitch.key] ? -35 : -125;
@@ -36,7 +37,7 @@ export function PairedColumnsPanel({ device, state, lampColors, onToggle }: Layo
         {switches.map((sw, i) => (
           <div className="wp-col" key={sw.key}>
             <LampDot state={lampColors[lamps[i].key]} shape="lg" />
-            <TactileButton className="wp-rocker" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} />
+            <TactileButton className="wp-rocker" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} disabled={disabled} />
             <label>{sw.label.split(" ")[0]}</label>
           </div>
         ))}

@@ -8,10 +8,11 @@ interface LayoutProps {
   lampColors: Record<string, LampColor>;
   win: boolean;
   onToggle: (key: string) => void;
+  disabled?: boolean;
 }
 
 /** 2x2 keypad + LCD readout + side LED column — positional, see DialArcPanel's note. */
-export function KeypadPanel({ device, state, lampColors, win, onToggle }: LayoutProps) {
+export function KeypadPanel({ device, state, lampColors, win, onToggle, disabled }: LayoutProps) {
   const { switches, lamps } = device;
 
   return (
@@ -22,7 +23,7 @@ export function KeypadPanel({ device, state, lampColors, win, onToggle }: Layout
         </div>
         <div className="lk-keypad">
           {switches.map((sw) => (
-            <TactileButton key={sw.key} className="lk-key" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)}>
+            <TactileButton key={sw.key} className="lk-key" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} disabled={disabled}>
               {sw.label.split(" ")[0].toUpperCase()}
             </TactileButton>
           ))}
