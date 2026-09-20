@@ -10,8 +10,8 @@ interface HelpFixBarProps {
 }
 
 /**
- * Matches the existing AgentButton.tsx pattern exactly — collapsed by default, pulses
- * only while unresolved, and on tap shows ONLY a numbered list. See KIOSK_UI_SPEC.md §1.5.
+ * Matches the existing AgentButton.tsx pattern exactly: collapsed by default and, on tap,
+ * shows only a numbered list. See KIOSK_UI_SPEC.md §1.5.
  *
  * On open it sends one structured prompt (quickFixPrompt.ts) to the Copilot Studio
  * troubleshooting agent over Direct Line and shows the numbered list it returns. Until the
@@ -20,7 +20,7 @@ interface HelpFixBarProps {
  */
 export function HelpFixBar({ isAlert, steps, getPrompt }: HelpFixBarProps) {
   const [open, setOpen] = useState(false);
-  const { status, response, unavailable, sendPrompt, reset } = useAgentChat();
+  const { status, response, sendPrompt, reset } = useAgentChat();
 
   function toggle() {
     if (open) {
@@ -51,20 +51,14 @@ export function HelpFixBar({ isAlert, steps, getPrompt }: HelpFixBarProps) {
       </div>
 
       <div className={`fix-sheet${open ? " is-open" : ""}`}>
-        <div className="fix-title">
-          ⚡ IoT Panel Troubleshooting Agent — {showFallback ? "standard steps" : "steps only"}
-        </div>
         {status === "loading" && <div className="fix-note">Analysing panel state…</div>}
         {showAgentReply && <div className="fix-response">{response}</div>}
         {showFallback && (
-          <>
-            {!unavailable && <div className="fix-note">The agent didn't answer — here are the standard steps.</div>}
-            <ol>
-              {steps.map((step) => (
-                <li key={step}>{step.replace(/^\d+\.\s*/, "")}</li>
-              ))}
-            </ol>
-          </>
+          <ol>
+            {steps.map((step) => (
+              <li key={step}>{step.replace(/^\d+\.\s*/, "")}</li>
+            ))}
+          </ol>
         )}
       </div>
     </>

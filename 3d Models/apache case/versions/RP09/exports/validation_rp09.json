@@ -1,0 +1,257 @@
+{
+  "revision": "RP09",
+  "status": "PASS - revised screen cover requires physical fit approval",
+  "exports": [
+    "activity_face_base.stl",
+    "activity_face_layer_swap.stl",
+    "activity_face_text.stl",
+    "safety_face_base.stl",
+    "safety_face_layer_swap.stl",
+    "safety_face_text.stl",
+    "screen_face_base.stl",
+    "screen_face_layer_swap.stl",
+    "screen_face_text.stl",
+    "switch_face_base.stl",
+    "switch_face_layer_swap.stl",
+    "switch_face_text.stl"
+  ],
+  "calibration_exports": [
+    "text_coupon_base.stl",
+    "text_coupon_layer_swap.stl",
+    "text_coupon_text.stl"
+  ],
+  "text_geometry": {
+    "font": "Liberation Sans Bold",
+    "title_size_mm": 5.4,
+    "screen_title_size_mm": 6.2,
+    "orientation_size_mm": 3.6,
+    "socket_label_size_mm": 3.8,
+    "pocket_depth_mm": 0.8,
+    "proud_height_mm": 0.4,
+    "xy_clearance_mm": 0.12
+  },
+  "screen_cover_alignment": {
+    "size_mm": [
+      220.0,
+      136.75
+    ],
+    "panel_rear_edge_global_y_mm": 221.75,
+    "cover_rear_edge_global_y_mm": 221.75,
+    "lower_hole_centers_local_xy_mm": [
+      [
+        -105.0,
+        -63.0
+      ],
+      [
+        105.0,
+        -63.0
+      ]
+    ],
+    "upper_hole_centers_local_xy_mm": [
+      [
+        -95.0,
+        65.75
+      ],
+      [
+        95.0,
+        65.75
+      ]
+    ],
+    "upper_hole_centers_global_xy_mm": [
+      [
+        -95.0,
+        218.75
+      ],
+      [
+        95.0,
+        218.75
+      ]
+    ],
+    "led_centers_local_xy_mm": [
+      [
+        -27,
+        54
+      ],
+      [
+        -9,
+        54
+      ],
+      [
+        9,
+        54
+      ],
+      [
+        27,
+        54
+      ]
+    ]
+  },
+  "rp08_release_stls_verified": 17,
+  "meshes": {
+    "activity_face_base.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "activity_face_layer_swap.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.6
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "activity_face_text.stl": {
+      "bounds_mm": [
+        65.692,
+        67.945,
+        1.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 25,
+      "fits_256mm_bed": true
+    },
+    "safety_face_base.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "safety_face_layer_swap.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.6
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "safety_face_text.stl": {
+      "bounds_mm": [
+        41.321,
+        67.945,
+        1.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 13,
+      "fits_256mm_bed": true
+    },
+    "screen_face_base.stl": {
+      "bounds_mm": [
+        220.0,
+        136.75,
+        6.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "screen_face_layer_swap.stl": {
+      "bounds_mm": [
+        220.0,
+        136.75,
+        6.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "screen_face_text.stl": {
+      "bounds_mm": [
+        89.827,
+        130.256,
+        1.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 21,
+      "fits_256mm_bed": true
+    },
+    "switch_face_base.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "switch_face_layer_swap.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.6
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "switch_face_text.stl": {
+      "bounds_mm": [
+        65.646,
+        68.084,
+        1.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 17,
+      "fits_256mm_bed": true
+    },
+    "calibration/text_coupon_base.stl": {
+      "bounds_mm": [
+        90.0,
+        22.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "calibration/text_coupon_layer_swap.stl": {
+      "bounds_mm": [
+        90.0,
+        22.0,
+        3.6
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "calibration/text_coupon_text.stl": {
+      "bounds_mm": [
+        65.646,
+        5.584,
+        1.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 12,
+      "fits_256mm_bed": true
+    }
+  }
+}

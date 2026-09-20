@@ -33,7 +33,7 @@ jobs:
           [[ "$ISSUE_NUMBER" =~ ^[0-9]+$ ]] || exit 1
           TARGET_REPO="${{ github.event.pull_request.base.repo.full_name }}"
           LABELS=$(gh issue view "$ISSUE_NUMBER" --repo "$TARGET_REPO" --json labels --jq '.labels[].name')
-          if echo "$LABELS" | grep -q "YOUR_PROJECT_LABEL"; then
+          if echo "$LABELS" | grep -q "project:copilot-iot-game"; then
             echo "has_label=true" >> $GITHUB_OUTPUT
           else
             echo "has_label=false" >> $GITHUB_OUTPUT
@@ -48,5 +48,5 @@ jobs:
         run: |
           [[ "$ISSUE_NUMBER" =~ ^[0-9]+$ ]] || exit 1
           TARGET_REPO="${{ github.event.pull_request.base.repo.full_name }}"
-          gh issue edit "$ISSUE_NUMBER" --repo "$TARGET_REPO" --add-label "YOUR_PROJECT_LABEL"
+          gh issue edit "$ISSUE_NUMBER" --repo "$TARGET_REPO" --add-label "project:copilot-iot-game"
         shell: bash

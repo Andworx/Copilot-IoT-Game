@@ -34,8 +34,9 @@ export function buildQuickFixPrompt(
 
   return (
     `Panel quick-fix request.\n` +
-    `DEVICE: ${device.label} (${device.slug}).\n` +
+    `CURRENT_MODE: ${device.label} (${device.slug}), mode ${device.modeIndex}.\n` +
     `TARGET: every control below must match its "needs" state. Controls are restored in the listed order.\n` +
+    `CURRENT_STATE:\n` +
     `${controls}\n` +
     `CABLES: ${describeCables(cables)} A socket reads CONNECTED only while both ends of a cable are plugged in, ` +
     `so sockets connect and disconnect in pairs.\n` +
