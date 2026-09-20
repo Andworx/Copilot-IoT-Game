@@ -1,10 +1,11 @@
 # RP09 working revision — high-contrast face text
 
-RP09 changes the four removable faceplates. The screen cover is extended to the
-fixed panel's rear edge and its upper mounting holes use the panel's existing
-rear screw locations. LED positions and collars, the lower screen mounting
-holes, component holes, and the RP08 fixed panels, shell, and trays remain
-unchanged.
+RP09 changes the four removable faceplates and the two fixed panel halves. The
+screen cover is extended to the fixed panel's rear edge and its upper mounting
+holes use the panel's existing rear screw locations. The fixed panel now has an
+integrated drop-in screen seat so the display cannot fall through its carrier
+opening. LED positions and collars, the lower screen mounting holes, component
+holes, shell, and trays remain unchanged.
 
 ## Print the coupon first
 
@@ -57,8 +58,28 @@ holes move from local X +/-105, Y +63 to X +/-95, Y +65.75, matching the
 panel's existing rear screw centers at global X +/-95, Y 218.75. The lower pair
 remain at local X +/-105, Y -63.
 
-No panel reprint or panel drilling is required. The earlier panel-relief option
-is superseded by this cover-only correction.
+The earlier panel-relief option is superseded by the corrected cover geometry.
+The later screen-seat change below does require both fixed panel halves to be
+reprinted; no drilling or shell change is required.
+
+## Screen seat
+
+The measured 193 x 110 x 6.04 mm display drops into the existing 196 x 112 mm
+carrier cavity. A 2 mm-thick underside ledge begins nominally 6.04 mm below the
+panel top and has a 187 x 104 mm through-opening. A 0.02 mm modeled Z clearance
+keeps the glass from holding the cover above the panel. This leaves 3 mm of
+support beneath every screen-body edge and places the display front essentially
+flush with the panel. The M1 Display / Status cover then spans the screen
+perimeter and locks it in place when its four screws are tightened evenly.
+
+Install the display from the top after joining the two fixed panel halves. Feed
+the display cable through the 187 x 104 mm center opening, lower the display
+onto the ledge without forcing it, place the M1 cover over it, and tighten the
+four M1 screws in a diagonal pattern until the cover is seated. Do not use the
+cover screws to force a screen that does not sit freely in the carrier cavity.
+
+This change requires reprinting both `panel_L.stl` and `panel_R.stl` as well as
+the revised M1 cover selected from the production choices above.
 
 ## Lineage
 

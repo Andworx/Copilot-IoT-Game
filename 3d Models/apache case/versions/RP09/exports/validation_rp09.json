@@ -1,10 +1,12 @@
 {
   "revision": "RP09",
-  "status": "PASS - revised screen cover requires physical fit approval",
+  "status": "PASS - screen cover and screen seat require physical fit approval",
   "exports": [
     "activity_face_base.stl",
     "activity_face_layer_swap.stl",
     "activity_face_text.stl",
+    "panel_L.stl",
+    "panel_R.stl",
     "safety_face_base.stl",
     "safety_face_layer_swap.stl",
     "safety_face_text.stl",
@@ -86,6 +88,29 @@
       ]
     ]
   },
+  "screen_seat": {
+    "measured_body_mm": [
+      193.0,
+      110.0,
+      6.04
+    ],
+    "drop_in_cavity_mm": [
+      196.0,
+      112.0
+    ],
+    "support_opening_mm": [
+      187.0,
+      104.0
+    ],
+    "body_bearing_mm_per_edge": [
+      3.0,
+      3.0
+    ],
+    "ledge_thickness_mm": 2.0,
+    "nominal_seat_depth_mm": 6.04,
+    "printed_clearance_mm": 0.02,
+    "display_top_relative_to_panel_mm": -0.02
+  },
   "rp08_release_stls_verified": 17,
   "meshes": {
     "activity_face_base.stl": {
@@ -119,6 +144,28 @@
       "closed_edges": true,
       "winding_consistent": true,
       "connected_bodies": 25,
+      "fits_256mm_bed": true
+    },
+    "panel_L.stl": {
+      "bounds_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "panel_R.stl": {
+      "bounds_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
       "fits_256mm_bed": true
     },
     "safety_face_base.stl": {

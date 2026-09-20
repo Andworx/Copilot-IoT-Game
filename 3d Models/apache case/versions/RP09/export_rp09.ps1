@@ -2,17 +2,33 @@ param([string]$OpenScad = 'C:\Program Files\OpenSCAD\openscad.com')
 $ErrorActionPreference = 'Stop'
 
 $source = Join-Path $PSScriptRoot 'front_faces_rp09.scad'
+$chassisSource = Join-Path $PSScriptRoot '../../apache_2800_chassis.scad'
 $output = Join-Path $PSScriptRoot 'exports'
 $snapshot = Join-Path $PSScriptRoot '../../../Save-ModelVersion.ps1'
 $calibration = Join-Path $PSScriptRoot '../../calibration/face-text/RP09/exports'
 New-Item -ItemType Directory -Path $output -Force | Out-Null
 New-Item -ItemType Directory -Path $calibration -Force | Out-Null
-& $snapshot -Tag 'before-export-RP09-face-text'
+& $snapshot -Tag 'before-export-RP09-screen-seat'
 foreach ($name in @('text_coupon_base.stl', 'text_coupon_text.stl',
-                     'text_coupon_layer_swap.stl', 'panel_L.stl',
-                     'panel_R.stl')) {
+                     'text_coupon_layer_swap.stl')) {
     $stale = Join-Path $output $name
     if (Test-Path -LiteralPath $stale) { Remove-Item -LiteralPath $stale }
+}
+
+foreach ($panel in @(
+    @{ Part = 'panel_left'; File = 'panel_L.stl' },
+    @{ Part = 'panel_right'; File = 'panel_R.stl' }
+)) {
+    $temp = Join-Path 'C:\tmp' ('rp09-' + [guid]::NewGuid().ToString('N') + '.stl')
+    $log = & $OpenScad -D ('part="' + $panel.Part + '"') -o $temp $chassisSource 2>&1
+    if ($LASTEXITCODE -ne 0 -or ($log -match 'WARNING:|ERROR:') -or
+        -not ($log -match 'Simple:\s+yes') -or -not (Test-Path -LiteralPath $temp)) {
+        throw "Failed $($panel.Part) : $log"
+    }
+    Copy-Item -LiteralPath $temp -Destination (Join-Path $output $panel.File) -Force
+    $log | Set-Content (Join-Path $output ($panel.Part + '.log'))
+    Remove-Item -LiteralPath $temp
+    Write-Host "Exported $($panel.File)"
 }
 
 $parts = @(
@@ -71,4 +87,4 @@ if ($LASTEXITCODE -ne 0) { throw 'RP09 text coupon preview failed' }
 & 'C:\Users\edrft\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' `
     (Join-Path $PSScriptRoot 'validate_rp09.py')
 if ($LASTEXITCODE -ne 0) { throw 'RP09 validation failed' }
-& $snapshot -Tag 'after-validated-RP09-face-text'
+& $snapshot -Tag 'after-validated-RP09-screen-seat'

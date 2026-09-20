@@ -5,6 +5,34 @@ why the document and design changed, what evidence caused the change, and which
 values remain candidates. It complements Git history rather than duplicating
 commit messages.
 
+## RP09 working revision - 2026-09-20 - Pi display retention
+
+### Changed
+
+- Replaced the unsupported 196 x 112 mm Pi-display carrier opening with a
+  stepped drop-in seat while preserving the proven body clearance.
+- Added a 187 x 104 mm through-opening on a 2 mm ledge positioned nominally
+  6.04 mm below the panel top. The measured 193 x 110 mm display body receives
+  3 mm of support on every edge and finishes 0.02 mm below the panel surface.
+- Updated both fixed-panel identifiers to `PANEL-L/R RP09 SEAT` and added both
+  revised panel halves to the RP09 exporter and validation set.
+
+### Validated
+
+- Both split-panel STL exports are closed, consistently wound, single-body
+  meshes inside the 256 mm printer envelope.
+- Mesh-level checks confirm the support ledge and inner opening corner planes
+  survived the panel boolean and split operations.
+- The 12 face meshes and three text-coupon meshes still pass validation, and
+  all 17 immutable RP08 release meshes still match their manifest checksums.
+
+### Physical gate
+
+- Before RP09 promotion, install the measured display in the joined panel
+  halves and confirm it drops in freely, rests on all four ledges, finishes
+  flush, clears the attached Pi hardware, and is retained without stress when
+  the M1 cover is tightened.
+
 ## Repository cleanup - 2026-09-08
 
 ### Changed
