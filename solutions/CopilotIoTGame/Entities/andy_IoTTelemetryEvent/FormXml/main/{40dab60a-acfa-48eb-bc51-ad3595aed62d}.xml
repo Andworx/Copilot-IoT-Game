@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{40dab60a-acfa-48eb-bc51-ad3595aed62d}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{197A2389-E5DB-4CD4-91A8-BA5544C1335F}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{B2B0375B-112D-49CA-B9DD-346BB21275CB}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{C1B50D62-8EBC-4034-9450-141B700502C3}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="andy_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_Name" />
+                      </cell>
+                    </row>
+                    <row></row>
+                    <row>
+                      <cell id="{38414319-d8f7-41d2-9af6-06ee5c89731e}">
+                        <labels>
+                          <label description="Device ID" languagecode="1033" />
+                        </labels>
+                        <control id="andy_deviceid" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_deviceid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{26b94897-347f-446d-b075-03cf4340986a}">
+                        <labels>
+                          <label description="Payload" languagecode="1033" />
+                        </labels>
+                        <control id="andy_payload" classid="{e0dece4b-6fc8-4a8f-a065-082708572369}" datafieldname="andy_payload" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{6ff2ee63-fb3c-4861-bd7a-0b0e4804a159}">
+                        <labels>
+                          <label description="Value" languagecode="1033" />
+                        </labels>
+                        <control id="andy_value" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_value" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{749def93-f9cd-4866-b356-b978fb7fd5d2}">
+                        <labels>
+                          <label description="Event Type" languagecode="1033" />
+                        </labels>
+                        <control id="andy_eventtype" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_eventtype" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

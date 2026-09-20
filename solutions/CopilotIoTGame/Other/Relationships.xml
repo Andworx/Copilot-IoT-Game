@@ -13,6 +13,9 @@
   <EntityRelationship Name="lk_andy_gameboxstate_modifiedby" />
   <EntityRelationship Name="lk_andy_gamewin_createdby" />
   <EntityRelationship Name="lk_andy_gamewin_modifiedby" />
+  <EntityRelationship Name="lk_andy_iottelemetryevent_createdby" />
+  <EntityRelationship Name="lk_andy_iottelemetryevent_modifiedby" />
+  <EntityRelationship Name="organization_andy_iottelemetryevent" />
   <EntityRelationship Name="owner_andy_deviceprofile" />
   <EntityRelationship Name="owner_andy_gameboxstate" />
   <EntityRelationship Name="owner_andy_gamewin" />

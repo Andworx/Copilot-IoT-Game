@@ -21,6 +21,7 @@
     <RolePrivilege name="prvCreateandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvCreateandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvCreateandy_GameWin" level="Global" />
+    <RolePrivilege name="prvCreateandy_IoTTelemetryEvent" level="Global" />
     <RolePrivilege name="prvCreateandy_Prizes" level="Global" />
     <RolePrivilege name="prvCreateandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvCreateSharePointData" level="Global" />
@@ -32,6 +33,7 @@
     <RolePrivilege name="prvReadandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvReadandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvReadandy_GameWin" level="Global" />
+    <RolePrivilege name="prvReadandy_IoTTelemetryEvent" level="Global" />
     <RolePrivilege name="prvReadandy_Prizes" level="Global" />
     <RolePrivilege name="prvReadandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvReadPluginAssembly" level="Global" />
