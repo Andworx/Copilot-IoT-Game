@@ -8,6 +8,7 @@ interface LayoutProps {
   state: DeviceState;
   lampColors: Record<string, LampColor>;
   onToggle: (key: string) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -17,7 +18,7 @@ interface LayoutProps {
  * waveform activates when lamps[0] (the "signal-strength"-equivalent lamp by position)
  * reads green.
  */
-export function RadioClusterPanel({ device, state, lampColors, onToggle }: LayoutProps) {
+export function RadioClusterPanel({ device, state, lampColors, onToggle, disabled }: LayoutProps) {
   const { switches, lamps } = device;
   const [guardA, sqSwitch, dialSwitch, guardB] = switches;
   const waveActive = lampColors[lamps[0].key] === "green";
@@ -26,7 +27,7 @@ export function RadioClusterPanel({ device, state, lampColors, onToggle }: Layou
     <div className="fr-layout">
       <div className="fr-guards">
         {[guardA, guardB].map((sw) => (
-          <TactileButton key={sw.key} className="fr-guard" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)}>
+          <TactileButton key={sw.key} className="fr-guard" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} disabled={disabled}>
             <span className="flap" />
             {sw.label.slice(0, 3).toUpperCase()}
           </TactileButton>
@@ -40,13 +41,14 @@ export function RadioClusterPanel({ device, state, lampColors, onToggle }: Layou
           pressed={!!state[dialSwitch.key]}
           onToggle={() => onToggle(dialSwitch.key)}
           ariaLabel={dialSwitch.label}
+          disabled={disabled}
         >
           <span className="pointer" />
         </TactileButton>
       </div>
 
       <div className="fr-right">
-        <TactileButton className="fr-sq" pressed={!!state[sqSwitch.key]} onToggle={() => onToggle(sqSwitch.key)}>
+        <TactileButton className="fr-sq" pressed={!!state[sqSwitch.key]} onToggle={() => onToggle(sqSwitch.key)} disabled={disabled}>
           {sqSwitch.label.slice(0, 3).toUpperCase()}
         </TactileButton>
         <div className="fr-lamp-cluster">

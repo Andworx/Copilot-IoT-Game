@@ -7,7 +7,8 @@ import { API_BASE_URL } from "../lib/apiConfig";
 const DIRECTLINE_BASE = "https://directline.botframework.com/v3/directline";
 const POLL_INTERVAL_MS = 2000;
 const MAX_POLL_ATTEMPTS = 30; // ~60 s
-const USER_ID = "kiosk-user";
+const DIRECTLINE_USER_ID = "dl_kiosk_user";
+const ACCESS_DENIED_MESSAGE = "You don't have access to talk to this bot";
 
 interface DLActivity {
   type: string;
@@ -83,7 +84,7 @@ export function useAgentChat(): AgentChat {
       const sendRes = await fetch(activitiesUrl, {
         method: "POST",
         headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "message", from: { id: USER_ID }, text: prompt }),
+        body: JSON.stringify({ type: "message", from: { id: DIRECTLINE_USER_ID }, text: prompt }),
       });
       if (!sendRes.ok) throw new Error(`Send message failed (${sendRes.status})`);
 
@@ -97,10 +98,14 @@ export function useAgentChat(): AgentChat {
         watermark = data.watermark ?? watermark;
 
         const replies = data.activities.filter(
-          (a) => a.type === "message" && a.from.id !== USER_ID && a.text?.trim()
+          (a) => a.type === "message" && a.from.id !== DIRECTLINE_USER_ID && a.text?.trim()
         );
         if (replies.length > 0) {
-          setResponse(replies[replies.length - 1].text!.trim());
+          const reply = replies[replies.length - 1].text!.trim();
+          if (reply.includes(ACCESS_DENIED_MESSAGE)) {
+            throw new AgentUnavailableError("Direct Line user does not have access to this bot");
+          }
+          setResponse(reply);
           setStatus("done");
           return;
         }

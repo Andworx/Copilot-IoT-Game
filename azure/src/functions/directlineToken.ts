@@ -1,5 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
+const DIRECTLINE_USER_ID = "dl_kiosk_user";
+
 /**
  * GET /api/directline-token -- exchanges the Copilot Studio agent's Direct Line secret
  * (server-side app setting DIRECTLINE_SECRET) for a short-lived token the kiosk's Help
@@ -20,7 +22,8 @@ export async function directlineToken(
   try {
     const response = await fetch("https://directline.botframework.com/v3/directline/tokens/generate", {
       method: "POST",
-      headers: { Authorization: `Bearer ${secret}` },
+      headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ user: { id: DIRECTLINE_USER_ID } }),
     });
     if (!response.ok) {
       context.error(`Direct Line token request failed: ${response.status}`);

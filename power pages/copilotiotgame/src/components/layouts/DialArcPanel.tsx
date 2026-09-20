@@ -8,6 +8,7 @@ interface LayoutProps {
   state: DeviceState;
   lampColors: Record<string, LampColor>;
   onToggle: (key: string) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -16,7 +17,7 @@ interface LayoutProps {
  * keys. Convention: switches[2] becomes the dial, switches[0,1,3] become the 3 buttons
  * (in that order), lamps[0..3] sit in the arc. See KIOSK_UI_SPEC.md §2.1.
  */
-export function DialArcPanel({ device, state, lampColors, onToggle }: LayoutProps) {
+export function DialArcPanel({ device, state, lampColors, onToggle, disabled }: LayoutProps) {
   const { switches, lamps } = device;
   const dialSwitch = switches[2];
   const buttonSwitches = [switches[0], switches[1], switches[3]];
@@ -36,6 +37,7 @@ export function DialArcPanel({ device, state, lampColors, onToggle }: LayoutProp
           pressed={!!state[dialSwitch.key]}
           onToggle={() => onToggle(dialSwitch.key)}
           ariaLabel={dialSwitch.label}
+          disabled={disabled}
         >
           <span className="pointer" />
           <span className="dial-label">{dialSwitch.label.split(" ")[0].toUpperCase()}</span>
@@ -44,7 +46,7 @@ export function DialArcPanel({ device, state, lampColors, onToggle }: LayoutProp
 
       <div className="th-buttons">
         {buttonSwitches.map((sw) => (
-          <TactileButton key={sw.key} className="th-btn" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)}>
+          <TactileButton key={sw.key} className="th-btn" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} disabled={disabled}>
             {sw.label}
           </TactileButton>
         ))}

@@ -207,6 +207,7 @@ input:focus-visible {
   letter-spacing: 0.02em;
   margin: 0;
 }
+.panel-body button:disabled { cursor: default; }
 .position-badge {
   font-size: 0.68rem;
   color: var(--device-accent);
@@ -467,13 +468,16 @@ input:focus-visible {
   animation: amberPulse 2s ease-in-out infinite;
 }
 .help-fix-btn:active { filter: brightness(1.15); }
+.fix-close-btn {
+  float: right; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm);
+  background: var(--color-surface); color: var(--color-text-muted); font-family: var(--font-mono);
+  font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 7px; cursor: pointer;
+}
+.fix-close-btn:hover, .fix-close-btn:focus-visible { color: var(--device-accent); border-color: var(--device-accent); }
 @keyframes amberPulse {
   0%, 100% { box-shadow: 0 0 8px 2px var(--color-amber-glow); }
   50% { box-shadow: 0 0 18px 5px var(--color-amber-glow); }
 }
-
-.telemetry-strip { position: relative; z-index: 1; display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--color-text-muted); padding-top: 6px; flex-shrink: 0; }
-.telemetry-strip .live { color: var(--color-accent); }
 
 .fix-sheet {
   position: absolute; z-index: 2; left: 16px; right: 16px; bottom: 46px;
@@ -537,6 +541,14 @@ input:focus-visible {
   font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--color-text-muted); padding: 6px 8px 4px;
 }
+.gear-status {
+  display: grid; gap: 6px; padding: 7px 8px 8px; margin-bottom: 4px;
+  border-bottom: 1px solid var(--color-border);
+}
+.gear-status div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.gear-status span { font-size: 0.58rem; color: var(--color-text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.gear-status strong { font-size: 0.62rem; font-weight: 600; color: var(--color-danger); text-align: right; }
+.gear-status strong[data-state="connected"] { color: var(--color-accent); }
 .gear-menu button {
   display: block; width: 100%; text-align: left; background: transparent; border: none;
   color: var(--color-text); padding: 7px 8px; font-size: 0.68rem; letter-spacing: 0.02em;
