@@ -46,10 +46,9 @@ The payload is what `hardware/raspberry-pi/panel_controller.py` publishes (`devi
 - **`TriggerAgentHelp`** — also sent while the panel isn't restored (`win === false`, not
   for `mode_change` events). Nothing on the kiosk consumes it yet; it's there for the
   troubleshooting agent / dispatch flow.
-- **Dataverse** — existing `andy_iottelemetryevent` columns, no schema change: switch and
-  socket state and lamp state as JSON 0/1 flags, `andy_activerule` = mode slug plus
-  recognised cables (`thermostat cables=4:J1-J2`), `andy_mismatch` = not restored. A failed
-  write is logged and never blocks the SignalR broadcast; `mode_change` events aren't logged.
+- **Dataverse** — a row per real event (`state_change` and `win`; heartbeats and mode changes
+  are not logged) in the generic `andy_iottelemetryevent` event log, described below. A
+  failed write is logged and never blocks the SignalR broadcast.
 
 App settings for this pipeline. **Deployed environments get these from the Infrastructure
 workflow** (`infra/README.md`): it creates the `gamefunc` consumer group, gives the Function App a
@@ -64,7 +63,33 @@ is stored. Run that workflow (`deploy`) before this change ships, or the trigger
 | `IOT_EVENTHUB_CONSUMER_GROUP` | `gamefunc` (dedicated to this app; never `funcapp` or `$Default`) | a group of your own |
 | `DIRECTLINE_SECRET` | the Copilot Studio agent's secret, set by hand once the agent is ready. Until then `/api/directline-token` returns 503 and the kiosk shows the static steps | optional |
 
-The Function App's Dataverse application user also needs Create on `andy_iottelemetryevent`.
+### The `andy_iottelemetryevent` table
+
+A generic event log for any "thing" (this panel, a claw machine, a future device). Four short,
+filterable columns plus a JSON payload with everything specific to that thing, so a new kind of
+thing is a new payload shape, never a new column. Organization-owned. Create it in the shared
+**`andy_PrizeEngine`** solution (the one the claw machine and this game both build on, where
+`andy_prizes` and `andy_prizetypes` live) so other projects can reuse it, and also add it to
+`CopilotIoTGame` so this repo's `pac solution export` captures the schema. Permissions are granted
+per project, on each project's own security role.
+
+| Display name | Logical name | Type | Meaning |
+|---|---|---|---|
+| Name (primary) | `andy_name` | Text, 200 | `{deviceId} {timestamp}` |
+| Device ID | `andy_deviceid` | Text, 100 | which thing, e.g. `copilotiotpanel` |
+| Event type | `andy_eventtype` | Text, 100 | `state_change`, `win`, or a future thing's own |
+| Value | `andy_value` | Text, 100 | short summary; this panel: `RESTORED`, `UNRESTORED` or `UNKNOWN` |
+| Payload | `andy_payload` | Multiline text, 10,000 | JSON of the thing's own attributes |
+
+The payload carries a `schema` key so readers can tell its shape; for this panel it is
+`restore-and-spin/v1` and holds the mode, `win`, `controls`, `rawSwitches`, `rawConnectors`,
+`cables`, `lamps` and the Pi's `timestamp`. Only the four scalar columns and `createdon` can be
+filtered in Dataverse, not fields inside the payload; add a column if that is ever needed. A payload
+over 10,000 characters is replaced by a short record with `"truncated": true` instead of failing.
+
+The Function App's Dataverse application user needs **Create** and **Read** on this table
+(organization scope), granted on `Copilot IoT Game Security Role`. Until the table exists in the
+environment the write fails with a 404 that is logged as a warning and otherwise ignored.
 
 ## Prerequisites
 

@@ -3,9 +3,11 @@ import { describe, it } from "node:test";
 import {
   buildSignalRMessages,
   deriveNeedsHelp,
+  MAX_PAYLOAD_CHARS,
+  PAYLOAD_SCHEMA,
   parsePayload,
   resolveDeviceId,
-  summarizeCables,
+  shouldLog,
   toTelemetryRecord,
   type PanelPayload,
 } from "../src/lib/telemetry";
@@ -59,43 +61,63 @@ describe("deriveNeedsHelp", () => {
   });
 });
 
-describe("summarizeCables", () => {
-  it("formats recognised and unrecognised cables", () => {
-    assert.equal(summarizeCables(undefined), "");
-    assert.equal(
-      summarizeCables([
-        { cable: 10, sockets: ["J1", "J4"] },
-        { cable: null, sockets: ["J2", "J3"] },
-      ]),
-      "10:J1-J4;?:J2-J3"
-    );
+describe("shouldLog", () => {
+  it("logs real events, not heartbeats or mode changes", () => {
+    assert.equal(shouldLog({ eventType: "state_change" }), true);
+    assert.equal(shouldLog({ eventType: "win" }), true);
+    assert.equal(shouldLog({ eventType: "heartbeat" }), false);
+    assert.equal(shouldLog({ eventType: "mode_change" }), false);
+    assert.equal(shouldLog({}), false);
   });
 });
 
 describe("toTelemetryRecord", () => {
-  it("maps a panel reading onto the legacy telemetry columns", () => {
+  it("writes four short columns plus a JSON payload holding the thing's own attributes", () => {
     const record = toTelemetryRecord(restoring, "pi-a", fixedNow);
+    assert.deepEqual(Object.keys(record).sort(), [
+      "andy_deviceid", "andy_eventtype", "andy_name", "andy_payload", "andy_value",
+    ]);
     assert.equal(record.andy_name, "pi-a 2026-09-19T11:59:00.000Z");
     assert.equal(record.andy_deviceid, "pi-a");
     assert.equal(record.andy_eventtype, "state_change");
-    assert.equal(record.andy_value, "MISMATCH");
-    assert.equal(record.andy_mismatch, true);
-    assert.equal(record.andy_activerule, "thermostat cables=4:J1-J2");
-    assert.deepEqual(JSON.parse(record.andy_switchstate as string), {
-      SW1: 1, SW2: 0, J1: 1, J2: 1, J3: 0, J4: 0,
-    });
-    assert.deepEqual(JSON.parse(record.andy_ledstate as string), { power: 1, progress: 1 });
-    assert.equal(record.andy_expectedledstate, null);
+    assert.equal(record.andy_value, "UNRESTORED");
+
+    const payload = JSON.parse(record.andy_payload as string);
+    assert.equal(payload.schema, PAYLOAD_SCHEMA);
+    assert.equal(payload.deviceSlug, "thermostat");
+    assert.equal(payload.win, false);
+    assert.deepEqual(payload.cables, [{ cable: 4, sockets: ["J1", "J2"] }]);
+    assert.deepEqual(payload.controls, { fan: true, socket_j1: true, socket_j2: true });
+    assert.deepEqual(payload.lamps, { power: true, progress: true });
   });
 
-  it("marks a restored panel OK and fills in a missing timestamp", () => {
+  it("marks a restored panel and fills in a missing timestamp", () => {
     const record = toTelemetryRecord({ deviceSlug: "elevator", win: true, eventType: "win" }, "pi-a", fixedNow);
-    assert.equal(record.andy_value, "OK");
-    assert.equal(record.andy_mismatch, false);
+    assert.equal(record.andy_value, "RESTORED");
     assert.equal(record.andy_name, "pi-a 2026-09-19T12:00:00.000Z");
-    assert.equal(record.andy_activerule, "elevator");
-    assert.equal(record.andy_switchstate, null);
-    assert.equal(record.andy_ledstate, null);
+    assert.equal(JSON.parse(record.andy_payload as string).timestamp, "2026-09-19T12:00:00.000Z");
+  });
+
+  it("does not claim a result when the reading has none", () => {
+    assert.equal(toTelemetryRecord({ eventType: "state_change" }, "pi-a", fixedNow).andy_value, "UNKNOWN");
+  });
+
+  it("uses the same columns for a different kind of thing", () => {
+    const claw = { eventType: "win", win: true, prize: "plush", arm: { x: 3, y: 9 } } as unknown as PanelPayload;
+    const record = toTelemetryRecord(claw, "claw-01", fixedNow);
+    assert.equal(record.andy_deviceid, "claw-01");
+    assert.deepEqual(JSON.parse(record.andy_payload as string).arm, { x: 3, y: 9 });
+  });
+
+  it("never fails the write over an oversized payload: keeps the headline fields and flags it", () => {
+    const huge = { ...restoring, controls: Object.fromEntries(Array.from({ length: 1500 }, (_, i) => [`k${i}`, true])) };
+    const record = toTelemetryRecord(huge, "pi-a", fixedNow);
+    const body = record.andy_payload as string;
+    assert.ok(body.length <= MAX_PAYLOAD_CHARS);
+    const parsed = JSON.parse(body);
+    assert.equal(parsed.truncated, true);
+    assert.equal(parsed.deviceSlug, "thermostat");
+    assert.equal(parsed.win, false);
   });
 });
 
