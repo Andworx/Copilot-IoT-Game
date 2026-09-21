@@ -50,11 +50,12 @@ Other Power Platform components retain their existing PAC workflows.
 See `copilotiotgame/README.md` for the full breakdown. Briefly:
 
 - `src/App.tsx` — routes: `/kiosk/info`, `/kiosk/:deviceSlug`, `/play-spin`
-- `src/data/deviceProfiles.ts` — the 11 devices (content spec: `docs/GAME_MODE_PLAN.md` /
+- `src/data/deviceProfiles.ts` — the 12 playable devices (content spec: `docs/GAME_MODE_PLAN.md` /
   `docs/KIOSK_UI_SPEC.md`)
-- `src/components/layouts/` — the 5 reusable control-panel layouts; a new device is a data
-  row assigned to one of these, not new component code (see `docs/KIOSK_UI_SPEC.md` §2.6)
-- `src/styles/theme.css` — shared design tokens + all 11 device skins
+- `src/components/surfaces/`: typed per-mode registry and shared read-only primitives.
+  `src/components/layouts/` contains temporary adapters while dedicated surfaces are built.
+  See `docs/KIOSK_MODE_UI_REDESIGN.md` (epic #73); it supersedes the five-layout rule.
+- `src/styles/theme.css` — shared design tokens + device skins
 
 ## Design/architecture docs
 

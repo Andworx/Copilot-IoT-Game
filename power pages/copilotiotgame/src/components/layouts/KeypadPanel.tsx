@@ -19,12 +19,12 @@ export function KeypadPanel({ device, state, lampColors, win, onToggle, disabled
     <div className="lk-layout">
       <div className="lk-stack">
         <div className="lk-lcd" data-mode={win ? "ok" : "fault"}>
-          {win ? "SECURE" : "ALERT"}
+          {win ? "RESTORED" : "CHECK INPUTS"}
         </div>
         <div className="lk-keypad">
           {switches.map((sw) => (
             <TactileButton key={sw.key} className="lk-key" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} disabled={disabled}>
-              {sw.label.split(" ")[0].toUpperCase()}
+              {sw.label}
             </TactileButton>
           ))}
         </div>

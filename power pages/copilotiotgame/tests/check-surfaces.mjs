@@ -1,0 +1,66 @@
+import assert from "node:assert/strict";
+import { mkdir } from "node:fs/promises";
+import { chromium } from "playwright";
+
+const base = process.env.KIOSK_TEST_URL ?? "http://127.0.0.1:5183";
+const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE });
+const page = await browser.newPage({ viewport: { width: 800, height: 480 } });
+const errors = [];
+page.on("pageerror", error => errors.push(error.message));
+page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
+// Never contact a real backend from the preview or send a Direct Line request.
+await page.route("**/api/**", route => route.fulfill({ status: 503, contentType: "application/json", body: "{}" }));
+const modes = ["thermostat", "smart-lock", "coldchain-sensor", "water-pump", "field-radio", "ev-charger", "elevator", "traffic-signal", "patient-monitor", "retail-kiosk", "drone-ground-control", "industrial-robot-arm"];
+const artifact = "test-results/instrument-surfaces";
+await mkdir(artifact, { recursive: true });
+try {
+  for (const mode of modes) {
+    for (const state of ["fault", "partial", "restored", "stale", "waiting"]) {
+      await page.goto(`${base}/tests/surface-preview.html?mode=${mode}&state=${state}`);
+      await page.locator(".physical-input").last().waitFor();
+      assert.equal(await page.locator(".physical-input").count(), 10);
+      assert.equal(await page.locator(".panel-surface button:not(:disabled)").count(), 0, `${mode}: mutable surface`);
+      const outside = await page.locator(".physical-input, .surface-connection, .surface-status-strip, .surface-instrument, .help-fix-btn").evaluateAll(elements => elements.filter(el => {
+        const r = el.getBoundingClientRect();
+        return r.left < 0 || r.right > innerWidth + 1 || r.top < 0 || r.bottom > innerHeight + 1;
+      }).map(el => el.className));
+      assert.deepEqual(outside, [], `${mode}/${state}: clipping`);
+      const instrumentOverflow = await page.locator(".surface-instrument").evaluate(container => {
+        const bounds = container.getBoundingClientRect();
+        return [...container.querySelectorAll(".thermostat-face, .thermostat-equipment")].some(el => {
+          const rect = el.getBoundingClientRect();
+          return rect.top < bounds.top - 1 || rect.bottom > bounds.bottom + 1;
+        });
+      });
+      assert.equal(instrumentOverflow, false, `${mode}/${state}: instrument overlaps shared chrome`);
+      if (["stale", "waiting"].includes(state)) {
+        assert.equal(await page.locator(".physical-input-value").filter({ hasText: "Unknown" }).count(), 10);
+        assert.equal(await page.locator(".instrument-status").filter({ hasText: "Unknown" }).count(), 4);
+      }
+      await page.screenshot({ path: `${artifact}/${mode}-${state}.png` });
+    }
+  }
+  await page.goto(`${base}/tests/surface-preview.html?mode=thermostat&state=partial`);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const animated = await page.locator(".panel-surface *").evaluateAll(elements => elements.filter(el => getComputedStyle(el).animationName !== "none").map(el => el.className));
+  assert.deepEqual(animated, [], "reduced-motion leaves an instrument animated");
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, "narrow horizontal overflow");
+  await page.screenshot({ path: `${artifact}/thermostat-narrow.png`, fullPage: true });
+  // Read-only instrument taps must not mutate the fixture state.
+  const before = await page.evaluate(() => window.render_game_to_text());
+  await page.locator(".surface-instrument").click();
+  assert.equal(await page.evaluate(() => window.render_game_to_text()), before);
+  // Only the expected isolated Help Fix 503 may occur after this point.
+  assert.deepEqual(errors, [], "unexpected browser errors");
+  await page.setViewportSize({ width: 800, height: 480 });
+  await page.getByRole("button", { name: "Help Fix", exact: true }).click();
+  await page.locator(".fix-sheet ol").waitFor();
+  assert.equal(await page.locator(".fix-sheet li").count(), 10);
+  await page.screenshot({ path: `${artifact}/thermostat-help.png` });
+  await page.getByRole("button", { name: "Close Help Fix" }).click();
+  assert.equal(await page.locator(".fix-sheet.is-open").count(), 0);
+  console.log("60 surface fixtures passed at 800x480; read-only, stale, narrow, reduced motion, and Help Fix checked.");
+} finally {
+  await browser.close();
+}

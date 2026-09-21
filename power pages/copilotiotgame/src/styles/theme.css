@@ -718,3 +718,120 @@ input:focus-visible {
   --display-font: "Orbitron", sans-serif;
   --panel-radius: 3px;
 }
+
+/* Physical inputs retain the printed panel order independently of restore guidance. */
+.physical-inputs { position: relative; z-index: 1; flex-shrink: 0; }
+.physical-inputs-heading { display: flex; justify-content: space-between; font: 11px system-ui; color: var(--color-text); margin-bottom: 6px; letter-spacing: .05em; }
+.physical-inputs-heading span { letter-spacing: 0; }
+.physical-input-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+.physical-input { display: grid; grid-template-columns: 30px 1fr; gap: 1px 5px; border: 1px solid var(--color-border-strong); border-radius: 5px; padding: 5px 7px; background: var(--color-surface); min-width: 0; }
+.physical-input strong { grid-row: span 2; align-self: center; font-size: 13px; color: var(--color-text-bright); }
+.physical-input-name { font: 11px/1.2 system-ui; text-transform: capitalize; }
+.physical-input-value { font: 12px/1.2 system-ui; color: var(--color-text); }
+.physical-input-value[data-on="true"] { color: var(--color-text-bright); font-weight: 700; }
+@media (max-width: 600px) {
+  .kiosk-screen { overflow-y: auto; min-height: 100vh; height: auto; }
+  .physical-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .physical-inputs-heading { flex-direction: column; gap: 4px; }
+}
+
+/* Instrument shell: fixed shared chrome, mode-owned geometry. */
+.panel-body { padding: 4px 0; gap: 0; align-items: stretch; }
+.panel-surface { display: flex; flex-direction: column; gap: 6px; width: 100%; height: 100%; min-height: 0; }
+.surface-connection { display: flex; justify-content: space-between; font: 11px system-ui; color: var(--color-text); }
+.surface-connection strong { color: #f5bf69; letter-spacing: .08em; }
+.panel-surface[data-live="true"] .surface-connection strong { color: #91d5aa; }
+.surface-instrument { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.surface-status-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 5px 0; border-top: 1px solid var(--color-border-strong); }
+.instrument-status { display: flex; gap: 8px; align-items: center; font: 12px/1.2 system-ui; }
+.instrument-status small { display: block; color: var(--color-text); font-size: 10px; margin-top: 2px; }
+.instrument-status .lamp-dot { width: 14px; height: 14px; }
+.legacy-instrument { width: 100%; position: relative; display: flex; justify-content: center; align-items: center; }
+.legacy-instrument[data-available="false"] > :first-child { opacity: .2; }
+.instrument-unavailable { position: absolute; background: var(--color-surface); padding: 10px 18px; border: 1px solid var(--color-border-strong); border-radius: 8px; font: 14px system-ui; }
+.panel-surface[data-live="false"] *, .panel-surface[data-live="false"] *::after { animation-play-state: paused !important; transition: none !important; }
+/* Transitional layouts fit above the ten-input rail. New surfaces don't inherit these sizes. */
+.legacy-instrument .th-layout { flex-direction: row; gap: 22px; }
+.legacy-instrument .th-arc { display: none; } /* Labeled semantic indicators live in the shared strip. */
+.legacy-instrument .th-dial-wrap { width: 150px; height: 150px; }
+.legacy-instrument .th-dial { top: 18px; left: 18px; width: 114px; height: 114px; }
+.legacy-instrument .th-buttons { flex-direction: column; gap: 6px; }
+.legacy-instrument .th-btn { padding: 7px 16px; color: var(--color-text); }
+.legacy-instrument .lk-keypad { grid-template-columns: repeat(2, 116px); grid-template-rows: repeat(2, 48px); gap: 8px; }
+.legacy-instrument .lk-key { color: var(--color-text); }
+.legacy-instrument .lk-stack { gap: 8px; }
+.legacy-instrument .lk-led-col, .legacy-instrument .cc-lamp-row, .legacy-instrument .fr-lamp-cluster { display: none; }
+.legacy-instrument .cc-dip { width: 120px; color: var(--color-text); }
+.legacy-instrument .cc-layout { gap: 8px; }
+.legacy-instrument .cc-readout { font-size: 15px; }
+.legacy-instrument .wp-stack { gap: 6px; }
+.legacy-instrument .wp-gauge { width: 110px; height: 66px; }
+.legacy-instrument .wp-col { gap: 6px; }
+.legacy-instrument .wp-rocker { height: 32px; }
+.legacy-instrument label { color: var(--color-text); font-size: 11px; }
+.gauge-caption { font: 12px system-ui; text-transform: capitalize; }
+.legacy-instrument .fr-layout { max-width: 570px; }
+.legacy-instrument .fr-guards { gap: 8px; }
+.legacy-instrument .fr-guard, .legacy-instrument .fr-sq { width: 140px; height: 42px; color: var(--color-text); }
+.radio-dial-label { position: absolute; bottom: 10px; left: 0; right: 0; font-size: 11px; color: var(--color-text); }
+.fr-wave:not(.is-active) span { animation: none; }
+.arc-indicator { display: flex; flex-direction: column; align-items: center; font-size: 10px; }
+@media (prefers-reduced-motion: reduce) {
+  .panel-surface *, .panel-surface *::after { animation: none !important; transition: none !important; }
+}
+@media (max-width: 600px) {
+  .panel-body { min-height: 490px; }
+  .surface-instrument { min-height: 175px; }
+  .surface-status-strip { grid-template-columns: repeat(2, 1fr); }
+  .legacy-instrument .cc-dip { width: 70px; font-size: 10px; }
+  .legacy-instrument .fr-guard, .legacy-instrument .fr-sq { width: 90px; }
+  .legacy-instrument .wp-layout { flex-wrap: wrap; gap: 8px; }
+}
+
+/* Thermostat: a domestic HVAC faceplate with independent equipment feedback. */
+.thermostat-surface { width: min(650px, 100%); display: grid; grid-template-columns: 190px 1fr; gap: 30px; align-items: center; font-family: system-ui, sans-serif; }
+.thermostat-face { position: relative; width: 134px; height: 134px; margin: auto; }
+.thermostat-ring { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px #0007); }
+.thermostat-bezel { fill: #30261f; stroke: #705b47; stroke-width: 1; }
+.thermostat-inner { fill: #1e1915; stroke: #4f4133; stroke-width: 1; }
+.thermostat-band { fill: none; stroke: #584b3d; stroke-width: 6; stroke-linecap: round; transition: stroke .3s ease; }
+[data-hvac="heat"] .heat-band { stroke: #f1ad69; }
+[data-hvac="cool"] .cool-band { stroke: #8ccef3; }
+.thermostat-reading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+.thermostat-eyebrow { font-size: 10px; letter-spacing: .12em; color: #d1bca4; }
+.thermostat-reading strong { font-size: 30px; letter-spacing: -.04em; line-height: 1; color: #f8ecdc; }
+[data-hvac="standby"] .thermostat-reading strong, [data-hvac="unknown"] .thermostat-reading strong { font-size: 22px; }
+.thermostat-detail { font-size: 11px; color: #d1bca4; }
+.thermostat-equipment { display: flex; flex-direction: column; gap: 4px; }
+.thermostat-mode-tabs { display: flex; align-items: center; gap: 6px; }
+.thermostat-mode-tabs > span { padding: 5px 12px; border: 1px solid #66513c; border-radius: 16px; font-size: 11px; color: #d1bca4; }
+.thermostat-mode-tabs > span[data-selected="true"] { color: #fff1e0; background: #64472c; border-color: #d5a36d; }
+.thermostat-mode-tabs > span:nth-child(2)[data-selected="true"] { background: #284757; border-color: #8ccef3; }
+.thermostat-mode-tabs small { margin-left: auto; color: #d1bca4; font-size: 11px; }
+.thermostat-fan-row { display: flex; align-items: center; gap: 12px; }
+.thermostat-fan { width: 36px; height: 36px; flex-shrink: 0; }
+.fan-housing { fill: #2b221a; stroke: #705b47; stroke-width: 1; }
+.fan-blades { fill: #8c7a63; transform-origin: 30px 30px; }
+.thermostat-fan[data-running="true"] .fan-blades { fill: #edcba2; animation: fanTurn 3s linear infinite; }
+@keyframes fanTurn { to { transform: rotate(360deg); } }
+.thermostat-fan-row .thermostat-eyebrow { display: block; line-height: 12px; }
+.thermostat-fan-row strong { display: block; font-size: 20px; line-height: 1.1; font-weight: 500; color: #f8ecdc; }
+.thermostat-interlocks { display: flex; gap: 20px; font-size: 11px; color: #d1bca4; }
+.thermostat-interlocks b { display: block; font-size: 13px; color: #f8ecdc; margin-top: 2px; }
+.thermostat-restore { padding-top: 6px; border-top: 1px solid #66513c; font-size: 11px; color: #e6bc85; }
+.thermostat-restore[data-restored="true"] { color: #a9ddb8; }
+@media (prefers-reduced-motion: reduce) { .thermostat-fan .fan-blades { animation: none !important; } }
+@media (max-width: 600px) {
+  .thermostat-surface { grid-template-columns: 130px 1fr; gap: 10px; }
+  .thermostat-face { width: 130px; height: 130px; }
+  .thermostat-reading strong { font-size: 25px; }
+  .thermostat-eyebrow { font-size: 8px; }
+  .thermostat-detail { font-size: 9px; }
+  [data-hvac="standby"] .thermostat-reading strong, [data-hvac="unknown"] .thermostat-reading strong { font-size: 17px; }
+  .thermostat-mode-tabs { flex-wrap: wrap; }
+  .thermostat-mode-tabs small { margin-left: 0; }
+  .thermostat-interlocks { gap: 10px; }
+}
+
+.fault-line[data-mode="unavailable"] { color: #f5bf69; border-color: #806038; }
+[data-hvac="unknown"] .thermostat-reading strong { font-size: 18px; }

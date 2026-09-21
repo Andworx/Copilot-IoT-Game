@@ -1,5 +1,4 @@
 import type { DeviceProfile, DeviceState, LampColor } from "../../types/game";
-import { LampDot } from "../LampDot";
 import { TactileButton } from "../TactileButton";
 
 interface LayoutProps {
@@ -10,20 +9,16 @@ interface LayoutProps {
   disabled?: boolean;
 }
 
-/**
- * Pressure-gauge + paired lamp-over-rocker columns — positional (switches[i] pairs with
- * lamps[i]), see DialArcPanel's note. The gauge needle reacts to switches[2] (the
- * "relief"-equivalent control by position) since that's the one whose state means
- * "problem resolved" across every device this layout has been used for so far.
- */
-export function PairedColumnsPanel({ device, state, lampColors, onToggle, disabled }: LayoutProps) {
-  const { switches, lamps } = device;
-  const gaugeSwitch = switches[2];
+/** Transitional control-state gauge; does not represent a measured quantity. */
+export function PairedColumnsPanel({ device, state, onToggle, disabled }: LayoutProps) {
+  const { switches } = device;
+  const gaugeSwitch = switches.find(sw => sw.key === device.instruments.gauge)!;
   const needleAngle = state[gaugeSwitch.key] ? -35 : -125;
 
   return (
     <div className="wp-stack">
-      <svg className="wp-gauge" viewBox="0 0 110 66">
+      <span className="gauge-caption">{gaugeSwitch.label}: {state[gaugeSwitch.key] ? "ON" : "OFF"}</span>
+      <svg aria-hidden="true" className="wp-gauge" viewBox="0 0 110 66">
         <path d="M5,58 A50,50 0 0 1 38.4,13.4" fill="none" stroke="#ef4444" strokeWidth={8} strokeLinecap="round" opacity={0.85} />
         <path d="M38.4,13.4 A50,50 0 0 1 71.6,13.4" fill="none" stroke="#f59e0b" strokeWidth={8} opacity={0.85} />
         <path d="M71.6,13.4 A50,50 0 0 1 105,58" fill="none" stroke="#22c55e" strokeWidth={8} strokeLinecap="round" opacity={0.85} />
@@ -34,11 +29,10 @@ export function PairedColumnsPanel({ device, state, lampColors, onToggle, disabl
       </svg>
 
       <div className="wp-layout">
-        {switches.map((sw, i) => (
+        {switches.map((sw) => (
           <div className="wp-col" key={sw.key}>
-            <LampDot state={lampColors[lamps[i].key]} shape="lg" />
             <TactileButton className="wp-rocker" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} disabled={disabled} />
-            <label>{sw.label.split(" ")[0]}</label>
+            <label>{sw.physicalPin}: {sw.label}</label>
           </div>
         ))}
       </div>
