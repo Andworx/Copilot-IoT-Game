@@ -1,3 +1,4 @@
+import { FieldRadioSurface } from "./FieldRadioSurface";
 import { TrafficSignalSurface } from "./TrafficSignalSurface";
 import { RetailKioskSurface } from "./RetailKioskSurface";
 import { SmartLockSurface } from "./SmartLockSurface";
@@ -8,8 +9,8 @@ import type { PanelSurfaceProps } from "./types";
 import { DialArcPanel } from "../layouts/DialArcPanel";
 import { KeypadPanel } from "../layouts/KeypadPanel";
 import { DipStripPanel } from "../layouts/DipStripPanel";
-import { PairedColumnsPanel } from "../layouts/PairedColumnsPanel";
 import { RadioClusterPanel } from "../layouts/RadioClusterPanel";
+import { PairedColumnsPanel } from "../layouts/PairedColumnsPanel";
 
 // Read-only adapters preserve the remaining modes while their dedicated surfaces
 // are built. Keys on device.instruments supply domain meaning, never array indexes.
@@ -28,7 +29,7 @@ export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "security-door-panel": SmartLockSurface,
   "coldchain-logger": legacy(DipStripPanel),
   "pump-scada": legacy(PairedColumnsPanel),
-  "field-radio": legacy(RadioClusterPanel),
+  "field-radio": FieldRadioSurface,
   "ev-charge-pedestal": legacy(PairedColumnsPanel),
   "elevator-service": legacy(KeypadPanel),
   "traffic-cabinet": TrafficSignalSurface,
