@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ControlSetupDialog } from "./ControlSetupDialog";
 import { useNavigate } from "react-router-dom";
 import { DEVICE_ORDER, DEVICE_PROFILES } from "../data/deviceProfiles";
 
@@ -13,6 +14,8 @@ interface DemoGearMenuProps {
 export function DemoGearMenu({ currentSlug, azureConnected = false, iotConnected = false, iotAgeSeconds }: DemoGearMenuProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const [setupOpen, setSetupOpen] = useState(false);
+  const device = DEVICE_PROFILES[currentSlug];
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,6 +58,7 @@ export function DemoGearMenu({ currentSlug, azureConnected = false, iotConnected
               <strong data-state={azureConnected ? "connected" : "offline"}>{azureConnected ? "Connected" : "Offline"}</strong>
             </div>
           </div>
+          {device && <button type="button" role="menuitem" onClick={() => { setOpen(false); setSetupOpen(true); }}>Switch positions &amp; cables</button>}
           <div className="gear-menu-title">Live mode is selected in Game Box Control</div>
           <button type="button" role="menuitem" className={currentSlug === "info" ? "is-current" : undefined} onClick={() => go("/kiosk/info")}>
             Info — Demo / How to Play
@@ -75,6 +79,7 @@ export function DemoGearMenu({ currentSlug, azureConnected = false, iotConnected
           })}
         </div>
       )}
+      {setupOpen && device && <ControlSetupDialog key={currentSlug} device={device} onClose={() => { setSetupOpen(false); rootRef.current?.querySelector<HTMLButtonElement>(".gear-btn")?.focus(); }} />}
     </div>
   );
 }

@@ -835,3 +835,18 @@ input:focus-visible {
 
 .fault-line[data-mode="unavailable"] { color: #f5bf69; border-color: #806038; }
 [data-hvac="unknown"] .thermostat-reading strong { font-size: 18px; }
+
+/* Mode setup is deliberately off the instrument surface. */
+.control-setup { width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 24px); box-sizing: border-box; overflow: auto; color: #e5edf5; background: #14212e; border: 1px solid #52677c; border-radius: 12px; padding: 18px; }
+.control-setup::backdrop { background: #000b; }
+.control-setup header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.control-setup h2 { font-size: 19px; margin: 0; }
+.control-setup h3 { font-size: 15px; margin: 8px 0; }
+.control-setup p, .control-setup li, .control-setup table { font-size: 13px; line-height: 1.5; }
+.control-setup button { color: inherit; background: #263c50; border: 1px solid #7892aa; border-radius: 6px; padding: 10px 14px; cursor: pointer; }
+.control-setup-columns { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; }
+.control-setup table { width: 100%; border-collapse: collapse; text-align: left; }
+.control-setup th, .control-setup td { padding: 6px; border-bottom: 1px solid #344858; }
+.control-setup .cable-route { color: #8ce2bd; font-size: 17px; font-weight: bold; }
+.control-setup ul { padding-left: 20px; }
+@media (max-width: 560px) { .control-setup-columns { grid-template-columns: 1fr; gap: 12px; } }

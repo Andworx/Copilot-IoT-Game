@@ -17,8 +17,8 @@ try {
   for (const mode of modes) {
     for (const state of ["fault", "partial", "restored", "stale", "waiting"]) {
       await page.goto(`${base}/tests/surface-preview.html?mode=${mode}&state=${state}`);
-      await page.locator(".physical-input").last().waitFor();
-      assert.equal(await page.locator(".physical-input").count(), 10);
+      await page.locator(".panel-surface").waitFor();
+      assert.equal(await page.locator(".physical-input").count(), 0);
       assert.equal(await page.locator(".panel-surface button:not(:disabled)").count(), 0, `${mode}: mutable surface`);
       const outside = await page.locator(".physical-input, .surface-connection, .surface-status-strip, .surface-instrument, .help-fix-btn").evaluateAll(elements => elements.filter(el => {
         const r = el.getBoundingClientRect();
@@ -34,10 +34,19 @@ try {
       });
       assert.equal(instrumentOverflow, false, `${mode}/${state}: instrument overlaps shared chrome`);
       if (["stale", "waiting"].includes(state)) {
-        assert.equal(await page.locator(".physical-input-value").filter({ hasText: "Unknown" }).count(), 10);
         assert.equal(await page.locator(".instrument-status").filter({ hasText: "Unknown" }).count(), 4);
       }
       await page.screenshot({ path: `${artifact}/${mode}-${state}.png` });
+      await page.getByRole("button", { name: "Connection and display options" }).click();
+      await page.getByRole("menuitem", { name: "Switch positions & cables" }).click();
+      await page.getByRole("dialog").waitFor();
+      assert.equal(await page.locator(".control-setup [data-pin]").count(), 10);
+      assert.equal(await page.locator(".control-setup tbody tr").count(), 6);
+      assert.match(await page.locator(".cable-route").innerText(), /Connect J[1-4] to J[1-4]/);
+      if (state === "partial") await page.screenshot({ path: `${artifact}/${mode}-setup.png` });
+      await page.keyboard.press("Escape");
+      assert.equal(await page.getByRole("dialog").count(), 0);
+      assert.equal(await page.locator(".gear-btn").evaluate(el => el === document.activeElement), true);
     }
   }
   await page.goto(`${base}/tests/surface-preview.html?mode=thermostat&state=partial`);

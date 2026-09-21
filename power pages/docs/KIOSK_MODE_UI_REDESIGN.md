@@ -10,8 +10,9 @@ Issue: #73 (epic); foundation #75 / #76; thermostat pilot #77.
 Array order only arranges independent controls and never defines instrument meaning.
 The `PanelSurfaceProps` contract includes state, semantic lamps, completion, connection
 freshness, and all ten physical control mappings. There is no mutation callback.
-`PanelSurface` owns the connection banner, semantic status strip, and physical-input
-rail; `KioskDevicePage` continues to own Help Fix, telemetry, completion, and prizes.
+`PanelSurface` owns the connection banner and semantic status strip. Do not add a
+bottom physical-input rail to any mode. The gear menu opens a shared panel setup
+dialog with all six required switch positions and four socket requirements; `KioskDevicePage` continues to own Help Fix, telemetry, completion, and prizes.
 
 `npm test` compares all 12,288 Boolean configurations with the Pi logic maps, checks
 physical labels/keys/targets, and rejects unknown instrument/lamp bindings. This runs

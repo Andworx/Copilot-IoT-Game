@@ -19,3 +19,10 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - New branch fix/kiosk-connection-recovery from deployed main. Added startup retries, unbounded capped reconnect retries, resume state refresh, honest connection status, and live-mode deep-link synchronization.
 - Recovery and completion browser tests pass, including startup failure, >4 reconnect attempts, wake mode/flag refresh, fresh-reading gate, and stale snapshot race. Production builds passed with Node 22; all 12,288 contract states still pass.
 - PR pending; deployment/live recovery validation remains Verify. No Pi, Azure infrastructure, or browser settings changed.
+
+## Gear setup popup follow-up
+- User confirmed controls/live connection work and requested removing the bottom panel rail, replacing it with required switch/cable setup in the gear menu.
+- Shared modal derives all ten requirements from each mode restoreSequence; native dialog supports keyboard containment, Escape, Close, and gear focus return. Main instruments no longer render PhysicalInputs.
+- All 60 fixtures plus gameplay and reconnection browser tests passed. Screenshot reviewed at 800x480.
+- Created System Map Demo / Info issue #91 using the supplied screenshot and reference Infrastructure.tsx; recorded shared UI direction on epic #73.
+- Production deployment and live validation remain Verify.

@@ -1,4 +1,6 @@
 // Development-only entry point, not included in the production Vite build.
+import { BrowserRouter } from "react-router-dom";
+import { DemoGearMenu } from "../src/components/DemoGearMenu";
 import { createRoot } from "react-dom/client";
 import { PanelSurface } from "../src/components/surfaces/PanelSurface";
 import { DEVICE_PROFILES } from "../src/data/deviceProfiles";
@@ -20,11 +22,12 @@ Object.assign(window, {
 });
 
 createRoot(document.getElementById("root")!).render(
-  <div className="kiosk-screen" data-skin={device.slug}>
+  <BrowserRouter><div className="kiosk-screen" data-skin={device.slug}>
     <div className={`motif motif-${device.slug}`} />
     <header className="kiosk-header"><div><span className="sector-tag">{device.sector}</span><h2>{device.label}</h2></div><span className="position-badge">MODE {device.modeIndex} / 12</span></header>
     <div className="fault-line" data-mode={!connection.isLive ? "unavailable" : win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: !connection.isLive ? "Panel readings unavailable. Waiting for a live connection." : win ? device.okText : device.faultText }} />
     <div className="panel-body"><PanelSurface device={device} state={state} lampColors={lamps} win={win} controls={device.restoreSequence} connection={connection} /></div>
+    <DemoGearMenu currentSlug={device.slug} />
     {!win && <HelpFixBar isAlert steps={device.steps} getPrompt={() => "fixture preview"} />}
-  </div>,
+  </div></BrowserRouter>,
 );

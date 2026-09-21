@@ -51,7 +51,7 @@ async function advance(ms) { await page.clock.runFor(ms); await page.waitForTime
 try {
   await page.clock.install();
   await page.goto(`${base}/kiosk/thermostat`);
-  await page.locator(".physical-input").last().waitFor();
+  await page.locator(".panel-surface").last().waitFor();
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
   await until(() => negotiationAttempts > 0, "initial negotiation missing");
   await advance(5100);
