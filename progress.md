@@ -51,3 +51,8 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Added top-down intersection and controller panel with named power/controller/timing/manual bindings, key readouts and explicit SIMULATED SIGNAL CYCLE labeling.
 - Local phase timer alternates green/amber/all-red without conflicting directions; blocked/unknown states clear the heads. Reduced motion stops the timer and shows a static all-red preview. No measured timing or Pi rule changes.
 - All 60 surface fixtures plus Traffic interlock, phase, reduced-motion, stale, Help Fix, narrow, ON/OFF completion and mode-isolation browser checks pass. Screenshots reviewed at 800x480 and narrow sizes. Node 22 clean installs/builds pass for all three apps and all 12,288 Pi/UI contract configurations agree. Live validation remains Verify.
+
+## Issue #81: Field Radio
+- Built rugged transceiver face with channel window, two-position read-only selector, encryption/transmit status and key readouts. RF bars are unfilled and explicitly unmeasured; no invented frequency or on-air claim.
+- Independent control transitions, power loss, invalid input, ON/OFF completion, QR, duplicate prevention, rotation/isolation, stale data, reduced motion, Help Fix and narrow checks pass.
+- Surface matrix found vertical overlap at 800x480; compacted window spacing and reran visual validation. All 60 surface fixtures and Node 22 clean installs/builds pass for all three apps; all 12,288 Pi/UI configurations agree. Final screenshots reviewed. Live validation remains Verify.

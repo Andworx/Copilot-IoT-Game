@@ -27,7 +27,7 @@ switches. Stale status is explicit and activity animations pause; reduced motion
 instrument animation.
 
 The twelve surfaces are migration destinations, not a claim that all twelve dedicated
-UIs have shipped. The thermostat, Smart Lock, Retail Payment Kiosk and Traffic Signal Controller have dedicated surfaces; the other eight retain adapters.
+UIs have shipped. The thermostat, Smart Lock, Retail Payment Kiosk, Traffic Signal Controller and Field Radio have dedicated surfaces; the other seven retain adapters.
 
 
 The current kiosk implementation uses five reusable panel layouts with per-device skinning. That made the first build efficient, but the modes now read too similarly. The next iteration should keep the shared kiosk shell and telemetry contracts, while replacing the five shared layouts with twelve mode-specific instrument surfaces.
@@ -180,3 +180,21 @@ No measured countdown, road sensor, pedestrian call or actual traffic output is 
 every simulated phase, matching opposing heads and no conflicting greens, reduced-motion
 pause/resume, stale data, Help Fix, narrow layout, both Game Mode completion paths,
 duplicate-win protection and mode-change isolation. Live validation remains Verify.
+
+## Field Radio (#81)
+
+A rugged transceiver face with carry handles, a channel window and read-only selector
+replaces the radio-cluster adapter. Explicit `power`, `channelhop`, `encryption` and
+`transmit` bindings recover independently, with separate key and crypto-key readouts.
+The selector moves only between the two Boolean channel-hop states; it is not a tuner.
+
+RF bars remain unfilled and labeled Not measured. No frequency, channel number, RSSI,
+acquisition result or actual on-air transmission is inferred. The transmit readout is
+explicitly a control state. Stale readings become Unknown and hide the selector mark;
+power loss shows Unpowered. Reduced motion disables selector rotation transitions.
+All ten restore requirements and the shared gear setup popup are unchanged.
+
+`node "power pages/copilotiotgame/tests/check-field-radio.mjs"` covers independent
+channel/encryption/transmit inputs, power, invalid input, read-only interaction,
+both completion paths, duplicate protection, rotation/old-mode isolation, stale data,
+RF labeling, reduced motion, Help Fix and narrow layout. Live validation remains Verify.

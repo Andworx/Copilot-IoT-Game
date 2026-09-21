@@ -138,3 +138,7 @@ Verify: dedicated payment terminal with independently recovering reader, network
 ### Traffic Signal Controller instrument (#84)
 
 Verify: top-down intersection and controller status panel with explicitly simulated signal cycling. Named power/controller/timing/manual controls gate the preview; stale data and reduced motion stop cycling. Shared gear setup and Pi win contract remain unchanged. Production/live validation follows the PR pipeline.
+
+### Field Radio instrument (#81)
+
+Verify: dedicated rugged transceiver with independent channel-hop, encryption and transmit control indicators. RF strength is explicitly unmeasured; physical setup remains in the gear popup. Existing Pi contracts are unchanged. Production/live validation follows the PR pipeline.
