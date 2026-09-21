@@ -10,6 +10,7 @@ export type LayoutKind =
   | "radio-cluster";
 
 export interface SwitchDef {
+  physicalPin: PhysicalControlKey;
   key: string;
   label: string;
 }

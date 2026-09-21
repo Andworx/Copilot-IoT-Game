@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { DEVICE_PROFILES } from "../data/deviceProfiles";
 import type { DeviceState } from "../types/game";
+import { PhysicalInputs } from "../components/PhysicalInputs";
 import { HelpFixBar } from "../components/HelpFixBar";
 import { usePanelTelemetry } from "../hooks/usePanelTelemetry";
 import { buildQuickFixPrompt } from "../lib/quickFixPrompt";
@@ -195,6 +196,8 @@ export function KioskDevicePage() {
           <RadioClusterPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} disabled />
         )}
       </div>
+
+      <PhysicalInputs controls={device.restoreSequence} state={state} isLive={isLive} />
 
       {!win && (
         <HelpFixBar
