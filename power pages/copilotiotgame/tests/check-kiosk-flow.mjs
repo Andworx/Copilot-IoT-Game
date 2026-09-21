@@ -15,6 +15,7 @@ try {
     let socket;
     let wins = 0;
     let rotations = 0;
+    let currentMode = "thermostat";
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     const send = (name, value) => socket.send(JSON.stringify({ type: 1, target: name, arguments: [value] }) + "\x1e");
@@ -24,10 +25,11 @@ try {
       const path = new URL(route.request().url()).pathname;
       let body;
       if (path.endsWith("/negotiate")) body = { connectionId: "fixture", connectionToken: "fixture", negotiateVersion: 1, availableTransports: [{ transport: "WebSockets", transferFormats: ["Text"] }] };
-      else if (path.endsWith("/kiosk-state")) body = { deviceSlug: "thermostat", gameModeEnabled };
+      else if (path.endsWith("/kiosk-state")) body = { deviceSlug: currentMode, gameModeEnabled };
       else if (path.endsWith("/create-win")) { wins++; body = { claimToken: "fixture-claim-token" }; }
       else if (path.endsWith("/pick-random-mode")) {
         rotations++;
+        currentMode = "patient-monitor";
         body = { deviceSlug: "patient-monitor" };
         send("deviceChanged", { deviceSlug: "patient-monitor" });
       } else throw new Error(`Unexpected API request: ${path}`);

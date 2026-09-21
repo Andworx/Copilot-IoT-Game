@@ -8,6 +8,7 @@ const STALE_AFTER_MS = 45_000;
 interface Reading {
   data: PanelTelemetry;
   receivedAt: number;
+  revision: number;
 }
 
 export interface PanelLink {
@@ -24,7 +25,7 @@ export interface PanelLink {
  * reading for another mode is left over from before the kiosk switched.
  */
 export function usePanelTelemetry(deviceSlug: string): PanelLink {
-  const { connection } = useSignalR();
+  const { connection, isConnected, connectionRevision } = useSignalR();
   const [latest, setLatest] = useState<Reading | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -33,13 +34,13 @@ export function usePanelTelemetry(deviceSlug: string): PanelLink {
     const handler = (message: TelemetryMessage) => {
       const data = message?.data;
       if (!data?.controls || data.deviceSlug !== deviceSlug) return;
-      setLatest({ data, receivedAt: Date.now() });
+      setLatest({ data, receivedAt: Date.now(), revision: connectionRevision });
     };
     connection.on("SendTelemetryUpdate", handler);
     return () => {
       connection.off("SendTelemetryUpdate", handler);
     };
-  }, [connection, deviceSlug]);
+  }, [connection, deviceSlug, connectionRevision]);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -47,7 +48,7 @@ export function usePanelTelemetry(deviceSlug: string): PanelLink {
   }, []);
 
   const ageMs = latest ? Math.max(0, now - latest.receivedAt) : null;
-  const isLive = ageMs !== null && ageMs < STALE_AFTER_MS;
+  const isLive = isConnected && latest?.revision === connectionRevision && ageMs !== null && ageMs < STALE_AFTER_MS;
   return {
     reading: isLive && latest ? latest.data : null,
     isLive,

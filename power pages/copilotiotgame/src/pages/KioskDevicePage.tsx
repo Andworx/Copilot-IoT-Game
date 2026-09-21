@@ -21,7 +21,7 @@ import { API_BASE_URL } from "../lib/apiConfig";
 export function KioskDevicePage() {
   const { deviceSlug = "" } = useParams();
   const navigate = useNavigate();
-  const { connection } = useSignalR();
+  const { connection, isConnected, connectionRevision } = useSignalR();
   const device = DEVICE_PROFILES[deviceSlug];
 
   const [state, setState] = useState<DeviceState>({});
@@ -35,6 +35,7 @@ export function KioskDevicePage() {
   const createWinRequestedRef = useRef(false);
   // Null while unknown (still loading) -- default to the ON behavior (today's flow) so a
   // slow/failed fetch never silently drops a real win into the OFF path.
+  const gameModeVersionRef = useRef(0);
   const [gameModeEnabled, setGameModeEnabled] = useState<boolean | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
@@ -44,30 +45,32 @@ export function KioskDevicePage() {
     if (reading?.controls) setState((prev) => ({ ...prev, ...reading.controls }));
   }, [reading]);
 
-  // Read the Game Mode flag once per device mount, then stay live via the
-  // gameModeChanged SignalR broadcast (set-game-mode's counterpart to set-mode's
-  // deviceChanged) -- without this listener, toggling Game Mode while the kiosk sits on
-  // the same device had no visible effect until the device happened to rotate and
-  // remount the page, since the initial fetch was never re-run otherwise.
+  // Refresh after recovery too: gameModeChanged may have been missed while asleep.
+  // A newer broadcast takes precedence over an in-flight snapshot.
   useEffect(() => {
     let cancelled = false;
+    const version = gameModeVersionRef.current;
     fetch(`${API_BASE_URL}/api/kiosk-state`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Game Mode state unavailable");
+        return res.json();
+      })
       .then((data: { gameModeEnabled?: boolean }) => {
-        if (!cancelled) setGameModeEnabled(data.gameModeEnabled ?? true);
+        if (!cancelled && version === gameModeVersionRef.current) setGameModeEnabled(data.gameModeEnabled ?? true);
       })
       .catch((err) => {
         console.error("Failed to read game mode state", err);
-        if (!cancelled) setGameModeEnabled(true);
+        if (!cancelled && version === gameModeVersionRef.current) setGameModeEnabled(current => current ?? true);
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [connectionRevision]);
 
   useEffect(() => {
     if (!connection) return;
     const handler = (payload: { gameModeEnabled: boolean }) => {
+      gameModeVersionRef.current++;
       setGameModeEnabled(payload.gameModeEnabled);
     };
     connection.on("gameModeChanged", handler);
@@ -200,7 +203,7 @@ export function KioskDevicePage() {
         />
       )}
 
-      <DemoGearMenu currentSlug={device.slug} azureConnected={!!connection} iotConnected={isLive} iotAgeSeconds={ageSeconds ?? undefined} />
+      <DemoGearMenu currentSlug={device.slug} azureConnected={isConnected} iotConnected={isLive} iotAgeSeconds={ageSeconds ?? undefined} />
     </div>
   );
 }
