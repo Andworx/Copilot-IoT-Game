@@ -4,56 +4,93 @@ import { API_BASE_URL } from "../lib/apiConfig";
 
 interface SignalRContextValue {
   connection: signalR.HubConnection | null;
+  isConnected: boolean;
+  /** Changes after connection recovery or browser resume; refresh missed state. */
+  connectionRevision: number;
 }
 
-const SignalRContext = createContext<SignalRContextValue>({ connection: null });
+const SignalRContext = createContext<SignalRContextValue>({ connection: null, isConnected: false, connectionRevision: 0 });
 
 export function useSignalR() {
   return useContext(SignalRContext);
 }
 
-/**
- * Opens one SignalR connection for the whole app and keeps it alive across
- * route changes (GAME_MODE_PLAN.md §4/§4a) -- connects via the Function
- * App's /api/negotiate endpoint, which returns an Azure SignalR Service
- * URL + access token; the client library handles that redirect
- * transparently once pointed at the negotiate-capable base path.
- *
- * No "already started" ref guard here on purpose -- React 19 StrictMode's
- * dev-mode mount/cleanup/mount double-invoke needs this effect to actually
- * re-run and create a fresh connection on the second mount; a guard that
- * skips that leaves the connection permanently stopped in dev after
- * StrictMode's first cleanup fires. The `cancelled` flag below just makes
- * sure a connection stopped mid-negotiation never calls setConnection.
- */
+/** One connection per mounted provider; retries also cover failed initial negotiation. */
 export function SignalRProvider({ children }: { children: ReactNode }) {
   const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionRevision, setConnectionRevision] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
-
+    let disposed = false;
+    let starting = false;
+    let failures = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
     const conn = new signalR.HubConnectionBuilder()
-      // withCredentials: false -- /api/negotiate is anonymous auth and needs
-      // no cookies; the browser's default credentialed CORS preflight
-      // doesn't match the Function App's CORS config otherwise.
       .withUrl(`${API_BASE_URL}/api`, { withCredentials: false })
-      .withAutomaticReconnect()
+      // Default SignalR reconnect stops after four attempts. A kiosk must recover
+      // even when a sleeping browser or offline network outlasts that window.
+      .withAutomaticReconnect({ nextRetryDelayInMilliseconds: ({ previousRetryCount }) =>
+        [0, 2000, 10000, 30000][Math.min(previousRetryCount, 3)] })
       .build();
 
-    conn
-      .start()
-      .then(() => {
-        if (!cancelled) setConnection(conn);
-      })
-      .catch((err) => {
-        if (!cancelled) console.error("SignalR connection failed", err);
-      });
+    function connected() {
+      if (disposed) return;
+      failures = 0;
+      setIsConnected(true);
+      setConnectionRevision(value => value + 1);
+    }
+    function scheduleStart() {
+      if (disposed || retryTimer !== undefined) return;
+      const delay = Math.min(30000, 5000 * 2 ** Math.min(failures++, 3));
+      retryTimer = setTimeout(() => { retryTimer = undefined; void start(); }, delay);
+    }
+    async function start() {
+      if (disposed || starting || conn.state !== signalR.HubConnectionState.Disconnected) return;
+      starting = true;
+      try {
+        await conn.start();
+        connected();
+      } catch {
+        if (!disposed) { setIsConnected(false); scheduleStart(); }
+      } finally {
+        starting = false;
+      }
+    }
+    function resume() {
+      if (disposed || document.visibilityState === "hidden") return;
+      if (conn.state === signalR.HubConnectionState.Disconnected) {
+        clearTimeout(retryTimer);
+        retryTimer = undefined;
+        void start();
+      } else if (conn.state === signalR.HubConnectionState.Connected) {
+        // Re-read server mode even if the transport has not noticed a missed event.
+        connected();
+      }
+    }
+    function offline() { if (!disposed) setIsConnected(false); }
 
+    conn.onreconnecting(() => { if (!disposed) setIsConnected(false); });
+    conn.onreconnected(connected);
+    conn.onclose(() => { if (!disposed) { setIsConnected(false); scheduleStart(); } });
+    // Publish the object before start, so consumers can subscribe before the first message.
+    setConnection(conn);
+    setIsConnected(false);
+    void start();
+    window.addEventListener("online", resume);
+    window.addEventListener("offline", offline);
+    window.addEventListener("pageshow", resume);
+    document.addEventListener("visibilitychange", resume);
     return () => {
-      cancelled = true;
-      conn.stop();
+      disposed = true;
+      clearTimeout(retryTimer);
+      window.removeEventListener("online", resume);
+      window.removeEventListener("offline", offline);
+      window.removeEventListener("pageshow", resume);
+      document.removeEventListener("visibilitychange", resume);
+      void conn.stop().catch(() => {});
     };
   }, []);
 
-  return <SignalRContext.Provider value={{ connection }}>{children}</SignalRContext.Provider>;
+  return <SignalRContext.Provider value={{ connection, isConnected, connectionRevision }}>{children}</SignalRContext.Provider>;
 }

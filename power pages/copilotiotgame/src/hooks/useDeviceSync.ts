@@ -3,65 +3,59 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSignalR } from "../context/SignalRContext";
 import { API_BASE_URL } from "../lib/apiConfig";
 
-interface KioskState {
-  deviceSlug: string | null;
-  deviceName: string | null;
-}
+interface KioskState { deviceSlug: string | null; }
 
-function routeForSlug(deviceSlug: string | null): string {
-  return deviceSlug ? `/kiosk/${deviceSlug}` : "/kiosk/info";
-}
-
-/**
- * Keeps the kiosk on whichever device is active, per GAME_MODE_PLAN.md §4a:
- * fetch current state once on load, then rely on the live SignalR
- * `deviceChanged` broadcast for updates after that -- no polling loop.
- *
- * The initial fetch only navigates away if the tab is sitting on the
- * landing route (`/` or `/kiosk/info`) -- an explicit deep link to
- * `/kiosk/<slug>` (the documented dev-testing convenience in this app's
- * README) is left alone on load, but still follows live broadcasts
- * afterwards like every other route does.
- */
+/** Follow the real panel on startup/recovery, including stale device deep links. */
 export function useDeviceSync() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { connection } = useSignalR();
-  const lastSlugRef = useRef<string | null>(null);
-  const isLandingRouteOnMount = useRef(
-    location.pathname === "/" || location.pathname === "/kiosk/info"
-  );
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+  const { pathname } = useLocation();
+  const pathRef = useRef(pathname);
+  pathRef.current = pathname;
+  const { connection, connectionRevision } = useSignalR();
 
   useEffect(() => {
-    let cancelled = false;
-    fetch(`${API_BASE_URL}/api/kiosk-state`)
-      .then((res) => res.json())
-      .then((data: KioskState) => {
-        if (cancelled) return;
-        lastSlugRef.current = data.deviceSlug;
-        if (isLandingRouteOnMount.current) {
-          navigate(routeForSlug(data.deviceSlug), { replace: true });
-        }
-      })
-      .catch((err) => console.error("Failed to fetch kiosk-state", err));
+    let disposed = false;
+    let eventVersion = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let controller: AbortController | undefined;
+    function apply(data: KioskState) {
+      // Keep phone/prize routes outside live kiosk navigation.
+      if (pathRef.current !== "/" && !pathRef.current.startsWith("/kiosk/")) return;
+      if (data.deviceSlug !== null && typeof data.deviceSlug !== "string") return;
+      const route = data.deviceSlug ? `/kiosk/${data.deviceSlug}` : "/kiosk/info";
+      if (pathRef.current !== route) navigateRef.current(route, { replace: true });
+    }
+    const changed = (data: KioskState) => {
+      eventVersion++;
+      apply(data);
+    };
+    async function refresh() {
+      const version = eventVersion;
+      controller = new AbortController();
+      timeout = setTimeout(() => controller?.abort(), 10000);
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/kiosk-state`, { signal: controller.signal });
+        if (!response.ok) throw new Error("Kiosk state unavailable");
+        const data: KioskState = await response.json();
+        // A broadcast received during this request is newer than its snapshot.
+        if (!disposed && version === eventVersion) apply(data);
+      } catch {
+        if (!disposed) retryTimer = setTimeout(() => { void refresh(); }, 5000);
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+    connection?.on("deviceChanged", changed);
+    void refresh();
     return () => {
-      cancelled = true;
+      disposed = true;
+      controller?.abort();
+      clearTimeout(timeout);
+      clearTimeout(retryTimer);
+      connection?.off("deviceChanged", changed);
     };
-    // Intentionally mount-only -- this is the one-time "where do things
-    // stand" fetch, not a dependency-driven refetch.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!connection) return;
-    const handler = (payload: KioskState) => {
-      if (payload.deviceSlug === lastSlugRef.current) return; // dedupe
-      lastSlugRef.current = payload.deviceSlug;
-      navigate(routeForSlug(payload.deviceSlug));
-    };
-    connection.on("deviceChanged", handler);
-    return () => {
-      connection.off("deviceChanged", handler);
-    };
-  }, [connection, navigate]);
+  }, [connection, connectionRevision]);
 }

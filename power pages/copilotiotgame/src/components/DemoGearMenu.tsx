@@ -9,11 +9,7 @@ interface DemoGearMenuProps {
   iotAgeSeconds?: number;
 }
 
-/**
- * Dev/demo shortcut for selecting a playable mode without using the Power App.
- * Kept deliberately simple: no confirmation, no animation — it's a shortcut, not part of
- * the game itself.
- */
+/** Connection status and info; local development also exposes display previews. */
 export function DemoGearMenu({ currentSlug, azureConnected = false, iotConnected = false, iotAgeSeconds }: DemoGearMenuProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -38,7 +34,7 @@ export function DemoGearMenu({ currentSlug, azureConnected = false, iotConnected
       <button
         type="button"
         className="gear-btn"
-        aria-label="Demo: switch device mode"
+        aria-label="Connection and display options"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
@@ -59,11 +55,11 @@ export function DemoGearMenu({ currentSlug, azureConnected = false, iotConnected
               <strong data-state={azureConnected ? "connected" : "offline"}>{azureConnected ? "Connected" : "Offline"}</strong>
             </div>
           </div>
-          <div className="gear-menu-title">Demo — jump to mode</div>
+          <div className="gear-menu-title">Live mode is selected in Game Box Control</div>
           <button type="button" role="menuitem" className={currentSlug === "info" ? "is-current" : undefined} onClick={() => go("/kiosk/info")}>
             Info — Demo / How to Play
           </button>
-          {DEVICE_ORDER.map((slug) => {
+          {import.meta.env.DEV && DEVICE_ORDER.map((slug) => {
             const device = DEVICE_PROFILES[slug];
             return (
               <button

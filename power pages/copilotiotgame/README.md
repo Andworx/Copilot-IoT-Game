@@ -24,10 +24,11 @@ cp .env.example .env.local   # optional -- override VITE_API_BASE_URL to point a
 npm run dev
 ```
 
-Every device page can still be opened directly by URL for isolated testing, e.g.
-`http://localhost:5173/kiosk/smart-lock` — `useDeviceSync` only auto-navigates on load when
-the tab starts on the landing route (`/` or `/kiosk/info`); a deep link is left alone on
-load, but still follows live mode changes afterwards like every other route.
+Live kiosk URLs follow the panel's selected mode on startup, reconnect, and browser
+resume. Opening `/kiosk/thermostat` while the box is on Cold-Chain Sensor navigates to
+Cold-Chain Sensor instead of waiting for thermostat telemetry that cannot arrive.
+Use `/tests/surface-preview.html?mode=thermostat&state=partial` for an isolated visual
+preview during development; it is not included in the deployed site.
 
 **CORS:** the Function App only allows specific origins (`az functionapp cors add`, not a
 wildcard). `http://localhost:5173` is already allowed; add any other dev port/origin the
@@ -35,7 +36,7 @@ same way, and add the real production URL once this site is deployed.
 
 ## Game Mode
 
-Read once per device mount from `GET /api/kiosk-state` (`gameModeEnabled`, defaulting to
+Read on device mount and connection recovery from `GET /api/kiosk-state` (`gameModeEnabled`, defaulting to
 `true` while loading or on a failed fetch, so a slow/dead backend never silently drops a
 real win into the wrong path):
 
@@ -124,3 +125,19 @@ The ordered repair guidance does not impose temporal order on win detection.
 For isolated visual fixtures, run Vite and open
 `/tests/surface-preview.html?mode=thermostat&state=partial` (fault, partial, restored,
 stale, waiting). This entry is not included in the production build.
+
+## Connection recovery
+
+The SignalR provider retries failed initial negotiation with capped backoff and keeps
+retrying interrupted connections beyond the SDK's default four attempts. Browser online,
+pageshow, and visible-tab events recheck connection/server state. No browser setting or
+Pi restart is needed for a transient browser network suspension.
+The connection indicator uses actual transport state; panel values require a fresh reading
+after recovery. The mode snapshot refresh retries failures and cannot overwrite a newer
+mode broadcast. The Game Mode flag also refreshes after recovery.
+
+`node "power pages/copilotiotgame/tests/check-connection-recovery.mjs"` from the repository
+root tests startup failure, online recovery, a long outage, mode/flag resync, and fresh
+telemetry using mocked HTTP/WebSockets and a controlled browser clock. See the instrument
+notes for the test browser setup. Production mode changes remain in Game Box Control;
+the gear menu's display-only mode shortcuts are limited to local development.

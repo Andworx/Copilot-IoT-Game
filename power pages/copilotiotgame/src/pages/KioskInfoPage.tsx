@@ -7,7 +7,7 @@ import { useSignalR } from "../context/SignalRContext";
  * GAME_MODE_PLAN.md §0/§11.
  */
 export function KioskInfoPage() {
-  const { connection } = useSignalR();
+  const { isConnected } = useSignalR();
 
   return (
     <div className="kiosk-screen">
@@ -33,7 +33,7 @@ export function KioskInfoPage() {
         </ol>
       </div>
 
-      <DemoGearMenu currentSlug="info" azureConnected={!!connection} />
+      <DemoGearMenu currentSlug="info" azureConnected={isConnected} />
     </div>
   );
 }
