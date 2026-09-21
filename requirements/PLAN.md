@@ -134,3 +134,7 @@ Verify: dedicated door/frame and sliding-deadbolt surface with independent alarm
 ### Retail Payment Kiosk instrument (#86)
 
 Verify: dedicated payment terminal with independently recovering reader, network and printer, plus an explicitly simulated receipt on complete restoration. Setup remains in the gear popup and Pi contracts are unchanged. Production/live validation follows the PR deployment pipeline.
+
+### Traffic Signal Controller instrument (#84)
+
+Verify: top-down intersection and controller status panel with explicitly simulated signal cycling. Named power/controller/timing/manual controls gate the preview; stale data and reduced motion stop cycling. Shared gear setup and Pi win contract remain unchanged. Production/live validation follows the PR pipeline.

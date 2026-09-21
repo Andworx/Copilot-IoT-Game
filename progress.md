@@ -45,3 +45,9 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Named Boolean equipment bindings preserve all existing switch/socket win rules. Power loss shows Unpowered; stale data shows Unknown.
 - Full live restoration displays a clearly simulated test receipt marked NO PAYMENT TAKEN; reduced motion disables paper feed. Gear setup remains shared.
 - Retail flow tests pass for partial repairs, independent subsystems, ON/OFF wins, QR, duplicate prevention, rotation and old-mode isolation; stale/reduced-motion/Help Fix/mobile checks pass. Screenshots reviewed. All 60 surface fixtures and Node 22 clean installs/builds pass for all three apps; all 12,288 Pi/UI contract states agree. Live validation remains Verify.
+
+## Issue #84: Traffic Signal Controller
+- Resumed after an automatic approval-review usage limit; user continued and read-only repository/GitHub access succeeded.
+- Added top-down intersection and controller panel with named power/controller/timing/manual bindings, key readouts and explicit SIMULATED SIGNAL CYCLE labeling.
+- Local phase timer alternates green/amber/all-red without conflicting directions; blocked/unknown states clear the heads. Reduced motion stops the timer and shows a static all-red preview. No measured timing or Pi rule changes.
+- All 60 surface fixtures plus Traffic interlock, phase, reduced-motion, stale, Help Fix, narrow, ON/OFF completion and mode-isolation browser checks pass. Screenshots reviewed at 800x480 and narrow sizes. Node 22 clean installs/builds pass for all three apps and all 12,288 Pi/UI contract configurations agree. Live validation remains Verify.

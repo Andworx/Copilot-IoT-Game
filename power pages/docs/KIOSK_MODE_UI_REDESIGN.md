@@ -27,7 +27,7 @@ switches. Stale status is explicit and activity animations pause; reduced motion
 instrument animation.
 
 The twelve surfaces are migration destinations, not a claim that all twelve dedicated
-UIs have shipped. The thermostat, Smart Lock and Retail Payment Kiosk have dedicated surfaces; the other nine retain adapters.
+UIs have shipped. The thermostat, Smart Lock, Retail Payment Kiosk and Traffic Signal Controller have dedicated surfaces; the other eight retain adapters.
 
 
 The current kiosk implementation uses five reusable panel layouts with per-device skinning. That made the first build efficient, but the modes now read too similarly. The next iteration should keep the shared kiosk shell and telemetry contracts, while replacing the five shared layouts with twelve mode-specific instrument surfaces.
@@ -160,3 +160,23 @@ feed animation. The existing ten-input restore contract and gear setup popup are
 subsystem recovery, power, invalid input, read-only taps, both completion paths,
 duplicate-win protection, mode rotation/isolation, stale data, the simulated receipt,
 reduced motion, Help Fix and narrow layout. Production validation remains Verify.
+
+## Traffic Signal Controller (#84)
+
+A top-down intersection with four signal heads replaces the switch-bank adapter.
+The controller panel binds power, controller enable, timing plan and manual override
+by semantic key, with separate key-switch readouts. Required physical mappings remain
+in the shared gear setup popup; the full ten-input win condition is unchanged.
+
+The phase display is explicitly a SIMULATED SIGNAL CYCLE, not real phase telemetry.
+With live power/controller/timing enabled and manual override clear, the illustrative
+cycle alternates opposing directions through amber and all-red intervals. Remaining
+key/cable faults still prevent a win. Controller disable, missing timing, manual override,
+power loss or unknown inputs stop the preview and explain the blocker. Stale data clears
+the heads. Reduced motion shows a static all-red preview and stops the phase timer.
+No measured countdown, road sensor, pedestrian call or actual traffic output is invented.
+
+`node "power pages/copilotiotgame/tests/check-traffic-signal.mjs"` checks interlocks,
+every simulated phase, matching opposing heads and no conflicting greens, reduced-motion
+pause/resume, stale data, Help Fix, narrow layout, both Game Mode completion paths,
+duplicate-win protection and mode-change isolation. Live validation remains Verify.
