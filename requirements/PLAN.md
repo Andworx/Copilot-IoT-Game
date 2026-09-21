@@ -126,3 +126,7 @@ Verify: replace the persistent physical-panel rail with the shared gear-menu swi
 ### Demo / Info System Map (#91)
 
 Verify: interactive three-layer architecture map, component details, keyboard/touch access, concise How to Play and read-only return to the latest active mode. Browser validation covers 800x480 and narrow layouts plus mode changes during exploration. Production release and live validation remain pending.
+
+### Smart Lock instrument (#78)
+
+Verify: dedicated door/frame and sliding-deadbolt surface with independent alarm, auto-lock and keyed-control feedback. Required setup stays in the gear popup. Existing Pi win contract is unchanged; live validation follows the PR deployment pipeline.

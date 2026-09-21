@@ -1,0 +1,23 @@
+.smart-lock-surface { width:min(670px,100%); display:grid; grid-template-columns:1.1fr 1fr; align-items:center; gap:28px; font-family:system-ui,sans-serif; }
+.lock-door-panel { text-align:center; }
+.lock-door-heading { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:0 15px; }
+.lock-door-heading span,.lock-alarm-heading span { font:10px var(--font-mono); letter-spacing:.09em; color:#a7c1d8; }
+.lock-door-heading strong { font-size:18px; color:#f0c17a; }
+.lock-door { width:100%; height:180px; display:block; }
+.lock-frame { fill:#0c1724; stroke:#7092af; stroke-width:3; }.lock-leaf { fill:#213449; stroke:#537590; stroke-width:2; }.lock-inset { fill:#192a3c; stroke:#385772; stroke-width:1; }
+.lock-strike { fill:#0a121c; stroke:#a9bfd0; stroke-width:2; }.lock-bolt { fill:#e4b66d; stroke:#fae3b6; transition:transform .35s ease; }.lock-housing { fill:#435b71; stroke:#a7bed0; stroke-width:2; }.lock-cylinder { fill:#152332; stroke:#95b2ca; stroke-width:2; }.lock-keyslot { stroke:#a7c1d8; stroke-width:3; }.lock-hinge { stroke:#abc1d1; stroke-width:6; }
+[data-bolt="extended"] .lock-bolt { transform:translateX(19px); fill:#78cfa7; stroke:#b9ebd2; }
+[data-bolt="extended"] .lock-door-heading strong { color:#94dfb6; }
+[data-bolt="unknown"] .lock-bolt,[data-bolt="unpowered"] .lock-bolt { visibility:hidden; }
+.lock-unknown { fill:#a7c1d8; font:28px system-ui; }
+.lock-schematic-note { display:block; color:#abc0d0; font-size:10px; }
+.lock-alarm-panel { border:1px solid #4c6b87; border-radius:10px; background:linear-gradient(145deg,#1b3044,#111e2d); padding:10px 16px; box-shadow:0 9px 25px #0003; }
+.lock-alarm-heading { display:flex; align-items:center; gap:12px; padding-bottom:8px; border-bottom:1px solid #36516a; }
+.lock-alarm-heading svg { width:35px; height:40px; fill:#2c3d50; stroke:#9eb6cd; stroke-width:2; }.lock-shield-mark { fill:none; stroke-linecap:round; stroke-linejoin:round; stroke-width:3; }
+.lock-alarm-heading strong { display:block; margin-top:3px; font-size:23px; color:#e9bd7a; }
+[data-alarm="armed"] .lock-alarm-heading strong { color:#94dfb6; }[data-alarm="armed"] .lock-alarm-heading svg { fill:#1b453b; stroke:#94dfb6; }
+.lock-status-list { margin:6px 0; }.lock-status-list > div { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:3px 0; font-size:12px; }.lock-status-list dt { color:#aec5d8; }.lock-status-list dd { margin:0; font-weight:600; color:#e4edf4; }.lock-status-list .lock-tamper { border-top:1px solid #36516a; margin-top:4px; padding-top:6px; font-size:11px; }
+.lock-repair { padding-top:6px; border-top:1px solid #36516a; color:#efc27e; font-size:11px; }.lock-repair[data-restored="true"] { color:#94dfb6; }
+[data-power="unknown"] .lock-door-heading strong,[data-power="unknown"] .lock-alarm-heading strong,[data-power="off"] .lock-door-heading strong,[data-power="off"] .lock-alarm-heading strong { color:#b4c4d3; }
+@media(max-width:600px) { .smart-lock-surface { grid-template-columns:1fr; gap:16px; padding:14px 0; }.lock-door { height:190px; }.lock-door-heading { max-width:300px; margin:auto; }.lock-alarm-panel { width:min(340px,100%); margin:auto; } }
+@media(prefers-reduced-motion:reduce) { .smart-lock-surface * { transition:none !important; animation:none !important; } }
