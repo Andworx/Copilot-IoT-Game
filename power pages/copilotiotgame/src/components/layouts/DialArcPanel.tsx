@@ -11,22 +11,17 @@ interface LayoutProps {
   disabled?: boolean;
 }
 
-/**
- * Dial + arc gauge — reused across devices by array position, not by hardcoded key
- * names, so any device assigned this layout works regardless of its actual switch/lamp
- * keys. Convention: switches[2] becomes the dial, switches[0,1,3] become the 3 buttons
- * (in that order), lamps[0..3] sit in the arc. See KIOSK_UI_SPEC.md §2.1.
- */
+/** Transitional dial surface, explicitly bound to its domain control. */
 export function DialArcPanel({ device, state, lampColors, onToggle, disabled }: LayoutProps) {
   const { switches, lamps } = device;
-  const dialSwitch = switches[2];
-  const buttonSwitches = [switches[0], switches[1], switches[3]];
+  const dialSwitch = switches.find(sw => sw.key === device.instruments.dial)!;
+  const buttonSwitches = switches.filter(sw => sw.key !== dialSwitch.key);
 
   return (
     <div className="th-layout">
       <div className="th-arc">
         {lamps.map((lamp, i) => (
-          <LampDot key={lamp.key} state={lampColors[lamp.key]} extraClass={`a${i + 1}`} />
+          <span key={lamp.key} className={`arc-indicator a${i + 1}`}><LampDot state={lampColors[lamp.key]} /><span>{lamp.label}</span></span>
         ))}
       </div>
 

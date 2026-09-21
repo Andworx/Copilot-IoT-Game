@@ -21,6 +21,12 @@ for (const slug of DEVICE_ORDER) {
     assert.ok(map.switches.some(c => c.key === sw.key && c.physicalPin === sw.physicalPin), `${slug}: unknown screen control ${sw.key}`);
   }
   const keys = device.restoreSequence.map(c => c.key);
+  assert.equal(device.checkWin({}), false, `${slug}: missing telemetry cannot win`);
+  for (const key of [device.instruments.dial, device.instruments.gauge, device.instruments.button, ...(device.instruments.guards ?? [])].filter(Boolean)) {
+    assert.ok(device.switches.some(sw => sw.key === key), `${slug}: unbound instrument ${key}`);
+  }
+  if (device.instruments.signal) assert.ok(device.lamps.some(l => l.key === device.instruments.signal));
+
   // This is repository-owned Boolean syntax, not user input. Validate the grammar
   // before translating the Pi expression, then compare every possible configuration.
   const tokens = map.win.match(/[a-z_][a-z_0-9]*|[()]/g);

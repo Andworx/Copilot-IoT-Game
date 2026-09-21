@@ -2,6 +2,20 @@ export type LampColor = "off" | "green" | "amber" | "red";
 
 export type DeviceState = Record<string, boolean>;
 
+export type SurfaceKind =
+  | "hvac-thermostat" | "security-door-panel" | "coldchain-logger"
+  | "pump-scada" | "field-radio" | "ev-charge-pedestal"
+  | "elevator-service" | "traffic-cabinet" | "patient-monitor"
+  | "payment-terminal" | "drone-ground-station" | "robot-teach-pendant";
+
+export interface InstrumentBindings {
+  dial?: string;
+  gauge?: string;
+  guards?: readonly [string, string];
+  button?: string;
+  signal?: string;
+}
+
 export type LayoutKind =
   | "dial-arc"
   | "keypad"
@@ -57,7 +71,10 @@ export interface DeviceProfile {
   dialPosition: number;
   restoreSequence: readonly RestoreStep[];
   isGameDevice: boolean;
+  /** Temporary adapter for modes awaiting dedicated surfaces. */
   layout: LayoutKind;
+  surfaceKind: SurfaceKind;
+  instruments: InstrumentBindings;
   accent: string;
   displayFont: string;
   switches: SwitchDef[];

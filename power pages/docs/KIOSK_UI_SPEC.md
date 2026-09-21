@@ -1,5 +1,10 @@
 # Kiosk & Player UI Spec
 
+> **Architecture update (#73/#76):** The five reusable layouts below are historical
+> designs retained as migration adapters. New work uses the per-mode surface registry
+> and explicit control bindings in [KIOSK_MODE_UI_REDESIGN.md](KIOSK_MODE_UI_REDESIGN.md).
+> There are twelve playable modes, with six switches and four sockets per mode.
+
 Companion to [`GAME_MODE_PLAN.md`](GAME_MODE_PLAN.md), which covers architecture, data model,
 and the win/claim flow. This document is the **visual and interaction spec** for the
 `/kiosk/:deviceSlug` screens and the `/play-spin` phone screen — what an engineer builds

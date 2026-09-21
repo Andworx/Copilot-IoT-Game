@@ -11,17 +11,15 @@ interface LayoutProps {
   disabled?: boolean;
 }
 
-/**
- * Guarded toggles + tuning dial + waveform + lamp cluster — positional, see
- * DialArcPanel's note. Convention: switches[0,3] become the guarded toggles,
- * switches[2] becomes the big dial, switches[1] becomes the square button. The
- * waveform activates when lamps[0] (the "signal-strength"-equivalent lamp by position)
- * reads green.
- */
+/** Transitional radio surface with explicit domain bindings. */
 export function RadioClusterPanel({ device, state, lampColors, onToggle, disabled }: LayoutProps) {
   const { switches, lamps } = device;
-  const [guardA, sqSwitch, dialSwitch, guardB] = switches;
-  const waveActive = lampColors[lamps[0].key] === "green";
+  const binding = device.instruments;
+  const guardA = switches.find(sw => sw.key === binding.guards![0])!;
+  const guardB = switches.find(sw => sw.key === binding.guards![1])!;
+  const sqSwitch = switches.find(sw => sw.key === binding.button)!;
+  const dialSwitch = switches.find(sw => sw.key === binding.dial)!;
+  const waveActive = lampColors[binding.signal!] === "green";
 
   return (
     <div className="fr-layout">
@@ -29,7 +27,7 @@ export function RadioClusterPanel({ device, state, lampColors, onToggle, disable
         {[guardA, guardB].map((sw) => (
           <TactileButton key={sw.key} className="fr-guard" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} disabled={disabled}>
             <span className="flap" />
-            {sw.label.slice(0, 3).toUpperCase()}
+            {sw.label}
           </TactileButton>
         ))}
       </div>
@@ -43,20 +41,20 @@ export function RadioClusterPanel({ device, state, lampColors, onToggle, disable
           ariaLabel={dialSwitch.label}
           disabled={disabled}
         >
-          <span className="pointer" />
+          <span className="pointer" /><span className="radio-dial-label">{dialSwitch.label}</span>
         </TactileButton>
       </div>
 
       <div className="fr-right">
         <TactileButton className="fr-sq" pressed={!!state[sqSwitch.key]} onToggle={() => onToggle(sqSwitch.key)} disabled={disabled}>
-          {sqSwitch.label.slice(0, 3).toUpperCase()}
+          {sqSwitch.label}
         </TactileButton>
         <div className="fr-lamp-cluster">
           {lamps.map((lamp) => (
             <LampDot key={lamp.key} state={lampColors[lamp.key]} shape="sq" />
           ))}
         </div>
-        <div className={`fr-wave${waveActive ? " is-active" : ""}`}>
+        <div aria-label="Illustrative link activity" className={`fr-wave${waveActive ? " is-active" : ""}`}>
           {Array.from({ length: 7 }, (_, i) => (
             <span key={i} />
           ))}

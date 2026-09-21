@@ -734,3 +734,56 @@ input:focus-visible {
   .physical-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .physical-inputs-heading { flex-direction: column; gap: 4px; }
 }
+
+/* Instrument shell: fixed shared chrome, mode-owned geometry. */
+.panel-body { padding: 4px 0; gap: 0; align-items: stretch; }
+.panel-surface { display: flex; flex-direction: column; gap: 6px; width: 100%; height: 100%; min-height: 0; }
+.surface-connection { display: flex; justify-content: space-between; font: 11px system-ui; color: var(--color-text); }
+.surface-connection strong { color: #f5bf69; letter-spacing: .08em; }
+.panel-surface[data-live="true"] .surface-connection strong { color: #91d5aa; }
+.surface-instrument { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.surface-status-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 5px 0; border-top: 1px solid var(--color-border-strong); }
+.instrument-status { display: flex; gap: 8px; align-items: center; font: 12px/1.2 system-ui; }
+.instrument-status small { display: block; color: var(--color-text); font-size: 10px; margin-top: 2px; }
+.instrument-status .lamp-dot { width: 14px; height: 14px; }
+.legacy-instrument { width: 100%; position: relative; display: flex; justify-content: center; align-items: center; }
+.legacy-instrument[data-available="false"] > :first-child { opacity: .2; }
+.instrument-unavailable { position: absolute; background: var(--color-surface); padding: 10px 18px; border: 1px solid var(--color-border-strong); border-radius: 8px; font: 14px system-ui; }
+.panel-surface[data-live="false"] *, .panel-surface[data-live="false"] *::after { animation-play-state: paused !important; transition: none !important; }
+/* Transitional layouts fit above the ten-input rail. New surfaces don't inherit these sizes. */
+.legacy-instrument .th-layout { flex-direction: row; gap: 22px; }
+.legacy-instrument .th-arc { display: none; } /* Labeled semantic indicators live in the shared strip. */
+.legacy-instrument .th-dial-wrap { width: 150px; height: 150px; }
+.legacy-instrument .th-dial { top: 18px; left: 18px; width: 114px; height: 114px; }
+.legacy-instrument .th-buttons { flex-direction: column; gap: 6px; }
+.legacy-instrument .th-btn { padding: 7px 16px; color: var(--color-text); }
+.legacy-instrument .lk-keypad { grid-template-columns: repeat(2, 116px); grid-template-rows: repeat(2, 48px); gap: 8px; }
+.legacy-instrument .lk-key { color: var(--color-text); }
+.legacy-instrument .lk-stack { gap: 8px; }
+.legacy-instrument .lk-led-col, .legacy-instrument .cc-lamp-row, .legacy-instrument .fr-lamp-cluster { display: none; }
+.legacy-instrument .cc-dip { width: 120px; color: var(--color-text); }
+.legacy-instrument .cc-layout { gap: 8px; }
+.legacy-instrument .cc-readout { font-size: 15px; }
+.legacy-instrument .wp-stack { gap: 6px; }
+.legacy-instrument .wp-gauge { width: 110px; height: 66px; }
+.legacy-instrument .wp-col { gap: 6px; }
+.legacy-instrument .wp-rocker { height: 32px; }
+.legacy-instrument label { color: var(--color-text); font-size: 11px; }
+.gauge-caption { font: 12px system-ui; text-transform: capitalize; }
+.legacy-instrument .fr-layout { max-width: 570px; }
+.legacy-instrument .fr-guards { gap: 8px; }
+.legacy-instrument .fr-guard, .legacy-instrument .fr-sq { width: 140px; height: 42px; color: var(--color-text); }
+.radio-dial-label { position: absolute; bottom: 10px; left: 0; right: 0; font-size: 11px; color: var(--color-text); }
+.fr-wave:not(.is-active) span { animation: none; }
+.arc-indicator { display: flex; flex-direction: column; align-items: center; font-size: 10px; }
+@media (prefers-reduced-motion: reduce) {
+  .panel-surface *, .panel-surface *::after { animation: none !important; transition: none !important; }
+}
+@media (max-width: 600px) {
+  .panel-body { min-height: 490px; }
+  .surface-instrument { min-height: 175px; }
+  .surface-status-strip { grid-template-columns: repeat(2, 1fr); }
+  .legacy-instrument .cc-dip { width: 70px; font-size: 10px; }
+  .legacy-instrument .fr-guard, .legacy-instrument .fr-sq { width: 90px; }
+  .legacy-instrument .wp-layout { flex-wrap: wrap; gap: 8px; }
+}

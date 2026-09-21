@@ -13,7 +13,7 @@ this app adds Game Mode (win completion behaves differently depending on
 | Route | Renders | Notes |
 |---|---|---|
 | `/kiosk/info` | `KioskInfoPage` | Dial position 1 — demo/info, not a game device |
-| `/kiosk/:deviceSlug` | `KioskDevicePage` | One component, 11 data-driven instances (`src/data/deviceProfiles.ts`) |
+| `/kiosk/:deviceSlug` | `KioskDevicePage` | One component, 12 data-driven instances (`src/data/deviceProfiles.ts`) |
 | `/play-spin` | `PlaySpinPage` | Placeholder, not built — the phone-facing spin flow lives in the standalone `power pages/prize wheel` app instead; the win QR links out there directly |
 
 ## Local development
@@ -60,7 +60,8 @@ for the current device:
   on-screen controls mirror the Pi's `controls` (same keys as `deviceProfiles.ts`), taps
   are ignored, the header shows the real "last update" age, and the footer lists the
   cables the Pi sees (`#4 J1↔J2`).
-- **No signal:** the controls stay tappable so the kiosk still works as a standalone demo.
+- **No signal:** controls remain read-only, the instrument shows unavailable/stale status,
+  physical values show Unknown, and activity animations stop.
 
 Help Fix appears only while the current mode is unresolved, then sends the agent one
 structured prompt (`lib/quickFixPrompt.ts`): the active mode, each control's current vs.
@@ -84,7 +85,7 @@ random pick; and Game Mode gates all of the above.
 
 ```
 src/
-├── data/deviceProfiles.ts   # the 11 devices — content ported from KIOSK_UI_SPEC.md §2
+├── data/deviceProfiles.ts   # the 12 devices — content ported from KIOSK_UI_SPEC.md §2
 ├── types/game.ts
 ├── context/SignalRContext.tsx  # one SignalR connection for the whole app (GAME_MODE_PLAN.md §4a)
 ├── hooks/useDeviceSync.ts      # fetch-on-load + navigate-on-broadcast (GAME_MODE_PLAN.md §4a)
@@ -112,3 +113,14 @@ Releases go through GitHub Actions (`.github/workflows/deploy-apps.yml`); see
 in git** (it is git-ignored) and should never be committed, hand-edited or reused
 from an old download. For a manual recovery upload, follow the steps in
 `PAC_COMMANDS.md`, which fetch it fresh with `pac pages download-code-site`.
+
+## Instrument surfaces and validation
+
+See [the active redesign notes](../docs/KIOSK_MODE_UI_REDESIGN.md). Mode surfaces use
+`surfaceKind` and explicit instrument bindings; the old five layouts remain adapters.
+All ten physical inputs are visible. `npm test` exhaustively validates the frontend
+contract against the Pi logic maps and runs automatically before `npm run build`.
+The ordered repair guidance does not impose temporal order on win detection.
+For isolated visual fixtures, run Vite and open
+`/tests/surface-preview.html?mode=thermostat&state=partial` (fault, partial, restored,
+stale, waiting). This entry is not included in the production build.

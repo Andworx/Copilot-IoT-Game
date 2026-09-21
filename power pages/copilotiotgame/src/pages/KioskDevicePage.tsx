@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { DEVICE_PROFILES } from "../data/deviceProfiles";
 import type { DeviceState } from "../types/game";
-import { PhysicalInputs } from "../components/PhysicalInputs";
+import { PanelSurface } from "../components/surfaces/PanelSurface";
 import { HelpFixBar } from "../components/HelpFixBar";
 import { usePanelTelemetry } from "../hooks/usePanelTelemetry";
 import { buildQuickFixPrompt } from "../lib/quickFixPrompt";
@@ -10,11 +10,6 @@ import { WinOverlay } from "../components/WinOverlay";
 import { SuccessPopup } from "../components/SuccessPopup";
 import { DemoGearMenu } from "../components/DemoGearMenu";
 import { useSignalR } from "../context/SignalRContext";
-import { DialArcPanel } from "../components/layouts/DialArcPanel";
-import { KeypadPanel } from "../components/layouts/KeypadPanel";
-import { DipStripPanel } from "../components/layouts/DipStripPanel";
-import { PairedColumnsPanel } from "../components/layouts/PairedColumnsPanel";
-import { RadioClusterPanel } from "../components/layouts/RadioClusterPanel";
 import { API_BASE_URL } from "../lib/apiConfig";
 
 /**
@@ -29,7 +24,7 @@ export function KioskDevicePage() {
   const { connection } = useSignalR();
   const device = DEVICE_PROFILES[deviceSlug];
 
-  const [state, setState] = useState<DeviceState>(() => ({ ...device?.fault }));
+  const [state, setState] = useState<DeviceState>({});
   const { reading, isLive, ageSeconds } = usePanelTelemetry(deviceSlug);
   const [claimToken, setClaimToken] = useState<string | null>(null);
   // Guards create-win re-entry synchronously -- `claimToken` state alone isn't enough
@@ -129,10 +124,6 @@ export function KioskDevicePage() {
 
   const lamps = device.computeLamps(state, win);
 
-  function handleToggle(key: string) {
-    void key;
-  }
-
   // Fires when the win/success overlay's own dwell timer elapses, in both Game Mode
   // states. Clears local win state (belt-and-suspenders in case the auto-rotate below
   // happens to re-pick this same device -- SignalR's deviceChanged dedupe would then
@@ -177,27 +168,12 @@ export function KioskDevicePage() {
         <span className="position-badge">MODE {device.modeIndex} / 12</span>
       </div>
 
-      <div className="fault-line" data-mode={win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: win ? device.okText : device.faultText }} />
+      <div className="fault-line" data-mode={win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: !isLive ? "<strong>Panel readings unavailable.</strong> Waiting for a live connection." : win ? device.okText : device.faultText }} />
 
       <div className="panel-body">
-        {device.layout === "dial-arc" && (
-          <DialArcPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} disabled />
-        )}
-        {device.layout === "keypad" && (
-          <KeypadPanel device={device} state={state} lampColors={lamps} win={win} onToggle={handleToggle} disabled />
-        )}
-        {device.layout === "dip-strip" && (
-          <DipStripPanel device={device} state={state} lampColors={lamps} win={win} onToggle={handleToggle} disabled />
-        )}
-        {device.layout === "paired-columns" && (
-          <PairedColumnsPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} disabled />
-        )}
-        {device.layout === "radio-cluster" && (
-          <RadioClusterPanel device={device} state={state} lampColors={lamps} onToggle={handleToggle} disabled />
-        )}
+        <PanelSurface device={device} state={state} lampColors={lamps} win={win}
+          controls={device.restoreSequence} connection={{ isLive, ageSeconds }} />
       </div>
-
-      <PhysicalInputs controls={device.restoreSequence} state={state} isLive={isLive} />
 
       {!win && (
         <HelpFixBar
