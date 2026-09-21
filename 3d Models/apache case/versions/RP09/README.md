@@ -4,8 +4,11 @@ RP09 changes the four removable faceplates and the two fixed panel halves. The
 screen cover is extended to the fixed panel's rear edge and its upper mounting
 holes use the panel's existing rear screw locations. The fixed panel now has an
 integrated drop-in screen seat so the display cannot fall through its carrier
-opening. LED positions and collars, the lower screen mounting holes, component
-holes, shell, and trays remain unchanged.
+opening. LED positions, the lower screen mounting holes, component holes,
+shell, and trays remain unchanged.
+
+The four M1 status LEDs now insert from the rear and are captured by one
+removable printed retaining bar. The former integral split collars are removed.
 
 ## Print the coupon first
 
@@ -40,6 +43,7 @@ are also bold, color-capable geometry.
 
 - `screen_face_base.stl` + `screen_face_text.stl`, or
   `screen_face_layer_swap.stl`
+- `screen_led_retainer.stl`
 - `safety_face_base.stl` + `safety_face_text.stl`, or
   `safety_face_layer_swap.stl`
 - `switch_face_base.stl` + `switch_face_text.stl`, or
@@ -81,8 +85,23 @@ cover screws to force a screen that does not sit freely in the carrier cavity.
 This change requires reprinting both `panel_L.stl` and `panel_R.stl` as well as
 the revised M1 cover selected from the production choices above.
 
+## Rear LED retainer
+
+Insert each 5 mm LED through the M1 face from the rear until its flange rests
+against the face. Slide each prewired lead pair upward through the 2.2 mm slit
+into the corresponding 3.2 mm lead hole in `screen_led_retainer.stl`. The
+retainer's four 6.4 x 1.2 mm underside pockets capture the LED flanges without
+crushing them.
+
+Fit the retainer over the two locating bosses and fasten it with two M3 x 4 mm
+pan-head or button-head screws. The screws form threads in the M1 face's 2.6 mm
+blind pilot holes; do not substitute a longer screw because the holes do not
+pass through the visible face. Tighten only until the bar is seated. The
+retainer is labeled `M1 LED RETAINER RP09` on its rear surface.
+
 ## Lineage
 
 The approved RP08 front-control geometry was recovered from source tag
-`model-rp08-source` (`front_controls_rp07.scad`). RP09 reproduces those proven
-dimensions in `front_faces_rp09.scad` and changes only the visible text system.
+`model-rp08-source` (`front_controls_rp07.scad`). RP09 retains its proven
+component positions while adding the high-contrast text system, corrected M1
+cover alignment, fixed-panel screen seat, and removable rear LED retainer.

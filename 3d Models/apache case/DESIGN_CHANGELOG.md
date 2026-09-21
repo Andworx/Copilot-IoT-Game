@@ -16,6 +16,10 @@ commit messages.
   3 mm of support on every edge and finishes 0.02 mm below the panel surface.
 - Updated both fixed-panel identifiers to `PANEL-L/R RP09 SEAT` and added both
   revised panel halves to the RP09 exporter and validation set.
+- Replaced the M1 face's integral LED friction collars with a removable rear
+  retainer bar. Four flange pockets capture rear-inserted 5 mm LEDs, four
+  bottom-loading wire slits accept prewired leads, and two M3 x 4 mm screws
+  fasten the bar into blind printed pilots without marking the visible face.
 
 ### Validated
 

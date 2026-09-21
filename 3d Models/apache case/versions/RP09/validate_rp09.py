@@ -75,6 +75,7 @@ expected = {
     for variant in ("base", "text", "layer_swap")
 }
 expected.update({"panel_L.stl", "panel_R.stl"})
+expected.add("screen_led_retainer.stl")
 actual = {path.name for path in EXPORTS.glob("*.stl")}
 assert actual == expected, (sorted(expected - actual), sorted(actual - expected))
 
@@ -106,6 +107,19 @@ for face, xy in expected_xy.items():
     for variant in ("base", "layer_swap"):
         bounds = meshes[f"{face}_face_{variant}.stl"]["bounds_mm"]
         assert bounds[:2] == xy, (face, variant, bounds)
+
+assert meshes["screen_led_retainer.stl"]["bounds_mm"] == [86.0, 16.0, 2.4], \
+    meshes["screen_led_retainer.stl"]["bounds_mm"]
+assert meshes["screen_face_base.stl"]["bounds_mm"][2] == 4.4
+assert meshes["screen_face_layer_swap.stl"]["bounds_mm"][2] == 4.8
+
+retainer_vertices = {
+    tuple(round(value, 3) for value in point)
+    for tri in triangles(EXPORTS / "screen_led_retainer.stl") for point in tri
+}
+for x in (-27.0, -9.0, 9.0, 27.0):
+    assert (x - 1.1, -8.0, 0.0) in retainer_vertices, (x, "left slit edge")
+    assert (x + 1.1, -8.0, 0.0) in retainer_vertices, (x, "right slit edge")
 
 screen_cover_alignment = {
     "size_mm": [220.0, 136.75],
@@ -174,12 +188,22 @@ for item in rp08_stls:
 
 report = {
     "revision": "RP09",
-    "status": "PASS - screen cover and screen seat require physical fit approval",
+    "status": "PASS - screen cover, screen seat, and LED retainer require physical fit approval",
     "exports": sorted(actual),
     "calibration_exports": sorted(coupon_actual),
     "text_geometry": text_geometry,
     "screen_cover_alignment": screen_cover_alignment,
     "screen_seat": screen_seat,
+    "screen_led_retainer": {
+        "size_mm": [86.0, 16.0, 2.4],
+        "led_centers_x_mm": [-27.0, -9.0, 9.0, 27.0],
+        "wire_hole_diameter_mm": 3.2,
+        "wire_loading_slit_width_mm": 2.2,
+        "led_flange_pocket_diameter_mm": 6.4,
+        "led_flange_pocket_depth_mm": 1.2,
+        "mounting_hole_centers_x_mm": [-38.0, 38.0],
+        "mounting_screw": "M3 x 4 mm pan/button head, thread-forming into printed pilot",
+    },
     "rp08_release_stls_verified": len(rp08_stls),
     "meshes": meshes,
 }
@@ -193,5 +217,6 @@ print(json.dumps({
         "panel_R.stl",
         "screen_face_base.stl",
         "screen_face_text.stl",
+        "screen_led_retainer.stl",
     ],
 }, indent=2))

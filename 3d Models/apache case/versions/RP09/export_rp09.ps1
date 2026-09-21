@@ -8,7 +8,7 @@ $snapshot = Join-Path $PSScriptRoot '../../../Save-ModelVersion.ps1'
 $calibration = Join-Path $PSScriptRoot '../../calibration/face-text/RP09/exports'
 New-Item -ItemType Directory -Path $output -Force | Out-Null
 New-Item -ItemType Directory -Path $calibration -Force | Out-Null
-& $snapshot -Tag 'before-export-RP09-screen-seat'
+& $snapshot -Tag 'before-export-RP09-rear-LED-retainer'
 foreach ($name in @('text_coupon_base.stl', 'text_coupon_text.stl',
                      'text_coupon_layer_swap.stl')) {
     $stale = Join-Path $output $name
@@ -33,6 +33,7 @@ foreach ($panel in @(
 
 $parts = @(
     'screen_face_base', 'screen_face_text', 'screen_face_layer_swap',
+    'screen_led_retainer',
     'safety_face_base', 'safety_face_text', 'safety_face_layer_swap',
     'switch_face_base', 'switch_face_text', 'switch_face_layer_swap',
     'activity_face_base', 'activity_face_text', 'activity_face_layer_swap'
@@ -79,6 +80,11 @@ if ($LASTEXITCODE -ne 0) { throw 'RP09 preview failed' }
     -o (Join-Path $output 'rp09_screen_cover_alignment.png') $source
 if ($LASTEXITCODE -ne 0) { throw 'RP09 screen-cover preview failed' }
 
+& $OpenScad --imgsize=1600,500 --viewall --autocenter --projection=o `
+    --camera='0,0,10,0,0,0,130' -D 'part="screen_led_retainer"' `
+    -o (Join-Path $output 'rp09_screen_led_retainer.png') $source
+if ($LASTEXITCODE -ne 0) { throw 'RP09 LED-retainer preview failed' }
+
 & $OpenScad --imgsize=1400,500 --viewall --autocenter --projection=o `
     --camera='0,0,10,0,0,0,150' -D 'part="text_coupon_preview"' `
     -o (Join-Path $calibration 'rp09_text_coupon.png') $source
@@ -87,4 +93,4 @@ if ($LASTEXITCODE -ne 0) { throw 'RP09 text coupon preview failed' }
 & 'C:\Users\edrft\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' `
     (Join-Path $PSScriptRoot 'validate_rp09.py')
 if ($LASTEXITCODE -ne 0) { throw 'RP09 validation failed' }
-& $snapshot -Tag 'after-validated-RP09-screen-seat'
+& $snapshot -Tag 'after-validated-RP09-rear-LED-retainer'
