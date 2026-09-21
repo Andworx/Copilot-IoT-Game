@@ -26,3 +26,10 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - All 60 fixtures plus gameplay and reconnection browser tests passed. Screenshot reviewed at 800x480.
 - Created System Map Demo / Info issue #91 using the supplied screenshot and reference Infrastructure.tsx; recorded shared UI direction on epic #73.
 - Production deployment and live validation remain Verify.
+
+## Issue #91: interactive System Map
+- User requested implementing the Demo / Info System Map from the supplied screenshot and sibling repo.
+- Replaced the Info mode list with Edge, Azure/Cloud and Power Platform architecture, 12 selectable components, connected-path highlighting and native detail dialogs. Includes real telemetry, mode polling, agent and prize paths; no unsupported Power Automate runtime.
+- Gear exploration preserves the map across staff mode changes and reconnection; Return follows the latest known mode. Home/info snapshots retain the info page; normal live device routes continue to follow the server and non-exploration deviceChanged events.
+- Browser tests cover all nodes, focus restoration/containment, read-only navigation, staff changes, wake refresh, mobile touch and 800x480 layout. Existing gameplay and recovery tests pass.
+- System Map and existing gameplay/recovery browser suites pass; screenshots reviewed at kiosk and narrow sizes. Node 22 clean installs/builds pass for all three apps and all 12,288 mode contract states agree. Production validation remains Verify; feature PR prepared.

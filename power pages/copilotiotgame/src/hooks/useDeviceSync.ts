@@ -1,16 +1,19 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSignalR } from "../context/SignalRContext";
 import { API_BASE_URL } from "../lib/apiConfig";
 
 interface KioskState { deviceSlug: string | null; }
 
-/** Follow the real panel on startup/recovery, including stale device deep links. */
+/** Follow device routes on startup/recovery; keep intentional map exploration local. */
 export function useDeviceSync() {
   const navigate = useNavigate();
   const navigateRef = useRef(navigate);
   navigateRef.current = navigate;
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
+  const [activeSlug, setActiveSlug] = useState<string | null>();
+  const exploringRef = useRef(false);
+  exploringRef.current = pathname === "/kiosk/info" && state?.explore === true;
   const pathRef = useRef(pathname);
   pathRef.current = pathname;
   const { connection, connectionRevision } = useSignalR();
@@ -21,10 +24,13 @@ export function useDeviceSync() {
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let controller: AbortController | undefined;
-    function apply(data: KioskState) {
+    function apply(data: KioskState, snapshot = false) {
       // Keep phone/prize routes outside live kiosk navigation.
       if (pathRef.current !== "/" && !pathRef.current.startsWith("/kiosk/")) return;
       if (data.deviceSlug !== null && typeof data.deviceSlug !== "string") return;
+      setActiveSlug(data.deviceSlug);
+      // Gear exploration stays local; an idle info page still follows staff broadcasts.
+      if (exploringRef.current || (snapshot && pathRef.current === "/kiosk/info")) return;
       const route = data.deviceSlug ? `/kiosk/${data.deviceSlug}` : "/kiosk/info";
       if (pathRef.current !== route) navigateRef.current(route, { replace: true });
     }
@@ -41,7 +47,7 @@ export function useDeviceSync() {
         if (!response.ok) throw new Error("Kiosk state unavailable");
         const data: KioskState = await response.json();
         // A broadcast received during this request is newer than its snapshot.
-        if (!disposed && version === eventVersion) apply(data);
+        if (!disposed && version === eventVersion) apply(data, true);
       } catch {
         if (!disposed) retryTimer = setTimeout(() => { void refresh(); }, 5000);
       } finally {
@@ -58,4 +64,5 @@ export function useDeviceSync() {
       connection?.off("deviceChanged", changed);
     };
   }, [connection, connectionRevision]);
+  return activeSlug;
 }

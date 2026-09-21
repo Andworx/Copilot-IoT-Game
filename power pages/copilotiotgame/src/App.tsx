@@ -20,12 +20,12 @@ function KeyedKioskDevicePage() {
 export default function App() {
   // Mode sync (GAME_MODE_PLAN.md §4a) needs Router context (useNavigate),
   // so it lives inside App, not around it in main.tsx like SignalRProvider.
-  useDeviceSync();
+  const activeSlug = useDeviceSync();
 
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/kiosk/info" replace />} />
-      <Route path="/kiosk/info" element={<KioskInfoPage />} />
+      <Route path="/kiosk/info" element={<KioskInfoPage activeSlug={activeSlug} />} />
       <Route path="/kiosk/:deviceSlug" element={<KeyedKioskDevicePage />} />
       <Route path="/play-spin" element={<PlaySpinPage />} />
     </Routes>

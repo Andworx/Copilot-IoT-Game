@@ -29,7 +29,7 @@ export function DemoGearMenu({ currentSlug, azureConnected = false, iotConnected
 
   function go(path: string) {
     setOpen(false);
-    navigate(path);
+    navigate(path, path === "/kiosk/info" ? { state: { explore: true } } : undefined);
   }
 
   return (
