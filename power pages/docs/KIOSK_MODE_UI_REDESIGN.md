@@ -27,7 +27,7 @@ switches. Stale status is explicit and activity animations pause; reduced motion
 instrument animation.
 
 The twelve surfaces are migration destinations, not a claim that all twelve dedicated
-UIs have shipped. The thermostat is the first pilot; the other eleven retain adapters.
+UIs have shipped. The thermostat and Smart Lock have dedicated surfaces; the other ten retain adapters.
 
 
 The current kiosk implementation uses five reusable panel layouts with per-device skinning. That made the first build efficient, but the modes now read too similarly. The next iteration should keep the shared kiosk shell and telemetry contracts, while replacing the five shared layouts with twelve mode-specific instrument surfaces.
@@ -126,3 +126,20 @@ Release order: PR build checks, merge and deploy through `deploy-apps.yml`, then
 the real panel. This batch changes no Pi source or logic maps. Compare the installed Pi
 version before any later firmware push; do not copy unrelated local wiring/config edits
 as part of this UI release. All three plan items remain Verify until live checks pass.
+
+## Smart Lock (#78)
+
+A door/frame schematic replaces the generic keypad. The sliding bolt follows named
+`power` + `deadbolt` controls; alarm arming follows `power` + `alarm` independently.
+Auto-lock, service key and keyed switch 2 have separate labeled readouts. Power loss
+makes bolt/alarm unpowered, rather than claiming the door is unlocked. Stale or absent
+telemetry removes the bolt state and stops transitions. Reduced motion disables sliding.
+
+Door position and tamper are explicitly unmonitored: neither is in current telemetry.
+No battery level or other measurement is invented. All ten existing restore targets
+remain necessary, with required switch/cable mappings in the shared gear popup.
+
+Run `node "power pages/copilotiotgame/tests/check-smart-lock.mjs"` for independent
+bolt/alarm transitions, power, auto-lock, invalid input, both Game Mode completion
+paths, duplicate-win protection, rotation, old-mode isolation, stale/reduced-motion,
+Help Fix and narrow-layout coverage. Deployment/live panel validation remains Verify.

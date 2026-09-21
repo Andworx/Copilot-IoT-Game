@@ -33,3 +33,9 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Gear exploration preserves the map across staff mode changes and reconnection; Return follows the latest known mode. Home/info snapshots retain the info page; normal live device routes continue to follow the server and non-exploration deviceChanged events.
 - Browser tests cover all nodes, focus restoration/containment, read-only navigation, staff changes, wake refresh, mobile touch and 800x480 layout. Existing gameplay and recovery tests pass.
 - System Map and existing gameplay/recovery browser suites pass; screenshots reviewed at kiosk and narrow sizes. Node 22 clean installs/builds pass for all three apps and all 12,288 mode contract states agree. Production validation remains Verify; feature PR prepared.
+
+## Issue #78: Smart Lock surface
+- Implemented dedicated door/frame, sliding deadbolt and security panel, replacing the keypad adapter. Explicit power/deadbolt/alarm/autolock/key bindings; independent incremental feedback.
+- Door position and tamper are unmonitored because neither exists in telemetry; power loss and stale readings do not imply an unlocked door. No Pi or puzzle rule changes.
+- Initial browser pass found vertical overlap at 800x480; compacted the surface. Gear setup remains the only physical target listing.
+- All 60 surface fixtures and Smart Lock telemetry/completion tests pass, including stale data, reduced motion, Help Fix and narrow layout. Screenshots reviewed. Node 22 clean installs/builds pass for all three apps; all 12,288 Pi/UI contract states agree. Deployment/live validation remains Verify.
