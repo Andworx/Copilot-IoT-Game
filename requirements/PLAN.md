@@ -118,3 +118,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Item | Type | Status | Notes |
 |---|---|---|---|
 | Playwright e2e: mode-switch navigation (incl. mid-session reset), win → QR → claim → no-double-claim regression | E2E tests | ⬜ TODO | GAME_MODE_PLAN.md §10, Phase 8 |
+
+### Kiosk setup presentation follow-up (epic #73)
+
+Verify: replace the persistent physical-panel rail with the shared gear-menu switch/cable setup dialog for every mode. Required positions derive from the existing restore contract. Local browser validation passes; production validation awaits release. Demo / Info System Map redesign is tracked separately in #91.

@@ -141,3 +141,5 @@ root tests startup failure, online recovery, a long outage, mode/flag resync, an
 telemetry using mocked HTTP/WebSockets and a controlled browser clock. See the instrument
 notes for the test browser setup. Production mode changes remain in Game Box Control;
 the gear menu's display-only mode shortcuts are limited to local development.
+
+The gear menu exposes **Switch positions & cables** for the active mode. Its read-only setup dialog lists the required final switch positions and socket connections, even while telemetry is unavailable. Mode surfaces omit the bottom physical-panel rail; keep this convention for future mode redesigns.

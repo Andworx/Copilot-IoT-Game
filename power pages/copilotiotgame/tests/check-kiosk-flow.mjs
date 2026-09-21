@@ -71,14 +71,14 @@ try {
     telemetry("thermostat", target);
     await page.screenshot({ path: `test-results/instrument-flow/game-mode-${gameModeEnabled}.png` });
     await page.waitForURL("**/kiosk/patient-monitor", { timeout: 15000 });
-    await page.locator('[data-surface="patient-monitor"] .physical-input').last().waitFor();
+    await page.locator('[data-surface="patient-monitor"]').last().waitFor();
     assert.equal(rotations, 1);
     assert.equal(wins, gameModeEnabled ? 1 : 0, "duplicate telemetry created an extra win");
     assert.equal(await page.locator(".win-overlay").count(), 0);
-    assert.equal(await page.locator(".physical-input-value").filter({ hasText: "Unknown" }).count(), 10);
+    assert.equal(await page.locator(".instrument-status").filter({ hasText: "Unknown" }).count(), 4);
     telemetry("thermostat", target); // Old-mode packets must not affect the new page.
     await page.waitForTimeout(100);
-    assert.equal(await page.locator(".physical-input-value").filter({ hasText: "Unknown" }).count(), 10);
+    assert.equal(await page.locator(".instrument-status").filter({ hasText: "Unknown" }).count(), 4);
     telemetry("patient-monitor", map("patient-monitor").faultStartingState);
     await page.locator('.panel-surface[data-live="true"]').waitFor();
     assert.deepEqual(errors, []);
