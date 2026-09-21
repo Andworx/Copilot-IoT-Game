@@ -1,3 +1,4 @@
+import { RetailKioskSurface } from "./RetailKioskSurface";
 import { SmartLockSurface } from "./SmartLockSurface";
 import { ThermostatSurface } from "./ThermostatSurface";
 import type { ComponentType } from "react";
@@ -31,7 +32,7 @@ export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "elevator-service": legacy(KeypadPanel),
   "traffic-cabinet": legacy(DipStripPanel),
   "patient-monitor": legacy(DialArcPanel),
-  "payment-terminal": legacy(KeypadPanel),
+  "payment-terminal": RetailKioskSurface,
   "drone-ground-station": legacy(RadioClusterPanel),
   "robot-teach-pendant": legacy(PairedColumnsPanel),
 };

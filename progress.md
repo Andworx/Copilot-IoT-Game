@@ -39,3 +39,9 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Door position and tamper are unmonitored because neither exists in telemetry; power loss and stale readings do not imply an unlocked door. No Pi or puzzle rule changes.
 - Initial browser pass found vertical overlap at 800x480; compacted the surface. Gear setup remains the only physical target listing.
 - All 60 surface fixtures and Smart Lock telemetry/completion tests pass, including stale data, reduced motion, Help Fix and narrow layout. Screenshots reviewed. Node 22 clean installs/builds pass for all three apps; all 12,288 Pi/UI contract states agree. Deployment/live validation remains Verify.
+
+## Issue #86: Retail Payment Kiosk
+- User requested the dedicated retail mode. Implemented payment-terminal silhouette plus independent reader, network and receipt-printer regions.
+- Named Boolean equipment bindings preserve all existing switch/socket win rules. Power loss shows Unpowered; stale data shows Unknown.
+- Full live restoration displays a clearly simulated test receipt marked NO PAYMENT TAKEN; reduced motion disables paper feed. Gear setup remains shared.
+- Retail flow tests pass for partial repairs, independent subsystems, ON/OFF wins, QR, duplicate prevention, rotation and old-mode isolation; stale/reduced-motion/Help Fix/mobile checks pass. Screenshots reviewed. All 60 surface fixtures and Node 22 clean installs/builds pass for all three apps; all 12,288 Pi/UI contract states agree. Live validation remains Verify.
