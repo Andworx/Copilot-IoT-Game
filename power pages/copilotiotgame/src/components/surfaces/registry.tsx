@@ -1,3 +1,4 @@
+import { ThermostatSurface } from "./ThermostatSurface";
 import type { ComponentType } from "react";
 import type { SurfaceKind } from "../../types/game";
 import type { PanelSurfaceProps } from "./types";
@@ -20,7 +21,7 @@ function legacy(Component: typeof DialArcPanel | typeof KeypadPanel) {
 }
 
 export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
-  "hvac-thermostat": legacy(DialArcPanel),
+  "hvac-thermostat": ThermostatSurface,
   "security-door-panel": legacy(KeypadPanel),
   "coldchain-logger": legacy(DipStripPanel),
   "pump-scada": legacy(PairedColumnsPanel),

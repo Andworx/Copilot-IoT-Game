@@ -21,9 +21,9 @@ Object.assign(window, {
 
 createRoot(document.getElementById("root")!).render(
   <div className="kiosk-screen" data-skin={device.slug}>
-    <div className="motif motif-thermostat" />
+    <div className={`motif motif-${device.slug}`} />
     <header className="kiosk-header"><div><span className="sector-tag">{device.sector}</span><h2>{device.label}</h2></div><span className="position-badge">MODE {device.modeIndex} / 12</span></header>
-    <div className="fault-line" data-mode={win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: !connection.isLive ? "Panel readings unavailable. Waiting for a live connection." : win ? device.okText : device.faultText }} />
+    <div className="fault-line" data-mode={!connection.isLive ? "unavailable" : win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: !connection.isLive ? "Panel readings unavailable. Waiting for a live connection." : win ? device.okText : device.faultText }} />
     <div className="panel-body"><PanelSurface device={device} state={state} lampColors={lamps} win={win} controls={device.restoreSequence} connection={connection} /></div>
     {!win && <HelpFixBar isAlert steps={device.steps} getPrompt={() => "fixture preview"} />}
   </div>,

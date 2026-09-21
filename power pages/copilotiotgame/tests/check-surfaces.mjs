@@ -25,6 +25,14 @@ try {
         return r.left < 0 || r.right > innerWidth + 1 || r.top < 0 || r.bottom > innerHeight + 1;
       }).map(el => el.className));
       assert.deepEqual(outside, [], `${mode}/${state}: clipping`);
+      const instrumentOverflow = await page.locator(".surface-instrument").evaluate(container => {
+        const bounds = container.getBoundingClientRect();
+        return [...container.querySelectorAll(".thermostat-face, .thermostat-equipment")].some(el => {
+          const rect = el.getBoundingClientRect();
+          return rect.top < bounds.top - 1 || rect.bottom > bounds.bottom + 1;
+        });
+      });
+      assert.equal(instrumentOverflow, false, `${mode}/${state}: instrument overlaps shared chrome`);
       if (["stale", "waiting"].includes(state)) {
         assert.equal(await page.locator(".physical-input-value").filter({ hasText: "Unknown" }).count(), 10);
         assert.equal(await page.locator(".instrument-status").filter({ hasText: "Unknown" }).count(), 4);

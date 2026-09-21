@@ -14,14 +14,14 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 5 | 2 | 0 | 0 | 7 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
-| Power Pages | 4 | 5 | 1 | 0 | 10 |
+| Power Pages | 4 | 8 | 1 | 0 | 13 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
 | Integration (Azure Functions) | 7 | 3 | 0 | 0 | 10 |
 | Power Apps | 2 | 4 | 0 | 0 | 6 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 18 | 18 | 5 | 2 | 43 |
+| Totals | 18 | 21 | 5 | 2 | 46 |
 
 ## Dataverse
 
@@ -51,6 +51,9 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
+| Physical control/visual contracts across twelve modes (#75) | Code Site | ⬜ Verify | Six switches and four sockets visible; stale keys and lamps reconciled; exhaustive 12,288-state Pi contract check runs before builds. Local checks pass; live Pi/page validation pending. |
+| Typed read-only surface registry and shared primitives (#76) | Code Site | ⬜ Verify | Explicit legacy bindings, connection freshness, semantic indicators, and deterministic fixtures; other modes remain adapters. Live validation pending. |
+| Dedicated thermostat instrument pilot (#77) | Code Site | ⬜ Verify | Circular heat/cool face, state-driven fan, eco lockout, and physical mappings. No inferred temperatures. Local browser checks pass; live validation pending. |
 | `copilotiotgame`: `KioskInfoPage` + `KioskDevicePage`, all 12 playable modes, 10s reset timer (800×480 viewport) | Code Site pages | ⬜ Verify | Issues #43/#44 — mode cards now mirror the 12 Pi restore sequences and expose ordered restore steps. Verify with local build and live page after deployment. |
 | `copilotiotgame`: `/play-spin` page, QR generation on kiosk win, wheel animation | Code Site page | ✅ Done | GAME_MODE_PLAN.md §7, Phase 6 — except real QR encoding (placeholder pattern) and the real claim call (depends on the Integration claim endpoint below) |
 | `copilotiotgame`: all 12 playable device pages + content | Code Site content | ⬜ Verify | Issue #43 — added `industrial-robot-arm` and synchronized unique restore sequences across page data and Pi logic maps. |

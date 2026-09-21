@@ -168,7 +168,7 @@ export function KioskDevicePage() {
         <span className="position-badge">MODE {device.modeIndex} / 12</span>
       </div>
 
-      <div className="fault-line" data-mode={win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: !isLive ? "<strong>Panel readings unavailable.</strong> Waiting for a live connection." : win ? device.okText : device.faultText }} />
+      <div className="fault-line" data-mode={!isLive ? "unavailable" : win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: !isLive ? "<strong>Panel readings unavailable.</strong> Waiting for a live connection." : win ? device.okText : device.faultText }} />
 
       <div className="panel-body">
         <PanelSurface device={device} state={state} lampColors={lamps} win={win}

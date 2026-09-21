@@ -99,3 +99,29 @@ Reusable primitives should support, not flatten, the mode differences: `Gauge`, 
 2. Build three high-contrast pilot surfaces: thermostat, water pump, and patient monitor.
 3. Validate the 800x480 Pi screen readability and physical panel telemetry flow.
 4. Replace the remaining modes in small PRs, grouped by complexity.
+
+## Thermostat pilot (#77)
+
+The circular face reports OFF, STANDBY, HEAT, COOL, or NO SIGNAL. Fan motion requires
+live telemetry, power, and fan enabled; eco lockout prevents heating/cooling but does
+not claim the fan is stopped. Mode selection remains visible independently of power.
+The ring has no temperature/setpoint numbers because the current telemetry contains
+Boolean controls only. A complete repair still requires all ten existing target inputs.
+
+Browser verification from the repository root (with Vite on port 5183):
+
+```powershell
+node "power pages/copilotiotgame/tests/check-surfaces.mjs"
+node "power pages/copilotiotgame/tests/check-kiosk-flow.mjs"
+```
+
+Install root locked dependencies and the matching Playwright Chromium first. An existing
+browser can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE`; `KIOSK_TEST_URL` overrides
+the local base URL. The flow test intercepts HTTP/SignalR, exercises both Game Mode
+completion paths, verifies the QR and single win request, and checks mode-change isolation.
+No production win or physical control is changed by these tests.
+
+Release order: PR build checks, merge and deploy through `deploy-apps.yml`, then validate
+the real panel. This batch changes no Pi source or logic maps. Compare the installed Pi
+version before any later firmware push; do not copy unrelated local wiring/config edits
+as part of this UI release. All three plan items remain Verify until live checks pass.

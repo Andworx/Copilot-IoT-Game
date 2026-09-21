@@ -787,3 +787,51 @@ input:focus-visible {
   .legacy-instrument .fr-guard, .legacy-instrument .fr-sq { width: 90px; }
   .legacy-instrument .wp-layout { flex-wrap: wrap; gap: 8px; }
 }
+
+/* Thermostat: a domestic HVAC faceplate with independent equipment feedback. */
+.thermostat-surface { width: min(650px, 100%); display: grid; grid-template-columns: 190px 1fr; gap: 30px; align-items: center; font-family: system-ui, sans-serif; }
+.thermostat-face { position: relative; width: 134px; height: 134px; margin: auto; }
+.thermostat-ring { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px #0007); }
+.thermostat-bezel { fill: #30261f; stroke: #705b47; stroke-width: 1; }
+.thermostat-inner { fill: #1e1915; stroke: #4f4133; stroke-width: 1; }
+.thermostat-band { fill: none; stroke: #584b3d; stroke-width: 6; stroke-linecap: round; transition: stroke .3s ease; }
+[data-hvac="heat"] .heat-band { stroke: #f1ad69; }
+[data-hvac="cool"] .cool-band { stroke: #8ccef3; }
+.thermostat-reading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+.thermostat-eyebrow { font-size: 10px; letter-spacing: .12em; color: #d1bca4; }
+.thermostat-reading strong { font-size: 30px; letter-spacing: -.04em; line-height: 1; color: #f8ecdc; }
+[data-hvac="standby"] .thermostat-reading strong, [data-hvac="unknown"] .thermostat-reading strong { font-size: 22px; }
+.thermostat-detail { font-size: 11px; color: #d1bca4; }
+.thermostat-equipment { display: flex; flex-direction: column; gap: 4px; }
+.thermostat-mode-tabs { display: flex; align-items: center; gap: 6px; }
+.thermostat-mode-tabs > span { padding: 5px 12px; border: 1px solid #66513c; border-radius: 16px; font-size: 11px; color: #d1bca4; }
+.thermostat-mode-tabs > span[data-selected="true"] { color: #fff1e0; background: #64472c; border-color: #d5a36d; }
+.thermostat-mode-tabs > span:nth-child(2)[data-selected="true"] { background: #284757; border-color: #8ccef3; }
+.thermostat-mode-tabs small { margin-left: auto; color: #d1bca4; font-size: 11px; }
+.thermostat-fan-row { display: flex; align-items: center; gap: 12px; }
+.thermostat-fan { width: 36px; height: 36px; flex-shrink: 0; }
+.fan-housing { fill: #2b221a; stroke: #705b47; stroke-width: 1; }
+.fan-blades { fill: #8c7a63; transform-origin: 30px 30px; }
+.thermostat-fan[data-running="true"] .fan-blades { fill: #edcba2; animation: fanTurn 3s linear infinite; }
+@keyframes fanTurn { to { transform: rotate(360deg); } }
+.thermostat-fan-row .thermostat-eyebrow { display: block; line-height: 12px; }
+.thermostat-fan-row strong { display: block; font-size: 20px; line-height: 1.1; font-weight: 500; color: #f8ecdc; }
+.thermostat-interlocks { display: flex; gap: 20px; font-size: 11px; color: #d1bca4; }
+.thermostat-interlocks b { display: block; font-size: 13px; color: #f8ecdc; margin-top: 2px; }
+.thermostat-restore { padding-top: 6px; border-top: 1px solid #66513c; font-size: 11px; color: #e6bc85; }
+.thermostat-restore[data-restored="true"] { color: #a9ddb8; }
+@media (prefers-reduced-motion: reduce) { .thermostat-fan .fan-blades { animation: none !important; } }
+@media (max-width: 600px) {
+  .thermostat-surface { grid-template-columns: 130px 1fr; gap: 10px; }
+  .thermostat-face { width: 130px; height: 130px; }
+  .thermostat-reading strong { font-size: 25px; }
+  .thermostat-eyebrow { font-size: 8px; }
+  .thermostat-detail { font-size: 9px; }
+  [data-hvac="standby"] .thermostat-reading strong, [data-hvac="unknown"] .thermostat-reading strong { font-size: 17px; }
+  .thermostat-mode-tabs { flex-wrap: wrap; }
+  .thermostat-mode-tabs small { margin-left: 0; }
+  .thermostat-interlocks { gap: 10px; }
+}
+
+.fault-line[data-mode="unavailable"] { color: #f5bf69; border-color: #806038; }
+[data-hvac="unknown"] .thermostat-reading strong { font-size: 18px; }
