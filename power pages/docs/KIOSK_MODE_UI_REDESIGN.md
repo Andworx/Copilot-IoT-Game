@@ -27,7 +27,7 @@ switches. Stale status is explicit and activity animations pause; reduced motion
 instrument animation.
 
 The twelve surfaces are migration destinations, not a claim that all twelve dedicated
-UIs have shipped. The thermostat and Smart Lock have dedicated surfaces; the other ten retain adapters.
+UIs have shipped. The thermostat, Smart Lock and Retail Payment Kiosk have dedicated surfaces; the other nine retain adapters.
 
 
 The current kiosk implementation uses five reusable panel layouts with per-device skinning. That made the first build efficient, but the modes now read too similarly. The next iteration should keep the shared kiosk shell and telemetry contracts, while replacing the five shared layouts with twelve mode-specific instrument surfaces.
@@ -143,3 +143,20 @@ Run `node "power pages/copilotiotgame/tests/check-smart-lock.mjs"` for independe
 bolt/alarm transitions, power, auto-lock, invalid input, both Game Mode completion
 paths, duplicate-win protection, rotation, old-mode isolation, stale/reduced-motion,
 Help Fix and narrow-layout coverage. Deployment/live panel validation remains Verify.
+
+## Retail Payment Kiosk (#86)
+
+The dedicated payment-terminal silhouette has independent reader, network and receipt
+printer regions. Named `power`, `reader`, `network` and `printer` controls govern their
+readouts; key switch states remain visible on the terminal. Power loss shows unpowered
+subsystems, and stale/unavailable readings show Unknown without a test receipt.
+
+Only a complete live restoration displays the paper illustration, explicitly labeled
+SIMULATED TEST RECEIPT and NO PAYMENT TAKEN. It does not invent amounts, payment data,
+network throughput or printer measurements. Reduced motion disables its brief paper
+feed animation. The existing ten-input restore contract and gear setup popup are unchanged.
+
+`node "power pages/copilotiotgame/tests/check-retail-kiosk.mjs"` checks independent
+subsystem recovery, power, invalid input, read-only taps, both completion paths,
+duplicate-win protection, mode rotation/isolation, stale data, the simulated receipt,
+reduced motion, Help Fix and narrow layout. Production validation remains Verify.

@@ -130,3 +130,7 @@ Verify: interactive three-layer architecture map, component details, keyboard/to
 ### Smart Lock instrument (#78)
 
 Verify: dedicated door/frame and sliding-deadbolt surface with independent alarm, auto-lock and keyed-control feedback. Required setup stays in the gear popup. Existing Pi win contract is unchanged; live validation follows the PR deployment pipeline.
+
+### Retail Payment Kiosk instrument (#86)
+
+Verify: dedicated payment terminal with independently recovering reader, network and printer, plus an explicitly simulated receipt on complete restoration. Setup remains in the gear popup and Pi contracts are unchanged. Production/live validation follows the PR deployment pipeline.
