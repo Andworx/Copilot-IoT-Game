@@ -58,7 +58,7 @@ try {
     telemetry("smart-lock", { ...partial, deadbolt: false });
     await page.locator('.smart-lock-surface[data-bolt="retracted"][data-alarm="armed"]').waitFor();
     telemetry("smart-lock", { ...partial, autolock: true });
-    await page.locator('.lock-status-list > div').filter({hasText:"SW3"}).getByText("Enabled",{exact:true}).waitFor();
+    await page.locator('.lock-status-list > div').filter({hasText:"Auto-lock"}).getByText("Enabled",{exact:true}).waitFor();
     telemetry("smart-lock", partial);
     await page.locator('.smart-lock-surface[data-bolt="extended"][data-alarm="armed"]').waitFor();
     assert.equal(wins,0,"partial repair created a win");

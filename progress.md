@@ -56,3 +56,9 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Built rugged transceiver face with channel window, two-position read-only selector, encryption/transmit status and key readouts. RF bars are unfilled and explicitly unmeasured; no invented frequency or on-air claim.
 - Independent control transitions, power loss, invalid input, ON/OFF completion, QR, duplicate prevention, rotation/isolation, stale data, reduced motion, Help Fix and narrow checks pass.
 - Surface matrix found vertical overlap at 800x480; compacted window spacing and reran visual validation. All 60 surface fixtures and Node 22 clean installs/builds pass for all three apps; all 12,288 Pi/UI configurations agree. Final screenshots reviewed. Live validation remains Verify.
+
+## Issue #100: device-facing labels
+- User requested domain-only labels on all completed devices, with physical wiring identifiers hidden until players open help/setup.
+- Removed SW prefixes from Thermostat, Smart Lock, Field Radio, Traffic Signal and Retail surfaces, plus physicalPin from the shared paired-column adapter. Replaced inline repair-action hints with neutral status text.
+- Created #100 and linked it to epic #73. Updated #73, #70, #75-#88 bodies with the shared rule; added repository guidance and a 60-fixture visible/accessibility label regression check. Gear setup and Help Fix remain explicit opt-in mapping views.
+- All 60 mode/state label/layout checks and updated Smart Lock/Traffic gameplay suites pass. Node 22 clean builds pass for all three apps; all 12,288 Pi/UI configurations agree. Screenshot reviewed. Production validation remains Verify.

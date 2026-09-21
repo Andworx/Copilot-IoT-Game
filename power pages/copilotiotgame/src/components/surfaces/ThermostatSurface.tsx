@@ -8,7 +8,7 @@ export function ThermostatSurface({ state, connection, win }: PanelSurfaceProps)
   const operating = fanRunning && !state.eco;
   const mode = !known ? "unknown" : !powered ? "off" : !operating ? "standby" : state.mode ? "cool" : "heat";
   const title = { unknown: "NO SIGNAL", off: "OFF", standby: "STANDBY", cool: "COOL", heat: "HEAT" }[mode];
-  const detail = !known ? "Waiting for panel" : !powered ? "Power disconnected" : state.eco ? "Eco lockout active" : !state.fan ? "Fan required" : state.mode ? "Cooling enabled" : "Heating enabled";
+  const detail = !known ? "Waiting for panel" : !powered ? "Power disconnected" : state.eco ? "Eco lockout active" : !state.fan ? "Fan stopped" : state.mode ? "Cooling enabled" : "Heating enabled";
   const fanText = !known ? "Unknown" : fanRunning ? "Running" : "Stopped";
   return <div className="thermostat-surface" data-hvac={mode}>
     <div className="thermostat-face" role="img" aria-label={`Thermostat: ${title}. ${detail}`}>
@@ -28,7 +28,7 @@ export function ThermostatSurface({ state, connection, win }: PanelSurfaceProps)
       <div className="thermostat-mode-tabs" aria-label="Selected operating mode">
         <span data-selected={known && !state.mode}>HEAT</span>
         <span data-selected={known && state.mode}>COOL</span>
-        <small>SW4 · mode select</small>
+        <small>mode select</small>
       </div>
       <div className="thermostat-fan-row">
         <svg className="thermostat-fan" data-running={fanRunning} viewBox="0 0 60 60" aria-hidden="true">
@@ -38,14 +38,14 @@ export function ThermostatSurface({ state, connection, win }: PanelSurfaceProps)
             <circle cx="30" cy="30" r="5" />
           </g>
         </svg>
-        <div><span className="thermostat-eyebrow">SW3 · CIRCULATION FAN</span><strong>{fanText}</strong></div>
+        <div><span className="thermostat-eyebrow">CIRCULATION FAN</span><strong>{fanText}</strong></div>
       </div>
       <div className="thermostat-interlocks">
-        <span>SW1 · Power <b>{!known ? "Unknown" : state.power ? "ON" : "OFF"}</b></span>
-        <span>SW2 · Eco lockout <b>{!known ? "Unknown" : state.eco ? "Active" : "Clear"}</b></span>
+        <span>Power <b>{!known ? "Unknown" : state.power ? "ON" : "OFF"}</b></span>
+        <span>Eco lockout <b>{!known ? "Unknown" : state.eco ? "Active" : "Clear"}</b></span>
       </div>
       <div className="thermostat-restore" data-restored={known && win}>
-        {!known ? "Physical panel connection needed" : win ? "System restored · all inputs verified" : "Check keys and sockets as well as HVAC controls"}
+        {!known ? "Physical panel connection needed" : win ? "System restored · all inputs verified" : "Restoration incomplete"}
       </div>
     </div>
   </div>;

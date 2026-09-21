@@ -61,7 +61,7 @@ try {
     await page.screenshot({path:`test-results/traffic-flow/partial-${gameModeEnabled}.png`});
     telemetry("traffic-signal", { ...partial, timing:null });
     await page.locator('.traffic-surface[data-operation="unknown"][data-cycling="false"]').waitFor();
-    await page.locator(".traffic-controller dl > div").filter({hasText:"SW2"}).getByText("Enabled",{exact:true}).waitFor();
+    await page.locator(".traffic-controller dl > div").filter({hasText:"Controller"}).getByText("Enabled",{exact:true}).waitFor();
     telemetry("traffic-signal", target);
     await page.locator(".win-overlay").waitFor();
     if (gameModeEnabled) await page.getByAltText("Scan to claim your prize").waitFor();

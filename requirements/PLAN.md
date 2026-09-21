@@ -142,3 +142,7 @@ Verify: top-down intersection and controller status panel with explicitly simula
 ### Field Radio instrument (#81)
 
 Verify: dedicated rugged transceiver with independent channel-hop, encryption and transmit control indicators. RF strength is explicitly unmeasured; physical setup remains in the gear popup. Existing Pi contracts are unchanged. Production/live validation follows the PR pipeline.
+
+### Device-facing label cleanup (#100)
+
+Verify: all mode instruments use domain labels/current state, with no physical identifiers or target-position hints. Hardware mappings remain in opt-in gear setup and Help Fix. Epic and child issue acceptance plus repository guidance carry this requirement for future modes. Live validation follows the PR deployment pipeline.
