@@ -1,39 +1,24 @@
-import { DEVICE_ORDER, DEVICE_PROFILES } from "../data/deviceProfiles";
+import { useNavigate } from "react-router-dom";
+import { DEVICE_PROFILES } from "../data/deviceProfiles";
 import { DemoGearMenu } from "../components/DemoGearMenu";
+import { SystemMap } from "../components/SystemMap";
 import { useSignalR } from "../context/SignalRContext";
+import "../styles/system-map.css";
 
-/**
- * Demo/info screen, not a game device (andy_isgamedevice = No).
- * GAME_MODE_PLAN.md §0/§11.
- */
-export function KioskInfoPage() {
+export function KioskInfoPage({ activeSlug }: { activeSlug?: string | null }) {
   const { isConnected } = useSignalR();
-
-  return (
-    <div className="kiosk-screen">
-      <div className="kiosk-header">
-        <div>
-          <span className="sector-tag">HOW TO PLAY</span>
-          <h2>Restore &amp; Spin</h2>
-        </div>
+  const navigate = useNavigate();
+  const activeDevice = activeSlug ? DEVICE_PROFILES[activeSlug] : undefined;
+  return <main className="system-map-page">
+    <header className="map-page-header"><div><span className="map-eyebrow">RESTORE &amp; SPIN / DEMO</span><h1>System Map</h1></div>
+      <div className="map-page-actions"><span className="map-connection" role="status">Live feed: {isConnected ? "connected" : "disconnected"}</span>
+        {activeDevice && <button onClick={() => navigate(`/kiosk/${activeDevice.slug}`)}>Return to {activeDevice.label}</button>}
       </div>
-
-      <div className="panel-body" style={{ alignItems: "flex-start", gap: 14 }}>
-        <p style={{ margin: 0, fontSize: "0.85rem", lineHeight: 1.6, color: "var(--color-text)" }}>
-          Pick a device mode in the Power App to troubleshoot. Use the physical panel to flip
-          switches, connect socket cables, watch the status lamps, and use Help Fix if you get stuck. Restore
-          the device to working order to win a prize.
-        </p>
-        <ol style={{ margin: 0, paddingLeft: 18, fontSize: "0.8rem", lineHeight: 1.8, color: "var(--color-text-bright)" }}>
-          {DEVICE_ORDER.map((slug) => (
-            <li key={slug}>
-              Mode {DEVICE_PROFILES[slug].modeIndex}: {DEVICE_PROFILES[slug].label} ({DEVICE_PROFILES[slug].sector})
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      <DemoGearMenu currentSlug="info" azureConnected={isConnected} />
-    </div>
-  );
+    </header>
+    <p className="map-intro">From a switch on the box to a live instrument and a prize. Select a component to explore its role and connections.</p>
+    <SystemMap />
+    <footer className="map-legend"><span className="edge">Edge</span><span className="cloud">Azure / Cloud</span><span className="platform">Power Platform</span><span>Architecture view &middot; lines do not indicate live health</span></footer>
+    <details className="map-how"><summary>Demo / How to play</summary><ol><li>Staff choose a device in Game Box Control.</li><li>Use the physical switches and cables to restore it. Open the gear menu for required positions, or select Help Fix for guidance.</li><li>When Game Mode is on, scan the win QR on your phone to spin for a prize. With Game Mode off, the kiosk shows a success message.</li></ol></details>
+    <DemoGearMenu currentSlug="info" azureConnected={isConnected} />
+  </main>;
 }

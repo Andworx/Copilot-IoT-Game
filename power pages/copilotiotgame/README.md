@@ -12,7 +12,7 @@ this app adds Game Mode (win completion behaves differently depending on
 
 | Route | Renders | Notes |
 |---|---|---|
-| `/kiosk/info` | `KioskInfoPage` | Dial position 1 — demo/info, not a game device |
+| `/kiosk/info` | `KioskInfoPage` | Interactive System Map and How to Play; not a game device |
 | `/kiosk/:deviceSlug` | `KioskDevicePage` | One component, 12 data-driven instances (`src/data/deviceProfiles.ts`) |
 | `/play-spin` | `PlaySpinPage` | Placeholder, not built — the phone-facing spin flow lives in the standalone `power pages/prize wheel` app instead; the win QR links out there directly |
 
@@ -143,3 +143,25 @@ notes for the test browser setup. Production mode changes remain in Game Box Con
 the gear menu's display-only mode shortcuts are limited to local development.
 
 The gear menu exposes **Switch positions & cables** for the active mode. Its read-only setup dialog lists the required final switch positions and socket connections, even while telemetry is unavailable. Mode surfaces omit the bottom physical-panel rail; keep this convention for future mode redesigns.
+
+## System Map (#91)
+
+`/kiosk/info` shows the architecture across Edge, Azure / Cloud and Power Platform.
+Hover or focus a component to highlight its links; click, tap or press Enter for its
+role and interfaces. Narrow screens use a card grid; connection details remain available.
+The live-feed indicator reports only this browser SignalR connection. Diagram lines
+are architectural connections, not measurements of service health.
+
+Opening Info from the gear menu keeps the map open while staff change modes. Return
+follows the latest server-selected mode without issuing a mode write. A direct home/info
+load stays on the map during state snapshots; staff mode broadcasts still move a normal
+idle kiosk into a game. Device deep links retain server-mode synchronization.
+
+The node and connection definitions live in `src/data/systemMap.ts`. Reference icons
+are from `Andworx/copilot-iot-service`; their MIT notice is retained with the assets.
+No Power Automate runtime is depicted: this implementation uses Function APIs for
+win creation, claims and automatic rotation.
+
+For isolated previews open `/tests/system-map-preview.html` with Vite running.
+Run `node tests/check-system-map.mjs` against port 5183 for navigation, accessibility,
+responsive layout and touch coverage. Production builds exclude this fixture.

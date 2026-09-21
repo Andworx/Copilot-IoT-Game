@@ -1,0 +1,1 @@
+Icons sourced from [Andworx/copilot-iot-service](https://github.com/Andworx/copilot-iot-service/tree/main/power%20pages/iot-panel-dashboard/src/assets/icons) (MIT, copyright 2026 Andworx). See LICENSE.txt. Product marks identify their respective products.

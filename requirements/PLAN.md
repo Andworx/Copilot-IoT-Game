@@ -122,3 +122,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 ### Kiosk setup presentation follow-up (epic #73)
 
 Verify: replace the persistent physical-panel rail with the shared gear-menu switch/cable setup dialog for every mode. Required positions derive from the existing restore contract. Local browser validation passes; production validation awaits release. Demo / Info System Map redesign is tracked separately in #91.
+
+### Demo / Info System Map (#91)
+
+Verify: interactive three-layer architecture map, component details, keyboard/touch access, concise How to Play and read-only return to the latest active mode. Browser validation covers 800x480 and narrow layouts plus mode changes during exploration. Production release and live validation remain pending.

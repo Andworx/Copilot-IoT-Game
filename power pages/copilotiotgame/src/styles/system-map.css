@@ -1,0 +1,38 @@
+.system-map-page { min-height: 100dvh; padding: 18px 24px 26px; background: radial-gradient(#243724 1px, transparent 1px) 0 0 / 24px 24px, #080e09; color: #dce8dc; }
+.map-page-header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.map-eyebrow { color:#8baf95; font-size:10px; letter-spacing:.12em; }
+.map-page-header h1 { margin:4px 0 0; font-size:24px; }
+.map-page-actions { display:flex; align-items:flex-end; flex-direction:column; gap:8px; }
+.map-connection { color:#b7cebc; font-size:11px; }
+.system-map-page button, .map-details button { color:inherit; font:inherit; cursor:pointer; }
+.map-page-actions button, .map-details button { background:#182c22; border:1px solid #63856a; border-radius:5px; padding:8px 12px; font-size:12px; }
+.map-intro { color:#acc1af; font-size:12px; line-height:1.6; max-width:850px; margin:12px 0; }
+.system-map { height:clamp(260px, 54vh, 620px); position:relative; border:1px solid #31432f; border-radius:5px; background:#0e160fe8; }
+.map-band { position:absolute; left:1%; width:98%; height:33%; border-radius:3px; }
+.map-band > span { position:absolute; top:5px; left:9px; font-size:9px; letter-spacing:.09em; }
+.map-band.edge { top:1%; background:#12372085; color:#9adaad; }
+.map-band.cloud { top:29%; background:#46381670; color:#eed09a; }
+.map-band.platform { top:62%; background:#16344285; color:#a0c9ed; }
+.map-links { position:absolute; width:100%; height:100%; pointer-events:none; }
+.map-links path { fill:none; stroke:#76a97b; stroke-width:1.2; stroke-dasharray:5 4; opacity:.45; vector-effect:non-scaling-stroke; }
+.map-links path[data-active=true] { stroke:#b8ffcf; stroke-width:2.5; opacity:1; stroke-dasharray:none; }
+.map-node { position:absolute; transform:translate(-50%,-50%); width:17%; height:68px; border:1px solid #5d8963; border-radius:4px; background:#122017; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:4px; }
+.map-node:hover, .map-node:focus-visible { background:#243b2a; border-color:#c0ffd1; outline:2px solid #b9f6ce; outline-offset:3px; }
+.map-node img, .map-node svg { height:23px; width:28px; object-fit:contain; }
+.map-node svg { fill:#285134; stroke:#87c99b; stroke-width:2; }
+.map-node strong { font-size:clamp(10px,1vw,14px); font-weight:500; }
+.map-node span { color:#a3bba7; font-size:clamp(8px,.8vw,11px); }
+.map-legend { display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin:10px 0; font-size:10px; color:#b0c2b4; padding-right:30px; }
+.map-legend .edge { color:#8ddb9e; }.map-legend .cloud { color:#ebc784; }.map-legend .platform { color:#9ac8ed; }
+.map-legend > span:last-child { margin-left:auto; }
+.map-how { font-size:12px; color:#c0d1c3; padding:4px 45px 0 0; }
+.map-how summary { cursor:pointer; width:fit-content; padding:4px 0; }
+.map-how li { line-height:1.7; margin-bottom:4px; }
+.map-details { color:#dce8dc; background:#101e17; border:1px solid #709b7c; border-radius:10px; width:min(620px,calc(100vw - 28px)); max-height:calc(100dvh - 30px); overflow:auto; padding:22px; }
+.map-details::backdrop { background:#000b; }
+.map-details header { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.map-details header span { color:#a1c4ac; font-size:12px; }
+.map-details h2 { margin:6px 0; font-size:22px; }.map-details h3 { font-size:14px; }
+.map-details p, .map-details li { font-size:13px; line-height:1.65; }.map-details li { margin:10px 0; color:#b6cebe; }.map-details strong { color:#e1eee5; font-weight:500; }
+@media (max-width:600px) { .system-map-page { padding:16px 12px 65px; }.map-page-header { align-items:flex-start; flex-direction:column; }.map-page-actions { align-items:flex-start; }.system-map { display:grid; grid-template-columns:1fr 1fr; gap:10px; height:auto; padding:12px; }.map-band,.map-links { display:none; }.map-node { position:static; transform:none; width:100%; height:94px; }.map-node strong { font-size:12px; }.map-node span { font-size:10px; }.map-node.edge { border-color:#8ddb9e; }.map-node.cloud { border-color:#ebc784; }.map-node.platform { border-color:#9ac8ed; }.map-legend > span:last-child { margin-left:0; }.map-intro { font-size:13px; } }
+@media (prefers-reduced-motion:reduce) { .system-map-page *, .map-details * { animation:none !important; transition:none !important; } }
