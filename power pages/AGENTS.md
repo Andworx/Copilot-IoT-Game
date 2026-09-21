@@ -77,3 +77,12 @@ historical reference only — do not build against them:
 Unchanged from the platform-wide convention: configure table permissions in the **Power
 Pages admin center**, not via the Dataverse API or PAC CLI. Do not create, update, or
 delete table permission records programmatically.
+
+## Device-facing labels (#100)
+
+Normal instrument surfaces show domain names and current state only (Power, Auto-Lock,
+Fan, Encryption). Never display SW1-SW6, J1-J4, GPIO/pin identifiers, physical switch
+mappings or target positions on the device, including accessible labels/tooltips.
+Keep mappings and required actions inside the explicitly opened gear setup popup and
+Help Fix. Do not add the bottom physical-input rail. Preserve semantic telemetry keys
+and restore contracts internally. Apply this to dedicated surfaces and legacy adapters.

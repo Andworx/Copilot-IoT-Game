@@ -32,7 +32,7 @@ export function PairedColumnsPanel({ device, state, onToggle, disabled }: Layout
         {switches.map((sw) => (
           <div className="wp-col" key={sw.key}>
             <TactileButton className="wp-rocker" pressed={!!state[sw.key]} onToggle={() => onToggle(sw.key)} disabled={disabled} />
-            <label>{sw.physicalPin}: {sw.label}</label>
+            <label>{sw.label}</label>
           </div>
         ))}
       </div>

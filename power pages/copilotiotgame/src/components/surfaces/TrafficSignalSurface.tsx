@@ -63,13 +63,13 @@ export function TrafficSignalSurface({ state, connection, win }: PanelSurfacePro
     </section>
     <section className="traffic-controller" aria-label="Traffic controller status">
       <header><span>INTERSECTION CONTROLLER</span><strong>{operation === "unknown" ? "NO SIGNAL" : operation === "enabled" ? "CYCLE ENABLED" : "CYCLE BLOCKED"}</strong></header>
-      <dl><div><dt>SW1 / Power</dt><dd>{power === "unknown" ? "Unknown" : power.toUpperCase()}</dd></div>
-        <div><dt>SW2 / Controller</dt><dd>{enabled("controller")}</dd></div>
-        <div><dt>SW3 / Timing plan</dt><dd>{enabled("timing")}</dd></div>
-        <div><dt>SW4 / Manual override</dt><dd>{!known("manual") || power === "unknown" ? "Unknown" : power === "off" ? "Unpowered" : state.manual ? "Active" : "Clear"}</dd></div>
+      <dl><div><dt>Power</dt><dd>{power === "unknown" ? "Unknown" : power.toUpperCase()}</dd></div>
+        <div><dt>Controller</dt><dd>{enabled("controller")}</dd></div>
+        <div><dt>Timing plan</dt><dd>{enabled("timing")}</dd></div>
+        <div><dt>Manual override</dt><dd>{!known("manual") || power === "unknown" ? "Unknown" : power === "off" ? "Unpowered" : state.manual ? "Active" : "Clear"}</dd></div>
       </dl>
-      <div className="traffic-keys"><span>SW5 / Cabinet key <b>{!known("keyed_one") ? "Unknown" : state.keyed_one ? "ON" : "OFF"}</b></span><span>SW6 / Key 2 <b>{!known("keyed_two") ? "Unknown" : state.keyed_two ? "ON" : "OFF"}</b></span></div>
-      <div className="traffic-repair" data-restored={connection.isLive && win}>{!connection.isLive ? "Live panel connection needed" : win ? "RESTORED / all inputs verified" : "Check remaining keys & cables"}</div>
+      <div className="traffic-keys"><span>Cabinet key <b>{!known("keyed_one") ? "Unknown" : state.keyed_one ? "ON" : "OFF"}</b></span><span>Key 2 <b>{!known("keyed_two") ? "Unknown" : state.keyed_two ? "ON" : "OFF"}</b></span></div>
+      <div className="traffic-repair" data-restored={connection.isLive && win}>{!connection.isLive ? "Live panel connection needed" : win ? "RESTORED / all inputs verified" : "Restoration incomplete"}</div>
     </section>
   </div>;
 }

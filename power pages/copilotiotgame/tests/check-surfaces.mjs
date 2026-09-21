@@ -19,6 +19,8 @@ try {
       await page.goto(`${base}/tests/surface-preview.html?mode=${mode}&state=${state}`);
       await page.locator(".panel-surface").waitFor();
       assert.equal(await page.locator(".physical-input").count(), 0);
+      const deviceCopy = await page.locator(".panel-surface").evaluate(el => [el.textContent, ...[...el.querySelectorAll("[aria-label], [title], [alt]")].flatMap(n => [n.getAttribute("aria-label"), n.getAttribute("title"), n.getAttribute("alt")])].join(" "));
+      assert.doesNotMatch(deviceCopy, /\b(?:SW[1-6]|J[1-4])\b/i, `${mode}/${state}: physical identifiers leaked onto device`);
       assert.equal(await page.locator(".panel-surface button:not(:disabled)").count(), 0, `${mode}: mutable surface`);
       const outside = await page.locator(".physical-input, .surface-connection, .surface-status-strip, .surface-instrument, .help-fix-btn").evaluateAll(elements => elements.filter(el => {
         const r = el.getBoundingClientRect();

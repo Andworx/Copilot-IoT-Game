@@ -198,3 +198,13 @@ All ten restore requirements and the shared gear setup popup are unchanged.
 channel/encryption/transmit inputs, power, invalid input, read-only interaction,
 both completion paths, duplicate protection, rotation/old-mode isolation, stale data,
 RF labeling, reduced motion, Help Fix and narrow layout. Live validation remains Verify.
+
+## Device labels and discovery (#100)
+
+All normal device surfaces show domain labels and current status, without SW/J or GPIO
+identifiers, switch mappings, target positions or action instructions. This applies to
+visible text, accessible names and tooltips. Players open the gear setup popup or Help
+Fix to reveal physical mappings and the required actions. The previous physical-mapping
+acceptance is satisfied there, not on the device instrument. Internal semantic keys and
+physical restore contracts remain unchanged. The 60-fixture browser suite checks for
+identifier leakage and verifies all ten mappings remain in the setup dialog.
