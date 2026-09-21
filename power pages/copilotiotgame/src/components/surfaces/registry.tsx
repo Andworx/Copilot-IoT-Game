@@ -1,3 +1,4 @@
+import { TrafficSignalSurface } from "./TrafficSignalSurface";
 import { RetailKioskSurface } from "./RetailKioskSurface";
 import { SmartLockSurface } from "./SmartLockSurface";
 import { ThermostatSurface } from "./ThermostatSurface";
@@ -30,7 +31,7 @@ export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "field-radio": legacy(RadioClusterPanel),
   "ev-charge-pedestal": legacy(PairedColumnsPanel),
   "elevator-service": legacy(KeypadPanel),
-  "traffic-cabinet": legacy(DipStripPanel),
+  "traffic-cabinet": TrafficSignalSurface,
   "patient-monitor": legacy(DialArcPanel),
   "payment-terminal": RetailKioskSurface,
   "drone-ground-station": legacy(RadioClusterPanel),
