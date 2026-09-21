@@ -62,3 +62,10 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Removed SW prefixes from Thermostat, Smart Lock, Field Radio, Traffic Signal and Retail surfaces, plus physicalPin from the shared paired-column adapter. Replaced inline repair-action hints with neutral status text.
 - Created #100 and linked it to epic #73. Updated #73, #70, #75-#88 bodies with the shared rule; added repository guidance and a 60-fixture visible/accessibility label regression check. Gear setup and Help Fix remain explicit opt-in mapping views.
 - All 60 mode/state label/layout checks and updated Smart Lock/Traffic gameplay suites pass. Node 22 clean builds pass for all three apps; all 12,288 Pi/UI configurations agree. Screenshot reviewed. Production validation remains Verify.
+
+
+## Issue #87: Drone Ground Control
+- User requested a drone taking off on win. Added a clearly labeled simulation in both completion overlays, with a static airborne reduced-motion alternative.
+- Dedicated ground station binds GPS, telemetry, uplink and power independently without measured flight data or physical identifiers. Shared setup/help and final configuration remain unchanged.
+- Browser checks caught shared-theme cascade overriding the completion grid; strengthened scoped selectors to keep QR, animation and countdown visible at 800x480.
+- Validation passed: all 60 surface fixtures, dedicated drone and shared kiosk win flows, visual review at 800x480 and narrow widths, and Node 22 clean installs/builds for all three apps. All 12,288 Pi/UI configurations agree. Issue #87 updated with takeoff acceptance criteria. Live validation remains Verify.

@@ -146,3 +146,9 @@ Verify: dedicated rugged transceiver with independent channel-hop, encryption an
 ### Device-facing label cleanup (#100)
 
 Verify: all mode instruments use domain labels/current state, with no physical identifiers or target-position hints. Hardware mappings remain in opt-in gear setup and Help Fix. Epic and child issue acceptance plus repository guidance carry this requirement for future modes. Live validation follows the PR deployment pipeline.
+
+
+### Drone Ground Control instrument (#87) - Verify
+- Dedicated navigation scope and independent GPS, telemetry and uplink status with domain-only labels.
+- Simulated takeoff on Game Mode ON/OFF completion; reduced-motion static airborne state, existing QR and reset preserved.
+- No device contract or Pi firmware changes. Production/Pi display verification remains pending normal PR deployment.

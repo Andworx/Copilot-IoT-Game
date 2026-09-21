@@ -27,7 +27,7 @@ switches. Stale status is explicit and activity animations pause; reduced motion
 instrument animation.
 
 The twelve surfaces are migration destinations, not a claim that all twelve dedicated
-UIs have shipped. The thermostat, Smart Lock, Retail Payment Kiosk, Traffic Signal Controller and Field Radio have dedicated surfaces; the other seven retain adapters.
+UIs have shipped. The thermostat, Smart Lock, Retail Payment Kiosk, Traffic Signal Controller, Field Radio and Drone Ground Control have dedicated surfaces; the other six retain adapters.
 
 
 The current kiosk implementation uses five reusable panel layouts with per-device skinning. That made the first build efficient, but the modes now read too similarly. The next iteration should keep the shared kiosk shell and telemetry contracts, while replacing the five shared layouts with twelve mode-specific instrument surfaces.
@@ -208,3 +208,21 @@ Fix to reveal physical mappings and the required actions. The previous physical-
 acceptance is satisfied there, not on the device instrument. Internal semantic keys and
 physical restore contracts remain unchanged. The 60-fixture browser suite checks for
 identifier leakage and verifies all ten mappings remain in the setup dialog.
+
+## Drone Ground Control (#87)
+
+A navigation scope with a satellite acquisition schematic and independent telemetry
+and uplink columns replaces the radio-cluster adapter. Semantic power, GPS, telemetry,
+uplink and key states are read-only; no measured coordinates, altitude or satellite
+count is invented. Stale/missing values show Unknown and power loss shows Unpowered.
+The ten-input restore contract and opt-in gear setup / Help Fix remain unchanged.
+
+After the full win, a labeled simulated drone lifts off a landing pad in both completion
+overlays. It plays once per completion without changing the prize QR, create-win or
+rotation behavior. Reduced motion shows a static airborne drone. This is a frontend
+illustration only; no flight command or Pi firmware change is involved.
+
+`node "power pages/copilotiotgame/tests/check-drone-ground.mjs"` checks independent
+inputs, invalid/stale data, read-only interaction, both win paths, takeoff, duplicate
+telemetry, reduced motion, mode reset, Help Fix and narrow layout. Live validation
+remains Verify.
