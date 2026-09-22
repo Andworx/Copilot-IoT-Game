@@ -99,7 +99,7 @@
       "physicalPin": "J2",
       "key": "socket_j2",
       "label": "Socket J2 connected",
-      "target": false
+      "target": true
     },
     {
       "physicalPin": "SW6",
@@ -117,7 +117,7 @@
       "physicalPin": "J4",
       "key": "socket_j4",
       "label": "Socket J4 connected",
-      "target": false
+      "target": true
     }
   ],
   "lamps": [
@@ -146,7 +146,7 @@
       "when": "win"
     }
   ],
-  "win": "socket_j1 and not manual and power and socket_j3 and keyed_one and controller and not socket_j2 and not keyed_two and timing and not socket_j4",
+  "win": "socket_j1 and not manual and power and socket_j3 and keyed_one and controller and socket_j2 and not keyed_two and timing and socket_j4",
   "faultStartingState": {
     "socket_j1": false,
     "manual": true,
@@ -154,10 +154,26 @@
     "socket_j3": false,
     "keyed_one": false,
     "controller": false,
-    "socket_j2": true,
+    "socket_j2": false,
     "keyed_two": true,
     "timing": false,
-    "socket_j4": true
+    "socket_j4": false
   },
-  "winMessage": "Traffic signal restored to normal cycle."
+  "winMessage": "Traffic signal restored to normal cycle.",
+  "requiredCables": [
+    {
+      "cable": 1,
+      "sockets": [
+        "J1",
+        "J3"
+      ]
+    },
+    {
+      "cable": 2,
+      "sockets": [
+        "J4",
+        "J2"
+      ]
+    }
+  ]
 }

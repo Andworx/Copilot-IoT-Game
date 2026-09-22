@@ -32,10 +32,10 @@
         <mxCell id="gnd" value="&lt;b&gt;COMMON GROUND RAIL&lt;/b&gt;&lt;br&gt;Tie together: Pi GND, switch returns, and LED cathodes." style="rounded=1;shadow=1;strokeColor=#333333;fillColor=#E8E8F0;strokeWidth=2;fontSize=11;fontFamily=Helvetica;align=center;verticalAlign=middle;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="800" y="470" width="520" height="75" as="geometry" />
         </mxCell>
-        <mxCell id="demo-cables" value="&lt;b&gt;CONFIRMED CABLE BUILD SET&lt;/b&gt;&lt;br&gt;Existing C1 + 4 spare quad / 2 spare dual connectors.&lt;br&gt;C1: quad 3-dual 1; quad 4-dual 2 (built).&lt;br&gt;C2: quad 3-dual 1; quad 2-dual 2.&lt;br&gt;C3: quad A2-B3; quad A3-B2.&lt;br&gt;C4: quad 1-dual 1; quad 2-dual 2.&lt;br&gt;&lt;b&gt;See Cable Build Plan page for wire diagrams.&lt;/b&gt;&lt;br&gt;New IDs require firmware integration before gameplay." style="rounded=1;shadow=1;strokeColor=#333333;fillColor=#D5E8D4;strokeWidth=2;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=top;spacing=10;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="demo-cables" value="&lt;b&gt;FOUR CABLES TOTAL (CABLE 1 ALREADY BUILT)&lt;/b&gt;&lt;br&gt;Cable 1 - Side A Quad Pin 3 - Side B Dual Pin 1&lt;br&gt;Cable 1 - Side A Quad Pin 4 - Side B Dual Pin 2&lt;br&gt;Cable 2 - Side A Quad Pin 3 - Side B Dual Pin 1&lt;br&gt;Cable 2 - Side A Quad Pin 2 - Side B Dual Pin 2&lt;br&gt;Cable 3 - Side A Quad Pin 2 - Side B Quad Pin 3&lt;br&gt;Cable 3 - Side A Quad Pin 3 - Side B Quad Pin 2&lt;br&gt;Cable 4 - Side A Quad Pin 1 - Side B Dual Pin 1&lt;br&gt;Cable 4 - Side A Quad Pin 2 - Side B Dual Pin 2" style="rounded=1;shadow=1;strokeColor=#333333;fillColor=#D5E8D4;strokeWidth=2;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=top;spacing=10;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="800" y="275" width="520" height="190" as="geometry" />
         </mxCell>
-        <mxCell id="notes" value="&lt;b&gt;BUILD NOTES&lt;/b&gt;&lt;br&gt;J4 confirmed wired: contact 3 to GPIO3; contact 2 to GPIO7.&lt;br&gt;J4 contacts 1/4 are unwired. No socket contact goes to GND.&lt;br&gt;Only like connector types mate; no adapters assumed.&lt;br&gt;Use molded pin numbers; solder-side and mating views differ.&lt;br&gt;Firmware still uses old mapping/catalogue; integration pending.&lt;br&gt;Continuity and live decoder checks required after building." style="rounded=1;shadow=1;strokeColor=#333333;fillColor=#FFFFFF;strokeWidth=2;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=top;spacing=10;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="notes" value="&lt;b&gt;BUILD NOTES&lt;/b&gt;&lt;br&gt;J4 confirmed wired: contact 3 to GPIO3; contact 2 to GPIO7.&lt;br&gt;J4 contacts 1/4 are unwired. No socket contact goes to GND.&lt;br&gt;Only like connector types mate; no adapters assumed.&lt;br&gt;Use molded pin numbers; solder-side and mating views differ.&lt;br&gt;Four-cable firmware and page integration prepared; coordinated rollout pending.&lt;br&gt;Continuity and live decoder checks required after building." style="rounded=1;shadow=1;strokeColor=#333333;fillColor=#FFFFFF;strokeWidth=2;fontSize=11;fontFamily=Helvetica;align=left;verticalAlign=top;spacing=10;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="800" y="570" width="520" height="150" as="geometry" />
         </mxCell>
         <mxCell id="e-pi-sw" value="GPIO signal wires" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#333333;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontFamily=Helvetica;" edge="1" parent="1" source="pi" target="switches">
@@ -92,23 +92,11 @@
         <mxCell id="b0" value="End B: DUAL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="425" y="183" width="230" height="40" />
         </mxCell>
-        <mxCell id="c0a0" value="Contact 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="65" y="240" width="180" height="42" />
+        <mxCell id="wire00" value="Cable 1 - Side A Quad Pin 3 - Side B Dual Pin 1" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=16;align=left;spacing=12;" edge="0" parent="1" vertex="1">
+          <mxGeometry x="65" y="240" width="590" height="48" as="geometry" />
         </mxCell>
-        <mxCell id="c0b0" value="Contact 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="475" y="240" width="180" height="42" />
-        </mxCell>
-        <mxCell id="wire00" value="wire 1" style="endArrow=none;startArrow=none;strokeWidth=3;strokeColor=#2563EB;fontSize=15;" edge="1" parent="1" source="c0a0" target="c0b0">
-          <mxGeometry as="geometry" relative="1" />
-        </mxCell>
-        <mxCell id="c0a1" value="Contact 4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="65" y="300" width="180" height="42" />
-        </mxCell>
-        <mxCell id="c0b1" value="Contact 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="475" y="300" width="180" height="42" />
-        </mxCell>
-        <mxCell id="wire01" value="wire 2" style="endArrow=none;startArrow=none;strokeWidth=3;strokeColor=#2563EB;fontSize=15;" edge="1" parent="1" source="c0a1" target="c0b1">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="wire01" value="Cable 1 - Side A Quad Pin 4 - Side B Dual Pin 2" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=16;align=left;spacing=12;" edge="0" parent="1" vertex="1">
+          <mxGeometry x="65" y="300" width="590" height="48" as="geometry" />
         </mxCell>
         <mxCell id="valid0" value="Quad: J1 only | Dual: J2 or J3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#334155;fontSize=17;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="50" y="370" width="620" height="40" />
@@ -125,23 +113,11 @@
         <mxCell id="b1" value="End B: DUAL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="1105" y="183" width="230" height="40" />
         </mxCell>
-        <mxCell id="c1a0" value="Contact 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="745" y="240" width="180" height="42" />
+        <mxCell id="wire10" value="Cable 2 - Side A Quad Pin 3 - Side B Dual Pin 1" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=16;align=left;spacing=12;" edge="0" parent="1" vertex="1">
+          <mxGeometry x="745" y="240" width="590" height="48" as="geometry" />
         </mxCell>
-        <mxCell id="c1b0" value="Contact 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="1155" y="240" width="180" height="42" />
-        </mxCell>
-        <mxCell id="wire10" value="wire 1" style="endArrow=none;startArrow=none;strokeWidth=3;strokeColor=#2563EB;fontSize=15;" edge="1" parent="1" source="c1a0" target="c1b0">
-          <mxGeometry as="geometry" relative="1" />
-        </mxCell>
-        <mxCell id="c1a1" value="Contact 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="745" y="300" width="180" height="42" />
-        </mxCell>
-        <mxCell id="c1b1" value="Contact 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="1155" y="300" width="180" height="42" />
-        </mxCell>
-        <mxCell id="wire11" value="wire 2" style="endArrow=none;startArrow=none;strokeWidth=3;strokeColor=#2563EB;fontSize=15;" edge="1" parent="1" source="c1a1" target="c1b1">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="wire11" value="Cable 2 - Side A Quad Pin 2 - Side B Dual Pin 2" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=16;align=left;spacing=12;" edge="0" parent="1" vertex="1">
+          <mxGeometry x="745" y="300" width="590" height="48" as="geometry" />
         </mxCell>
         <mxCell id="valid1" value="Quad: J1 or J4 | Dual: J2 or J3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#334155;fontSize=17;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="730" y="370" width="620" height="40" />
@@ -158,23 +134,11 @@
         <mxCell id="b2" value="End B: QUAD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="425" y="508" width="230" height="40" />
         </mxCell>
-        <mxCell id="c2a0" value="Contact 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="65" y="565" width="180" height="42" />
+        <mxCell id="wire20" value="Cable 3 - Side A Quad Pin 2 - Side B Quad Pin 3" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=16;align=left;spacing=12;" edge="0" parent="1" vertex="1">
+          <mxGeometry x="65" y="565" width="590" height="48" as="geometry" />
         </mxCell>
-        <mxCell id="c2b0" value="Contact 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="475" y="565" width="180" height="42" />
-        </mxCell>
-        <mxCell id="wire20" value="wire 1" style="endArrow=none;startArrow=none;strokeWidth=3;strokeColor=#2563EB;fontSize=15;" edge="1" parent="1" source="c2a0" target="c2b0">
-          <mxGeometry as="geometry" relative="1" />
-        </mxCell>
-        <mxCell id="c2a1" value="Contact 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="65" y="625" width="180" height="42" />
-        </mxCell>
-        <mxCell id="c2b1" value="Contact 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="475" y="625" width="180" height="42" />
-        </mxCell>
-        <mxCell id="wire21" value="wire 2" style="endArrow=none;startArrow=none;strokeWidth=3;strokeColor=#2563EB;fontSize=15;" edge="1" parent="1" source="c2a1" target="c2b1">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="wire21" value="Cable 3 - Side A Quad Pin 3 - Side B Quad Pin 2" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=16;align=left;spacing=12;" edge="0" parent="1" vertex="1">
+          <mxGeometry x="65" y="625" width="590" height="48" as="geometry" />
         </mxCell>
         <mxCell id="valid2" value="J1 to J4 | Either direction (2/3 crossover)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#334155;fontSize=17;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="50" y="695" width="620" height="40" />
@@ -191,28 +155,16 @@
         <mxCell id="b3" value="End B: DUAL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="1105" y="508" width="230" height="40" />
         </mxCell>
-        <mxCell id="c3a0" value="Contact 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="745" y="565" width="180" height="42" />
+        <mxCell id="wire30" value="Cable 4 - Side A Quad Pin 1 - Side B Dual Pin 1" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=16;align=left;spacing=12;" edge="0" parent="1" vertex="1">
+          <mxGeometry x="745" y="565" width="590" height="48" as="geometry" />
         </mxCell>
-        <mxCell id="c3b0" value="Contact 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="1155" y="565" width="180" height="42" />
-        </mxCell>
-        <mxCell id="wire30" value="wire 1" style="endArrow=none;startArrow=none;strokeWidth=3;strokeColor=#2563EB;fontSize=15;" edge="1" parent="1" source="c3a0" target="c3b0">
-          <mxGeometry as="geometry" relative="1" />
-        </mxCell>
-        <mxCell id="c3a1" value="Contact 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="745" y="625" width="180" height="42" />
-        </mxCell>
-        <mxCell id="c3b1" value="Contact 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#334155;fontSize=18;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="1155" y="625" width="180" height="42" />
-        </mxCell>
-        <mxCell id="wire31" value="wire 2" style="endArrow=none;startArrow=none;strokeWidth=3;strokeColor=#2563EB;fontSize=15;" edge="1" parent="1" source="c3a1" target="c3b1">
-          <mxGeometry as="geometry" relative="1" />
+        <mxCell id="wire31" value="Cable 4 - Side A Quad Pin 2 - Side B Dual Pin 2" style="whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;fontSize=16;align=left;spacing=12;" edge="0" parent="1" vertex="1">
+          <mxGeometry x="745" y="625" width="590" height="48" as="geometry" />
         </mxCell>
         <mxCell id="valid3" value="Quad: J1 only | Dual: J2 or J3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#334155;fontSize=17;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="730" y="695" width="620" height="40" />
         </mxCell>
-        <mxCell id="footer" value="&lt;b&gt;Build checks:&lt;/b&gt; Use molded contact numbers, not left/right positions. Two separate wires per cable; no cross-short or ground.&lt;br&gt;&lt;b&gt;J4:&lt;/b&gt; contact 3 = GPIO3, contact 2 = GPIO7; contacts 1/4 unwired. C1/C4 in J4 are incomplete, not valid.&lt;br&gt;&lt;b&gt;Rollout:&lt;/b&gt; New C2/C3 IDs replace old catalogue meanings. Decoder + game integration required. See CABLE-BUILD-PLAN.md." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#334155;fontSize=19;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
+        <mxCell id="footer" value="&lt;b&gt;Build checks:&lt;/b&gt; Use molded contact numbers, not left/right positions. Two separate wires per cable; no cross-short or ground.&lt;br&gt;&lt;b&gt;J4:&lt;/b&gt; contact 3 = GPIO3, contact 2 = GPIO7; contacts 1/4 unwired. C1/C4 in J4 are incomplete, not valid.&lt;br&gt;&lt;b&gt;Rollout:&lt;/b&gt; New C2/C3 IDs replace old catalogue meanings. Deploy reviewed firmware and page together. See CABLE-BUILD-PLAN.md." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#334155;fontSize=19;fontFamily=Helvetica;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="40" y="800" width="1320" height="150" />
         </mxCell>
       </root>

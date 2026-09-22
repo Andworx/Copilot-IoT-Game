@@ -4,11 +4,12 @@ import ts from "typescript";
 
 const source = readFileSync(new URL("../src/data/deviceProfiles.ts", import.meta.url), "utf8");
 const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } });
-const { DEVICE_PROFILES, DEVICE_ORDER } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`);
+const { DEVICE_PROFILES, DEVICE_ORDER, CABLE_RECIPES, cablesMatch } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`);
 assert.equal(DEVICE_ORDER.length, 12);
 for (const slug of DEVICE_ORDER) {
   const device = DEVICE_PROFILES[slug];
   const map = JSON.parse(readFileSync(new URL(`../../../hardware/raspberry-pi/logic_maps/${slug}.json`, import.meta.url), "utf8"));
+  assert.deepEqual(device.requiredCables, map.requiredCables);
   assert.deepEqual(device.restoreSequence, map.restoreSequence, `${slug}: restore contract drift`);
   assert.deepEqual(device.fault, map.faultStartingState, `${slug}: initial state drift`);
   assert.deepEqual([...device.restoreSequence.map(c => c.physicalPin)].sort(), ["J1", "J2", "J3", "J4", "SW1", "SW2", "SW3", "SW4", "SW5", "SW6"]);
@@ -40,7 +41,7 @@ for (const slug of DEVICE_ORDER) {
       assert.ok(Object.hasOwn(target, key), `${slug}: lamp/win reads unknown control ${String(key)}`);
       return target[key];
     } });
-    const win = device.checkWin(guarded);
+    const win = device.checkWin(guarded, map.requiredCables);
     assert.equal(win, piWin(...keys.map(key => state[key])), `${slug}: win differs from Pi at ${mask}`);
     const lamps = device.computeLamps(guarded, win);
     assert.deepEqual(Object.keys(lamps).sort(), device.lamps.map(l => l.key).sort());
@@ -49,7 +50,22 @@ for (const slug of DEVICE_ORDER) {
   }
   const target = Object.fromEntries(device.restoreSequence.map(c => [c.key, c.target]));
   for (const step of device.restoreSequence) {
-    assert.equal(device.checkWin({ ...target, [step.key]: !step.target }), false, `${slug}: ${step.physicalPin} does not participate in restoration`);
+    assert.equal(device.checkWin({ ...target, [step.key]: !step.target }, map.requiredCables), false, `${slug}: ${step.physicalPin} does not participate in restoration`);
   }
 }
 console.log("12 mode contracts verified; all 12,288 physical configurations agree with the Pi.");
+
+for (const slug of DEVICE_ORDER) {
+  const device = DEVICE_PROFILES[slug];
+  const target = Object.fromEntries(device.restoreSequence.map(c => [c.key, c.target]));
+  assert.equal(device.checkWin(target), false, `${slug}: no cable telemetry`);
+  for (const other of DEVICE_ORDER) {
+    assert.equal(device.checkWin(target, CABLE_RECIPES[other]), slug === other, `${slug}: accepts ${other} cables`);
+  }
+  const reversed = device.requiredCables.map(c => ({ cable: c.cable, sockets: [...c.sockets].reverse() })).reverse();
+  assert.equal(device.checkWin(target, reversed), true);
+  assert.equal(device.checkWin(target, device.requiredCables.map(c => ({ ...c, cable: null }))), false);
+  assert.equal(device.checkWin(target, [...device.requiredCables, device.requiredCables[0]]), false);
+}
+assert.equal(cablesMatch(CABLE_RECIPES.thermostat, [{ cable: 1, sockets: ["J1", "J1"] }]), false);
+console.log("Exact cable recipes verified across all 144 mode pairs, missing/unknown/extra cables, and reversed ends.");

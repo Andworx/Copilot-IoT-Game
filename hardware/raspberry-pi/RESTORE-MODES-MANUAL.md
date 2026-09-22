@@ -35,22 +35,15 @@ Use this guide to restore each playable mode on the physical Pi panel. The Power
 
 ## Demo cable build reference
 
-Use this list when preparing the demo cables. Every cable has a 2-pin plug on Side A and a 4-pin quad plug on Side B, and every cable has a different wiring pattern, so the panel can tell them apart. Label both ends (for example `C7-A` and `C7-B`). `A1 to B3` means Side A pin 1 to Side B pin 3.
+Four cables total, including the already-built Cable 1. Cable numbers and socket
+pairs must both match the selected mode. Unknown or extra cables prevent a win.
 
 | Cable | Pinout | Where it plugs |
 |---|---|---|
-| Cable 1 | A1 to B3; A2 to B4 | B in J1; A in J2, J3 or J4 |
-| Cable 2 | A1 to B3; A2 to B1 | B in J1; A in J2, J3 or J4 |
-| Cable 3 | A1 to B3; A2 to B2 | B in J1; A in J2, J3 or J4 |
-| Cable 4 | A1 to B1; A2 to B2 | Any two sockets |
-| Cable 5 | A1 to B1; A2 to B4 | B in J1; A in J2, J3 or J4 |
-| Cable 6 | A1 to B2; A2 to B4 | B in J1; A in J2, J3 or J4 |
-| Cable 7 | A1 to B4; A2 to B3 | B in J1; A in J2, J3 or J4 |
-| Cable 8 | A1 to B1; A2 to B3 | B in J1; A in J2, J3 or J4 |
-| Cable 9 | A1 to B2; A2 to B3 | B in J1; A in J2, J3 or J4 |
-| Cable 10 | A1 to B2; A2 to B1 | Any two sockets |
-| Cable 11 | A1 to B4; A2 to B1 | B in J1; A in J2, J3 or J4 |
-| Cable 12 | A1 to B4; A2 to B2 | B in J1; A in J2, J3 or J4 |
+| Cable 1 | Side A Quad Pin 3 - Side B Dual Pin 1<br>Side A Quad Pin 4 - Side B Dual Pin 2 | A in J1; B in J2/J3 |
+| Cable 2 | Side A Quad Pin 3 - Side B Dual Pin 1<br>Side A Quad Pin 2 - Side B Dual Pin 2 | A in J1/J4; B in J2/J3 |
+| Cable 3 | Side A Quad Pin 2 - Side B Quad Pin 3<br>Side A Quad Pin 3 - Side B Quad Pin 2 | J1 to J4, either direction |
+| Cable 4 | Side A Quad Pin 1 - Side B Dual Pin 1<br>Side A Quad Pin 2 - Side B Dual Pin 2 | A in J1; B in J2/J3 |
 
 ## Before each run
 
@@ -70,9 +63,8 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect a cable to J1 and J2
-8. Disconnect J3
-9. Disconnect J4
+7. Connect Cable 1 to J1 and J2
+8. Remove all other cables
 
 **Success check:** Smart Thermostat restored.
 
@@ -86,9 +78,8 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 on
-7. Connect a cable to J3 and J4
-8. Disconnect J1
-9. Disconnect J2
+7. Connect Cable 2 to J1 and J3
+8. Remove all other cables
 
 **Success check:** Smart Lock & Security Panel restored.
 
@@ -102,9 +93,8 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 off
-7. Connect a cable to J1 and J2
-8. Disconnect J3
-9. Disconnect J4
+7. Connect Cable 1 to J1 and J3
+8. Remove all other cables
 
 **Success check:** Cold-Chain Warehouse Sensor restored.
 
@@ -118,9 +108,9 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect a cable to J2 and J4
-8. Disconnect J1
-9. Disconnect J3
+7. Connect Cable 4 to J1 and J2
+8. Connect Cable 2 to J4 and J3
+9. Remove all other cables
 
 **Success check:** Water Pump Station Controller restored.
 
@@ -134,9 +124,8 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect a cable to J2 and J3
-8. Disconnect J1
-9. Disconnect J4
+7. Connect Cable 2 to J4 and J2
+8. Remove all other cables
 
 **Success check:** Tactical Field Radio restored.
 
@@ -150,9 +139,9 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect a cable to J1 and J4
-8. Disconnect J2
-9. Disconnect J3
+7. Connect Cable 1 to J1 and J2
+8. Connect Cable 2 to J4 and J3
+9. Remove all other cables
 
 **Success check:** Smart EV Charger restored.
 
@@ -166,9 +155,8 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect a cable to J1 and J2
-8. Disconnect J3
-9. Disconnect J4
+7. Connect Cable 4 to J1 and J2
+8. Remove all other cables
 
 **Success check:** Elevator Control Panel restored.
 
@@ -182,9 +170,9 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect a cable to J1 and J3
-8. Disconnect J2
-9. Disconnect J4
+7. Connect Cable 1 to J1 and J3
+8. Connect Cable 2 to J4 and J2
+9. Remove all other cables
 
 **Success check:** Traffic Signal Controller restored.
 
@@ -198,9 +186,8 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect a cable to J1 and J2
-8. Disconnect J3
-9. Disconnect J4
+7. Connect Cable 4 to J1 and J3
+8. Remove all other cables
 
 **Success check:** Hospital Patient Monitor restored.
 
@@ -214,9 +201,8 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect a cable to J3 and J4
-8. Disconnect J1
-9. Disconnect J2
+7. Connect Cable 2 to J1 and J2
+8. Remove all other cables
 
 **Success check:** Retail Payment Kiosk restored.
 
@@ -230,9 +216,8 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect a cable to J1 and J4
-8. Disconnect J2
-9. Disconnect J3
+7. Connect Cable 3 to J1 and J4
+8. Remove all other cables
 
 **Success check:** Drone Ground Control restored.
 
@@ -246,8 +231,7 @@ Use this list when preparing the demo cables. Every cable has a 2-pin plug on Si
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 on
-7. Connect a cable to J2 and J3
-8. Disconnect J1
-9. Disconnect J4
+7. Connect Cable 2 to J4 and J3
+8. Remove all other cables
 
 **Success check:** Industrial Robot Arm restored.

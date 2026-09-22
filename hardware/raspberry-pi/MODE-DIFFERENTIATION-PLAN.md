@@ -8,14 +8,14 @@ The hardware LED test passed on 2026-09-22. All twelve playable JSON maps use
 the same lamp rules. The kiosk computes its own domain lamp colors and does
 not currently render the Pi's physical lamp pattern intent.
 
-All twelve complete physical targets are distinct today. However SW1 is ON in
+Before cable integration, all twelve complete physical targets were distinct. However SW1 is ON in
 every mode, and some six-switch targets repeat. Changing a procedure's order
 alone does not make a new puzzle: firmware evaluates the current state, not
-whether the participant followed a particular sequence. Cable identity is
-reported but is not part of the win predicate; an unknown/partially readable
-cable can satisfy socket-presence rules. These are explicit redesign targets.
+whether the participant followed a particular sequence. Cable integration now requires an exact recipe; unknown or partially readable
+cables no longer satisfy the win condition.
 
-`1` means ON; `0` means OFF. Switch columns are SW1 through SW6 in order.
+`1` means ON; `0` means OFF. Switch columns are SW1 through SW6 in order. The table below records the
+pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
 
 | Mode | Switch target | Connected sockets |
 |---|---|---|
@@ -43,16 +43,15 @@ cable can satisfy socket-presence rules. These are explicit redesign targets.
 - Unit tests cover condition evaluation, invalid patterns, repeated scans,
   restored overrides, reset, and the existing cable decoder.
 - The new lamp engine is deliberately not wired into the running controller
-  yet. Existing hardware behavior and telemetry remain unchanged in this draft.
+  yet. Cable integration is implemented separately; LED behavior remains unchanged.
 
 ## Remaining implementation and verification
 
 1. Inventory and J4 wiring confirmed by owner. Four-cable design and twelve
    distinct recipes are in [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md); automated
    design tests pass. New cables still need building and live continuity checks.
-2. Integrate `cable-build-plan.json` into the decoder and update J4's firmware
-   mapping together. Retire historical IDs, reject partial/unknown cables, and
-   implement exact recipe matching in Pi and kiosk together.
+2. Implemented: four-cable decoder, J4 mapping, exact Pi/kiosk recipes, explicit
+   setup/help, schema gate and updated manuals. Verify after coordinated rollout.
 3. Author a distinct per-mode LED story with semantic labels and conditions.
    Keep a common all-four-solid restored cue; use a short nonblocking chase
    on mode change. Do not delay GPIO scanning or telemetry for the animation.

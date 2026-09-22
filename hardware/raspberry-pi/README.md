@@ -63,7 +63,7 @@ App-selected mode rather than to any physical selector.
 | 2 | Quad (4-pin) panel-mount jacks/receptacles | J1: contacts 1-4; J4: contacts 3 and 2 only |
 | 2 | Double (2-pin) panel-mount jacks/receptacles | J2, J3: contacts 1-2 wired |
 | 4 quad + 2 dual | Available cable connectors recorded in #112 | Inventory inclusion of the built Cable 1 awaits confirmation |
-| 1 | Confirmed built cable: quad to dual | Quad 3 ? dual 1; quad 4 ? dual 2 |
+| 1 | Confirmed built cable: quad to dual | Quad 3 to dual 1; quad 4 to dual 2 |
 | — | Hookup wire, breadboard/perfboard, pull-up not needed (internal pull-ups used throughout) | |
 
 ## GPIO pinout (BCM numbering)
@@ -164,9 +164,8 @@ Bridges are grouped by socket pair and matched against the cable build list.
 Two cables at once decode independently.
 
 **What the controller reports:** `J1`-`J4` are true when a cable with at least
-one visible wire is plugged into that socket, which is what the restore
-sequences use. The telemetry payload also carries
-`cables: [{"cable": 4, "sockets": ["J2", "J3"]}]`. `cable` is `null` for
+one visible wire is plugged into that socket, used for presence indicators. Winning also requires the exact cable recipe. The telemetry payload also carries
+`cables: [{"cable": 1, "sockets": ["J1", "J2"]}]`. `cable` is `null` for
 something the build list does not recognise, such as a cable with a broken wire.
 A plug that lands only on unwired contacts (for example a side B plug using pin
 3 in J2) reads as unplugged.
@@ -182,11 +181,16 @@ placements, twelve proposed mode use cases, and continuity checks. The wiring
 diagram now includes a **Cable Build Plan** page with each wire drawn.
 `cable-build-plan.json` is the tested design source.
 
-Firmware integration remains pending: `config.py` still uses the old J4 contact
-map and `cable_matrix.py` still uses the historical twelve-signature catalogue.
-The new build IDs must be integrated with cable-aware win checks and kiosk help
-before the new set is used in the game. Do not deploy the old decoder with new
-number labels and assume its reported identities match this plan.
+The decoder reads the four builds from `cable-build-plan.json`. `config.py` maps
+J4 contacts 3/2 to GPIO3/7. Each mode's `requiredCables` must match exactly before
+its switch/socket expression can win. The page independently checks the recipe,
+fresh telemetry, `cableSchema: "panel-cable-build/v1"`, and the Pi's win flag.
+Setup and Help Fix name each cable and its socket pair. Unknown/extra cables
+prevent a win even if socket-presence indicators look correct.
+
+Deploy the page through CI before activating the new firmware. Old firmware
+cannot win on the new page; this temporary mismatch fails closed. Restart the Pi
+service after deploying the reviewed firmware, then verify the physical cables.
 
 ## Software design
 
@@ -206,7 +210,7 @@ number labels and assume its reported identities match this plan.
   if a future gpiozero release fixes the bug, this workaround can go.
 - **`cable_matrix.py`** — scans the 10 socket contacts (drive one low, read the
   rest), debounces, and decodes the bridges into per-socket presence and cable
-  numbers. Its `CABLES` table is the cable build list. Tested off-Pi with
+  numbers. Its `CABLES` table loads the four-cable JSON build list. Tested off-Pi with
   `python -m unittest test_cable_matrix` (fake GPIO backend, no `lgpio`).
 - **`telemetry.py`** — a background-threaded Azure IoT Hub publisher (queued,
   non-blocking) so a slow/dropped network connection never stalls GPIO

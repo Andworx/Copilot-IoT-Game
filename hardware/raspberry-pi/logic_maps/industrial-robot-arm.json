@@ -63,7 +63,7 @@
       "physicalPin": "J4",
       "key": "socket_j4",
       "label": "Socket J4 connected",
-      "target": false
+      "target": true
     },
     {
       "physicalPin": "SW1",
@@ -81,7 +81,7 @@
       "physicalPin": "J2",
       "key": "socket_j2",
       "label": "Socket J2 connected",
-      "target": true
+      "target": false
     },
     {
       "physicalPin": "SW3",
@@ -146,12 +146,12 @@
       "when": "win"
     }
   ],
-  "win": "not socket_j4 and power and keyed_two and socket_j2 and servo and not socket_j1 and keyed_one and estop and socket_j3 and not guard",
+  "win": "socket_j4 and power and keyed_two and not socket_j2 and servo and not socket_j1 and keyed_one and estop and socket_j3 and not guard",
   "faultStartingState": {
-    "socket_j4": true,
+    "socket_j4": false,
     "power": false,
     "keyed_two": false,
-    "socket_j2": false,
+    "socket_j2": true,
     "servo": false,
     "socket_j1": true,
     "keyed_one": false,
@@ -159,5 +159,14 @@
     "socket_j3": false,
     "guard": true
   },
-  "winMessage": "Robot cell restored \u2014 supervised automation is ready."
+  "winMessage": "Robot cell restored \u2014 supervised automation is ready.",
+  "requiredCables": [
+    {
+      "cable": 2,
+      "sockets": [
+        "J4",
+        "J3"
+      ]
+    }
+  ]
 }

@@ -19,6 +19,7 @@ export interface PanelPayload {
   rawSwitches?: Record<string, boolean>;
   rawConnectors?: Record<string, boolean>;
   cables?: PanelCable[];
+  cableSchema?: string;
   lamps?: Record<string, boolean>;
   win?: boolean;
   /** state_change | heartbeat | win | mode_change */

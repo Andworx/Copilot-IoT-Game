@@ -159,5 +159,14 @@
     "socket_j3": true,
     "inspection": true
   },
-  "winMessage": "Elevator back in service."
+  "winMessage": "Elevator back in service.",
+  "requiredCables": [
+    {
+      "cable": 4,
+      "sockets": [
+        "J1",
+        "J2"
+      ]
+    }
+  ]
 }

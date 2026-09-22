@@ -55,20 +55,14 @@ def control_name(control):
 def switch_action(control):
     return f"Turn {control_name(control)} {'on' if control['target'] else 'off'}"
 
-def restore_actions(sequence):
+def restore_actions(sequence, required_cables):
     actions = []
     for control in sorted([c for c in sequence if re.match(r'^SW[1-4]$', c['physicalPin'])], key=lambda c: c['physicalPin']):
         actions.append(switch_action(control))
     for control in sorted([c for c in sequence if re.match(r'^SW[5-6]$', c['physicalPin'])], key=lambda c: c['physicalPin']):
         actions.append(switch_action(control))
-    sockets = [c for c in sequence if c['physicalPin'].startswith('J')]
-    connected = sorted([c for c in sockets if c['target']], key=lambda c: c['physicalPin'])
-    if connected:
-        actions.append('Connect a cable to ' + ' and '.join(control_name(c) for c in connected))
-    actions.extend(
-        'Disconnect ' + control_name(control)
-        for control in sorted([c for c in sockets if not c['target']], key=lambda c: c['physicalPin'])
-    )
+    actions.extend(f"Connect Cable {c['cable']} to {' and '.join(c['sockets'])}" for c in required_cables)
+    actions.append('Remove all other cables')
     return actions
 
 def state_text(control):
@@ -83,7 +77,7 @@ for block in re.split(r'^### Mode ', SOURCE, flags=re.M)[1:]:
     profile = json.loads((HERE / 'logic_maps' / f'{slug}.json').read_text(encoding='utf-8'))
     sequence = profile['restoreSequence']
     rows = [[str(i), s['physicalPin'], s['label'], state_text(s), switch_action(s) if s['physicalPin'].startswith('SW') else state_text(s)] for i, s in enumerate(sequence, 1)]
-    actions = restore_actions(sequence)
+    actions = restore_actions(sequence, profile["requiredCables"])
     manual_actions = re.findall(r'^\d+\. (.+)', block, flags=re.M)
     assert manual_actions == actions, slug
     success = re.search(r'\*\*Success check:\*\* (.+)', block).group(1)
@@ -276,7 +270,7 @@ for line in SOURCE.splitlines():
 page('cables','Demo cable build reference','REFERENCE / DEMO PREPARATION',
     'For preparing the demo cable bundle. Each cable has a different wiring pattern, so the panel can tell the cables apart. This is not a mode selection table.',
     tb(cables,[65,259,180]),h('Plug types'),
-    'Every cable uses a 2-pin Side A plug and a 4-pin Side B plug. Side A and Side B identify the cable ends; label both. "A1 to B3" means Side A pin 1 to Side B pin 3.',
+    'Side A is quad on all four cables. Side B is dual on C1/C2/C4 and quad on C3. Use molded contact numbers; label both ends. J4 wires only contacts 2 and 3.',
     h('Where it plugs'),
     'The last column records which sockets a cable works in. It does not establish which socket states a mode requires. Use the active chapter for restoration targets.',
     h('Panel harness reference'),

@@ -7,35 +7,19 @@ time, and reads the rest: any other node that follows it low is wired to it
 through a cable. Only one node is ever driven, and only low, so a mis-plugged
 cable cannot short two outputs together.
 
-Cable identity comes from the wiring pattern. Side A is a 2-pin plug that lands
-on socket contacts 1 and 2; side B is a quad plug. CABLES lists the twelve
-two-wire builds ("A1->Bx, A2->By"). Cables are matched by the set of bridged
-contacts, so a cable is recognised in whichever socket pair it is plugged into.
+Cable identity comes from the four-cable build plan. Only mechanically matching
+ends are considered. Both wires must be visible to identify a cable.
 """
+import json
 import time
+from pathlib import Path
 from itertools import permutations
 
 import config
 
-# Cable number -> (B pin wired to A1, B pin wired to A2). Cables 1-6 keep the
-# numbering from the original build list; 7-12 are the remaining two-wire
-# patterns.
-CABLES = {
-    1: (3, 4),
-    2: (3, 1),
-    3: (3, 2),
-    4: (1, 2),
-    5: (1, 4),
-    6: (2, 4),
-    7: (4, 3),
-    8: (1, 3),
-    9: (2, 3),
-    10: (2, 1),
-    11: (4, 1),
-    12: (4, 2),
-}
-
-SIDE_A_PINS = (1, 2)
+BUILD_PLAN = json.loads(Path(__file__).with_name("cable-build-plan.json").read_text())
+CABLES = {c["id"]: c for c in BUILD_PLAN["cables"]}
+SOCKET_TYPES = BUILD_PLAN["socketTypes"]
 
 SCAN_SETTLE_S = 0.0002   # let a driven-low node pull its bridged partners down
 CONFIRM_SCANS = 2        # identical consecutive scans needed to accept a change
@@ -45,7 +29,7 @@ def _signature(a_socket, b_socket, a_to_b, nodes):
     """Bridged node pairs a cable produces in one placement, or None if any
     wire lands on a contact that is not wired to a GPIO."""
     bridges = set()
-    for a_pin, b_pin in zip(SIDE_A_PINS, a_to_b):
+    for a_pin, b_pin in a_to_b:
         a_node = (a_socket, a_pin)
         b_node = (b_socket, b_pin)
         if a_node not in nodes or b_node not in nodes:
@@ -63,9 +47,11 @@ def build_signature_table(socket_nodes=None):
     socket_nodes = socket_nodes or config.SOCKET_NODES
     nodes = {(s, p) for s, pins in socket_nodes.items() for p in pins}
     table, ambiguous = {}, set()
-    for cable, a_to_b in CABLES.items():
+    for cable, definition in CABLES.items():
         for a_socket, b_socket in permutations(socket_nodes, 2):
-            sig = _signature(a_socket, b_socket, a_to_b, nodes)
+            if [SOCKET_TYPES[a_socket], SOCKET_TYPES[b_socket]] != definition["ends"]:
+                continue
+            sig = _signature(a_socket, b_socket, definition["wires"], nodes)
             if sig is None:
                 continue
             found = table.get(sig)

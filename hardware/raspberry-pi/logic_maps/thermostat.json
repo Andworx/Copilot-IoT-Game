@@ -159,5 +159,14 @@
     "socket_j3": true,
     "mode": true
   },
-  "winMessage": "Thermostat restored \u2014 holding your set temperature."
+  "winMessage": "Thermostat restored \u2014 holding your set temperature.",
+  "requiredCables": [
+    {
+      "cable": 1,
+      "sockets": [
+        "J1",
+        "J2"
+      ]
+    }
+  ]
 }

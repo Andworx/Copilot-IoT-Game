@@ -75,7 +75,7 @@
       "physicalPin": "J4",
       "key": "socket_j4",
       "label": "Socket J4 connected",
-      "target": true
+      "target": false
     },
     {
       "physicalPin": "SW1",
@@ -87,7 +87,7 @@
       "physicalPin": "J2",
       "key": "socket_j2",
       "label": "Socket J2 connected",
-      "target": false
+      "target": true
     },
     {
       "physicalPin": "SW4",
@@ -99,7 +99,7 @@
       "physicalPin": "J1",
       "key": "socket_j1",
       "label": "Socket J1 connected",
-      "target": false
+      "target": true
     },
     {
       "physicalPin": "SW2",
@@ -111,7 +111,7 @@
       "physicalPin": "J3",
       "key": "socket_j3",
       "label": "Socket J3 connected",
-      "target": true
+      "target": false
     },
     {
       "physicalPin": "SW5",
@@ -146,18 +146,27 @@
       "when": "win"
     }
   ],
-  "win": "reader and keyed_two and socket_j4 and power and not socket_j2 and network and not socket_j1 and printer and socket_j3 and not keyed_one",
+  "win": "reader and keyed_two and not socket_j4 and power and socket_j2 and network and socket_j1 and printer and not socket_j3 and not keyed_one",
   "faultStartingState": {
     "reader": false,
     "keyed_two": false,
-    "socket_j4": false,
+    "socket_j4": true,
     "power": false,
-    "socket_j2": true,
+    "socket_j2": false,
     "network": false,
-    "socket_j1": true,
+    "socket_j1": false,
     "printer": false,
-    "socket_j3": false,
+    "socket_j3": true,
     "keyed_one": true
   },
-  "winMessage": "Payment kiosk back online and processing."
+  "winMessage": "Payment kiosk back online and processing.",
+  "requiredCables": [
+    {
+      "cable": 2,
+      "sockets": [
+        "J1",
+        "J2"
+      ]
+    }
+  ]
 }

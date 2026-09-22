@@ -79,7 +79,8 @@ export function KioskDevicePage() {
     };
   }, [connection]);
 
-  const win = device ? device.checkWin(state) : false;
+  const win = Boolean(device && isLive && reading?.cableSchema === "panel-cable-build/v1" && reading.win === true &&
+    reading.controls && device.checkWin(reading.controls, reading.cables));
 
   // Game Mode ON: creates the andy_gamewin row (PRIZE_ENGINE_SPEC.md §3 step 1 --
   // standing in for the not-yet-built Copilot Studio topic action) exactly once per

@@ -69,7 +69,7 @@
       "physicalPin": "J3",
       "key": "socket_j3",
       "label": "Socket J3 connected",
-      "target": false
+      "target": true
     },
     {
       "physicalPin": "SW1",
@@ -117,7 +117,7 @@
       "physicalPin": "J2",
       "key": "socket_j2",
       "label": "Socket J2 connected",
-      "target": true
+      "target": false
     }
   ],
   "lamps": [
@@ -146,10 +146,10 @@
       "when": "win"
     }
   ],
-  "win": "cloudsync and not socket_j3 and power and not keyed_two and socket_j1 and calibration and not socket_j4 and not keyed_one and not threshold and socket_j2",
+  "win": "cloudsync and socket_j3 and power and not keyed_two and socket_j1 and calibration and not socket_j4 and not keyed_one and not threshold and not socket_j2",
   "faultStartingState": {
     "cloudsync": false,
-    "socket_j3": true,
+    "socket_j3": false,
     "power": false,
     "keyed_two": true,
     "socket_j1": false,
@@ -157,7 +157,16 @@
     "socket_j4": true,
     "keyed_one": true,
     "threshold": true,
-    "socket_j2": false
+    "socket_j2": true
   },
-  "winMessage": "Cold storage is stable and monitoring is back online."
+  "winMessage": "Cold storage is stable and monitoring is back online.",
+  "requiredCables": [
+    {
+      "cable": 1,
+      "sockets": [
+        "J1",
+        "J3"
+      ]
+    }
+  ]
 }

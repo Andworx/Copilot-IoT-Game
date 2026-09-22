@@ -19,7 +19,10 @@ try {
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     const send = (name, value) => socket.send(JSON.stringify({ type: 1, target: name, arguments: [value] }) + "\x1e");
-    const telemetry = (slug, controls) => send("SendTelemetryUpdate", { data: { deviceSlug: slug, controls }, deviceId: "fixture-panel" });
+    const telemetry = (slug, controls, overrides = {}) => send("SendTelemetryUpdate", { data: {
+      deviceSlug: slug, controls, cables: map(slug).requiredCables, cableSchema: "panel-cable-build/v1",
+      win: map(slug).restoreSequence.every(c => controls[c.key] === c.target), ...overrides,
+    }, deviceId: "fixture-panel" });
     // Intercept both HTTP and WebSocket traffic: no production services are contacted.
     await page.route("**/api/**", async route => {
       const path = new URL(route.request().url()).pathname;
@@ -63,6 +66,17 @@ try {
     telemetry("thermostat", { ...partial, power: false });
     await page.locator('.thermostat-surface[data-hvac="off"]').waitFor();
     await page.locator('.thermostat-fan[data-running="false"]').waitFor();
+    for (const overrides of [
+      { cables: [{ cable: 4, sockets: ["J1", "J2"] }] },
+      { cables: [{ cable: null, sockets: ["J1", "J2"] }] },
+      { cableSchema: undefined },
+      { win: false },
+    ]) {
+      telemetry("thermostat", target, overrides);
+      await page.waitForTimeout(100);
+      assert.equal(await page.locator(".win-overlay").count(), 0, "invalid cable telemetry showed success");
+      assert.equal(wins, 0);
+    }
     telemetry("thermostat", target);
     await page.locator(".win-overlay").waitFor();
     if (gameModeEnabled) await page.getByAltText("Scan to claim your prize").waitFor();

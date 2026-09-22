@@ -5,6 +5,8 @@ Design verified against the connector inventory confirmed on 2026-09-22:
 J4 wiring is confirmed by the owner: contact 3 to GPIO3, contact 2 to GPIO7.
 J1/J2/J3 are unchanged. J4 contacts 1 and 4 remain unwired.
 
+[Readable cable pinout diagram](cable-build-plan.png)
+
 ## Build schedule
 
 A and B are cable end labels, not viewing directions. Use the connector's molded
@@ -73,9 +75,10 @@ that there is no cross-short. Then scan every intended placement on the Pi and
 confirm both expected raw bridges. Test C1/C4 in J4 as unknown-cable cases.
 
 The diagram's **Cable Build Plan** page contains the pinouts. The JSON plan is
-the machine-readable design source. The live decoder still uses the historical
-12-entry catalogue: **new C2/C3 numbering is not compatible with that catalogue**.
-Do not deploy just a new contact map or rely on current cable IDs. Integrate this
-plan into the decoder, Pi win checks, kiosk profiles, telemetry/help and manuals
-as one follow-up. Old socket-only mode requirements remain unchanged in this PR.
-No Pi firmware or game runtime was changed by this design update.
+the machine-readable runtime catalogue. Pi and page now require exact cable IDs
+and socket pairs, with no extra/unknown cables. J4's firmware map uses contacts
+3/2. The page requires the new cable schema and a current Pi win signal, so old
+firmware cannot accidentally award a win using historical cable IDs.
+
+Implementation is ready for PR review. Deployment and physical continuity/live
+validation remain pending; build Cables 2-4 using the pinouts above.
