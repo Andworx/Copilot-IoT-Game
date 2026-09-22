@@ -29,7 +29,7 @@ try {
       assert.deepEqual(outside, [], `${mode}/${state}: clipping`);
       const instrumentOverflow = await page.locator(".surface-instrument").evaluate(container => {
         const bounds = container.getBoundingClientRect();
-        return [...container.querySelectorAll(".thermostat-face, .thermostat-equipment, .smart-lock-surface, .retail-surface, .traffic-surface, .field-radio-surface, .drone-surface")].some(el => {
+        return [...container.querySelectorAll(".thermostat-face, .thermostat-equipment, .smart-lock-surface, .retail-surface, .traffic-surface, .field-radio-surface, .drone-surface, .ev-surface")].some(el => {
           const rect = el.getBoundingClientRect();
           return rect.top < bounds.top - 1 || rect.bottom > bounds.bottom + 1;
         });

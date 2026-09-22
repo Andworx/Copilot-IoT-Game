@@ -226,3 +226,17 @@ illustration only; no flight command or Pi firmware change is involved.
 inputs, invalid/stale data, read-only interaction, both win paths, takeoff, duplicate
 telemetry, reduced motion, mode reset, Help Fix and narrow layout. Live validation
 remains Verify.
+
+## EV Charger (#82)
+
+A charger pedestal, vehicle and cable schematic sit beside a vertical readiness chain.
+Power, ground check, contactor, billing and service lock bind to current semantic
+controls, without obsolete breaker/schedule names. The status identifies the first
+blocked stage; remaining key/circuit faults still prevent completion. Cable motion
+is a simulated energy path, gated by full restoration. No battery percentage,
+charge rate or actual charging result is claimed. Stale data stops activity and
+reduced motion shows a static schematic. Physical mappings remain opt-in.
+
+`node "power pages/copilotiotgame/tests/check-ev-charger.mjs"` checks every interlock,
+independent controls, invalid/stale data, ON/OFF wins, QR/duplicate protection,
+mode isolation, animation/reduced motion, Help Fix and narrow layout. Live remains Verify.

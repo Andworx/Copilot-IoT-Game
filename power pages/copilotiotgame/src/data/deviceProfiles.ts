@@ -410,7 +410,7 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     faultText: "<strong>Restoration incomplete.</strong> Open the gear menu for switch positions &amp; cables, or use Help Fix.",
     okText: "<strong>Restored.</strong> All six switches and four sockets match this mode.",
     steps: stepsFrom(sequence("ev-charger")),
-    winMessage: "EV charger restored — charging resumed.",
+    winMessage: "EV charger restored — charging controls ready.",
     restoreItems: restoreItemsFrom(sequence("ev-charger")),
   },
 

@@ -69,3 +69,10 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Dedicated ground station binds GPS, telemetry, uplink and power independently without measured flight data or physical identifiers. Shared setup/help and final configuration remain unchanged.
 - Browser checks caught shared-theme cascade overriding the completion grid; strengthened scoped selectors to keep QR, animation and countdown visible at 800x480.
 - Validation passed: all 60 surface fixtures, dedicated drone and shared kiosk win flows, visual review at 800x480 and narrow widths, and Node 22 clean installs/builds for all three apps. All 12,288 Pi/UI configurations agree. Issue #87 updated with takeoff acceptance criteria. Live validation remains Verify.
+
+
+## Epic #73 remaining work / EV Charger #82
+- Cold-Chain #79 prepared in PR #108 (84f7334); Patient #107 CI passed. Started EV from current main, preserving independent PRs.
+- Built charger/vehicle/cable schematic and readiness chain. Ground, contactor, billing and service-lock states independently reflect inputs; all ten requirements gate simulated energy motion.
+- Corrected frontend win copy to describe charging controls, with no actual battery/rate claim. Testing in progress; live remains Verify.
+- EV validation: all 60 fixture checks and dedicated independent-control/interlock/win/rotation suite pass. Kiosk/narrow screenshots reviewed. Node 22 clean installs/builds pass for all three apps; all 12,288 configurations agree. Cold-Chain PR #108 CI passed. Live remains Verify.
