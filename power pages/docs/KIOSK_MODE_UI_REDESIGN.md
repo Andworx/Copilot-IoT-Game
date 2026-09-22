@@ -27,7 +27,7 @@ switches. Stale status is explicit and activity animations pause; reduced motion
 instrument animation.
 
 The twelve surfaces are migration destinations, not a claim that all twelve dedicated
-UIs have shipped. The thermostat, Smart Lock, Retail Payment Kiosk, Traffic Signal Controller, Field Radio and Drone Ground Control have dedicated surfaces; the other six retain adapters.
+UIs have shipped. The thermostat, Smart Lock, Retail Payment Kiosk, Traffic Signal Controller, Field Radio, Drone Ground Control and Water Pump have dedicated surfaces; the other five retain adapters.
 
 
 The current kiosk implementation uses five reusable panel layouts with per-device skinning. That made the first build efficient, but the modes now read too similarly. The next iteration should keep the shared kiosk shell and telemetry contracts, while replacing the five shared layouts with twelve mode-specific instrument surfaces.
@@ -226,3 +226,17 @@ illustration only; no flight command or Pi firmware change is involved.
 inputs, invalid/stale data, read-only interaction, both win paths, takeoff, duplicate
 telemetry, reduced motion, mode reset, Help Fix and narrow layout. Live validation
 remains Verify.
+
+## Water Pump (#80)
+
+The dedicated process schematic follows tank, relief valve, impeller and outlet, with
+an adjacent qualitative pressure preview and independent pump/relief/remote status.
+All controls bind by semantic key. Flow and impeller animation require the complete
+restored configuration; power, pump, relief, override, key or circuit faults stop it.
+Pressure and flow are explicitly simulated, never measured. Stale/unknown readings
+clear activity and show Unknown. Reduced motion retains a static process diagram.
+
+`node "power pages/copilotiotgame/tests/check-water-pump.mjs"` covers independent
+controls, interlocks, invalid/stale readings, both completion paths, duplicate wins,
+mode isolation, animation, reduced motion, Help Fix and narrow layout.
+Live validation remains Verify.

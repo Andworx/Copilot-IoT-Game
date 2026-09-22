@@ -1,3 +1,4 @@
+import { WaterPumpSurface } from "./WaterPumpSurface";
 import { FieldRadioSurface } from "./FieldRadioSurface";
 import { TrafficSignalSurface } from "./TrafficSignalSurface";
 import { RetailKioskSurface } from "./RetailKioskSurface";
@@ -28,7 +29,7 @@ export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "hvac-thermostat": ThermostatSurface,
   "security-door-panel": SmartLockSurface,
   "coldchain-logger": legacy(DipStripPanel),
-  "pump-scada": legacy(PairedColumnsPanel),
+  "pump-scada": WaterPumpSurface,
   "field-radio": FieldRadioSurface,
   "ev-charge-pedestal": legacy(PairedColumnsPanel),
   "elevator-service": legacy(KeypadPanel),
