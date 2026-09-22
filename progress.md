@@ -106,3 +106,10 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Started #80 pilot on feat/water-pump-surface from origin/main. Built semantic tank/relief/pump/outlet diagram and pressure preview; no physical identifiers or new puzzle rules.
 - Full configuration gates simulated flow/impeller motion. Separate control status still explains incremental progress. Testing in progress.
 - Water Pump validation: 60 mode/state fixtures, dedicated interlock/win/rotation suite, reduced motion and Help Fix pass. Reviewed 800x480/narrow screenshots. Node 22 clean installs/builds pass for all three apps; 12,288 contract configurations agree. Live remains Verify.
+
+
+## Merge recovery after PR #106
+- User merged Water Pump #106; shared registry, fixture selectors and documentation then conflicted in remaining PRs.
+- Merged current main and all remaining mode work into feat/robot-arm-surface, preserving each dedicated component, test and note. Removed all remaining registry adapters.
+- Built every intermediate combination successfully; all 12,288 contracts pass each time. Simulated squash-merge sequence showed sequential mode PRs would conflict again, so PR #111 is being consolidated to include all five remaining modes and supersede #107-110.
+- Combined browser suites in progress. Do not claim production/live validation complete; #70 remains open.

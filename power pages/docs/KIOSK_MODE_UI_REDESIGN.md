@@ -5,9 +5,8 @@ Issue: #73 (epic); foundation #75 / #76; thermostat pilot #77.
 ## Implemented foundation
 
 `src/components/surfaces/registry.tsx` selects a read-only surface via
-`DeviceProfile.surfaceKind`. The remaining legacy layouts are transitional adapters;
-`device.instruments` explicitly binds their dial, gauge, guards, button, and signal.
-Array order only arranges independent controls and never defines instrument meaning.
+`DeviceProfile.surfaceKind`. All twelve modes now select dedicated surfaces.
+Each surface binds controls by semantic key; array order never defines instrument meaning.
 The `PanelSurfaceProps` contract includes state, semantic lamps, completion, connection
 freshness, and all ten physical control mappings. There is no mutation callback.
 `PanelSurface` owns the connection banner and semantic status strip. Do not add a
@@ -26,11 +25,13 @@ No measured temperatures, pressures, vitals, or signal levels are inferred from 
 switches. Stale status is explicit and activity animations pause; reduced motion disables
 instrument animation.
 
-The twelve surfaces are migration destinations, not a claim that all twelve dedicated
-UIs have shipped. Dedicated surfaces are selected in the typed registry; the per-mode sections below describe their behavior and validation.
+All twelve dedicated surfaces are implemented in the combined PR. The per-mode
+sections below describe behavior and local validation; production/Pi checks remain Verify.
 
 
-The current kiosk implementation uses five reusable panel layouts with per-device skinning. That made the first build efficient, but the modes now read too similarly. The next iteration should keep the shared kiosk shell and telemetry contracts, while replacing the five shared layouts with twelve mode-specific instrument surfaces.
+The original kiosk used five reusable layouts with per-device skinning. Dedicated
+surfaces now preserve the shared kiosk shell and telemetry contracts while giving
+each mode a distinct geometry.
 
 ## Architecture Direction
 
