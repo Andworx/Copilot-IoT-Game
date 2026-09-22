@@ -158,3 +158,8 @@ Verify: all mode instruments use domain labels/current state, with no physical i
 - Dual simulated waveform channels, independent leads/SpO2 status, prominent audible-alarm strip.
 - Disconnected/stale/unpowered channels show unavailable without waveform or invented vital readings.
 - Win copy describes restored controls; reduced motion is static. Live Pi validation remains under #70.
+
+### Water Pump pilot (#80) - Verify
+- Tank/relief/pump/outlet schematic with independent control status and simulated pressure/flow.
+- Full restoration gates process animation; stale data, interlocks and reduced motion stop motion.
+- Retain live Pi validation in #70 after normal PR deployment.

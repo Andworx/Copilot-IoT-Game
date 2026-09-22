@@ -76,3 +76,9 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Started Patient Monitor from current main. Added separate ECG/pulse demonstration traces, independent sensor states and alarm strip. Unknown/disconnected channels omit waveform; reduced motion freezes it.
 - Corrected frontend win copy to avoid claiming actual vitals streaming. No Pi contracts or puzzle rules changed.
 - Patient validation: 60 fixture checks and dedicated sensor/alarm/win/rotation suite pass; reviewed kiosk/narrow screenshots. Node 22 clean installs/builds pass for all three apps, and all 12,288 Pi/UI configurations agree. Live remains Verify. Epic checklist now reflects authoritative closed child issues.
+
+## Epic #73 remaining work / Water Pump #80
+- User requested all remaining epic issues. Revalidated GitHub/main: #87 merged; dedicated surfaces remain for #79, #80, #82, #83, #85, #88. #75-77 and #70 also remain open for completion audit/live checks.
+- Started #80 pilot on feat/water-pump-surface from origin/main. Built semantic tank/relief/pump/outlet diagram and pressure preview; no physical identifiers or new puzzle rules.
+- Full configuration gates simulated flow/impeller motion. Separate control status still explains incremental progress. Testing in progress.
+- Water Pump validation: 60 mode/state fixtures, dedicated interlock/win/rotation suite, reduced motion and Help Fix pass. Reviewed 800x480/narrow screenshots. Node 22 clean installs/builds pass for all three apps; 12,288 contract configurations agree. Live remains Verify.
