@@ -1,3 +1,4 @@
+import { RobotArmSurface } from "./RobotArmSurface";
 import { FieldRadioSurface } from "./FieldRadioSurface";
 import { TrafficSignalSurface } from "./TrafficSignalSurface";
 import { RetailKioskSurface } from "./RetailKioskSurface";
@@ -36,5 +37,5 @@ export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "patient-monitor": legacy(DialArcPanel),
   "payment-terminal": RetailKioskSurface,
   "drone-ground-station": DroneGroundSurface,
-  "robot-teach-pendant": legacy(PairedColumnsPanel),
+  "robot-teach-pendant": RobotArmSurface,
 };

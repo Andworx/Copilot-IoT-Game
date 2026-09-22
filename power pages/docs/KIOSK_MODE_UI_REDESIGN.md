@@ -226,3 +226,16 @@ illustration only; no flight command or Pi firmware change is involved.
 inputs, invalid/stale data, read-only interaction, both win paths, takeoff, duplicate
 telemetry, reduced motion, mode reset, Help Fix and narrow layout. Live validation
 remains Verify.
+
+## Industrial Robot Arm (#88)
+
+A guarded cell schematic with articulated arm sits beside a read-only teach pendant.
+E-stop reset, servo, guard-fault, cell-access and pendant-key controls bind semantically.
+Guard fault follows the existing active-high fault meaning; no physical robot safety
+state is invented. Every final-configuration requirement gates the explicitly simulated
+motion. Stale/unknown readings and each interlock stop it; reduced motion is static.
+No joint coordinates or machine commands are emitted. Physical mappings remain opt-in.
+
+`node "power pages/copilotiotgame/tests/check-robot-arm.mjs"` covers independent
+controls, all motion blockers, invalid/stale data, ON/OFF wins, QR/duplicates, mode
+isolation, reduced motion, Help Fix and narrow layout. Live remains Verify under #70.
