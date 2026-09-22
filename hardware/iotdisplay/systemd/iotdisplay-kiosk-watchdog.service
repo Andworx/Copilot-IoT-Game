@@ -1,0 +1,9 @@
+[Unit]
+Description=iotdisplay kiosk health check (one-shot, triggered by the .timer)
+After=iotdisplay-kiosk.service
+Requisite=iotdisplay-kiosk.service
+
+[Service]
+Type=oneshot
+User=pi
+ExecStart=/home/pi/restore-and-spin/hardware/iotdisplay/kiosk-watchdog.sh
