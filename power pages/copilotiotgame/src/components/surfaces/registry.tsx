@@ -1,4 +1,10 @@
 import { ElevatorSurface } from "./ElevatorSurface";
+
+import { EvChargerSurface } from "./EvChargerSurface";
+
+import { PatientMonitorSurface } from "./PatientMonitorSurface";
+
+import { WaterPumpSurface } from "./WaterPumpSurface";
 import { FieldRadioSurface } from "./FieldRadioSurface";
 import { TrafficSignalSurface } from "./TrafficSignalSurface";
 import { RetailKioskSurface } from "./RetailKioskSurface";
@@ -9,7 +15,7 @@ import type { SurfaceKind } from "../../types/game";
 import type { PanelSurfaceProps } from "./types";
 import { DialArcPanel } from "../layouts/DialArcPanel";
 import { KeypadPanel } from "../layouts/KeypadPanel";
-import { DipStripPanel } from "../layouts/DipStripPanel";
+import { ColdChainSurface } from "./ColdChainSurface";
 import { DroneGroundSurface } from "./DroneGroundSurface";
 import { PairedColumnsPanel } from "../layouts/PairedColumnsPanel";
 
@@ -28,13 +34,19 @@ function legacy(Component: typeof DialArcPanel | typeof KeypadPanel) {
 export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "hvac-thermostat": ThermostatSurface,
   "security-door-panel": SmartLockSurface,
-  "coldchain-logger": legacy(DipStripPanel),
+  "coldchain-logger": ColdChainSurface,
   "pump-scada": legacy(PairedColumnsPanel),
+
+  "coldchain-logger": legacy(DipStripPanel),
+  "pump-scada": WaterPumpSurface,
   "field-radio": FieldRadioSurface,
   "ev-charge-pedestal": legacy(PairedColumnsPanel),
   "elevator-service": ElevatorSurface,
+
+  "ev-charge-pedestal": EvChargerSurface,
+  "elevator-service": legacy(KeypadPanel),
   "traffic-cabinet": TrafficSignalSurface,
-  "patient-monitor": legacy(DialArcPanel),
+  "patient-monitor": PatientMonitorSurface,
   "payment-terminal": RetailKioskSurface,
   "drone-ground-station": DroneGroundSurface,
   "robot-teach-pendant": legacy(PairedColumnsPanel),
