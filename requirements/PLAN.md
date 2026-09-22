@@ -152,3 +152,9 @@ Verify: all mode instruments use domain labels/current state, with no physical i
 - Dedicated navigation scope and independent GPS, telemetry and uplink status with domain-only labels.
 - Simulated takeoff on Game Mode ON/OFF completion; reduced-motion static airborne state, existing QR and reset preserved.
 - No device contract or Pi firmware changes. Production/Pi display verification remains pending normal PR deployment.
+
+
+### Patient Monitor pilot (#85) - Verify
+- Dual simulated waveform channels, independent leads/SpO2 status, prominent audible-alarm strip.
+- Disconnected/stale/unpowered channels show unavailable without waveform or invented vital readings.
+- Win copy describes restored controls; reduced motion is static. Live Pi validation remains under #70.

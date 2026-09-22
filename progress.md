@@ -69,3 +69,10 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Dedicated ground station binds GPS, telemetry, uplink and power independently without measured flight data or physical identifiers. Shared setup/help and final configuration remain unchanged.
 - Browser checks caught shared-theme cascade overriding the completion grid; strengthened scoped selectors to keep QR, animation and countdown visible at 800x480.
 - Validation passed: all 60 surface fixtures, dedicated drone and shared kiosk win flows, visual review at 800x480 and narrow widths, and Node 22 clean installs/builds for all three apps. All 12,288 Pi/UI configurations agree. Issue #87 updated with takeoff acceptance criteria. Live validation remains Verify.
+
+
+## Epic #73 remaining work / Patient Monitor #85
+- Water Pump #80 prepared separately in PR #106 (c310714), with local browser/build validation complete and live checks pending.
+- Started Patient Monitor from current main. Added separate ECG/pulse demonstration traces, independent sensor states and alarm strip. Unknown/disconnected channels omit waveform; reduced motion freezes it.
+- Corrected frontend win copy to avoid claiming actual vitals streaming. No Pi contracts or puzzle rules changed.
+- Patient validation: 60 fixture checks and dedicated sensor/alarm/win/rotation suite pass; reviewed kiosk/narrow screenshots. Node 22 clean installs/builds pass for all three apps, and all 12,288 Pi/UI configurations agree. Live remains Verify. Epic checklist now reflects authoritative closed child issues.
