@@ -515,7 +515,7 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     faultText: "<strong>Restoration incomplete.</strong> Open the gear menu for switch positions &amp; cables, or use Help Fix.",
     okText: "<strong>Restored.</strong> All six switches and four sockets match this mode.",
     steps: stepsFrom(sequence("patient-monitor")),
-    winMessage: "Patient monitor restored — vitals streaming normally.",
+    winMessage: "Patient monitor restored — monitor controls ready.",
     restoreItems: restoreItemsFrom(sequence("patient-monitor")),
   },
 

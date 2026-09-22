@@ -1,3 +1,6 @@
+import { PatientMonitorSurface } from "./PatientMonitorSurface";
+
+import { WaterPumpSurface } from "./WaterPumpSurface";
 import { FieldRadioSurface } from "./FieldRadioSurface";
 import { TrafficSignalSurface } from "./TrafficSignalSurface";
 import { RetailKioskSurface } from "./RetailKioskSurface";
@@ -29,11 +32,14 @@ export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "security-door-panel": SmartLockSurface,
   "coldchain-logger": ColdChainSurface,
   "pump-scada": legacy(PairedColumnsPanel),
+
+  "coldchain-logger": legacy(DipStripPanel),
+  "pump-scada": WaterPumpSurface,
   "field-radio": FieldRadioSurface,
   "ev-charge-pedestal": legacy(PairedColumnsPanel),
   "elevator-service": legacy(KeypadPanel),
   "traffic-cabinet": TrafficSignalSurface,
-  "patient-monitor": legacy(DialArcPanel),
+  "patient-monitor": PatientMonitorSurface,
   "payment-terminal": RetailKioskSurface,
   "drone-ground-station": DroneGroundSurface,
   "robot-teach-pendant": legacy(PairedColumnsPanel),
