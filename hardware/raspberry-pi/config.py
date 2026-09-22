@@ -24,13 +24,13 @@ LED_PINS = {
     "LED4": 23,
 }
 
-# Cable-matrix sockets. Each 4-pin socket wires only the listed contacts, each
-# to its own GPIO: {socket: {contact pin: BCM GPIO}}. Nothing on a socket goes
-# to GND; cables are identified by which contacts they bridge (see
-# cable_matrix.py and the README's "Cable matrix" section).
-#   J1 is the only full quad socket, so it is the only socket that can take the
-#   B end of a cable that uses B pin 3 or 4. J2-J4 wire pins 1 and 2, the
-#   contacts a 2-pin side A plug lands on.
+# Cable-matrix sockets. Each socket wires only the listed contacts, each to its
+# own GPIO: {socket: {contact pin: BCM GPIO}}. Nothing on a socket goes to GND;
+# cables are identified by which contacts they bridge (see cable_matrix.py and
+# the README's "Cable matrix" section).
+#   J1 is the only quad (4-pin) socket, so it is the only socket that can take
+#   the B end of a cable that uses B pin 3 or 4. J2-J4 are double (2-pin)
+#   sockets: pins 1 and 2, the contacts a 2-pin side A plug lands on.
 SOCKET_NODES = {
     "J1": {1: 4, 2: 18, 3: 24, 4: 16},
     "J2": {1: 25, 2: 20},
