@@ -226,3 +226,15 @@ illustration only; no flight command or Pi firmware change is involved.
 inputs, invalid/stale data, read-only interaction, both win paths, takeoff, duplicate
 telemetry, reduced motion, mode reset, Help Fix and narrow layout. Live validation
 remains Verify.
+
+## Elevator (#83)
+
+The dedicated shaft/car diagram sits beside independent door indication, brake-release
+and inspection interlocks. Door geometry follows its own control; no floor or position
+measurement is invented. Simulated car travel requires the complete restored state;
+any unknown/power/door/brake/inspection/key/circuit blocker stops it. Reduced motion
+keeps the car static. Physical mappings remain in gear setup / Help Fix.
+
+`node "power pages/copilotiotgame/tests/check-elevator.mjs"` checks independent
+controls, every travel interlock, power/invalid/stale states, ON/OFF wins, QR/duplicates,
+mode isolation, animation/reduced motion, Help Fix and narrow layout. Live remains Verify.

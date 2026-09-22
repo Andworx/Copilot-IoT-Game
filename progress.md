@@ -69,3 +69,10 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Dedicated ground station binds GPS, telemetry, uplink and power independently without measured flight data or physical identifiers. Shared setup/help and final configuration remain unchanged.
 - Browser checks caught shared-theme cascade overriding the completion grid; strengthened scoped selectors to keep QR, animation and countdown visible at 800x480.
 - Validation passed: all 60 surface fixtures, dedicated drone and shared kiosk win flows, visual review at 800x480 and narrow widths, and Node 22 clean installs/builds for all three apps. All 12,288 Pi/UI configurations agree. Issue #87 updated with takeoff acceptance criteria. Live validation remains Verify.
+
+
+## Epic #73 remaining work / Elevator #83
+- Rechecked GitHub/main: PRs #106-109 remain open. Elevator and Robot Arm are the last unimplemented dedicated surfaces.
+- Added shaft/car composition and independent door/brake/inspection states. Full final configuration gates simulated travel; no floor measurements or new puzzle mechanics.
+- Started dedicated interlock, lifecycle and visual checks. Live remains Verify.
+- Resumed after automatic approval-review usage limit; pending builds confirmed successful. All 60 fixtures and dedicated elevator interlock/win/isolation tests pass; kiosk/narrow screenshots reviewed. Node 22 clean installs/builds pass for all three apps, all 12,288 Pi/UI configurations agree. Live remains Verify.
