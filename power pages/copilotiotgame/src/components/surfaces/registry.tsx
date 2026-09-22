@@ -9,7 +9,7 @@ import type { PanelSurfaceProps } from "./types";
 import { DialArcPanel } from "../layouts/DialArcPanel";
 import { KeypadPanel } from "../layouts/KeypadPanel";
 import { DipStripPanel } from "../layouts/DipStripPanel";
-import { RadioClusterPanel } from "../layouts/RadioClusterPanel";
+import { DroneGroundSurface } from "./DroneGroundSurface";
 import { PairedColumnsPanel } from "../layouts/PairedColumnsPanel";
 
 // Read-only adapters preserve the remaining modes while their dedicated surfaces
@@ -35,6 +35,6 @@ export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "traffic-cabinet": TrafficSignalSurface,
   "patient-monitor": legacy(DialArcPanel),
   "payment-terminal": RetailKioskSurface,
-  "drone-ground-station": legacy(RadioClusterPanel),
+  "drone-ground-station": DroneGroundSurface,
   "robot-teach-pendant": legacy(PairedColumnsPanel),
 };

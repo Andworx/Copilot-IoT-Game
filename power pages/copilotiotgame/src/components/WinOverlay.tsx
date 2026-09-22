@@ -1,8 +1,10 @@
+import { DroneTakeoff } from "./DroneTakeoff";
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { PRIZE_WHEEL_URL } from "../lib/apiConfig";
 
 interface WinOverlayProps {
+  droneTakeoff?: boolean;
   winMessage: string;
   restoreItems: string[];
   claimToken: string;
@@ -16,7 +18,7 @@ const RESET_SECONDS = 10; // GAME_MODE_PLAN.md §0 — locked decision
  * pointing at the standalone prize wheel SPA with the claim token from the
  * andy_gamewin row the kiosk just created (PRIZE_ENGINE_SPEC.md §3, steps 1-2).
  */
-export function WinOverlay({ winMessage, restoreItems, claimToken, onReset }: WinOverlayProps) {
+export function WinOverlay({ droneTakeoff = false, winMessage, restoreItems, claimToken, onReset }: WinOverlayProps) {
   const [remaining, setRemaining] = useState(RESET_SECONDS);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
@@ -50,7 +52,8 @@ export function WinOverlay({ winMessage, restoreItems, claimToken, onReset }: Wi
   }, [claimToken]);
 
   return (
-    <div className="win-overlay">
+    <div className={`win-overlay${droneTakeoff ? " drone-win-overlay" : ""}`}>
+      {droneTakeoff && <DroneTakeoff />}
       <h2>{winMessage}</h2>
       <ul className="restore-grid">
         {restoreItems.map((item) => (

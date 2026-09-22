@@ -1,6 +1,8 @@
+import { DroneTakeoff } from "./DroneTakeoff";
 import { useEffect, useRef, useState } from "react";
 
 interface SuccessPopupProps {
+  droneTakeoff?: boolean;
   winMessage: string;
   restoreItems: string[];
   onReset: () => void;
@@ -14,7 +16,7 @@ const RESET_SECONDS = 10; // Same dwell time as WinOverlay (GAME_MODE_PLAN.md §
  * intentionally not logged at all (client-side only). Reuses the same overlay/reset-timer
  * styling as WinOverlay so the two feel like the same moment to the player.
  */
-export function SuccessPopup({ winMessage, restoreItems, onReset }: SuccessPopupProps) {
+export function SuccessPopup({ droneTakeoff = false, winMessage, restoreItems, onReset }: SuccessPopupProps) {
   const [remaining, setRemaining] = useState(RESET_SECONDS);
 
   // See WinOverlay.tsx for why onReset must stay out of the effect's deps: the parent
@@ -33,7 +35,8 @@ export function SuccessPopup({ winMessage, restoreItems, onReset }: SuccessPopup
   }, [remaining]);
 
   return (
-    <div className="win-overlay">
+    <div className={`win-overlay${droneTakeoff ? " drone-win-overlay" : ""}`}>
+      {droneTakeoff && <DroneTakeoff />}
       <h2>{winMessage}</h2>
       <ul className="restore-grid">
         {restoreItems.map((item) => (
