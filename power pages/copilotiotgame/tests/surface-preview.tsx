@@ -14,7 +14,7 @@ const fixtures = surfaceFixtures(device);
 const fixtureName = params.get("state") ?? "fault";
 const fixture = fixtures[fixtureName as keyof typeof fixtures] ?? fixtures.fault;
 const { state, connection } = fixture;
-const win = device.checkWin(state);
+const win = device.checkWin(state, device.requiredCables);
 const lamps = device.computeLamps(state, win);
 Object.assign(window, {
   render_game_to_text: () => JSON.stringify({ mode: device.slug, fixture: fixtureName, state, win, lamps, connection, interaction: "physical panel only" }),

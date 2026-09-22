@@ -21,6 +21,7 @@ from gpiozero import LED
 
 import config
 import safe_eval
+from cable_rules import cables_match
 from cable_matrix import CableMatrix
 from pulled_input import PulledInput
 from telemetry import TelemetryClient
@@ -129,12 +130,12 @@ class PanelController:
         if slug != self._active_slug:
             self._on_mode_change(slug)
 
-    def _apply_profile(self, profile, raw_switches, raw_connectors):
+    def _apply_profile(self, profile, raw_switches, raw_connectors, cables):
         raw_controls = {**raw_switches, **raw_connectors}
         controls = profile.get("restoreSequence") or profile.get("switches", []) + profile.get("connectors", [])
         pin_to_key = {control["physicalPin"]: control["key"] for control in controls}
         state = {key: raw_controls.get(pin, False) for pin, key in pin_to_key.items()}
-        win = safe_eval.evaluate(profile["win"], state)
+        win = safe_eval.evaluate(profile["win"], state) and cables_match(profile["requiredCables"], cables)
         variables = dict(state)
         variables["win"] = win
         lamp_state = {
@@ -184,6 +185,7 @@ class PanelController:
                         self._active_profile,
                         raw_switches,
                         raw_connectors,
+                        cables,
                     )
                     self._drive_leds(lamp_state)
 
@@ -195,6 +197,7 @@ class PanelController:
                         "rawSwitches": raw_switches,
                         "rawConnectors": raw_connectors,
                         "cables": cables,
+                        "cableSchema": "panel-cable-build/v1",
                         "lamps": {
                             lamp["key"]: lamp_state.get(lamp["physicalPin"], False)
                             for lamp in self._active_profile["lamps"]

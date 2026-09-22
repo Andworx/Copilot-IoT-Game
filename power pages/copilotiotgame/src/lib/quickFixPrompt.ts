@@ -43,11 +43,11 @@ export function buildQuickFixPrompt(
     `CURRENT_STATE:\n` +
     `${controls}\n` +
     `CABLES: ${describeCables(cables)} A socket reads CONNECTED only while both ends of a cable are plugged in, ` +
-    `so sockets connect and disconnect in pairs.\n` +
+    `so sockets connect and disconnect in pairs. Cable identity matters; unknown, missing or extra cables prevent restoration.\n` +
     `ACTIONS_TO_RETURN:\n${actions}\n` +
     `What must the player change, in order, to restore this device? ` +
     `Reply with ONLY the numbered ACTIONS_TO_RETURN list. ` +
-    `Each action must start with Turn, Connect, or Disconnect. ` +
+    `Each action must start with Turn, Connect, Disconnect, or Remove. ` +
     `No emojis, no citations, no markdown, no preamble, no explanation.`
   );
 }

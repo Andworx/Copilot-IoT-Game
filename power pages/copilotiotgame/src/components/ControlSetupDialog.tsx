@@ -1,3 +1,4 @@
+import { cableActions } from "../data/deviceProfiles";
 import { useEffect, useRef } from "react";
 import type { DeviceProfile } from "../types/game";
 
@@ -12,7 +13,6 @@ export function ControlSetupDialog({ device, onClose }: { device: DeviceProfile;
   function close() { ref.current?.close(); onClose(); }
   const switches = device.restoreSequence.filter(c => c.physicalPin.startsWith("SW")).sort((a, b) => a.physicalPin.localeCompare(b.physicalPin));
   const sockets = device.restoreSequence.filter(c => c.physicalPin.startsWith("J")).sort((a, b) => a.physicalPin.localeCompare(b.physicalPin));
-  const connected = sockets.filter(c => c.target).map(c => c.physicalPin);
   return <dialog ref={ref} className="control-setup" aria-labelledby="control-setup-title" onCancel={event => { event.preventDefault(); close(); }}>
     <header><h2 id="control-setup-title">{device.label}: panel setup</h2><button type="button" autoFocus onClick={close} aria-label="Close panel setup">Close</button></header>
     <p>Set these positions on the physical box. Any order is fine.</p>
@@ -20,9 +20,9 @@ export function ControlSetupDialog({ device, onClose }: { device: DeviceProfile;
       <section aria-label="Required switch positions"><h3>Switch positions</h3><table><thead><tr><th>Switch</th><th>Function</th><th>Set to</th></tr></thead><tbody>
         {switches.map(c => <tr key={c.key} data-pin={c.physicalPin}><th>{c.physicalPin}</th><td>{c.label.replace(/^.*? - /, "")}</td><td><strong>{c.target ? "ON" : "OFF"}</strong></td></tr>)}
       </tbody></table></section>
-      <section aria-label="Required cable connections"><h3>Cables</h3><p className="cable-route">Connect {connected.join(" to ")}</p>
+      <section aria-label="Required cable connections"><h3>Cables</h3><ul>{cableActions(device.requiredCables).map(action => <li key={action}>{action}</li>)}</ul>
         <ul>{sockets.map(c => <li key={c.key} data-pin={c.physicalPin}><strong>{c.physicalPin}</strong>: {c.target ? "Connected" : "Leave open"}</li>)}</ul>
-        <p>Use a cable with matching connectors. The socket connection matters; the cable number does not.</p>
+        <p>Match both cable numbers and sockets. Quad ends fit J1/J4; dual ends fit J2/J3. Unknown or extra cables prevent restoration.</p>
       </section>
     </div>
   </dialog>;

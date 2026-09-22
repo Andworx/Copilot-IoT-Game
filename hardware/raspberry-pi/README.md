@@ -17,8 +17,8 @@ order:
 - `SW1-SW2` — safety switches.
 - `SW3-SW4` — toggle switches.
 - `SW5-SW6` — keyed switches.
-- `J1-J4` — panel-side cable sockets: `J1` is a quad (4-pin) socket, `J2-J4`
-  are double (2-pin) sockets. A socket reads as connected when a cable is
+- `J1-J4` — panel-side cable sockets: `J1` and `J4` are quad (4-pin) sockets; `J2-J3`
+  are double (2-pin) sockets. J4 wires only contacts 3 and 2. A socket reads as connected when a cable is
   plugged into it (see "Cable matrix" below).
 
 The selected mode determines which real-world meaning each control has. The
@@ -60,9 +60,10 @@ App-selected mode rather than to any physical selector.
 | 2 | Toggle switches | SW3-SW4 |
 | 2 | Keyed switches | SW5-SW6 |
 | 4 | Single-color LEDs (5mm) + 330Ω resistors | LED1 blue, LED2 yellow, LED3 orange, LED4 green; one resistor each, LED cathode/resistor to GND |
-| 1 | Quad (4-pin) panel-mount jack/receptacle (e.g. 4P4C/RJ9 handset jack, or any 4-pin connector) | J1 — pins 1-4 all wired |
-| 3 | Double (2-pin) panel-mount jacks/receptacles | J2, J3, J4 — pins 1-2 wired |
-| 12 | Demo cables: one 2-pin plug (side A) and one 4-pin quad plug (side B) each | Build list under "Cable matrix" |
+| 2 | Quad (4-pin) panel-mount jacks/receptacles | J1: contacts 1-4; J4: contacts 3 and 2 only |
+| 2 | Double (2-pin) panel-mount jacks/receptacles | J2, J3: contacts 1-2 wired |
+| 4 quad + 2 dual | Available cable connectors recorded in #112 | Inventory inclusion of the built Cable 1 awaits confirmation |
+| 1 | Confirmed built cable: quad to dual | Quad 3 to dual 1; quad 4 to dual 2 |
 | — | Hookup wire, breadboard/perfboard, pull-up not needed (internal pull-ups used throughout) | |
 
 ## GPIO pinout (BCM numbering)
@@ -93,7 +94,7 @@ No external resistors are needed except the LED current-limiting resistors.
 | J2 pin 2 | J2P2 | GPIO20 | 38 |
 | J3 pin 1 | J3P1 | GPIO2 | 3 |
 | J3 pin 2 | J3P2 | GPIO12 | 32 |
-| J4 pin 1 | J4P1 | GPIO3 | 5 |
+| J4 pin 3 | J4P3 | GPIO3 | 5 |
 | J4 pin 2 | J4P2 | GPIO7 | 26 |
 
 **20 of the Pi's 26 usable GPIO pins used, 6 spare** (GPIO8, 9, 10, 11, 14, 15 —
@@ -131,8 +132,8 @@ switch harness, LED harness, cable socket matrix, and common ground rail.
    GPIO24 ────[J1 pin 3]
    GPIO16 ────[J1 pin 4]            J3 (double)
                                     GPIO2  ────[J3 pin 1]
-   J4 (double)                      GPIO12 ────[J3 pin 2]
-   GPIO3  ────[J4 pin 1]
+   J4 (quad)                      GPIO12 ────[J3 pin 2]
+   GPIO3  ────[J4 pin 3]
    GPIO7  ────[J4 pin 2]
         (direct GPIO wiring, no series resistors; no socket contact goes to
          GND; cables bridge contacts to each other)
@@ -146,10 +147,10 @@ nothing on a socket goes to GND. A cable only bridges contacts to each other.
 
 | Socket | Connector | Wired contacts | Notes |
 |---|---|---|---|
-| J1 | Quad (4-pin) | pins 1, 2, 3, 4 | The only quad socket. Takes the side B end of any cable that uses B pin 3 or 4. |
+| J1 | Quad (4-pin) | pins 1, 2, 3, 4 | Unchanged; the only socket with all four contacts wired. |
 | J2 | Double (2-pin) | pins 1, 2 | The contacts a 2-pin side A plug lands on. |
 | J3 | Double (2-pin) | pins 1, 2 | Same. |
-| J4 | Double (2-pin) | pins 1, 2 | Same. |
+| J4 | Quad (4-pin) | pins 3, 2 | Contact 3 to GPIO3; contact 2 to GPIO7. Contacts 1/4 unwired. |
 
 The GPIO for each contact is in the pinout table above and in
 `config.SOCKET_NODES`. Leave unlisted contacts open.
@@ -163,44 +164,33 @@ Bridges are grouped by socket pair and matched against the cable build list.
 Two cables at once decode independently.
 
 **What the controller reports:** `J1`-`J4` are true when a cable with at least
-one visible wire is plugged into that socket, which is what the restore
-sequences use. The telemetry payload also carries
-`cables: [{"cable": 4, "sockets": ["J2", "J3"]}]`. `cable` is `null` for
+one visible wire is plugged into that socket, used for presence indicators. Winning also requires the exact cable recipe. The telemetry payload also carries
+`cables: [{"cable": 1, "sockets": ["J1", "J2"]}]`. `cable` is `null` for
 something the build list does not recognise, such as a cable with a broken wire.
 A plug that lands only on unwired contacts (for example a side B plug using pin
 3 in J2) reads as unplugged.
 
-### Demo cable build list
+### Confirmed four-cable build plan (#112)
 
-Side A is always a **2-pin plug** that lands on socket contacts 1 and 2; side B
-is a **4-pin quad plug**. Each cable has two wires. The 12 cables below are all
-of the two-wire patterns, and each produces a different set of bridged contacts,
-so the Pi can tell every one apart.
+Cable 1 is already built. The owner confirmed **4 spare quad and 2 spare dual
+connectors in addition to Cable 1**, and J4 is already wired on contacts 3/2.
+Build two quad-to-dual cables and one quad-to-quad cable from that stock.
 
-| Cable | Pinout | B end must go in | A end goes in |
-|---|---|---|---|
-| Cable 1 | A1 to B3, A2 to B4 | J1 | J2, J3 or J4 |
-| Cable 2 | A1 to B3, A2 to B1 | J1 | J2, J3 or J4 |
-| Cable 3 | A1 to B3, A2 to B2 | J1 | J2, J3 or J4 |
-| Cable 4 | A1 to B1, A2 to B2 | any socket | any other socket |
-| Cable 5 | A1 to B1, A2 to B4 | J1 | J2, J3 or J4 |
-| Cable 6 | A1 to B2, A2 to B4 | J1 | J2, J3 or J4 |
-| Cable 7 | A1 to B4, A2 to B3 | J1 | J2, J3 or J4 |
-| Cable 8 | A1 to B1, A2 to B3 | J1 | J2, J3 or J4 |
-| Cable 9 | A1 to B2, A2 to B3 | J1 | J2, J3 or J4 |
-| Cable 10 | A1 to B2, A2 to B1 | any socket | any other socket |
-| Cable 11 | A1 to B4, A2 to B1 | J1 | J2, J3 or J4 |
-| Cable 12 | A1 to B4, A2 to B2 | J1 | J2, J3 or J4 |
+See [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md) for the exact pinouts, valid
+placements, twelve proposed mode use cases, and continuity checks. The wiring
+diagram now includes a **Cable Build Plan** page with each wire drawn.
+`cable-build-plan.json` is the tested design source.
 
-Cables 4 and 10 are the only ones that work between any pair of sockets. Cable 4
-is a straight 1-to-1, 2-to-2 lead and Cable 10 is crossed. The other ten need
-the quad end in J1. Label both ends (`C7-A`, `C7-B`) so they go in the right
-way round.
+The decoder reads the four builds from `cable-build-plan.json`. `config.py` maps
+J4 contacts 3/2 to GPIO3/7. Each mode's `requiredCables` must match exactly before
+its switch/socket expression can win. The page independently checks the recipe,
+fresh telemetry, `cableSchema: "panel-cable-build/v1"`, and the Pi's win flag.
+Setup and Help Fix name each cable and its socket pair. Unknown/extra cables
+prevent a win even if socket-presence indicators look correct.
 
-Single-wire cables are possible too, but they are not in the catalogue (two of
-them are mirror images the Pi cannot tell apart). Add any you want to `CABLES`
-in `cable_matrix.py`. `python -m unittest test_cable_matrix` (from this folder,
-no Pi needed) checks that no two cables in `CABLES` can be confused.
+Deploy the page through CI before activating the new firmware. Old firmware
+cannot win on the new page; this temporary mismatch fails closed. Restart the Pi
+service after deploying the reviewed firmware, then verify the physical cables.
 
 ## Software design
 
@@ -220,7 +210,7 @@ no Pi needed) checks that no two cables in `CABLES` can be confused.
   if a future gpiozero release fixes the bug, this workaround can go.
 - **`cable_matrix.py`** — scans the 10 socket contacts (drive one low, read the
   rest), debounces, and decodes the bridges into per-socket presence and cable
-  numbers. Its `CABLES` table is the cable build list. Tested off-Pi with
+  numbers. Its `CABLES` table loads the four-cable JSON build list. Tested off-Pi with
   `python -m unittest test_cable_matrix` (fake GPIO backend, no `lgpio`).
 - **`telemetry.py`** — a background-threaded Azure IoT Hub publisher (queued,
   non-blocking) so a slow/dropped network connection never stalls GPIO

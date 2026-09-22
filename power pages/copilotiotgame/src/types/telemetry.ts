@@ -16,6 +16,7 @@ export interface PanelTelemetry {
   modeIndex?: number;
   controls?: Record<string, boolean>;
   cables?: PanelCable[];
+  cableSchema?: string;
   lamps?: Record<string, boolean>;
   win?: boolean;
   /** state_change | heartbeat | win | mode_change */

@@ -93,7 +93,7 @@
       "physicalPin": "J4",
       "key": "socket_j4",
       "label": "Socket J4 connected",
-      "target": false
+      "target": true
     },
     {
       "physicalPin": "SW2",
@@ -111,7 +111,7 @@
       "physicalPin": "J3",
       "key": "socket_j3",
       "label": "Socket J3 connected",
-      "target": true
+      "target": false
     },
     {
       "physicalPin": "SW4",
@@ -146,18 +146,27 @@
       "when": "win"
     }
   ],
-  "win": "keyed_two and socket_j2 and channelhop and not socket_j1 and power and not socket_j4 and encryption and not keyed_one and socket_j3 and transmit",
+  "win": "keyed_two and socket_j2 and channelhop and not socket_j1 and power and socket_j4 and encryption and not keyed_one and not socket_j3 and transmit",
   "faultStartingState": {
     "keyed_two": false,
     "socket_j2": false,
     "channelhop": false,
     "socket_j1": true,
     "power": false,
-    "socket_j4": true,
+    "socket_j4": false,
     "encryption": false,
     "keyed_one": true,
-    "socket_j3": false,
+    "socket_j3": true,
     "transmit": false
   },
-  "winMessage": "Secure link established with base."
+  "winMessage": "Secure link established with base.",
+  "requiredCables": [
+    {
+      "cable": 2,
+      "sockets": [
+        "J4",
+        "J2"
+      ]
+    }
+  ]
 }

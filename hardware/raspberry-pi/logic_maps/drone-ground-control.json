@@ -159,5 +159,14 @@
     "socket_j4": false,
     "telemetry": false
   },
-  "winMessage": "Drone link restored — ready for flight ops."
+  "winMessage": "Drone link restored \u00e2\u20ac\u201d ready for flight ops.",
+  "requiredCables": [
+    {
+      "cable": 3,
+      "sockets": [
+        "J1",
+        "J4"
+      ]
+    }
+  ]
 }

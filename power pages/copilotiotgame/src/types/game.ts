@@ -1,3 +1,5 @@
+export interface CableRequirement { cable: number | null; sockets: readonly string[]; }
+
 export type LampColor = "off" | "green" | "amber" | "red";
 
 export type DeviceState = Record<string, boolean>;
@@ -80,7 +82,8 @@ export interface DeviceProfile {
   switches: SwitchDef[];
   lamps: LampDef[];
   fault: DeviceState;
-  checkWin: (state: DeviceState) => boolean;
+  requiredCables: readonly CableRequirement[];
+  checkWin: (state: DeviceState, cables?: readonly CableRequirement[]) => boolean;
   computeLamps: (state: DeviceState, win: boolean) => Record<string, LampColor>;
   faultText: string;
   okText: string;

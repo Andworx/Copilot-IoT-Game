@@ -34,7 +34,7 @@ class FakeBackend:
 def plug(cable, a_socket, b_socket):
     return {
         frozenset(((a_socket, a), (b_socket, b)))
-        for a, b in zip(cm.SIDE_A_PINS, cm.CABLES[cable])
+        for a, b in cm.CABLES[cable]["wires"]
     }
 
 
@@ -52,7 +52,7 @@ class SignatureTableTests(unittest.TestCase):
         _table, ambiguous = cm.build_signature_table()
         self.assertEqual(ambiguous, set())
 
-    def test_all_twelve_cables_are_recognisable(self):
+    def test_all_four_cables_are_recognisable(self):
         table, _ = cm.build_signature_table()
         self.assertEqual({c for c, _ in table.values()}, set(cm.CABLES))
 
@@ -64,7 +64,7 @@ class DecodeTests(unittest.TestCase):
         for cable in cm.CABLES:
             for a_socket in config.SOCKET_NODES:
                 for b_socket in config.SOCKET_NODES:
-                    if a_socket == b_socket:
+                    if a_socket == b_socket or [cm.SOCKET_TYPES[a_socket], cm.SOCKET_TYPES[b_socket]] != cm.CABLES[cable]["ends"]:
                         continue
                     wires = plug(cable, a_socket, b_socket)
                     if not all(n in nodes for w in wires for n in w):
@@ -78,29 +78,28 @@ class DecodeTests(unittest.TestCase):
                     )
                     self.assertEqual(sum(plugged.values()), 2)
                     checked += 1
-        self.assertGreater(checked, 12 * 3)
+        self.assertEqual(checked, 10)
 
-    def test_cables_with_b_pin_3_or_4_need_b_in_j1(self):
-        # B pins 3/4 are only wired on J1, so B anywhere else is not seen.
-        m = matrix_for(plug(1, "J2", "J3"))
+    def test_cable_one_in_j4_is_partial_and_unknown(self):
+        m = matrix_for(plug(1, "J4", "J2"))
         cables, plugged = m.decode(m.scan_bridges())
-        self.assertEqual(cables, [])
-        self.assertFalse(any(plugged.values()))
+        self.assertEqual(cables, [{"cable": None, "sockets": ["J2", "J4"]}])
+        self.assertTrue(plugged["J4"])
 
     def test_two_cables_at_once(self):
-        m = matrix_for(plug(4, "J2", "J3") | plug(1, "J4", "J1"))
+        m = matrix_for(plug(1, "J1", "J2") | plug(2, "J4", "J3"))
         cables, plugged = m.decode(m.scan_bridges())
         self.assertEqual(
             sorted(cables, key=lambda c: c["cable"]),
-            [{"cable": 1, "sockets": ["J1", "J4"]}, {"cable": 4, "sockets": ["J2", "J3"]}],
+            [{"cable": 1, "sockets": ["J1", "J2"]}, {"cable": 2, "sockets": ["J3", "J4"]}],
         )
         self.assertTrue(all(plugged.values()))
 
     def test_partial_wire_reports_unknown_cable(self):
-        m = matrix_for(set(list(plug(4, "J2", "J3"))[:1]))
+        m = matrix_for(set(list(plug(4, "J1", "J2"))[:1]))
         cables, plugged = m.decode(m.scan_bridges())
-        self.assertEqual(cables, [{"cable": None, "sockets": ["J2", "J3"]}])
-        self.assertTrue(plugged["J2"] and plugged["J3"])
+        self.assertEqual(cables, [{"cable": None, "sockets": ["J1", "J2"]}])
+        self.assertTrue(plugged["J1"] and plugged["J2"])
 
     def test_empty_panel(self):
         m = matrix_for(set())
@@ -113,12 +112,12 @@ class DebounceTests(unittest.TestCase):
     def test_change_needs_confirm_scans(self):
         m = matrix_for(set())
         self.assertFalse(any(m.read()[1].values()))
-        m._backend.wires |= plug(4, "J2", "J3")
+        m._backend.wires |= plug(4, "J1", "J2")
         _, plugged = m.read()
         self.assertFalse(plugged["J2"])          # first sighting: not accepted yet
         cables, plugged = m.read()
         self.assertTrue(plugged["J2"])
-        self.assertEqual(cables, [{"cable": 4, "sockets": ["J2", "J3"]}])
+        self.assertEqual(cables, [{"cable": 4, "sockets": ["J1", "J2"]}])
 
 
 class LogicMapTests(unittest.TestCase):
