@@ -12,11 +12,22 @@ eps = 0.02;
 safety_hole = 12.0;
 key_hole = 12.0;
 led_panel_hole_d = 5.6;
-led_clip_bore_d = 5.4;
-led_clip_od = 9.4;
-led_clip_h = 3.0;
-led_clip_slit = 1.2;
 screen_led_positions = [[-27, 54], [-9, 54], [9, 54], [27, 54]];
+led_retainer_mount_positions = [[-38, 54], [38, 54]];
+led_retainer_size = [86, 16, 2.4];
+led_retainer_corner_radius = 3.0;
+led_retainer_screw_clearance_d = 3.4;
+led_retainer_boss_d = 7.0;
+led_retainer_boss_h = 1.2;
+led_retainer_boss_pocket_d = 7.4;
+led_retainer_boss_pocket_depth = 1.25;
+led_retainer_pilot_d = 2.6;
+led_retainer_pilot_depth = 3.0;
+led_flange_pocket_d = 6.4;
+led_flange_pocket_depth = 1.2;
+led_wire_hole_d = 3.2;
+led_wire_slit_w = 2.2;
+led_wire_slit_overlap = 0.8;
 face_key_positions = [[-22, 10], [22, 10]];
 face_rocker_positions = [[-22, -13], [22, -13]];
 face_activity_positions = [[-22, 18], [22, 18], [-22, -18], [22, -18]];
@@ -128,17 +139,56 @@ module bottom_id(txt, x = 0, y = 0, size = 2.4) {
                      halign = "center", valign = "center");
 }
 
-module led_split_collar(p) {
+module led_retainer_mount_boss(p) {
+    translate([p[0], p[1], -led_retainer_boss_h])
+        cylinder(d = led_retainer_boss_d, h = led_retainer_boss_h);
+}
+
+module led_retainer_mount_pilot(p) {
+    translate([p[0], p[1], -led_retainer_boss_h - eps])
+        cylinder(d = led_retainer_pilot_d,
+                 h = led_retainer_pilot_depth + eps);
+}
+
+module led_retainer_label() {
+    translate([0, 5.3, led_retainer_size[2] - 0.42])
+        linear_extrude(0.44)
+            text("M1 LED RETAINER RP09", size = 2.2, font = font_bold,
+                 halign = "center", valign = "center", spacing = 1.0);
+}
+
+module screen_led_retainer() {
     difference() {
-        translate([p[0], p[1], module_plate_thickness])
-            cylinder(d = led_clip_od, h = led_clip_h);
-        translate([p[0], p[1], module_plate_thickness - eps])
-            cylinder(d = led_clip_bore_d, h = led_clip_h + 2 * eps);
-        translate([p[0] - led_clip_slit / 2,
-                   p[1] - led_clip_od / 2 - eps,
-                   module_plate_thickness - eps])
-            cube([led_clip_slit, led_clip_od / 2 + eps,
-                  led_clip_h + 2 * eps]);
+        rounded_plate(led_retainer_size[0], led_retainer_size[1],
+                      led_retainer_size[2], led_retainer_corner_radius,
+                      0, -led_retainer_size[1] / 2);
+
+        // The two face bosses register the bar and keep screw loads off the
+        // LED flanges. M3 x 4 mm pan/button-head screws use these clearances.
+        for (x = [-38, 38]) {
+            translate([x, 0, -eps])
+                cylinder(d = led_retainer_boss_pocket_d,
+                         h = led_retainer_boss_pocket_depth + eps);
+            vertical_hole(x, 0, 0, led_retainer_size[2],
+                          led_retainer_screw_clearance_d);
+        }
+
+        // Each rear-inserted LED flange sits in a shallow pocket. The smaller
+        // lead hole and open-bottom slit allow a prewired pair to slide in
+        // without removing a connector or desoldering the LED.
+        for (x = [-27, -9, 9, 27]) {
+            translate([x, 0, -eps])
+                cylinder(d = led_flange_pocket_d,
+                         h = led_flange_pocket_depth + eps);
+            vertical_hole(x, 0, 0, led_retainer_size[2], led_wire_hole_d);
+            translate([x - led_wire_slit_w / 2,
+                       -led_retainer_size[1] / 2 - eps, -eps])
+                cube([led_wire_slit_w,
+                      led_retainer_size[1] / 2 - led_wire_hole_d / 2 +
+                          led_wire_slit_overlap + eps,
+                      led_retainer_size[2] + 2 * eps]);
+        }
+        led_retainer_label();
     }
 }
 
@@ -164,12 +214,11 @@ module screen_core() {
                                   led_panel_hole_d);
                 bottom_id("RP09", 0, 64, 2.6);
             }
-            for (p = screen_led_positions) led_split_collar(p);
+            for (p = led_retainer_mount_positions)
+                led_retainer_mount_boss(p);
         }
-        for (p = screen_led_positions)
-            translate([p[0], p[1], -eps])
-                cylinder(d = led_clip_bore_d,
-                         h = module_plate_thickness + led_clip_h + 2 * eps);
+        for (p = led_retainer_mount_positions)
+            led_retainer_mount_pilot(p);
     }
 }
 
@@ -285,9 +334,12 @@ module preview_layout() {
 assert(text_pocket_depth >= 0.6, "Text pocket too shallow for robust color separation");
 assert(text_proud >= 0.3, "Text relief too low to remain visually distinct");
 assert(text_xy_clearance >= 0.10, "Text insert requires slicer-safe XY clearance");
-assert(screen_led_positions[0][1] - led_clip_od / 2 -
+assert(screen_led_positions[0][1] - led_flange_pocket_d / 2 -
        screen_opening_size[1] / 2 >= 4.7 - eps,
        "Screen LEDs crowd display opening");
+assert(led_retainer_mount_positions[0][0] < screen_led_positions[0][0] &&
+       led_retainer_mount_positions[1][0] > screen_led_positions[3][0],
+       "LED-retainer screws must remain outside the four LED flanges");
 assert(abs(screen_cover_top_y + screen_module_center[1] - panel_back_y) < eps,
        "Screen cover does not reach the fixed panel rear edge");
 assert(abs(screen_cover_height - 136.75) < eps,
@@ -317,3 +369,4 @@ else if (part == "text_coupon_text") coupon_text();
 else if (part == "text_coupon_layer_swap") coupon_layer_swap();
 else if (part == "text_coupon_preview") coupon_preview();
 else if (part == "screen_alignment_preview") screen_alignment_preview();
+else if (part == "screen_led_retainer") screen_led_retainer();

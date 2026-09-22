@@ -1,16 +1,19 @@
 {
   "revision": "RP09",
-  "status": "PASS - revised screen cover requires physical fit approval",
+  "status": "PASS - screen cover, screen seat, and LED retainer require physical fit approval",
   "exports": [
     "activity_face_base.stl",
     "activity_face_layer_swap.stl",
     "activity_face_text.stl",
+    "panel_L.stl",
+    "panel_R.stl",
     "safety_face_base.stl",
     "safety_face_layer_swap.stl",
     "safety_face_text.stl",
     "screen_face_base.stl",
     "screen_face_layer_swap.stl",
     "screen_face_text.stl",
+    "screen_led_retainer.stl",
     "switch_face_base.stl",
     "switch_face_layer_swap.stl",
     "switch_face_text.stl"
@@ -86,6 +89,51 @@
       ]
     ]
   },
+  "screen_seat": {
+    "measured_body_mm": [
+      193.0,
+      110.0,
+      6.04
+    ],
+    "drop_in_cavity_mm": [
+      196.0,
+      112.0
+    ],
+    "support_opening_mm": [
+      187.0,
+      104.0
+    ],
+    "body_bearing_mm_per_edge": [
+      3.0,
+      3.0
+    ],
+    "ledge_thickness_mm": 2.0,
+    "nominal_seat_depth_mm": 6.04,
+    "printed_clearance_mm": 0.02,
+    "display_top_relative_to_panel_mm": -0.02
+  },
+  "screen_led_retainer": {
+    "size_mm": [
+      86.0,
+      16.0,
+      2.4
+    ],
+    "led_centers_x_mm": [
+      -27.0,
+      -9.0,
+      9.0,
+      27.0
+    ],
+    "wire_hole_diameter_mm": 3.2,
+    "wire_loading_slit_width_mm": 2.2,
+    "led_flange_pocket_diameter_mm": 6.4,
+    "led_flange_pocket_depth_mm": 1.2,
+    "mounting_hole_centers_x_mm": [
+      -38.0,
+      38.0
+    ],
+    "mounting_screw": "M3 x 4 mm pan/button head, thread-forming into printed pilot"
+  },
   "rp08_release_stls_verified": 17,
   "meshes": {
     "activity_face_base.stl": {
@@ -119,6 +167,28 @@
       "closed_edges": true,
       "winding_consistent": true,
       "connected_bodies": 25,
+      "fits_256mm_bed": true
+    },
+    "panel_L.stl": {
+      "bounds_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "panel_R.stl": {
+      "bounds_mm": [
+        147.494,
+        217.05,
+        11.0
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
       "fits_256mm_bed": true
     },
     "safety_face_base.stl": {
@@ -158,7 +228,7 @@
       "bounds_mm": [
         220.0,
         136.75,
-        6.2
+        4.4
       ],
       "closed_edges": true,
       "winding_consistent": true,
@@ -169,7 +239,7 @@
       "bounds_mm": [
         220.0,
         136.75,
-        6.2
+        4.8
       ],
       "closed_edges": true,
       "winding_consistent": true,
@@ -185,6 +255,17 @@
       "closed_edges": true,
       "winding_consistent": true,
       "connected_bodies": 21,
+      "fits_256mm_bed": true
+    },
+    "screen_led_retainer.stl": {
+      "bounds_mm": [
+        86.0,
+        16.0,
+        2.4
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
       "fits_256mm_bed": true
     },
     "switch_face_base.stl": {

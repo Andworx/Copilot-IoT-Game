@@ -1,10 +1,14 @@
 # RP09 working revision — high-contrast face text
 
-RP09 changes the four removable faceplates. The screen cover is extended to the
-fixed panel's rear edge and its upper mounting holes use the panel's existing
-rear screw locations. LED positions and collars, the lower screen mounting
-holes, component holes, and the RP08 fixed panels, shell, and trays remain
-unchanged.
+RP09 changes the four removable faceplates and the two fixed panel halves. The
+screen cover is extended to the fixed panel's rear edge and its upper mounting
+holes use the panel's existing rear screw locations. The fixed panel now has an
+integrated drop-in screen seat so the display cannot fall through its carrier
+opening. LED positions, the lower screen mounting holes, component holes,
+shell, and trays remain unchanged.
+
+The four M1 status LEDs now insert from the rear and are captured by one
+removable printed retaining bar. The former integral split collars are removed.
 
 ## Print the coupon first
 
@@ -39,6 +43,7 @@ are also bold, color-capable geometry.
 
 - `screen_face_base.stl` + `screen_face_text.stl`, or
   `screen_face_layer_swap.stl`
+- `screen_led_retainer.stl`
 - `safety_face_base.stl` + `safety_face_text.stl`, or
   `safety_face_layer_swap.stl`
 - `switch_face_base.stl` + `switch_face_text.stl`, or
@@ -57,11 +62,46 @@ holes move from local X +/-105, Y +63 to X +/-95, Y +65.75, matching the
 panel's existing rear screw centers at global X +/-95, Y 218.75. The lower pair
 remain at local X +/-105, Y -63.
 
-No panel reprint or panel drilling is required. The earlier panel-relief option
-is superseded by this cover-only correction.
+The earlier panel-relief option is superseded by the corrected cover geometry.
+The later screen-seat change below does require both fixed panel halves to be
+reprinted; no drilling or shell change is required.
+
+## Screen seat
+
+The measured 193 x 110 x 6.04 mm display drops into the existing 196 x 112 mm
+carrier cavity. A 2 mm-thick underside ledge begins nominally 6.04 mm below the
+panel top and has a 187 x 104 mm through-opening. A 0.02 mm modeled Z clearance
+keeps the glass from holding the cover above the panel. This leaves 3 mm of
+support beneath every screen-body edge and places the display front essentially
+flush with the panel. The M1 Display / Status cover then spans the screen
+perimeter and locks it in place when its four screws are tightened evenly.
+
+Install the display from the top after joining the two fixed panel halves. Feed
+the display cable through the 187 x 104 mm center opening, lower the display
+onto the ledge without forcing it, place the M1 cover over it, and tighten the
+four M1 screws in a diagonal pattern until the cover is seated. Do not use the
+cover screws to force a screen that does not sit freely in the carrier cavity.
+
+This change requires reprinting both `panel_L.stl` and `panel_R.stl` as well as
+the revised M1 cover selected from the production choices above.
+
+## Rear LED retainer
+
+Insert each 5 mm LED through the M1 face from the rear until its flange rests
+against the face. Slide each prewired lead pair upward through the 2.2 mm slit
+into the corresponding 3.2 mm lead hole in `screen_led_retainer.stl`. The
+retainer's four 6.4 x 1.2 mm underside pockets capture the LED flanges without
+crushing them.
+
+Fit the retainer over the two locating bosses and fasten it with two M3 x 4 mm
+pan-head or button-head screws. The screws form threads in the M1 face's 2.6 mm
+blind pilot holes; do not substitute a longer screw because the holes do not
+pass through the visible face. Tighten only until the bar is seated. The
+retainer is labeled `M1 LED RETAINER RP09` on its rear surface.
 
 ## Lineage
 
 The approved RP08 front-control geometry was recovered from source tag
-`model-rp08-source` (`front_controls_rp07.scad`). RP09 reproduces those proven
-dimensions in `front_faces_rp09.scad` and changes only the visible text system.
+`model-rp08-source` (`front_controls_rp07.scad`). RP09 retains its proven
+component positions while adding the high-contrast text system, corrected M1
+cover alignment, fixed-panel screen seat, and removable rear LED retainer.

@@ -259,6 +259,7 @@ module control_panel() {
                           panel_corner_radius,deck_underside_z,panel_front_y);
             panel_ribs();
             panel_module_bosses();
+            screen_seat_support();
         }
 
         // Panel-to-chassis clearance holes. Inserts live in the chassis rail.
@@ -300,13 +301,41 @@ function module_fastener_positions(center,size) =
         [center[0]+dx,center[1]+dy]];
 
 module panel_module_openings() {
+    // Screen: preserve the proven drop-in clearance above the ledge, then use
+    // a smaller through-opening below it so the display cannot fall through.
+    screen_seat_top_z = chassis_height-screen_display_depth;
+    translate([screen_module_center[0]-screen_carrier_size[0]/2,
+               screen_module_center[1]-screen_carrier_size[1]/2,
+               screen_seat_top_z-eps])
+        cube([screen_carrier_size[0],screen_carrier_size[1],
+              screen_display_depth+2*eps]);
+    translate([screen_module_center[0]-screen_seat_opening_size[0]/2,
+               screen_module_center[1]-screen_seat_opening_size[1]/2,
+               screen_seat_top_z-screen_seat_ledge_thickness-eps])
+        cube([screen_seat_opening_size[0],screen_seat_opening_size[1],
+              screen_display_depth+screen_seat_ledge_thickness+2*eps]);
+
+    // The other module bays retain their RP08 through-openings.
     for (spec=panel_module_specs())
-        translate([spec[0][0]-spec[1][0]/2+module_plate_lip,
-                   spec[0][1]-spec[1][1]/2+module_plate_lip,
-                   deck_underside_z-eps])
-            cube([spec[1][0]-2*module_plate_lip,
-                  spec[1][1]-2*module_plate_lip,
-                  panel_thickness+2*eps]);
+        if (spec[2] != "SCREEN")
+            translate([spec[0][0]-spec[1][0]/2+module_plate_lip,
+                       spec[0][1]-spec[1][1]/2+module_plate_lip,
+                       deck_underside_z-eps])
+                cube([spec[1][0]-2*module_plate_lip,
+                      spec[1][1]-2*module_plate_lip,
+                      panel_thickness+2*eps]);
+}
+
+module screen_seat_support() {
+    screen_seat_top_z = chassis_height-screen_display_depth;
+    screen_seat_bottom_z = screen_seat_top_z-screen_seat_ledge_thickness;
+    outer = [screen_carrier_size[0]+2*screen_seat_overlap,
+             screen_carrier_size[1]+2*screen_seat_overlap];
+    translate([screen_module_center[0]-outer[0]/2,
+               screen_module_center[1]-outer[1]/2,
+               screen_seat_bottom_z])
+        cube([outer[0],outer[1],
+              deck_underside_z+screen_seat_join_overlap-screen_seat_bottom_z]);
 }
 
 module panel_module_bosses() {
@@ -713,7 +742,7 @@ module panel_half(left=true) {
                 cube([panel_width/2+20,panel_depth+40,
                       panel_thickness+panel_rib_height+joiner_thickness+4]);
         }
-        recessed_text_cut(left ? "PANEL-L R5" : "PANEL-R R5",
+        recessed_text_cut(left ? "PANEL-L RP09 SEAT" : "PANEL-R RP09 SEAT",
                           left ? -70 : 70,panel_back_y-5,
                           chassis_height,0,3,0.6);
         for(y=[panel_front_y+5,panel_back_y-5])

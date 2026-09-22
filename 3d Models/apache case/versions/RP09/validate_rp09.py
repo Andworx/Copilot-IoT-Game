@@ -74,6 +74,8 @@ expected = {
     for face in ("screen", "safety", "switch", "activity")
     for variant in ("base", "text", "layer_swap")
 }
+expected.update({"panel_L.stl", "panel_R.stl"})
+expected.add("screen_led_retainer.stl")
 actual = {path.name for path in EXPORTS.glob("*.stl")}
 assert actual == expected, (sorted(expected - actual), sorted(actual - expected))
 
@@ -106,6 +108,19 @@ for face, xy in expected_xy.items():
         bounds = meshes[f"{face}_face_{variant}.stl"]["bounds_mm"]
         assert bounds[:2] == xy, (face, variant, bounds)
 
+assert meshes["screen_led_retainer.stl"]["bounds_mm"] == [86.0, 16.0, 2.4], \
+    meshes["screen_led_retainer.stl"]["bounds_mm"]
+assert meshes["screen_face_base.stl"]["bounds_mm"][2] == 4.4
+assert meshes["screen_face_layer_swap.stl"]["bounds_mm"][2] == 4.8
+
+retainer_vertices = {
+    tuple(round(value, 3) for value in point)
+    for tri in triangles(EXPORTS / "screen_led_retainer.stl") for point in tri
+}
+for x in (-27.0, -9.0, 9.0, 27.0):
+    assert (x - 1.1, -8.0, 0.0) in retainer_vertices, (x, "left slit edge")
+    assert (x + 1.1, -8.0, 0.0) in retainer_vertices, (x, "right slit edge")
+
 screen_cover_alignment = {
     "size_mm": [220.0, 136.75],
     "panel_rear_edge_global_y_mm": 221.75,
@@ -115,6 +130,35 @@ screen_cover_alignment = {
     "upper_hole_centers_global_xy_mm": [[-95.0, 218.75], [95.0, 218.75]],
     "led_centers_local_xy_mm": [[-27, 54], [-9, 54], [9, 54], [27, 54]],
 }
+screen_seat = {
+    "measured_body_mm": [193.0, 110.0, 6.04],
+    "drop_in_cavity_mm": [196.0, 112.0],
+    "support_opening_mm": [187.0, 104.0],
+    "body_bearing_mm_per_edge": [3.0, 3.0],
+    "ledge_thickness_mm": 2.0,
+    "nominal_seat_depth_mm": 6.04,
+    "printed_clearance_mm": 0.02,
+    "display_top_relative_to_panel_mm": -0.02,
+}
+assert all(value >= 3.0 for value in screen_seat["body_bearing_mm_per_edge"])
+
+# Confirm the exported split-panel meshes contain the actual seat planes and
+# the 187 x 104 mm support-opening corners.  These checks catch a parameter-only
+# change that was accidentally removed by the panel boolean operations.
+seat_top_z = 70.94
+seat_bottom_z = 68.96
+for filename, outer_x, inner_x in (
+        ("panel_L.stl", -98.0, -93.5),
+        ("panel_R.stl", 98.0, 93.5)):
+    vertices = {
+        tuple(round(value, 3) for value in point)
+        for tri in triangles(EXPORTS / filename) for point in tri
+    }
+    assert any(abs(point[2] - seat_bottom_z) < 0.001 for point in vertices), filename
+    for y in (97.0, 209.0):
+        assert (outer_x, y, seat_top_z) in vertices, (filename, outer_x, y)
+    for y in (101.0, 205.0):
+        assert (inner_x, y, seat_top_z) in vertices, (filename, inner_x, y)
 assert screen_cover_alignment["panel_rear_edge_global_y_mm"] == \
        screen_cover_alignment["cover_rear_edge_global_y_mm"]
 
@@ -144,11 +188,22 @@ for item in rp08_stls:
 
 report = {
     "revision": "RP09",
-    "status": "PASS - revised screen cover requires physical fit approval",
+    "status": "PASS - screen cover, screen seat, and LED retainer require physical fit approval",
     "exports": sorted(actual),
     "calibration_exports": sorted(coupon_actual),
     "text_geometry": text_geometry,
     "screen_cover_alignment": screen_cover_alignment,
+    "screen_seat": screen_seat,
+    "screen_led_retainer": {
+        "size_mm": [86.0, 16.0, 2.4],
+        "led_centers_x_mm": [-27.0, -9.0, 9.0, 27.0],
+        "wire_hole_diameter_mm": 3.2,
+        "wire_loading_slit_width_mm": 2.2,
+        "led_flange_pocket_diameter_mm": 6.4,
+        "led_flange_pocket_depth_mm": 1.2,
+        "mounting_hole_centers_x_mm": [-38.0, 38.0],
+        "mounting_screw": "M3 x 4 mm pan/button head, thread-forming into printed pilot",
+    },
     "rp08_release_stls_verified": len(rp08_stls),
     "meshes": meshes,
 }
@@ -157,5 +212,11 @@ report = {
 print(json.dumps({
     "validated_meshes": len(meshes),
     "rp08_release_stls_verified": len(rp08_stls),
-    "print_next": ["screen_face_base.stl", "screen_face_text.stl"],
+    "print_next": [
+        "panel_L.stl",
+        "panel_R.stl",
+        "screen_face_base.stl",
+        "screen_face_text.stl",
+        "screen_led_retainer.stl",
+    ],
 }, indent=2))

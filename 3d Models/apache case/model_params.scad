@@ -70,6 +70,17 @@ screen_opening_clearance= 1.0; // per side around the measured illuminated area
 screen_opening_size     = [screen_visible_size[0]+2*screen_opening_clearance,
                            screen_visible_size[1]+2*screen_opening_clearance];
 screen_display_depth    = 6.04;
+// RP09 drop-in seat: the existing 196 x 112 mm carrier opening locates the
+// measured screen body, while this smaller opening leaves a 3 mm bearing ledge
+// under every body edge.  The ledge top is one measured display depth below
+// the panel surface so the display finishes flush beneath the M1 cover.
+screen_carrier_size     = [screen_module_size[0]-2*module_plate_lip,
+                           screen_module_size[1]-2*module_plate_lip];
+screen_seat_opening_size = [screen_body_size[0]-6.0,
+                            screen_body_size[1]-6.0];
+screen_seat_ledge_thickness = 2.0;
+screen_seat_overlap     = 2.0;
+screen_seat_join_overlap = 0.5;
 screen_rear_keepout     = 35.0; // front glass to rearmost attached Pi hardware
 screen_old_bezel_size   = [236.0,120.0,3.0];
 screen_old_bezel_opening= [169.0,104.0];
@@ -259,6 +270,12 @@ assert(screen_module_center[0]+screen_module_size[0]/2 < panel_width/2 &&
 assert(screen_body_size[0] <= screen_module_size[0]-2*module_plate_lip &&
        screen_body_size[1] <= screen_module_size[1]-2*module_plate_lip,
        "Selected official display body does not pass through the carrier opening");
+assert(screen_seat_opening_size[0] < screen_body_size[0] &&
+       screen_seat_opening_size[1] < screen_body_size[1],
+       "Screen seat must support the measured display body");
+assert(screen_carrier_size[0] > screen_body_size[0] &&
+       screen_carrier_size[1] > screen_body_size[1],
+       "Screen carrier must retain drop-in clearance around the body");
 assert(rotary_module_center[0]-rotary_module_size[0]/2 > -panel_width/2 &&
        utility_module_center[0]+utility_module_size[0]/2 < panel_width/2 &&
        rotary_module_center[1]-rotary_module_size[1]/2 > panel_front_y,

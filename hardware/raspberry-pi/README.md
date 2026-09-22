@@ -17,8 +17,9 @@ order:
 - `SW1-SW2` — safety switches.
 - `SW3-SW4` — toggle switches.
 - `SW5-SW6` — keyed switches.
-- `J1-J4` — panel-side cable sockets. A socket reads as connected when a
-  cable is plugged into it (see "Cable matrix" below).
+- `J1-J4` — panel-side cable sockets: `J1` is a quad (4-pin) socket, `J2-J4`
+  are double (2-pin) sockets. A socket reads as connected when a cable is
+  plugged into it (see "Cable matrix" below).
 
 The selected mode determines which real-world meaning each control has. The
 same restore sequence is represented in the Power Pages `deviceProfiles.ts` data
@@ -59,8 +60,8 @@ App-selected mode rather than to any physical selector.
 | 2 | Toggle switches | SW3-SW4 |
 | 2 | Keyed switches | SW5-SW6 |
 | 4 | Single-color LEDs (5mm) + 330Ω resistors | LED1 blue, LED2 yellow, LED3 orange, LED4 green; one resistor each, LED cathode/resistor to GND |
-| 4 | 4-pin panel-mount jacks/receptacles (e.g. 4P4C/RJ9 handset jack, or any 4-pin connector) | J1-J4 — wire the contacts listed under "Cable matrix": J1 pins 1-4, J2/J3/J4 pins 1-2 |
-| 10 | 330-470Ω resistors (optional) | One in series with each socket contact wire, for ESD/short protection |
+| 1 | Quad (4-pin) panel-mount jack/receptacle (e.g. 4P4C/RJ9 handset jack, or any 4-pin connector) | J1 — pins 1-4 all wired |
+| 3 | Double (2-pin) panel-mount jacks/receptacles | J2, J3, J4 — pins 1-2 wired |
 | 12 | Demo cables: one 2-pin plug (side A) and one 4-pin quad plug (side B) each | Build list under "Cable matrix" |
 | — | Hookup wire, breadboard/perfboard, pull-up not needed (internal pull-ups used throughout) | |
 
@@ -124,12 +125,17 @@ switch harness, LED harness, cable socket matrix, and common ground rail.
    GPIO22 ──[330Ω]──▶│── GND   (LED3 orange)
    GPIO23 ──[330Ω]──▶│── GND   (LED4 green)
 
-   GPIO4  ──[330Ω]──[J1 pin 1]     GPIO25 ──[330Ω]──[J2 pin 1]
-   GPIO18 ──[330Ω]──[J1 pin 2]     GPIO20 ──[330Ω]──[J2 pin 2]
-   GPIO24 ──[330Ω]──[J1 pin 3]     GPIO2  ──[330Ω]──[J3 pin 1]
-   GPIO16 ──[330Ω]──[J1 pin 4]     GPIO12 ──[330Ω]──[J3 pin 2]
-   GPIO3  ──[330Ω]──[J4 pin 1]     GPIO7  ──[330Ω]──[J4 pin 2]
-        (no socket contact goes to GND; cables bridge contacts to each other)
+   J1 (quad)                        J2 (double)
+   GPIO4  ────[J1 pin 1]            GPIO25 ────[J2 pin 1]
+   GPIO18 ────[J1 pin 2]            GPIO20 ────[J2 pin 2]
+   GPIO24 ────[J1 pin 3]
+   GPIO16 ────[J1 pin 4]            J3 (double)
+                                    GPIO2  ────[J3 pin 1]
+   J4 (double)                      GPIO12 ────[J3 pin 2]
+   GPIO3  ────[J4 pin 1]
+   GPIO7  ────[J4 pin 2]
+        (direct GPIO wiring, no series resistors; no socket contact goes to
+         GND; cables bridge contacts to each other)
 ```
 
 ### Cable matrix
@@ -138,12 +144,12 @@ The four sockets J1-J4 detect **which cable is plugged in and where**, not just
 whether something is plugged in. Every wired socket contact has its own GPIO and
 nothing on a socket goes to GND. A cable only bridges contacts to each other.
 
-| Socket | Wired contacts | Notes |
-|---|---|---|
-| J1 | pins 1, 2, 3, 4 | The only full quad socket. Takes the side B end of any cable that uses B pin 3 or 4. |
-| J2 | pins 1, 2 | The contacts a 2-pin side A plug lands on. |
-| J3 | pins 1, 2 | Same. |
-| J4 | pins 1, 2 | Same. |
+| Socket | Connector | Wired contacts | Notes |
+|---|---|---|---|
+| J1 | Quad (4-pin) | pins 1, 2, 3, 4 | The only quad socket. Takes the side B end of any cable that uses B pin 3 or 4. |
+| J2 | Double (2-pin) | pins 1, 2 | The contacts a 2-pin side A plug lands on. |
+| J3 | Double (2-pin) | pins 1, 2 | Same. |
+| J4 | Double (2-pin) | pins 1, 2 | Same. |
 
 The GPIO for each contact is in the pinout table above and in
 `config.SOCKET_NODES`. Leave unlisted contacts open.

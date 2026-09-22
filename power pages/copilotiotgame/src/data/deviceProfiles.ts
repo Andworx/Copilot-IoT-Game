@@ -1,4 +1,4 @@
-import type { DeviceProfile } from "../types/game";
+import type { DeviceProfile, DeviceState, RestoreStep } from "../types/game";
 
 /**
  * Ported from the validated HTML/JS prototype (see KIOSK_UI_SPEC.md and the "Restore &
@@ -169,8 +169,49 @@ const RESTORE_SEQUENCES = {
 
 type RestoreSequenceKey = keyof typeof RESTORE_SEQUENCES;
 
-function targetLabel(target: boolean) {
-  return target ? "ON / connected" : "OFF / open";
+function controlName(control: RestoreStep) {
+  if (control.physicalPin.startsWith("J")) return control.physicalPin;
+  if (control.physicalPin === "SW5") return "Keyed switch 1";
+  if (control.physicalPin === "SW6") return "Keyed switch 2";
+  return `Switch ${control.physicalPin.replace("SW", "")}`;
+}
+
+function switchAction(control: RestoreStep) {
+  return `Turn ${controlName(control)} ${control.target ? "on" : "off"}`;
+}
+
+function shouldListControl(control: RestoreStep, state?: DeviceState) {
+  return !state || !(control.key in state) || Boolean(state[control.key]) !== control.target;
+}
+
+function socketActionsFrom(sequence: readonly RestoreStep[], state?: DeviceState) {
+  const sockets = sequence.filter((control) => control.physicalPin.startsWith("J"));
+  const connectedSockets = sockets
+    .filter((control) => control.target)
+    .sort((a, b) => a.physicalPin.localeCompare(b.physicalPin));
+  const actions: string[] = [];
+  if (connectedSockets.some((control) => shouldListControl(control, state))) {
+    actions.push(`Connect a cable to ${connectedSockets.map((control) => controlName(control)).join(" and ")}`);
+  }
+  actions.push(
+    ...sockets
+      .filter((control) => !control.target && shouldListControl(control, state))
+      .sort((a, b) => a.physicalPin.localeCompare(b.physicalPin))
+      .map((control) => `Disconnect ${controlName(control)}`)
+  );
+  return actions;
+}
+
+export function restoreActionsFrom(sequence: readonly RestoreStep[], state?: DeviceState) {
+  const switches = sequence
+    .filter((control) => /^SW[1-4]$/.test(control.physicalPin) && shouldListControl(control, state))
+    .sort((a, b) => a.physicalPin.localeCompare(b.physicalPin))
+    .map(switchAction);
+  const keyedSwitches = sequence
+    .filter((control) => /^SW[5-6]$/.test(control.physicalPin) && shouldListControl(control, state))
+    .sort((a, b) => a.physicalPin.localeCompare(b.physicalPin))
+    .map(switchAction);
+  return [...switches, ...keyedSwitches, ...socketActionsFrom(sequence, state)];
 }
 
 function faultFrom(sequence: readonly { key: string; target: boolean }[]) {
@@ -181,12 +222,12 @@ function isRestored(sequence: readonly { key: string; target: boolean }[], state
   return sequence.every((control) => state[control.key] === control.target);
 }
 
-function stepsFrom(sequence: readonly { label: string; target: boolean }[]) {
-  return sequence.map((control, index) => `${index + 1}. Set ${control.label} to ${targetLabel(control.target)}.`);
+function stepsFrom(sequence: readonly RestoreStep[]) {
+  return restoreActionsFrom(sequence).map((action, index) => `${index + 1}. ${action}`);
 }
 
-function restoreItemsFrom(sequence: readonly { label: string; target: boolean }[]) {
-  return sequence.map((control) => `${control.label}: ${targetLabel(control.target)}`);
+function restoreItemsFrom(sequence: readonly RestoreStep[]) {
+  return restoreActionsFrom(sequence);
 }
 
 function sequence(slug: RestoreSequenceKey) {
