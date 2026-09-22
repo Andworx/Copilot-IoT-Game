@@ -34,9 +34,9 @@ cable can satisfy socket-presence rules. These are explicit redesign targets.
 
 ## First implementation
 
-- #112: README and wiring diagram reflect J4 quad contact 3 ? GPIO3 and
-  contact 2 ? GPIO7; J1/J2/J3 unchanged. Record 4 quad / 2 dual cable connectors
-  and the already built Cable 1 (quad 3 ? dual 1, quad 4 ? dual 2).
+- #112: README and wiring diagram reflect J4 quad contact 3 to GPIO3 and
+  contact 2 to GPIO7; J1/J2/J3 unchanged. Record 4 quad / 2 dual cable connectors
+  and the already built Cable 1 (quad 3 to dual 1, quad 4 to dual 2).
 - #102: `lamp_patterns.py` adds restricted boolean condition evaluation,
   steady/slow-blink/fast-blink intent, common all-solid restored behavior, and
   GPIO driving that does not restart background blinking every scan.
@@ -47,13 +47,12 @@ cable can satisfy socket-presence rules. These are explicit redesign targets.
 
 ## Remaining implementation and verification
 
-1. Confirm whether inventory includes Cable 1 and whether J4 has been rewired.
-   Match firmware contact mapping to the physical change. Enumerate the new
-   matrix's readable placements; retain explicit unknown-cable behavior.
-2. Choose remaining physical cable builds from actual available connectors.
-   Add quad-to-quad signatures only after choosing their contact wiring; reject
-   ambiguous identities in tests. Do not infer four wired contacts from a quad
-   housing. Cable 1 needs its quad end in J1, not J4.
+1. Inventory and J4 wiring confirmed by owner. Four-cable design and twelve
+   distinct recipes are in [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md); automated
+   design tests pass. New cables still need building and live continuity checks.
+2. Integrate `cable-build-plan.json` into the decoder and update J4's firmware
+   mapping together. Retire historical IDs, reject partial/unknown cables, and
+   implement exact recipe matching in Pi and kiosk together.
 3. Author a distinct per-mode LED story with semantic labels and conditions.
    Keep a common all-four-solid restored cue; use a short nonblocking chase
    on mode change. Do not delay GPIO scanning or telemetry for the animation.

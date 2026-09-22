@@ -171,37 +171,22 @@ something the build list does not recognise, such as a cable with a broken wire.
 A plug that lands only on unwired contacts (for example a side B plug using pin
 3 in J2) reads as unplugged.
 
-### Cable inventory and build status (#112)
+### Confirmed four-cable build plan (#112)
 
-The recorded inventory is **4 quad connectors and 2 dual connectors**. Confirm
-whether those counts include the connectors used by Cable 1 before planning
-additional builds. Only Cable 1 is confirmed built:
+Cable 1 is already built. The owner confirmed **4 spare quad and 2 spare dual
+connectors in addition to Cable 1**, and J4 is already wired on contacts 3/2.
+Build two quad-to-dual cables and one quad-to-quad cable from that stock.
 
-| Cable | Quad end | Dual end | Fully readable placement |
-|---|---|---|---|
-| 1 | contact 3 | contact 1 | Quad in J1; dual in J2 or J3 |
-| 1 | contact 4 | contact 2 | Same placement; both wires are required |
+See [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md) for the exact pinouts, valid
+placements, twelve proposed mode use cases, and continuity checks. The wiring
+diagram now includes a **Cable Build Plan** page with each wire drawn.
+`cable-build-plan.json` is the tested design source.
 
-A quad socket does not imply four wired contacts. Cable 1 cannot be fully read
-with its quad end in J4 because J4 contact 4 is unwired. J4 has only contacts
-2 and 3 wired; do not treat it as the old dual contact 1/2 socket.
-
-`cable_matrix.py:CABLES` retains the historical twelve dual-to-quad electrical
-signatures. Those signatures are a decoder catalogue, **not twelve existing
-cables or a current build instruction**. Recalculate valid placements using the
-new J4 contact map before choosing the remaining cable builds. Quad-to-quad
-builds require an explicit new catalogue and ambiguity tests.
-
-### Wiring rollout
-
-This document and the draw.io diagram describe the requested #112 wiring.
-The live wiring change has not yet been verified. `config.py` still describes
-the previous J4 contact 1/2 wiring; update it to `{3: 3, 2: 7}` together with the
-physical change, then rerun cable decoder tests and verify every installed cable
-on the Pi. Do not deploy a contact-map change to an unmodified panel.
-
-See [MODE-DIFFERENTIATION-PLAN.md](MODE-DIFFERENTIATION-PLAN.md) for the coordinated
-LED and puzzle work, including current mode target differences.
+Firmware integration remains pending: `config.py` still uses the old J4 contact
+map and `cable_matrix.py` still uses the historical twelve-signature catalogue.
+The new build IDs must be integrated with cable-aware win checks and kiosk help
+before the new set is used in the game. Do not deploy the old decoder with new
+number labels and assume its reported identities match this plan.
 
 ## Software design
 
