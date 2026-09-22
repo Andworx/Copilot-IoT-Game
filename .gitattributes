@@ -1,0 +1,5 @@
+# Shell scripts are executed directly via their shebang on Linux (Pi systemd
+# units invoke them by path, e.g. `cage -- kiosk-browser.sh`). A CRLF shebang
+# line fails there ("bad interpreter"), so force LF regardless of the
+# checkout platform's core.autocrlf setting.
+*.sh text eol=lf

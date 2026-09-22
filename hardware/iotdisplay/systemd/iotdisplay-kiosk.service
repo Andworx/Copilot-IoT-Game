@@ -1,0 +1,30 @@
+[Unit]
+Description=iotdisplay kiosk (cage + Chromium)
+# Same no-battery-clock issue as the panel Pi (see
+# hardware/raspberry-pi/README.md "Why the time-sync line matters"): the
+# kiosk's TLS handshake and any signed-in session cookie both need a correct
+# clock, so wait for time sync before showing the kiosk page.
+After=getty@tty1.service network-online.target time-sync.target
+Wants=network-online.target time-sync.target
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+User=pi
+PAMName=login
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+# TTYPath above grants seat/DRM access via logind, not text I/O -- without
+# these, systemd defaults stdout/stderr to the tty instead of the journal,
+# so `journalctl -u iotdisplay-kiosk` shows nothing on a crash.
+StandardOutput=journal
+StandardError=journal
+WorkingDirectory=/home/pi/restore-and-spin/hardware/iotdisplay
+ExecStart=/usr/bin/cage -s -- /home/pi/restore-and-spin/hardware/iotdisplay/kiosk-browser.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical.target

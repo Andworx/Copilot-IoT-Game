@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodic health check for iotdisplay-kiosk.service
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=30s
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target
