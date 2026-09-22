@@ -5,9 +5,8 @@ Issue: #73 (epic); foundation #75 / #76; thermostat pilot #77.
 ## Implemented foundation
 
 `src/components/surfaces/registry.tsx` selects a read-only surface via
-`DeviceProfile.surfaceKind`. The remaining legacy layouts are transitional adapters;
-`device.instruments` explicitly binds their dial, gauge, guards, button, and signal.
-Array order only arranges independent controls and never defines instrument meaning.
+`DeviceProfile.surfaceKind`. All twelve modes now select dedicated surfaces.
+Each surface binds controls by semantic key; array order never defines instrument meaning.
 The `PanelSurfaceProps` contract includes state, semantic lamps, completion, connection
 freshness, and all ten physical control mappings. There is no mutation callback.
 `PanelSurface` owns the connection banner and semantic status strip. Do not add a
@@ -26,11 +25,13 @@ No measured temperatures, pressures, vitals, or signal levels are inferred from 
 switches. Stale status is explicit and activity animations pause; reduced motion disables
 instrument animation.
 
-The twelve surfaces are migration destinations, not a claim that all twelve dedicated
-UIs have shipped. The thermostat, Smart Lock, Retail Payment Kiosk, Traffic Signal Controller, Field Radio, Drone Ground Control and Water Pump have dedicated surfaces; the other five retain adapters.
+All twelve dedicated surfaces are implemented in the combined PR. The per-mode
+sections below describe behavior and local validation; production/Pi checks remain Verify.
 
 
-The current kiosk implementation uses five reusable panel layouts with per-device skinning. That made the first build efficient, but the modes now read too similarly. The next iteration should keep the shared kiosk shell and telemetry contracts, while replacing the five shared layouts with twelve mode-specific instrument surfaces.
+The original kiosk used five reusable layouts with per-device skinning. Dedicated
+surfaces now preserve the shared kiosk shell and telemetry contracts while giving
+each mode a distinct geometry.
 
 ## Architecture Direction
 
@@ -226,6 +227,74 @@ illustration only; no flight command or Pi firmware change is involved.
 inputs, invalid/stale data, read-only interaction, both win paths, takeoff, duplicate
 telemetry, reduced motion, mode reset, Help Fix and narrow layout. Live validation
 remains Verify.
+
+## Industrial Robot Arm (#88)
+
+A guarded cell schematic with articulated arm sits beside a read-only teach pendant.
+E-stop reset, servo, guard-fault, cell-access and pendant-key controls bind semantically.
+Guard fault follows the existing active-high fault meaning; no physical robot safety
+state is invented. Every final-configuration requirement gates the explicitly simulated
+motion. Stale/unknown readings and each interlock stop it; reduced motion is static.
+No joint coordinates or machine commands are emitted. Physical mappings remain opt-in.
+
+`node "power pages/copilotiotgame/tests/check-robot-arm.mjs"` covers independent
+controls, all motion blockers, invalid/stale data, ON/OFF wins, QR/duplicates, mode
+isolation, reduced motion, Help Fix and narrow layout. Live remains Verify under #70.
+
+## Elevator (#83)
+
+The dedicated shaft/car diagram sits beside independent door indication, brake-release
+and inspection interlocks. Door geometry follows its own control; no floor or position
+measurement is invented. Simulated car travel requires the complete restored state;
+any unknown/power/door/brake/inspection/key/circuit blocker stops it. Reduced motion
+keeps the car static. Physical mappings remain in gear setup / Help Fix.
+
+`node "power pages/copilotiotgame/tests/check-elevator.mjs"` checks independent
+controls, every travel interlock, power/invalid/stale states, ON/OFF wins, QR/duplicates,
+mode isolation, animation/reduced motion, Help Fix and narrow layout. Live remains Verify.
+
+## EV Charger (#82)
+
+A charger pedestal, vehicle and cable schematic sit beside a vertical readiness chain.
+Power, ground check, contactor, billing and service lock bind to current semantic
+controls, without obsolete breaker/schedule names. The status identifies the first
+blocked stage; remaining key/circuit faults still prevent completion. Cable motion
+is a simulated energy path, gated by full restoration. No battery percentage,
+charge rate or actual charging result is claimed. Stale data stops activity and
+reduced motion shows a static schematic. Physical mappings remain opt-in.
+
+`node "power pages/copilotiotgame/tests/check-ev-charger.mjs"` checks every interlock,
+independent controls, invalid/stale data, ON/OFF wins, QR/duplicate protection,
+mode isolation, animation/reduced motion, Help Fix and narrow layout. Live remains Verify.
+
+## Cold-Chain Sensor (#79)
+
+The dedicated logger separates probe calibration, a temperature window and threshold
+rails from cloud sync. Calibration and threshold state determine reading-control
+readiness independently of cloud sync. Temperature remains unmeasured and no historical
+trend, numerical limit, upload receipt or actual cold-storage condition is invented.
+The win message confirms restored controls rather than asserting storage is stable.
+Power loss and stale/missing telemetry remain explicit; all mappings stay in opt-in help.
+
+`node "power pages/copilotiotgame/tests/check-coldchain.mjs"` verifies independent
+controls, reading/cloud separation, power/invalid/stale states, both completion paths,
+QR, duplicate protection, mode isolation, Help Fix and narrow layout. Live checks remain Verify.
+
+## Patient Monitor (#85)
+
+A wide dual-channel waveform display, separate lead/SpO2 sensor tiles and an alarm
+strip replace the dial adapter. Each sensor binds independently to current Boolean
+telemetry. Disconnected, unpowered or unknown sensors show unavailable text and no
+waveform (not a misleading clinical flatline). Enabled channels display explicitly
+simulated traces; no heart rate or oxygen percentage is invented. Audible-alarm
+control status remains independent of sensor connectivity. Reduced motion freezes
+traces; stale readings remove them. The win copy describes restored controls, not
+real vitals streaming. Physical setup/help and all ten restore requirements remain.
+
+`node "power pages/copilotiotgame/tests/check-patient-monitor.mjs"` covers independent
+sensors/alarm, missing channels, invalid input, power, both win paths, QR, duplicate
+protection, rotation/isolation, stale data, reduced motion, Help Fix and narrow layout.
+Live validation remains Verify under #70.
 
 ## Water Pump (#80)
 

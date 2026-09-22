@@ -71,8 +71,45 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Validation passed: all 60 surface fixtures, dedicated drone and shared kiosk win flows, visual review at 800x480 and narrow widths, and Node 22 clean installs/builds for all three apps. All 12,288 Pi/UI configurations agree. Issue #87 updated with takeoff acceptance criteria. Live validation remains Verify.
 
 
+## Epic #73 remaining work / Robot Arm #88
+- Elevator #83 is ready in PR #110 (b93b81e), after browser/build validation and recovery from the approval-review usage limit.
+- Added guarded cell and teach pendant. E-stop/servo/guard/key/circuit conditions gate simulated motion; no physical robot command or invented joint measurement.
+- This is the final dedicated surface implementation. Combined validation and remaining foundation/live acceptance audit still required.
+- Robot validation passed: all 60 fixtures, independent controls and every interlock, ON/OFF wins/QR/duplicates/rotation, stale data, reduced motion and narrow layout. Screenshots reviewed. Node 22 clean installs/builds pass for all three apps; 12,288 Pi/UI configurations agree. Elevator PR #110 CI passed. Combined and live validation remain.
+
+## Epic #73 remaining work / Elevator #83
+- Rechecked GitHub/main: PRs #106-109 remain open. Elevator and Robot Arm are the last unimplemented dedicated surfaces.
+- Added shaft/car composition and independent door/brake/inspection states. Full final configuration gates simulated travel; no floor measurements or new puzzle mechanics.
+- Started dedicated interlock, lifecycle and visual checks. Live remains Verify.
+- Resumed after automatic approval-review usage limit; pending builds confirmed successful. All 60 fixtures and dedicated elevator interlock/win/isolation tests pass; kiosk/narrow screenshots reviewed. Node 22 clean installs/builds pass for all three apps, all 12,288 Pi/UI configurations agree. Live remains Verify.
+
+## Epic #73 remaining work / EV Charger #82
+- Cold-Chain #79 prepared in PR #108 (84f7334); Patient #107 CI passed. Started EV from current main, preserving independent PRs.
+- Built charger/vehicle/cable schematic and readiness chain. Ground, contactor, billing and service-lock states independently reflect inputs; all ten requirements gate simulated energy motion.
+- Corrected frontend win copy to describe charging controls, with no actual battery/rate claim. Testing in progress; live remains Verify.
+- EV validation: all 60 fixture checks and dedicated independent-control/interlock/win/rotation suite pass. Kiosk/narrow screenshots reviewed. Node 22 clean installs/builds pass for all three apps; all 12,288 configurations agree. Cold-Chain PR #108 CI passed. Live remains Verify.
+
+## Epic #73 remaining work / Cold-Chain Sensor #79
+- Revalidated main and open PRs: Water Pump #106 and Patient Monitor #107 remain open; their changes are isolated from this branch.
+- Added logger/probe/threshold/cloud composition, independent reading-control readiness and cloud sync. Temperature remains unmeasured; no fabricated trend or cloud receipt.
+- Updated frontend win copy to confirm controls rather than assert cold storage stability. Testing in progress; live remains Verify.
+- Cold-chain validation passed: all 60 fixtures plus independent calibration/threshold/cloud, both wins, QR, rotation, stale, Help Fix and narrow tests. Screenshots reviewed. Node 22 clean installs/builds pass for all three apps; 12,288 Pi/UI configurations agree. Patient PR #107 CI is also green.
+
+## Epic #73 remaining work / Patient Monitor #85
+- Water Pump #80 prepared separately in PR #106 (c310714), with local browser/build validation complete and live checks pending.
+- Started Patient Monitor from current main. Added separate ECG/pulse demonstration traces, independent sensor states and alarm strip. Unknown/disconnected channels omit waveform; reduced motion freezes it.
+- Corrected frontend win copy to avoid claiming actual vitals streaming. No Pi contracts or puzzle rules changed.
+- Patient validation: 60 fixture checks and dedicated sensor/alarm/win/rotation suite pass; reviewed kiosk/narrow screenshots. Node 22 clean installs/builds pass for all three apps, and all 12,288 Pi/UI configurations agree. Live remains Verify. Epic checklist now reflects authoritative closed child issues.
+
 ## Epic #73 remaining work / Water Pump #80
 - User requested all remaining epic issues. Revalidated GitHub/main: #87 merged; dedicated surfaces remain for #79, #80, #82, #83, #85, #88. #75-77 and #70 also remain open for completion audit/live checks.
 - Started #80 pilot on feat/water-pump-surface from origin/main. Built semantic tank/relief/pump/outlet diagram and pressure preview; no physical identifiers or new puzzle rules.
 - Full configuration gates simulated flow/impeller motion. Separate control status still explains incremental progress. Testing in progress.
 - Water Pump validation: 60 mode/state fixtures, dedicated interlock/win/rotation suite, reduced motion and Help Fix pass. Reviewed 800x480/narrow screenshots. Node 22 clean installs/builds pass for all three apps; 12,288 contract configurations agree. Live remains Verify.
+
+
+## Merge recovery after PR #106
+- User merged Water Pump #106; shared registry, fixture selectors and documentation then conflicted in remaining PRs.
+- Merged current main and all remaining mode work into feat/robot-arm-surface, preserving each dedicated component, test and note. Removed all remaining registry adapters.
+- Built every intermediate combination successfully; all 12,288 contracts pass each time. Simulated squash-merge sequence showed sequential mode PRs would conflict again, so PR #111 is being consolidated to include all five remaining modes and supersede #107-110.
+- Combined browser suites in progress. Do not claim production/live validation complete; #70 remains open.
