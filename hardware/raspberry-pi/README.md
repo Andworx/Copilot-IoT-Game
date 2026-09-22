@@ -17,8 +17,8 @@ order:
 - `SW1-SW2` — safety switches.
 - `SW3-SW4` — toggle switches.
 - `SW5-SW6` — keyed switches.
-- `J1-J4` — panel-side cable sockets: `J1` is a quad (4-pin) socket, `J2-J4`
-  are double (2-pin) sockets. A socket reads as connected when a cable is
+- `J1-J4` — panel-side cable sockets: `J1` and `J4` are quad (4-pin) sockets; `J2-J3`
+  are double (2-pin) sockets. J4 wires only contacts 3 and 2. A socket reads as connected when a cable is
   plugged into it (see "Cable matrix" below).
 
 The selected mode determines which real-world meaning each control has. The
@@ -60,9 +60,10 @@ App-selected mode rather than to any physical selector.
 | 2 | Toggle switches | SW3-SW4 |
 | 2 | Keyed switches | SW5-SW6 |
 | 4 | Single-color LEDs (5mm) + 330Ω resistors | LED1 blue, LED2 yellow, LED3 orange, LED4 green; one resistor each, LED cathode/resistor to GND |
-| 1 | Quad (4-pin) panel-mount jack/receptacle (e.g. 4P4C/RJ9 handset jack, or any 4-pin connector) | J1 — pins 1-4 all wired |
-| 3 | Double (2-pin) panel-mount jacks/receptacles | J2, J3, J4 — pins 1-2 wired |
-| 12 | Demo cables: one 2-pin plug (side A) and one 4-pin quad plug (side B) each | Build list under "Cable matrix" |
+| 2 | Quad (4-pin) panel-mount jacks/receptacles | J1: contacts 1-4; J4: contacts 3 and 2 only |
+| 2 | Double (2-pin) panel-mount jacks/receptacles | J2, J3: contacts 1-2 wired |
+| 4 quad + 2 dual | Available cable connectors recorded in #112 | Inventory inclusion of the built Cable 1 awaits confirmation |
+| 1 | Confirmed built cable: quad to dual | Quad 3 ? dual 1; quad 4 ? dual 2 |
 | — | Hookup wire, breadboard/perfboard, pull-up not needed (internal pull-ups used throughout) | |
 
 ## GPIO pinout (BCM numbering)
@@ -93,7 +94,7 @@ No external resistors are needed except the LED current-limiting resistors.
 | J2 pin 2 | J2P2 | GPIO20 | 38 |
 | J3 pin 1 | J3P1 | GPIO2 | 3 |
 | J3 pin 2 | J3P2 | GPIO12 | 32 |
-| J4 pin 1 | J4P1 | GPIO3 | 5 |
+| J4 pin 3 | J4P3 | GPIO3 | 5 |
 | J4 pin 2 | J4P2 | GPIO7 | 26 |
 
 **20 of the Pi's 26 usable GPIO pins used, 6 spare** (GPIO8, 9, 10, 11, 14, 15 —
@@ -131,8 +132,8 @@ switch harness, LED harness, cable socket matrix, and common ground rail.
    GPIO24 ────[J1 pin 3]
    GPIO16 ────[J1 pin 4]            J3 (double)
                                     GPIO2  ────[J3 pin 1]
-   J4 (double)                      GPIO12 ────[J3 pin 2]
-   GPIO3  ────[J4 pin 1]
+   J4 (quad)                      GPIO12 ────[J3 pin 2]
+   GPIO3  ────[J4 pin 3]
    GPIO7  ────[J4 pin 2]
         (direct GPIO wiring, no series resistors; no socket contact goes to
          GND; cables bridge contacts to each other)
@@ -146,10 +147,10 @@ nothing on a socket goes to GND. A cable only bridges contacts to each other.
 
 | Socket | Connector | Wired contacts | Notes |
 |---|---|---|---|
-| J1 | Quad (4-pin) | pins 1, 2, 3, 4 | The only quad socket. Takes the side B end of any cable that uses B pin 3 or 4. |
+| J1 | Quad (4-pin) | pins 1, 2, 3, 4 | Unchanged; the only socket with all four contacts wired. |
 | J2 | Double (2-pin) | pins 1, 2 | The contacts a 2-pin side A plug lands on. |
 | J3 | Double (2-pin) | pins 1, 2 | Same. |
-| J4 | Double (2-pin) | pins 1, 2 | Same. |
+| J4 | Quad (4-pin) | pins 3, 2 | Contact 3 to GPIO3; contact 2 to GPIO7. Contacts 1/4 unwired. |
 
 The GPIO for each contact is in the pinout table above and in
 `config.SOCKET_NODES`. Leave unlisted contacts open.
@@ -170,37 +171,37 @@ something the build list does not recognise, such as a cable with a broken wire.
 A plug that lands only on unwired contacts (for example a side B plug using pin
 3 in J2) reads as unplugged.
 
-### Demo cable build list
+### Cable inventory and build status (#112)
 
-Side A is always a **2-pin plug** that lands on socket contacts 1 and 2; side B
-is a **4-pin quad plug**. Each cable has two wires. The 12 cables below are all
-of the two-wire patterns, and each produces a different set of bridged contacts,
-so the Pi can tell every one apart.
+The recorded inventory is **4 quad connectors and 2 dual connectors**. Confirm
+whether those counts include the connectors used by Cable 1 before planning
+additional builds. Only Cable 1 is confirmed built:
 
-| Cable | Pinout | B end must go in | A end goes in |
+| Cable | Quad end | Dual end | Fully readable placement |
 |---|---|---|---|
-| Cable 1 | A1 to B3, A2 to B4 | J1 | J2, J3 or J4 |
-| Cable 2 | A1 to B3, A2 to B1 | J1 | J2, J3 or J4 |
-| Cable 3 | A1 to B3, A2 to B2 | J1 | J2, J3 or J4 |
-| Cable 4 | A1 to B1, A2 to B2 | any socket | any other socket |
-| Cable 5 | A1 to B1, A2 to B4 | J1 | J2, J3 or J4 |
-| Cable 6 | A1 to B2, A2 to B4 | J1 | J2, J3 or J4 |
-| Cable 7 | A1 to B4, A2 to B3 | J1 | J2, J3 or J4 |
-| Cable 8 | A1 to B1, A2 to B3 | J1 | J2, J3 or J4 |
-| Cable 9 | A1 to B2, A2 to B3 | J1 | J2, J3 or J4 |
-| Cable 10 | A1 to B2, A2 to B1 | any socket | any other socket |
-| Cable 11 | A1 to B4, A2 to B1 | J1 | J2, J3 or J4 |
-| Cable 12 | A1 to B4, A2 to B2 | J1 | J2, J3 or J4 |
+| 1 | contact 3 | contact 1 | Quad in J1; dual in J2 or J3 |
+| 1 | contact 4 | contact 2 | Same placement; both wires are required |
 
-Cables 4 and 10 are the only ones that work between any pair of sockets. Cable 4
-is a straight 1-to-1, 2-to-2 lead and Cable 10 is crossed. The other ten need
-the quad end in J1. Label both ends (`C7-A`, `C7-B`) so they go in the right
-way round.
+A quad socket does not imply four wired contacts. Cable 1 cannot be fully read
+with its quad end in J4 because J4 contact 4 is unwired. J4 has only contacts
+2 and 3 wired; do not treat it as the old dual contact 1/2 socket.
 
-Single-wire cables are possible too, but they are not in the catalogue (two of
-them are mirror images the Pi cannot tell apart). Add any you want to `CABLES`
-in `cable_matrix.py`. `python -m unittest test_cable_matrix` (from this folder,
-no Pi needed) checks that no two cables in `CABLES` can be confused.
+`cable_matrix.py:CABLES` retains the historical twelve dual-to-quad electrical
+signatures. Those signatures are a decoder catalogue, **not twelve existing
+cables or a current build instruction**. Recalculate valid placements using the
+new J4 contact map before choosing the remaining cable builds. Quad-to-quad
+builds require an explicit new catalogue and ambiguity tests.
+
+### Wiring rollout
+
+This document and the draw.io diagram describe the requested #112 wiring.
+The live wiring change has not yet been verified. `config.py` still describes
+the previous J4 contact 1/2 wiring; update it to `{3: 3, 2: 7}` together with the
+physical change, then rerun cable decoder tests and verify every installed cable
+on the Pi. Do not deploy a contact-map change to an unmodified panel.
+
+See [MODE-DIFFERENTIATION-PLAN.md](MODE-DIFFERENTIATION-PLAN.md) for the coordinated
+LED and puzzle work, including current mode target differences.
 
 ## Software design
 
