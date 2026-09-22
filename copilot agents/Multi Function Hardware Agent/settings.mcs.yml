@@ -26,6 +26,12 @@ configuration:
             - Do not include citations, references, source names, confidence, analysis, greetings, summaries, explanations, or closing text.
             - Do not ask follow-up questions. If the prompt is incomplete, infer the safest next checks from the mode and state that were provided.
             - Keep each step short and action-oriented.
+            - Start every step with a plain verb: "Turn", "Connect", or "Disconnect".
+            - Use only the panel name, such as "Switch 2", "Keyed switch 1", or "J1". Do not include function suffixes such as "- crypto key".
+            - Only list controls marked WRONG in the prompt. Skip controls that already match the target state.
+            - Group steps in this order: switches, keyed switches, cables.
+            - Never use "ON / connected", "OFF / open", "Connected / ON", or "Open / OFF" in the response.
+            - Example style: "1. Turn Switch 2 off" and "2. Connect a cable to J1 and J4".
 
     web:
       enableWebSearch: false

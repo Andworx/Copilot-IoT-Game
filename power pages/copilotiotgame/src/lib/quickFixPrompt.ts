@@ -1,5 +1,6 @@
 import type { DeviceProfile, DeviceState } from "../types/game";
 import type { PanelCable } from "../types/telemetry";
+import { restoreActionsFrom } from "../data/deviceProfiles";
 
 const stateWord = (on: boolean, isSocket: boolean) => (isSocket ? (on ? "CONNECTED" : "OPEN") : on ? "ON" : "OFF");
 
@@ -20,6 +21,9 @@ export function buildQuickFixPrompt(
   state: DeviceState,
   cables: PanelCable[] | undefined
 ): string {
+  const actions = restoreActionsFrom(device.restoreSequence, state)
+    .map((action, index) => `${index + 1}. ${action}`)
+    .join("\n");
   const controls = device.restoreSequence
     .map((step, index) => {
       const isSocket = step.physicalPin.startsWith("J");
@@ -27,7 +31,7 @@ export function buildQuickFixPrompt(
       const verdict = current === step.target ? "OK" : "WRONG";
       return (
         `${index + 1}. ${step.physicalPin} ${step.label}: currently ${stateWord(current, isSocket)}, ` +
-        `needs ${stateWord(step.target, isSocket)} (${verdict})`
+        `${verdict}`
       );
     })
     .join("\n");
@@ -40,8 +44,10 @@ export function buildQuickFixPrompt(
     `${controls}\n` +
     `CABLES: ${describeCables(cables)} A socket reads CONNECTED only while both ends of a cable are plugged in, ` +
     `so sockets connect and disconnect in pairs.\n` +
+    `ACTIONS_TO_RETURN:\n${actions}\n` +
     `What must the player change, in order, to restore this device? ` +
-    `Reply with ONLY a plain numbered list of actions for the controls marked WRONG. ` +
+    `Reply with ONLY the numbered ACTIONS_TO_RETURN list. ` +
+    `Each action must start with Turn, Connect, or Disconnect. ` +
     `No emojis, no citations, no markdown, no preamble, no explanation.`
   );
 }

@@ -3,6 +3,7 @@
 Requires reportlab. Run from any directory; output is output/pdf/.
 """
 from pathlib import Path
+import json
 import re
 from xml.sax.saxutils import escape
 
@@ -41,23 +42,53 @@ def table(rows, widths, row_height=None):
     ]))
     return t
 
+def control_name(control):
+    pin = control['physicalPin']
+    if pin.startswith('J'):
+        return pin
+    if pin == 'SW5':
+        return 'Keyed switch 1'
+    if pin == 'SW6':
+        return 'Keyed switch 2'
+    return 'Switch ' + pin.replace('SW', '')
+
+def switch_action(control):
+    return f"Turn {control_name(control)} {'on' if control['target'] else 'off'}"
+
+def restore_actions(sequence):
+    actions = []
+    for control in sorted([c for c in sequence if re.match(r'^SW[1-4]$', c['physicalPin'])], key=lambda c: c['physicalPin']):
+        actions.append(switch_action(control))
+    for control in sorted([c for c in sequence if re.match(r'^SW[5-6]$', c['physicalPin'])], key=lambda c: c['physicalPin']):
+        actions.append(switch_action(control))
+    sockets = [c for c in sequence if c['physicalPin'].startswith('J')]
+    connected = sorted([c for c in sockets if c['target']], key=lambda c: c['physicalPin'])
+    if connected:
+        actions.append('Connect a cable to ' + ' and '.join(control_name(c) for c in connected))
+    actions.extend(
+        'Disconnect ' + control_name(control)
+        for control in sorted([c for c in sockets if not c['target']], key=lambda c: c['physicalPin'])
+    )
+    return actions
+
+def state_text(control):
+    if control['physicalPin'].startswith('J'):
+        return 'connected' if control['target'] else 'open'
+    return 'on' if control['target'] else 'off'
+
 modes = []
 for block in re.split(r'^### Mode ', SOURCE, flags=re.M)[1:]:
     number, title = re.match(r'(\d+): (.+)', block).groups()
     slug = re.search(r'\*\*Device slug:\*\* `([^`]+)`', block).group(1)
-    rows = [[v.strip() for v in line.strip('|').split('|')] for line in block.splitlines()
-            if re.match(r'^\| \d+ \|', line)]
-    assert len(rows) == 10 and [int(r[0]) for r in rows] == list(range(1, 11))
-    success = re.search(r'\*\*Success check:\*\* (.+)', block).group(1)
-    modes.append((number, title, slug, rows, success))
-assert len(modes) == 12
-
-# Cross-check the maintained procedures before generating participant material.
-import json
-for number, title, slug, rows, success in modes:
     profile = json.loads((HERE / 'logic_maps' / f'{slug}.json').read_text(encoding='utf-8'))
-    assert [(r[1], r[2], r[3] == 'Connected / ON') for r in rows] == [
-        (s['physicalPin'], s['label'], s['target']) for s in profile['restoreSequence']], slug
+    sequence = profile['restoreSequence']
+    rows = [[str(i), s['physicalPin'], s['label'], state_text(s), switch_action(s) if s['physicalPin'].startswith('SW') else state_text(s)] for i, s in enumerate(sequence, 1)]
+    actions = restore_actions(sequence)
+    manual_actions = re.findall(r'^\d+\. (.+)', block, flags=re.M)
+    assert manual_actions == actions, slug
+    success = re.search(r'\*\*Success check:\*\* (.+)', block).group(1)
+    modes.append((number, title, slug, rows, success, actions))
+assert len(modes) == 12
 
 styles['title'].fontSize = 24
 styles['title'].leading = 28
@@ -74,12 +105,6 @@ def h(text): return ('heading', text)
 def tb(rows, widths): return ('table', rows, widths)
 def ref(key): return '{{' + key + '}}'
 def mr(number, part): return ref(f'm{number}-{part}')
-def action(row):
-    on = row[3] == 'Connected / ON'
-    return ('Plug in' if on else 'Unplug') if row[1].startswith('J') else ('Set ON' if on else 'Set OFF')
-def state(row):
-    on = row[3] == 'Connected / ON'
-    return ('connected' if on else 'open') if row[1].startswith('J') else ('ON / closed' if on else 'OFF / open')
 
 page('cover', 'Pi Panel<br/>Restoration &amp; troubleshooting handbook', 'RESTORE & SPIN / PARTICIPANT EDITION',
     'Twelve operating modes. Six switches. Four sockets. A systematic approach to identifying the selected configuration, restoring its inputs, and confirming completion.',
@@ -97,7 +122,7 @@ page('contents', 'Contents', 'READER NAVIGATION',
     tb([['Section', 'Page'], ['Operating method',ref('method')], ['Switch identification',ref('switches')],
         ['Socket interpretation',ref('sockets')], ['Indicator interpretation',ref('leds')],
         ['Initial condition survey',ref('survey')], ['Diagnostic routing',ref('routing')]] +
-       [[f'{int(n):02}. {escape(title)}',mr(n,'overview')] for n,title,*_ in modes] +
+    [[f'{int(n):02}. {escape(title)}',mr(n,'overview')] for n,title,*_ in modes] +
        [['Control indexes',ref('index-sw1')], ['Cable reference',ref('cables')], ['Terminology',ref('glossary')],
         ['Diagnostic worksheet',ref('worksheet')], ['Restoration record',ref('record')]], [435,69]),
     'Each mode entry points to its chapter map. Control indexes locate individual steps.')
@@ -115,7 +140,7 @@ page('method','Operating method','GENERAL GUIDANCE / 01',
     h('6. Resolve exceptions'),
     'If completion is absent, use the chapter acceptance and unresolved-fault sections. If panel and screen disagree, record both observations and ask the facilitator to investigate the setup.')
 page('switches','Switch identification','GENERAL GUIDANCE / 02',
-    tb([['Label','Physical control','State language']] + [[f'SW{i}',f'{kind} switch {1+(i-1)%2}','ON / closed or OFF / open'] for i,kind in enumerate(['Safety','Safety','Toggle','Toggle','Keyed','Keyed'],1)], [65,185,254]),
+    tb([['Label','Physical control','State language']] + [[f'SW{i}',f'{kind} switch {1+(i-1)%2}','on or off'] for i,kind in enumerate(['Safety','Safety','Toggle','Toggle','Keyed','Keyed'],1)], [65,185,254]),
     h('Physical identity and scenario function'),
     'Start with the SW number. A description such as power, service key, alarm arm, or cloud sync belongs to a particular mode. It gives a scenario meaning, not an additional control. The chapter dictionary joins physical identity to that meaning.',
     h('Reading ON and OFF'),
@@ -166,13 +191,13 @@ page('routing','Diagnostic routing','GENERAL GUIDANCE / 06',
     h('Completion is lost'),
     'If green goes out, check whether a control moved or the mode changed. Reconfirm the current configuration. A written record describes a past observation, not a permanent lock on the panel.')
 
-for n, raw_title, slug, rows, success in modes:
+for n, raw_title, slug, rows, success, actions in modes:
     title = escape(raw_title)
     section = f'MODE {int(n):02} / {title}'
-    on_sw = [r for r in rows if r[1].startswith('SW') and r[3]=='Connected / ON']
-    off_sw = [r for r in rows if r[1].startswith('SW') and r[3]=='Open / OFF']
-    on_j = [r for r in rows if r[1].startswith('J') and r[3]=='Connected / ON']
-    off_j = [r for r in rows if r[1].startswith('J') and r[3]=='Open / OFF']
+    on_sw = [r for r in rows if r[1].startswith('SW') and r[3]=='on']
+    off_sw = [r for r in rows if r[1].startswith('SW') and r[3]=='off']
+    on_j = [r for r in rows if r[1].startswith('J') and r[3]=='connected']
+    off_j = [r for r in rows if r[1].startswith('J') and r[3]=='open']
     page(f'm{n}-overview', title, f'CHAPTER {int(n):02} / OPERATING CONTEXT',
         f'This chapter applies when <b>{title}</b> is selected in the Power App/Page. The panel has six switches and four socket inputs. This mode assigns their scenario meanings and required states.',
         h('Restoration objective'), escape(success),
@@ -180,7 +205,7 @@ for n, raw_title, slug, rows, success in modes:
         h('Chapter map'),
         tb([['Section','Page'],['Control interpretation',mr(n,'dictionary')],['Symptom assessment',mr(n,'diagnosis')],['Restoration: steps 1-5',mr(n,'first')],['Restoration: steps 6-10',mr(n,'second')],['Acceptance checks',mr(n,'accept')],['Unresolved-fault review',mr(n,'recovery')]], [420,84]),
         h('Configuration characteristics'),
-        f'This mode requires {len(on_sw)} switches closed and {len(off_sw)} open; {len(on_j)} socket inputs connected and {len(off_j)} open. Counts do not identify controls. Matching a count with the wrong controls will not satisfy this mode.',
+        f'This mode requires {len(on_sw)} switches on and {len(off_sw)} off; {len(on_j)} socket inputs connected and {len(off_j)} open. Counts do not identify controls. Matching a count with the wrong controls will not satisfy this mode.',
         h('Starting the chapter'),
         'Confirm the title, observe the initial state, and read the control interpretation. Treat positions left by a previous participant as observations rather than a known reset.',
         f'Mode reference: {slug}')
@@ -199,16 +224,9 @@ for n, raw_title, slug, rows, success in modes:
         f'In this mode, {len(off_sw)+len(off_j)} of ten inputs must be open. Turning every switch ON and filling every socket cannot produce the required configuration. Use each explicit target.',
         h('Choose the next action'),
         'If the configuration has not been checked completely, begin on page '+mr(n,'first')+'. If every step is complete, use acceptance checks on page '+mr(n,'accept')+'. Record uncertain readings rather than treating them as correct.')
-    for part, subset, span in [('first',rows[:5],'1-5'),('second',rows[5:],'6-10')]:
-        blocks=[f'Apply these steps to <b>{title}</b>. Confirm each named control and target before proceeding. Keep earlier corrected controls in position.']
-        for row in subset:
-            step, control, meaning, _, _ = row
-            if control.startswith('J'):
-                explanation=f'Locate {control}, described as {escape(meaning.lower())}. {action(row)} so this input is <b>{state(row)}</b>. Confirm the named socket rather than relying on orange, which indicates only that at least one socket is connected. If this adjustment affects another connection, recheck that input against its own step.'
-            else:
-                explanation=f'Locate {control}, identified as {escape(meaning.lower())}. {action(row)} and confirm <b>{state(row)}</b>. Read the identifier before moving the switch. If it already matches, leave it in place and record the check. This satisfies one input requirement; it does not establish that the whole mode is restored.'
-            blocks += [h(f'Step {step} / {control} / {action(row)}'),explanation]
-        blocks += ['Continue on page '+mr(n,'second')+'.' if part=='first' else 'Perform acceptance checks on page '+mr(n,'accept')+'. LED4 green confirms completion.']
+    midpoint = (len(actions) + 1) // 2
+    for part, subset, span in [('first',actions[:midpoint],f'1-{midpoint}'),('second',actions[midpoint:],f'{midpoint + 1}-{len(actions)}')]:
+        blocks = [tb([['Step', 'Action']] + [[str(index), escape(action)] for index, action in enumerate(subset, 1 if part == 'first' else midpoint + 1)], [60,444])]
         page(f'm{n}-{part}',f'Restoration procedure: {span}',section,*blocks)
     page(f'm{n}-accept','Acceptance checks',section,
         'Use this page after all ten restoration steps. A checklist records what you did; the completion signal remains LED4 green.',
@@ -239,7 +257,7 @@ for n, raw_title, slug, rows, success in modes:
 
 for group, controls in [('sw1',['SW1','SW2','SW3']),('sw2',['SW4','SW5','SW6']),('j1',['J1','J2']),('j2',['J3','J4'])]:
     index_rows=[['Mode']+[c+' step / page' for c in controls]]
-    for n,title,slug,rows,success in modes:
+    for n,title,slug,rows,success,actions in modes:
         cells=[f'{int(n):02}. {escape(title)}']
         for control in controls:
             row=next(r for r in rows if r[1]==control)
