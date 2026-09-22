@@ -69,3 +69,10 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Dedicated ground station binds GPS, telemetry, uplink and power independently without measured flight data or physical identifiers. Shared setup/help and final configuration remain unchanged.
 - Browser checks caught shared-theme cascade overriding the completion grid; strengthened scoped selectors to keep QR, animation and countdown visible at 800x480.
 - Validation passed: all 60 surface fixtures, dedicated drone and shared kiosk win flows, visual review at 800x480 and narrow widths, and Node 22 clean installs/builds for all three apps. All 12,288 Pi/UI configurations agree. Issue #87 updated with takeoff acceptance criteria. Live validation remains Verify.
+
+
+## Epic #73 remaining work / Cold-Chain Sensor #79
+- Revalidated main and open PRs: Water Pump #106 and Patient Monitor #107 remain open; their changes are isolated from this branch.
+- Added logger/probe/threshold/cloud composition, independent reading-control readiness and cloud sync. Temperature remains unmeasured; no fabricated trend or cloud receipt.
+- Updated frontend win copy to confirm controls rather than assert cold storage stability. Testing in progress; live remains Verify.
+- Cold-chain validation passed: all 60 fixtures plus independent calibration/threshold/cloud, both wins, QR, rotation, stale, Help Fix and narrow tests. Screenshots reviewed. Node 22 clean installs/builds pass for all three apps; 12,288 Pi/UI configurations agree. Patient PR #107 CI is also green.

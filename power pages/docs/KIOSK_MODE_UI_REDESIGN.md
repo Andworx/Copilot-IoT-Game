@@ -226,3 +226,16 @@ illustration only; no flight command or Pi firmware change is involved.
 inputs, invalid/stale data, read-only interaction, both win paths, takeoff, duplicate
 telemetry, reduced motion, mode reset, Help Fix and narrow layout. Live validation
 remains Verify.
+
+## Cold-Chain Sensor (#79)
+
+The dedicated logger separates probe calibration, a temperature window and threshold
+rails from cloud sync. Calibration and threshold state determine reading-control
+readiness independently of cloud sync. Temperature remains unmeasured and no historical
+trend, numerical limit, upload receipt or actual cold-storage condition is invented.
+The win message confirms restored controls rather than asserting storage is stable.
+Power loss and stale/missing telemetry remain explicit; all mappings stay in opt-in help.
+
+`node "power pages/copilotiotgame/tests/check-coldchain.mjs"` verifies independent
+controls, reading/cloud separation, power/invalid/stale states, both completion paths,
+QR, duplicate protection, mode isolation, Help Fix and narrow layout. Live checks remain Verify.

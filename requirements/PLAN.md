@@ -152,3 +152,9 @@ Verify: all mode instruments use domain labels/current state, with no physical i
 - Dedicated navigation scope and independent GPS, telemetry and uplink status with domain-only labels.
 - Simulated takeoff on Game Mode ON/OFF completion; reduced-motion static airborne state, existing QR and reset preserved.
 - No device contract or Pi firmware changes. Production/Pi display verification remains pending normal PR deployment.
+
+
+### Cold-Chain Sensor (#79) - Verify
+- Dedicated logger with probe, threshold rails, unmeasured temperature and independent cloud-sync status.
+- Explicit semantic keys; no fake temperature/history or storage-stability claims. Physical mappings remain opt-in.
+- Live validation remains under #70 after normal deployment.

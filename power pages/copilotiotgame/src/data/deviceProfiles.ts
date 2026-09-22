@@ -305,7 +305,7 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     faultText: "<strong>Restoration incomplete.</strong> Open the gear menu for switch positions &amp; cables, or use Help Fix.",
     okText: "<strong>Restored.</strong> All six switches and four sockets match this mode.",
     steps: stepsFrom(sequence("coldchain-sensor")),
-    winMessage: "Cold storage is stable and monitoring is back online.",
+    winMessage: "Cold-chain logger controls restored.",
     restoreItems: restoreItemsFrom(sequence("coldchain-sensor")),
   },
 

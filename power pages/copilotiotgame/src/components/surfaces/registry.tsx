@@ -8,7 +8,7 @@ import type { SurfaceKind } from "../../types/game";
 import type { PanelSurfaceProps } from "./types";
 import { DialArcPanel } from "../layouts/DialArcPanel";
 import { KeypadPanel } from "../layouts/KeypadPanel";
-import { DipStripPanel } from "../layouts/DipStripPanel";
+import { ColdChainSurface } from "./ColdChainSurface";
 import { DroneGroundSurface } from "./DroneGroundSurface";
 import { PairedColumnsPanel } from "../layouts/PairedColumnsPanel";
 
@@ -27,7 +27,7 @@ function legacy(Component: typeof DialArcPanel | typeof KeypadPanel) {
 export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "hvac-thermostat": ThermostatSurface,
   "security-door-panel": SmartLockSurface,
-  "coldchain-logger": legacy(DipStripPanel),
+  "coldchain-logger": ColdChainSurface,
   "pump-scada": legacy(PairedColumnsPanel),
   "field-radio": FieldRadioSurface,
   "ev-charge-pedestal": legacy(PairedColumnsPanel),
