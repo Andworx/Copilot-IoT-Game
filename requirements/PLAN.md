@@ -152,3 +152,9 @@ Verify: all mode instruments use domain labels/current state, with no physical i
 - Dedicated navigation scope and independent GPS, telemetry and uplink status with domain-only labels.
 - Simulated takeoff on Game Mode ON/OFF completion; reduced-motion static airborne state, existing QR and reset preserved.
 - No device contract or Pi firmware changes. Production/Pi display verification remains pending normal PR deployment.
+
+
+### Water Pump pilot (#80) - Verify
+- Tank/relief/pump/outlet schematic with independent control status and simulated pressure/flow.
+- Full restoration gates process animation; stale data, interlocks and reduced motion stop motion.
+- Retain live Pi validation in #70 after normal PR deployment.
