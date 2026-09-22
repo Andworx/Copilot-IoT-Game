@@ -1,24 +1,20 @@
-import { EvChargerSurface } from "./EvChargerSurface";
-
-import { PatientMonitorSurface } from "./PatientMonitorSurface";
-
-import { WaterPumpSurface } from "./WaterPumpSurface";
-import { FieldRadioSurface } from "./FieldRadioSurface";
-import { TrafficSignalSurface } from "./TrafficSignalSurface";
-import { RetailKioskSurface } from "./RetailKioskSurface";
-import { SmartLockSurface } from "./SmartLockSurface";
-import { ThermostatSurface } from "./ThermostatSurface";
 import type { ComponentType } from "react";
 import type { SurfaceKind } from "../../types/game";
 import type { PanelSurfaceProps } from "./types";
+import { ThermostatSurface } from "./ThermostatSurface";
+import { SmartLockSurface } from "./SmartLockSurface";
+import { ColdChainSurface } from "./ColdChainSurface";
+import { WaterPumpSurface } from "./WaterPumpSurface";
+import { FieldRadioSurface } from "./FieldRadioSurface";
+import { EvChargerSurface } from "./EvChargerSurface";
+import { TrafficSignalSurface } from "./TrafficSignalSurface";
+import { PatientMonitorSurface } from "./PatientMonitorSurface";
+import { RetailKioskSurface } from "./RetailKioskSurface";
+import { DroneGroundSurface } from "./DroneGroundSurface";
 import { DialArcPanel } from "../layouts/DialArcPanel";
 import { KeypadPanel } from "../layouts/KeypadPanel";
-import { ColdChainSurface } from "./ColdChainSurface";
-import { DroneGroundSurface } from "./DroneGroundSurface";
 import { PairedColumnsPanel } from "../layouts/PairedColumnsPanel";
 
-// Read-only adapters preserve the remaining modes while their dedicated surfaces
-// are built. Keys on device.instruments supply domain meaning, never array indexes.
 function legacy(Component: typeof DialArcPanel | typeof KeypadPanel) {
   return function LegacySurface({ device, state, lampColors, win, connection }: PanelSurfaceProps) {
     const visibleLamps = connection.isLive ? lampColors : Object.fromEntries(device.lamps.map(lamp => [lamp.key, "off" as const]));
@@ -33,9 +29,6 @@ export const SURFACES: Record<SurfaceKind, ComponentType<PanelSurfaceProps>> = {
   "hvac-thermostat": ThermostatSurface,
   "security-door-panel": SmartLockSurface,
   "coldchain-logger": ColdChainSurface,
-  "pump-scada": legacy(PairedColumnsPanel),
-
-  "coldchain-logger": legacy(DipStripPanel),
   "pump-scada": WaterPumpSurface,
   "field-radio": FieldRadioSurface,
   "ev-charge-pedestal": EvChargerSurface,
