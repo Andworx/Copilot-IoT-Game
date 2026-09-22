@@ -27,7 +27,7 @@ switches. Stale status is explicit and activity animations pause; reduced motion
 instrument animation.
 
 The twelve surfaces are migration destinations, not a claim that all twelve dedicated
-UIs have shipped. The thermostat, Smart Lock, Retail Payment Kiosk, Traffic Signal Controller, Field Radio and Drone Ground Control have dedicated surfaces; the other six retain adapters.
+UIs have shipped. Dedicated surfaces are selected in the typed registry; the per-mode sections below describe their behavior and validation.
 
 
 The current kiosk implementation uses five reusable panel layouts with per-device skinning. That made the first build efficient, but the modes now read too similarly. The next iteration should keep the shared kiosk shell and telemetry contracts, while replacing the five shared layouts with twelve mode-specific instrument surfaces.
@@ -240,3 +240,46 @@ reduced motion shows a static schematic. Physical mappings remain opt-in.
 `node "power pages/copilotiotgame/tests/check-ev-charger.mjs"` checks every interlock,
 independent controls, invalid/stale data, ON/OFF wins, QR/duplicate protection,
 mode isolation, animation/reduced motion, Help Fix and narrow layout. Live remains Verify.
+
+## Cold-Chain Sensor (#79)
+
+The dedicated logger separates probe calibration, a temperature window and threshold
+rails from cloud sync. Calibration and threshold state determine reading-control
+readiness independently of cloud sync. Temperature remains unmeasured and no historical
+trend, numerical limit, upload receipt or actual cold-storage condition is invented.
+The win message confirms restored controls rather than asserting storage is stable.
+Power loss and stale/missing telemetry remain explicit; all mappings stay in opt-in help.
+
+`node "power pages/copilotiotgame/tests/check-coldchain.mjs"` verifies independent
+controls, reading/cloud separation, power/invalid/stale states, both completion paths,
+QR, duplicate protection, mode isolation, Help Fix and narrow layout. Live checks remain Verify.
+
+## Patient Monitor (#85)
+
+A wide dual-channel waveform display, separate lead/SpO2 sensor tiles and an alarm
+strip replace the dial adapter. Each sensor binds independently to current Boolean
+telemetry. Disconnected, unpowered or unknown sensors show unavailable text and no
+waveform (not a misleading clinical flatline). Enabled channels display explicitly
+simulated traces; no heart rate or oxygen percentage is invented. Audible-alarm
+control status remains independent of sensor connectivity. Reduced motion freezes
+traces; stale readings remove them. The win copy describes restored controls, not
+real vitals streaming. Physical setup/help and all ten restore requirements remain.
+
+`node "power pages/copilotiotgame/tests/check-patient-monitor.mjs"` covers independent
+sensors/alarm, missing channels, invalid input, power, both win paths, QR, duplicate
+protection, rotation/isolation, stale data, reduced motion, Help Fix and narrow layout.
+Live validation remains Verify under #70.
+
+## Water Pump (#80)
+
+The dedicated process schematic follows tank, relief valve, impeller and outlet, with
+an adjacent qualitative pressure preview and independent pump/relief/remote status.
+All controls bind by semantic key. Flow and impeller animation require the complete
+restored configuration; power, pump, relief, override, key or circuit faults stop it.
+Pressure and flow are explicitly simulated, never measured. Stale/unknown readings
+clear activity and show Unknown. Reduced motion retains a static process diagram.
+
+`node "power pages/copilotiotgame/tests/check-water-pump.mjs"` covers independent
+controls, interlocks, invalid/stale readings, both completion paths, duplicate wins,
+mode isolation, animation, reduced motion, Help Fix and narrow layout.
+Live validation remains Verify.
