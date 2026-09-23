@@ -60,6 +60,8 @@ cleat_reach_front = 15; // mm, cleat footprint extending past the toe (down-slop
 fin_height      = 35;  // mm, outboard side-fin height above the ramp surface
 fin_thickness   = 6;   // mm, outboard side-fin wall thickness
 
+riser_fillet = 4; // mm, rounds convex edges of the ramp/cleat/fin profile (peak apex, cleat corners, fin top corners) -- no exposed sharp corners people can bump into at a booth
+
 inset_from_corner = case_corner_radius + 12; // mm, keeps each bracket clear of the case's rounded corner
 
 overlap_eps = 0.2; // mm, forces true volumetric overlap at part-to-part seams (fin/rail to main body) so unions are watertight instead of merely face-coincident
@@ -127,6 +129,14 @@ module offset_quad_2d(p0, p1, h) {
     polygon(points = [p0, p1, p1 + nrm2 * h, p0 + nrm2 * h]);
 }
 
+// Rounds only the CONVEX corners of a 2D shape (erode then dilate by
+// the same radius) -- concave/reflex corners are left as-is, which is
+// fine since those are interior notches, not the corners someone
+// could actually bump against.
+module rounded(fillet) {
+    offset(r = fillet) offset(delta = -fillet) children();
+}
+
 // linear_extrude() always extrudes a 2D profile along Z, but every 2D
 // profile in this file is authored as (depth, height) -- i.e. meant
 // to be read as the XZ plane, extruded along Y (the bracket-width
@@ -180,17 +190,24 @@ module base_slab_2d() {
 // (fin sits further out at Y > bracket_width), Z = up. Origin is the
 // bracket's front-bottom-inboard corner, sitting on the table.
 module cradle_bracket() {
-    // base slab + ramp wedge
+    // base slab + ramp wedge. Rounded (peak apex, toe-area corners) --
+    // the fillet is applied to the whole profile, but riser_x_min/max
+    // crop away the far corners (at X=0 and X=foot_depth) that aren't
+    // part of the final riser anyway, so only the surviving peak/toe
+    // corners matter in practice.
     extrude_profile_along_y(bracket_width)
-        bracket_base_ramp_2d();
+        rounded(riser_fillet)
+            bracket_base_ramp_2d();
 
     // positive stop at the ramp toe. Recessed overlap_eps into the
     // ramp solid (along -nrm2) so its base is a true volumetric
-    // overlap with the wedge, not just a coincident edge.
+    // overlap with the wedge, not just a coincident edge. Rounded on
+    // its exposed (non-embedded) corners.
     cleat_p0 = toe - dir2 * cleat_reach_back - nrm2 * overlap_eps;
     cleat_p1 = toe + dir2 * cleat_reach_front - nrm2 * overlap_eps;
     extrude_profile_along_y(bracket_width)
-        offset_quad_2d(cleat_p0, cleat_p1, cleat_height + overlap_eps);
+        rounded(riser_fillet)
+            offset_quad_2d(cleat_p0, cleat_p1, cleat_height + overlap_eps);
 
     bracket_fin();
 }
@@ -208,11 +225,12 @@ module bracket_fin() {
     fin_end_inset = 3;
     translate([0, bracket_width - overlap_eps, 0])
         extrude_profile_along_y(fin_thickness + overlap_eps)
-            offset_quad_2d(
-                toe - nrm2 * overlap_eps,
-                peak - dir2 * fin_end_inset - nrm2 * overlap_eps,
-                fin_height + overlap_eps
-            );
+            rounded(riser_fillet)
+                offset_quad_2d(
+                    toe - nrm2 * overlap_eps,
+                    peak - dir2 * fin_end_inset - nrm2 * overlap_eps,
+                    fin_height + overlap_eps
+                );
 }
 
 // X positions (in the base_foot/riser shared frame) for the 2 screws
