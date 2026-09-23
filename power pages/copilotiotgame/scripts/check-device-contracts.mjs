@@ -5,6 +5,10 @@ import ts from "typescript";
 const source = readFileSync(new URL("../src/data/deviceProfiles.ts", import.meta.url), "utf8");
 const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } });
 const { DEVICE_PROFILES, DEVICE_ORDER, CABLE_RECIPES, cablesMatch } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`);
+const profileUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
+const promptSource = readFileSync(new URL("../src/lib/quickFixPrompt.ts", import.meta.url), "utf8");
+const promptJs = ts.transpileModule(promptSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replace('"../data/deviceProfiles"', JSON.stringify(profileUrl));
+const { buildQuickFixPrompt } = await import(`data:text/javascript;base64,${Buffer.from(promptJs).toString("base64")}`);
 assert.equal(DEVICE_ORDER.length, 12);
 for (const slug of DEVICE_ORDER) {
   const device = DEVICE_PROFILES[slug];
@@ -21,6 +25,12 @@ for (const slug of DEVICE_ORDER) {
   for (const sw of device.switches) {
     assert.ok(map.switches.some(c => c.key === sw.key && c.physicalPin === sw.physicalPin), `${slug}: unknown screen control ${sw.key}`);
   }
+  const prompt = buildQuickFixPrompt(device, device.fault, []);
+  assert.match(prompt, /restoration checks the final switch positions and cable connections/);
+  assert.match(prompt, /Actions can be completed in any order/);
+  assert.doesNotMatch(prompt, /restored in the listed order|change, in order/);
+  for (const cable of map.requiredCables) assert.ok(prompt.includes(`Connect Cable ${cable.cable} to ${cable.sockets.join(" and ")}`));
+  assert.ok(prompt.includes("Remove all other cables"));
   const keys = device.restoreSequence.map(c => c.key);
   assert.equal(device.checkWin({}), false, `${slug}: missing telemetry cannot win`);
   for (const key of [device.instruments.dial, device.instruments.gauge, device.instruments.button, ...(device.instruments.guards ?? [])].filter(Boolean)) {
