@@ -8,6 +8,8 @@ production release revisions.
 - `case-fit/length-fit/` — length and depth gauges.
 - `rear-controls/T01/` — first rear-control coupon series.
 - `rear-controls/T02/` — second rear-control coupon series.
+- `lid-storage/RP09/` — split four-boss lid frame, switch-location witness tile,
+  and two-colour Andworx cover proof for the proposed removable storage cassette.
 
 Passing calibration work may inform a later RP release, but it does not create
 the next RP number by itself.

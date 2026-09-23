@@ -1,0 +1,83 @@
+{
+  "revision": "RP09 calibration only",
+  "status": "PASS - requires physical boss-pitch and closed-lid witness test",
+  "measurements_mm": {
+    "boss_pitch": [
+      274.0,
+      200.0
+    ],
+    "between_ribs": [
+      255.0,
+      183.0
+    ],
+    "lid_depth": 35.0,
+    "provisional_storage_depth": 28.0,
+    "adapter_length": 45.0,
+    "key_length": 34.0,
+    "cable_length": 152.4
+  },
+  "physical_gates": [
+    "Both frame halves install without bending and all four M3 holes align.",
+    "The frame remains inside the gasket and clears every moulded rib.",
+    "Painter's tape or clay on locator tiles records the safety-cover position.",
+    "The lid closes without a rigid tile or frame touching any control.",
+    "The final switch garage preserves at least 3-5 mm clearance."
+  ],
+  "meshes": {
+    "andworx_field_kit_base.stl": {
+      "bounds_mm": [
+        120.0,
+        60.0,
+        2.4
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "andworx_field_kit_logo.stl": {
+      "bounds_mm": [
+        79.07,
+        31.309,
+        0.9
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 16,
+      "fits_256mm_bed": true
+    },
+    "lid_fit_frame_L.stl": {
+      "bounds_mm": [
+        151.0,
+        216.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "lid_fit_frame_R.stl": {
+      "bounds_mm": [
+        145.0,
+        216.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "switch_locator_tile.stl": {
+      "bounds_mm": [
+        50.0,
+        50.0,
+        1.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    }
+  }
+}
