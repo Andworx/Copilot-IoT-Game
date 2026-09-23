@@ -22,8 +22,8 @@ order:
 - `SW1-SW2` — safety switches.
 - `SW3-SW4` — toggle switches.
 - `SW5-SW6` — keyed switches.
-- `J1-J4` — panel-side cable sockets: `J1` and `J4` are quad (4-pin) sockets; `J2-J3`
-  are double (2-pin) sockets. J4 wires only contacts 3 and 2. A socket reads as connected when a cable is
+- `S1-S4` — panel-side cable sockets: `S1` and `S4` are quad (4-pin) sockets; `S2-S3`
+  are double (2-pin) sockets. S4 wires only contacts 3 and 2. A socket reads as connected when a cable is
   plugged into it (see "Cable matrix" below).
 
 The selected mode determines which real-world meaning each control has. The
@@ -68,8 +68,8 @@ App-selected mode rather than to any physical selector.
 | 2 | Toggle switches | SW3-SW4 |
 | 2 | Keyed switches | SW5-SW6 |
 | 4 | Single-color LEDs (5mm) + 330Ω resistors | LED1 blue, LED2 yellow, LED3 orange, LED4 green; one resistor each, LED cathode/resistor to GND |
-| 2 | Quad (4-pin) panel-mount jacks/receptacles | J1: contacts 1-4; J4: contacts 3 and 2 only |
-| 2 | Double (2-pin) panel-mount jacks/receptacles | J2, J3: contacts 1-2 wired |
+| 2 | Quad (4-pin) panel-mount jacks/receptacles | S1: contacts 1-4; S4: contacts 3 and 2 only |
+| 2 | Double (2-pin) panel-mount jacks/receptacles | S2, S3: contacts 1-2 wired |
 | 4 quad + 2 dual | Available cable connectors recorded in #112 | Inventory inclusion of the built Cable 1 awaits confirmation |
 | 1 | Confirmed built cable: quad to dual | Quad 3 to dual 1; quad 4 to dual 2 |
 | — | Hookup wire, breadboard/perfboard, pull-up not needed (internal pull-ups used throughout) | |
@@ -94,23 +94,23 @@ No external resistors are needed except the LED current-limiting resistors.
 | LED 2 (Yellow) | LED2 | GPIO27 | 13 |
 | LED 3 (Orange) | LED3 | GPIO22 | 15 |
 | LED 4 (Green) | LED4 | GPIO23 | 16 |
-| J1 pin 1 | J1P1 | GPIO4 | 7 |
-| J1 pin 2 | J1P2 | GPIO18 | 12 |
-| J1 pin 3 | J1P3 | GPIO24 | 18 |
-| J1 pin 4 | J1P4 | GPIO16 | 36 |
-| J2 pin 1 | J2P1 | GPIO25 | 22 |
-| J2 pin 2 | J2P2 | GPIO20 | 38 |
-| J3 pin 1 | J3P1 | GPIO2 | 3 |
-| J3 pin 2 | J3P2 | GPIO12 | 32 |
-| J4 pin 3 | J4P3 | GPIO3 | 5 |
-| J4 pin 2 | J4P2 | GPIO7 | 26 |
+| S1 pin 1 | S1P1 | GPIO4 | 7 |
+| S1 pin 2 | S1P2 | GPIO18 | 12 |
+| S1 pin 3 | S1P3 | GPIO24 | 18 |
+| S1 pin 4 | S1P4 | GPIO16 | 36 |
+| S2 pin 1 | S2P1 | GPIO25 | 22 |
+| S2 pin 2 | S2P2 | GPIO20 | 38 |
+| S3 pin 1 | S3P1 | GPIO2 | 3 |
+| S3 pin 2 | S3P2 | GPIO12 | 32 |
+| S4 pin 3 | S4P3 | GPIO3 | 5 |
+| S4 pin 2 | S4P2 | GPIO7 | 26 |
 
 **20 of the Pi's 26 usable GPIO pins used, 6 spare** (GPIO8, 9, 10, 11, 14, 15 —
 the SPI0 and UART pins, which this project has found unreliable as pulled-up
 inputs; see `pulled_input.py`). GPIO0/1 (ID_SD/ID_SC, reserved for HAT EEPROM)
 are not used. GPIO2/3 have board-level I2C pull-ups, which is fine here since
 the cable scan only ever drives them low. GPIO7 has only been proven as an
-output on this project, so bench-test J4 pin 2 first. All pin assignments live
+output on this project, so bench-test S4 pin 2 first. All pin assignments live
 in `config.py` — change them there, not in `panel_controller.py`.
 
 ## Wiring diagram
@@ -134,31 +134,31 @@ switch harness, LED harness, cable socket matrix, and common ground rail.
    GPIO22 ──[330Ω]──▶│── GND   (LED3 orange)
    GPIO23 ──[330Ω]──▶│── GND   (LED4 green)
 
-   J1 (quad)                        J2 (double)
-   GPIO4  ────[J1 pin 1]            GPIO25 ────[J2 pin 1]
-   GPIO18 ────[J1 pin 2]            GPIO20 ────[J2 pin 2]
-   GPIO24 ────[J1 pin 3]
-   GPIO16 ────[J1 pin 4]            J3 (double)
-                                    GPIO2  ────[J3 pin 1]
-   J4 (quad)                      GPIO12 ────[J3 pin 2]
-   GPIO3  ────[J4 pin 3]
-   GPIO7  ────[J4 pin 2]
+   S1 (quad)                        S2 (double)
+   GPIO4  ────[S1 pin 1]            GPIO25 ────[S2 pin 1]
+   GPIO18 ────[S1 pin 2]            GPIO20 ────[S2 pin 2]
+   GPIO24 ────[S1 pin 3]
+   GPIO16 ────[S1 pin 4]            S3 (double)
+                                    GPIO2  ────[S3 pin 1]
+   S4 (quad)                      GPIO12 ────[S3 pin 2]
+   GPIO3  ────[S4 pin 3]
+   GPIO7  ────[S4 pin 2]
         (direct GPIO wiring, no series resistors; no socket contact goes to
          GND; cables bridge contacts to each other)
 ```
 
 ### Cable matrix
 
-The four sockets J1-J4 detect **which cable is plugged in and where**, not just
+The four sockets S1-S4 detect **which cable is plugged in and where**, not just
 whether something is plugged in. Every wired socket contact has its own GPIO and
 nothing on a socket goes to GND. A cable only bridges contacts to each other.
 
 | Socket | Connector | Wired contacts | Notes |
 |---|---|---|---|
-| J1 | Quad (4-pin) | pins 1, 2, 3, 4 | Unchanged; the only socket with all four contacts wired. |
-| J2 | Double (2-pin) | pins 1, 2 | The contacts a 2-pin side A plug lands on. |
-| J3 | Double (2-pin) | pins 1, 2 | Same. |
-| J4 | Quad (4-pin) | pins 3, 2 | Contact 3 to GPIO3; contact 2 to GPIO7. Contacts 1/4 unwired. |
+| S1 | Quad (4-pin) | pins 1, 2, 3, 4 | Unchanged; the only socket with all four contacts wired. |
+| S2 | Double (2-pin) | pins 1, 2 | The contacts a 2-pin side A plug lands on. |
+| S3 | Double (2-pin) | pins 1, 2 | Same. |
+| S4 | Quad (4-pin) | pins 3, 2 | Contact 3 to GPIO3; contact 2 to GPIO7. Contacts 1/4 unwired. |
 
 The GPIO for each contact is in the pinout table above and in
 `config.SOCKET_NODES`. Leave unlisted contacts open.
@@ -171,17 +171,17 @@ two outputs together. A change is accepted after two identical scans in a row.
 Bridges are grouped by socket pair and matched against the cable build list.
 Two cables at once decode independently.
 
-**What the controller reports:** `J1`-`J4` are true when a cable with at least
+**What the controller reports:** `S1`-`S4` are true when a cable with at least
 one visible wire is plugged into that socket, used for presence indicators. Winning also requires the exact cable recipe. The telemetry payload also carries
-`cables: [{"cable": 1, "sockets": ["J1", "J2"]}]`. `cable` is `null` for
+`cables: [{"cable": 1, "sockets": ["S1", "S2"]}]`. `cable` is `null` for
 something the build list does not recognise, such as a cable with a broken wire.
 A plug that lands only on unwired contacts (for example a side B plug using pin
-3 in J2) reads as unplugged.
+3 in S2) reads as unplugged.
 
 ### Confirmed four-cable build plan (#112)
 
 Cable 1 is already built. The owner confirmed **4 spare quad and 2 spare dual
-connectors in addition to Cable 1**, and J4 is already wired on contacts 3/2.
+connectors in addition to Cable 1**, and S4 is already wired on contacts 3/2.
 Build two quad-to-dual cables and one quad-to-quad cable from that stock.
 
 See [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md) for the exact pinouts, valid
@@ -190,7 +190,7 @@ diagram now includes a **Cable Build Plan** page with each wire drawn.
 `cable-build-plan.json` is the tested design source.
 
 The decoder reads the four builds from `cable-build-plan.json`. `config.py` maps
-J4 contacts 3/2 to GPIO3/7. Each mode's `requiredCables` must match exactly before
+S4 contacts 3/2 to GPIO3/7. Each mode's `requiredCables` must match exactly before
 its switch/socket expression can win. The page independently checks the recipe,
 fresh telemetry, `cableSchema: "panel-cable-build/v1"`, and the Pi's win flag.
 Setup and Help Fix name each cable and its socket pair. Unknown/extra cables
@@ -232,7 +232,7 @@ service after deploying the reviewed firmware, then verify the physical cables.
   `python -m unittest test_lamp_patterns`.
 - **`panel_controller.py`** — the main loop: runs the boot animation once at
   startup, then selects the active mode from the Power App/Page state, reads
-  SW1-SW6 and J1-J4 (via the cable matrix) into that mode's restore keys,
+  SW1-SW6 and S1-S4 (via the cable matrix) into that mode's restore keys,
   evaluates `win` and each lamp's `when`/`pattern` via `lamp_patterns.py`,
   drives the 4 LEDs, and publishes telemetry on mode change, state change,
   heartbeat, and win.
@@ -315,8 +315,8 @@ change, and the moment a device is won:
     "climate_active": { "active": false, "pattern": "on" },
     "restored": { "active": false, "pattern": "on" }
   },
-  "connectors": { "J1": false, "J2": true, "J3": true, "J4": false },
-  "cables": [{ "cable": 4, "sockets": ["J2", "J3"] }],
+  "connectors": { "S1": false, "S2": true, "S3": true, "S4": false },
+  "cables": [{ "cable": 4, "sockets": ["S2", "S3"] }],
   "win": true,
   "eventType": "win",
   "timestamp": "2026-09-04T12:34:56.789012+00:00"

@@ -53,7 +53,7 @@ try {
       await page.locator(`.robot-surface[data-${features[key]}="enabled"]`).waitFor();
       for (const other of Object.keys(features).filter(k => k !== key)) assert.equal(await page.locator(".robot-surface").getAttribute(`data-${features[other]}`),"disabled");
     }
-    for (const [key,value,operation] of [["power",false,"unpowered"],["estop",false,"estop"],["guard",true,"guard"],["servo",false,"servo"],["keyed_one",false,"access"],["keyed_two",false,"pendant"],["socket_j2",false,"interlocked"]]) {
+    for (const [key,value,operation] of [["power",false,"unpowered"],["estop",false,"estop"],["guard",true,"guard"],["servo",false,"servo"],["keyed_one",false,"access"],["keyed_two",false,"pendant"],["socket_s2",false,"interlocked"]]) {
       telemetry("industrial-robot-arm",{...target,[key]:value});
       await page.locator(`.robot-surface[data-operation="${operation}"]`).waitFor();
       assert.equal(await page.locator(".robot-linkage").evaluate(el=>getComputedStyle(el).animationName),"none");

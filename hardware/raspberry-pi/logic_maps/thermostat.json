@@ -38,24 +38,24 @@
   ],
   "connectors": [
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected"
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected"
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected"
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected"
     },
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected"
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected"
     },
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected"
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected"
     }
   ],
   "restoreSequence": [
@@ -66,9 +66,9 @@
       "target": true
     },
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected",
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected",
       "target": true
     },
     {
@@ -78,9 +78,9 @@
       "target": true
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected",
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected",
       "target": false
     },
     {
@@ -90,9 +90,9 @@
       "target": true
     },
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected",
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected",
       "target": true
     },
     {
@@ -108,9 +108,9 @@
       "target": false
     },
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected",
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected",
       "target": false
     },
     {
@@ -139,7 +139,7 @@
       "physicalPin": "LED3",
       "key": "climate_active",
       "label": "Orange climate-active lamp",
-      "when": "not eco and (socket_j1 or socket_j2 or socket_j3 or socket_j4)",
+      "when": "not eco and (socket_s1 or socket_s2 or socket_s3 or socket_s4)",
       "pattern": "on"
     },
     {
@@ -150,17 +150,17 @@
       "pattern": "on"
     }
   ],
-  "win": "fan and socket_j1 and power and not socket_j4 and keyed_one and socket_j2 and not eco and not keyed_two and not socket_j3 and not mode",
+  "win": "fan and socket_s1 and power and not socket_s4 and keyed_one and socket_s2 and not eco and not keyed_two and not socket_s3 and not mode",
   "faultStartingState": {
     "fan": false,
-    "socket_j1": false,
+    "socket_s1": false,
     "power": false,
-    "socket_j4": true,
+    "socket_s4": true,
     "keyed_one": false,
-    "socket_j2": false,
+    "socket_s2": false,
     "eco": true,
     "keyed_two": true,
-    "socket_j3": true,
+    "socket_s3": true,
     "mode": true
   },
   "winMessage": "Thermostat restored \u2014 holding your set temperature.",
@@ -168,8 +168,8 @@
     {
       "cable": 1,
       "sockets": [
-        "J1",
-        "J2"
+        "S1",
+        "S2"
       ]
     }
   ]

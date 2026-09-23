@@ -38,24 +38,24 @@
   ],
   "connectors": [
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected"
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected"
     },
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected"
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected"
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected"
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected"
     },
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected"
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected"
     }
   ],
   "restoreSequence": [
@@ -66,9 +66,9 @@
       "target": true
     },
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected",
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected",
       "target": true
     },
     {
@@ -78,9 +78,9 @@
       "target": true
     },
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected",
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected",
       "target": true
     },
     {
@@ -96,9 +96,9 @@
       "target": true
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected",
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected",
       "target": false
     },
     {
@@ -114,9 +114,9 @@
       "target": false
     },
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected",
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected",
       "target": false
     }
   ],
@@ -150,26 +150,26 @@
       "pattern": "on"
     }
   ],
-  "win": "keyed_one and socket_j3 and leads and socket_j1 and alarm and power and not socket_j4 and spo2 and not keyed_two and not socket_j2",
+  "win": "keyed_one and socket_s3 and leads and socket_s1 and alarm and power and not socket_s4 and spo2 and not keyed_two and not socket_s2",
   "faultStartingState": {
     "keyed_one": false,
-    "socket_j3": false,
+    "socket_s3": false,
     "leads": false,
-    "socket_j1": false,
+    "socket_s1": false,
     "alarm": false,
     "power": false,
-    "socket_j4": true,
+    "socket_s4": true,
     "spo2": false,
     "keyed_two": true,
-    "socket_j2": true
+    "socket_s2": true
   },
   "winMessage": "Patient monitor restored \u2014 vitals streaming normally.",
   "requiredCables": [
     {
       "cable": 4,
       "sockets": [
-        "J1",
-        "J3"
+        "S1",
+        "S3"
       ]
     }
   ]

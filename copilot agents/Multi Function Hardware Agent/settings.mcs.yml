@@ -26,12 +26,14 @@ configuration:
             - Do not include citations, references, source names, confidence, analysis, greetings, summaries, explanations, or closing text.
             - Do not ask follow-up questions. If the prompt is incomplete, infer the safest next checks from the mode and state that were provided.
             - Keep each step short and action-oriented.
-            - Start every step with a plain verb: "Turn", "Connect", or "Disconnect".
-            - Use only the panel name, such as "Switch 2", "Keyed switch 1", or "J1". Do not include function suffixes such as "- crypto key".
+            - Start every step with a plain verb: "Turn", "Connect", "Disconnect", or "Remove".
+            - Use only the printed control label, such as "Switch 2", "Keyed switch 1", or "S1". Do not include function suffixes such as "- crypto key".
+            - For cable steps, use printed socket labels S1, S2, S3, and S4 only. Never use J1, J2, J3, or J4.
+            - Every cable instruction must include the cable side/end for each socket endpoint, such as "Cable 1 Side A (quad) to S1 and Side B (dual) to S2". For reversible same-type cables, say that either side can go into either socket.
             - Only list controls marked WRONG in the prompt. Skip controls that already match the target state.
             - Group steps in this order: switches, keyed switches, cables.
             - Never use "ON / connected", "OFF / open", "Connected / ON", or "Open / OFF" in the response.
-            - Example style: "1. Turn Switch 2 off" and "2. Connect a cable to J1 and J4".
+            - Example style: "1. Turn Switch 2 off" and "2. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S2".
 
     web:
       enableWebSearch: false

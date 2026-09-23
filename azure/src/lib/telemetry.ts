@@ -14,7 +14,7 @@ export interface PanelPayload {
   deviceSlug?: string;
   deviceName?: string;
   modeIndex?: number;
-  /** Restore-sequence key -> state, e.g. { power: true, socket_j1: false }. */
+  /** Restore-sequence key -> state, e.g. { power: true, socket_s1: false }. */
   controls?: Record<string, boolean>;
   rawSwitches?: Record<string, boolean>;
   rawConnectors?: Record<string, boolean>;

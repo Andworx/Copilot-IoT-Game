@@ -81,7 +81,7 @@ delete table permission records programmatically.
 ## Device-facing labels (#100)
 
 Normal instrument surfaces show domain names and current state only (Power, Auto-Lock,
-Fan, Encryption). Never display SW1-SW6, J1-J4, GPIO/pin identifiers, physical switch
+Fan, Encryption). Never display SW1-SW6, S1-S4, GPIO/pin identifiers, physical switch
 mappings or target positions on the device, including accessible labels/tooltips.
 Keep mappings and required actions inside the explicitly opened gear setup popup and
 Help Fix. Do not add the bottom physical-input rail. Preserve semantic telemetry keys

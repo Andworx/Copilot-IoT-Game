@@ -67,8 +67,8 @@ try {
     await page.locator('.thermostat-surface[data-hvac="off"]').waitFor();
     await page.locator('.thermostat-fan[data-running="false"]').waitFor();
     for (const overrides of [
-      { cables: [{ cable: 4, sockets: ["J1", "J2"] }] },
-      { cables: [{ cable: null, sockets: ["J1", "J2"] }] },
+      { cables: [{ cable: 4, sockets: ["S1", "S2"] }] },
+      { cables: [{ cable: null, sockets: ["S1", "S2"] }] },
       { cableSchema: undefined },
       { win: false },
     ]) {
