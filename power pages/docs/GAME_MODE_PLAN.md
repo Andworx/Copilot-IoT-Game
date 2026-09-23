@@ -252,7 +252,6 @@ placeholder.
 | `andy_isgamedevice` | Yes/No | `No` for the demo/info row — tells the win-detection and Copilot-agent wiring to skip this page entirely |
 | `andy_introcopy` | Multiline text | Optional — intro/troubleshooting copy if not hardcoded in the page |
 | `andy_copilottopic` | String | Which Copilot Studio topic/context this page should invoke (null for the demo page) |
-| `andy_layout` | Choice | Which control-panel layout renders this device — one option per layout in `KIOSK_UI_SPEC.md` §2 (dial-arc / keypad / dip-strip / paired-columns / radio-cluster). Lets a future 6th device reuse an existing layout via data instead of a new code branch |
 
 No `andy_isactive` — Dataverse's built-in Status/Status Reason already covers retiring a
 row without deleting it. No `andy_dialposition` either — it only ever mapped a physical
@@ -340,13 +339,11 @@ power pages/restore-and-spin/
 │   │   ├── deviceProfiles.ts          # all 11 devices — content from KIOSK_UI_SPEC.md §2
 │   │   └── prizes.ts                  # TEMPORARY client-side prize pool — see §9 below
 │   ├── components/
-│   │   ├── LampDot.tsx, TactileButton.tsx, DialTicks.tsx   # shared primitives
+│   │   ├── LampDot.tsx               # semantic lamp primitive
 │   │   ├── HelpFixBar.tsx             # collapsed "Help Fix" pattern (§1/§8) — static steps for now
 │   │   ├── WinOverlay.tsx             # full-viewport takeover, 10s countdown, placeholder QR
 │   │   ├── PrizeWheel.tsx             # canvas wheel — client-side pick for now, see §9
-│   │   └── layouts/                   # the 5 distinct control-panel layouts (KIOSK_UI_SPEC.md §2)
-│   │       ├── DialArcPanel.tsx, KeypadPanel.tsx, DipStripPanel.tsx,
-│   │       │   PairedColumnsPanel.tsx, RadioClusterPanel.tsx
+│   │   └── surfaces/                  # typed registry and twelve read-only mode instruments
 │   │   └── styles/theme.css           # shared tokens + all 11 skins
 │   └── pages/
 │       ├── KioskInfoPage.tsx          # /kiosk/info — dial position 1, demo/info, no agent
@@ -512,3 +509,12 @@ Each row above becomes one `andy_deviceprofile` record (dial positions 2–12) p
 Studio topic (§8) walking the fault → restore steps in that row. Full visual spec
 (palette/font/motif, and which of the 5 control layouts each reuses) is in
 `KIOSK_UI_SPEC.md` §2.
+
+### Kiosk rendering architecture (#76)
+
+The frontend uses code-owned `DeviceProfile.surfaceKind` and the typed registry in
+`src/components/surfaces/registry.tsx`. All twelve modes have dedicated read-only
+surfaces. The former `andy_layout` proposal and five-layout adapters are retired;
+no Dataverse schema change is needed. Semantic control keys come from each mode?s
+restore contract, never array positions. See `KIOSK_MODE_UI_REDESIGN.md` and the app
+README for the current component structure and validation commands.

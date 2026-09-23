@@ -53,8 +53,8 @@ See `copilotiotgame/README.md` for the full breakdown. Briefly:
 - `src/data/deviceProfiles.ts` — the 12 playable devices (content spec: `docs/GAME_MODE_PLAN.md` /
   `docs/KIOSK_UI_SPEC.md`)
 - `src/components/surfaces/`: typed per-mode registry and shared read-only primitives.
-  `src/components/layouts/` contains temporary adapters while dedicated surfaces are built.
-  See `docs/KIOSK_MODE_UI_REDESIGN.md` (epic #73); it supersedes the five-layout rule.
+  All twelve modes use dedicated read-only surfaces; positional layouts and migration
+  fields have been removed. See `docs/KIOSK_MODE_UI_REDESIGN.md` (epic #73).
 - `src/styles/theme.css` — shared design tokens + device skins
 
 ## Design/architecture docs
@@ -85,4 +85,4 @@ Fan, Encryption). Never display SW1-SW6, J1-J4, GPIO/pin identifiers, physical s
 mappings or target positions on the device, including accessible labels/tooltips.
 Keep mappings and required actions inside the explicitly opened gear setup popup and
 Help Fix. Do not add the bottom physical-input rail. Preserve semantic telemetry keys
-and restore contracts internally. Apply this to dedicated surfaces and legacy adapters.
+and restore contracts internally. Apply this to every surface.
