@@ -19,10 +19,10 @@ Use this guide to restore each playable mode on the physical Pi panel. The Power
 | SW4 | Switch 4 | Turn on or off as requested |
 | SW5 | Keyed switch 1 | Turn on or off as requested |
 | SW6 | Keyed switch 2 | Turn on or off as requested |
-| J1 | J1 | Connect a cable or disconnect as requested |
-| J2 | J2 | Connect a cable or disconnect as requested |
-| J3 | J3 | Connect a cable or disconnect as requested |
-| J4 | J4 | Connect a cable or disconnect as requested |
+| S1 | S1 | Connect a cable or disconnect as requested |
+| S2 | S2 | Connect a cable or disconnect as requested |
+| S3 | S3 | Connect a cable or disconnect as requested |
+| S4 | S4 | Connect a cable or disconnect as requested |
 
 ## LED guide
 
@@ -49,10 +49,10 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 
 | Cable | Pinout | Where it plugs |
 |---|---|---|
-| Cable 1 | Side A Quad Pin 3 - Side B Dual Pin 1<br>Side A Quad Pin 4 - Side B Dual Pin 2 | A in J1; B in J2/J3 |
-| Cable 2 | Side A Quad Pin 3 - Side B Dual Pin 1<br>Side A Quad Pin 2 - Side B Dual Pin 2 | A in J1/J4; B in J2/J3 |
-| Cable 3 | Side A Quad Pin 2 - Side B Quad Pin 3<br>Side A Quad Pin 3 - Side B Quad Pin 2 | J1 to J4, either direction |
-| Cable 4 | Side A Quad Pin 1 - Side B Dual Pin 1<br>Side A Quad Pin 2 - Side B Dual Pin 2 | A in J1; B in J2/J3 |
+| Cable 1 | Side A Quad Pin 3 - Side B Dual Pin 1<br>Side A Quad Pin 4 - Side B Dual Pin 2 | Side A in S1; Side B in S2/S3 |
+| Cable 2 | Side A Quad Pin 3 - Side B Dual Pin 1<br>Side A Quad Pin 2 - Side B Dual Pin 2 | Side A in S1/S4; Side B in S2/S3 |
+| Cable 3 | Side A Quad Pin 2 - Side B Quad Pin 3<br>Side A Quad Pin 3 - Side B Quad Pin 2 | S1 to S4, reversible |
+| Cable 4 | Side A Quad Pin 1 - Side B Dual Pin 1<br>Side A Quad Pin 2 - Side B Dual Pin 2 | Side A in S1; Side B in S2/S3 |
 
 ## Before each run
 
@@ -72,7 +72,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect Cable 1 to J1 and J2
+7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S2
 8. Remove all other cables
 
 **Success check:** Smart Thermostat restored.
@@ -87,7 +87,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 to J1 and J3
+7. Connect Cable 2 Side A (quad) to S1 and Side B (dual) to S3
 8. Remove all other cables
 
 **Success check:** Smart Lock & Security Panel restored.
@@ -102,7 +102,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 off
-7. Connect Cable 1 to J1 and J3
+7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S3
 8. Remove all other cables
 
 **Success check:** Cold-Chain Warehouse Sensor restored.
@@ -117,8 +117,8 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 4 to J1 and J2
-8. Connect Cable 2 to J4 and J3
+7. Connect Cable 4 Side A (quad) to S1 and Side B (dual) to S2
+8. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S3
 9. Remove all other cables
 
 **Success check:** Water Pump Station Controller restored.
@@ -133,7 +133,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 to J4 and J2
+7. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S2
 8. Remove all other cables
 
 **Success check:** Tactical Field Radio restored.
@@ -148,8 +148,8 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect Cable 1 to J1 and J2
-8. Connect Cable 2 to J4 and J3
+7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S2
+8. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S3
 9. Remove all other cables
 
 **Success check:** Smart EV Charger restored.
@@ -164,7 +164,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 4 to J1 and J2
+7. Connect Cable 4 Side A (quad) to S1 and Side B (dual) to S2
 8. Remove all other cables
 
 **Success check:** Elevator Control Panel restored.
@@ -179,8 +179,8 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect Cable 1 to J1 and J3
-8. Connect Cable 2 to J4 and J2
+7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S3
+8. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S2
 9. Remove all other cables
 
 **Success check:** Traffic Signal Controller restored.
@@ -195,7 +195,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect Cable 4 to J1 and J3
+7. Connect Cable 4 Side A (quad) to S1 and Side B (dual) to S3
 8. Remove all other cables
 
 **Success check:** Hospital Patient Monitor restored.
@@ -210,7 +210,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 to J1 and J2
+7. Connect Cable 2 Side A (quad) to S1 and Side B (dual) to S2
 8. Remove all other cables
 
 **Success check:** Retail Payment Kiosk restored.
@@ -225,7 +225,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 3 to J1 and J4
+7. Connect Cable 3 between S1 and S4 (reversible; either side can go into either socket)
 8. Remove all other cables
 
 **Success check:** Drone Ground Control restored.
@@ -240,7 +240,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 to J4 and J3
+7. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S3
 8. Remove all other cables
 
 **Success check:** Industrial Robot Arm restored.

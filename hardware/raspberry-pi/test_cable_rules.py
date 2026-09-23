@@ -29,12 +29,12 @@ class CableRuleTests(unittest.TestCase):
                 self.assertEqual(wins, int(source["slug"] == target["slug"]))
 
     def test_invalid_readings_never_satisfy_recipe(self):
-        required = [{"cable": 1, "sockets": ["J1", "J2"]}]
-        for actual in (None, [], required * 2, [{"cable": None, "sockets": ["J1", "J2"]}],
-                       [{"cable": 1, "sockets": ["J1", "J1"]}], [{"cable": True, "sockets": ["J1", "J2"]}],
-                       [{"cable": 2, "sockets": ["J1", "J2"]}], [{"cable": 1, "sockets": ["J1", "J3"]}]):
+        required = [{"cable": 1, "sockets": ["S1", "S2"]}]
+        for actual in (None, [], required * 2, [{"cable": None, "sockets": ["S1", "S2"]}],
+                       [{"cable": 1, "sockets": ["S1", "S1"]}], [{"cable": True, "sockets": ["S1", "S2"]}],
+                       [{"cable": 2, "sockets": ["S1", "S2"]}], [{"cable": 1, "sockets": ["S1", "S3"]}]):
             self.assertFalse(cables_match(required, actual))
-        self.assertTrue(cables_match(required, [{"cable": 1, "sockets": ["J2", "J1"]}]))
+        self.assertTrue(cables_match(required, [{"cable": 1, "sockets": ["S2", "S1"]}]))
 
 
 if __name__ == "__main__":

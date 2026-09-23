@@ -53,7 +53,7 @@ try {
       await page.locator(`.water-pump-surface[data-${features[key]}="enabled"]`).waitFor();
       for (const other of Object.keys(features).filter(k => k !== key)) assert.equal(await page.locator(".water-pump-surface").getAttribute(`data-${features[other]}`),"disabled");
     }
-    for (const [key,value,operation] of [["power",false,"unpowered"],["pumpenable",false,"pump-disabled"],["relief",false,"relief-disabled"],["remote",true,"remote-override"],["keyed_two",false,"interlocked"],["socket_j4",false,"interlocked"]]) {
+    for (const [key,value,operation] of [["power",false,"unpowered"],["pumpenable",false,"pump-disabled"],["relief",false,"relief-disabled"],["remote",true,"remote-override"],["keyed_two",false,"interlocked"],["socket_s4",false,"interlocked"]]) {
       telemetry("water-pump",{...partial,[key]:value});
       await page.locator(`.water-pump-surface[data-operation="${operation}"]`).waitFor();
       assert.equal(await page.locator(".pump-flow").evaluate(el=>getComputedStyle(el).animationName),"none");

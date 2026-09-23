@@ -14,14 +14,14 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 5 | 2 | 0 | 0 | 7 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
-| Power Pages | 4 | 8 | 1 | 0 | 13 |
+| Power Pages | 5 | 7 | 1 | 0 | 13 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
 | Integration (Azure Functions) | 7 | 3 | 0 | 0 | 10 |
 | Power Apps | 2 | 4 | 0 | 0 | 6 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 18 | 21 | 5 | 2 | 46 |
+| Totals | 19 | 20 | 5 | 2 | 46 |
 
 ## Dataverse
 
@@ -52,7 +52,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Item | Type | Status | Notes |
 |---|---|---|---|
 | Physical control/visual contracts across twelve modes (#75) | Code Site | ⬜ Verify | Six switches and four sockets available in gear setup; domain-only instruments. Contract checks cover 12,288 states, exact cable recipes, and any-order Help Fix wording. Surface checks cover all twelve modes and their setup/help recipes. Live Pi/page validation pending. |
-| Typed read-only surface registry and shared primitives (#76) | Code Site | ? Verify | All twelve dedicated surfaces use semantic keys; legacy layouts, helper widgets, profile metadata and CSS removed. Architecture guidance reflects registry ownership. 60 surface fixtures, completion/reset flow, 12,288 configurations and required builds pass locally. User will verify the Pi after deployment. |
+| Typed read-only surface registry and shared primitives (#76) | Code Site | ✅ Done | Closed via #89/#90/#135. All twelve dedicated surfaces use semantic keys; legacy layouts, helper widgets, profile metadata and CSS removed. Architecture guidance reflects registry ownership. 60 surface fixtures, completion/reset flow, 12,288 configurations and required builds passed locally, and #135's deploy-apps.yml run succeeded on main. |
 | Dedicated thermostat instrument pilot (#77) | Code Site | ⬜ Verify | Circular heat/cool face, state-driven fan, eco lockout, and physical mappings. No inferred temperatures. Local browser checks pass; live validation pending. |
 | `copilotiotgame`: `KioskInfoPage` + `KioskDevicePage`, all 12 playable modes, 10s reset timer (800×480 viewport) | Code Site pages | ⬜ Verify | Issues #43/#44 — mode cards now mirror the 12 Pi restore sequences and expose ordered restore steps. Verify with local build and live page after deployment. |
 | `copilotiotgame`: `/play-spin` page, QR generation on kiosk win, wheel animation | Code Site page | ✅ Done | GAME_MODE_PLAN.md §7, Phase 6 — except real QR encoding (placeholder pattern) and the real claim call (depends on the Integration claim endpoint below) |
@@ -84,7 +84,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Panel Pi (`hardware/raspberry-pi/`): switches, LEDs, connector jacks, all 12 playable `logic_maps/<slug>.json` files, Azure IoT Hub telemetry publisher | Raspberry Pi firmware | ⬜ Verify | Issues #41/#42 — controller now reads all six switches and four sockets, selects mode from Power App/Page state (`kiosk-state` URL, state file, or env fallback), and mirrors the page restore sequences. Verify on the Pi after deployment. |
 | Panel Pi: deploy 12-mode firmware update to hardware | Raspberry Pi firmware | ⬜ Verify | Issue #42 — cable-matrix firmware, 12 logic maps, telemetry reconnect, `diagnose_cables.py` and `check_iot_connection.py` copied to `pi@iotcase` (`.env` untouched); unit tests pass on the Pi and the hub accepts its credential. Found: the Pi has no battery clock, so the service started ~13 h behind real time and IoT Hub refused the time-based token; it never retried. `telemetry.py` now retries with backoff and the unit waits for time sync. Still to do on the Pi (needs sudo): install the updated unit, `systemctl enable systemd-time-wait-sync.service`, restart the service; then run `diagnose_cables.py --watch` against real cables and check each mode against the printed panel. |
 | Physical rotary dial or mux mode input | Raspberry Pi hardware | Future | Removed from the active demo path; the Power App/Page controls active modes for this build. |
-| Panel Pi cable matrix: 10 socket contacts (J1 pins 1-4, J2/J3/J4 pins 1-2), 12 two-wire demo cables, `cable_matrix.py` scan/decode, cables in telemetry | Raspberry Pi firmware + wiring | ⬜ Verify | Replaces the unwired one-contact-per-socket design (no cable could ever read as connected). Needs the physical rewire (move the J4 pin 4 wire to J1 pin 4, add six wires), deploy, then a bench test of every socket and GPIO7 (J4 pin 2). Diagram/README/manual/PDF updated; `python -m unittest test_cable_matrix` passes off-Pi. |
+| Panel Pi cable matrix: 10 socket contacts (S1 pins 1-4, S2/S3 pins 1-2, S4 pins 3 and 2), four two-wire demo cables, `cable_matrix.py` scan/decode, cables in telemetry | Raspberry Pi firmware + wiring | ⬜ Verify | Replaces the unwired one-contact-per-socket design (no cable could ever read as connected). Needs the physical rewire, deploy, then a bench test of every socket and GPIO7 (S4 pin 2). Diagram/README/manual/PDF updated; `python -m unittest test_cable_matrix` passes off-Pi. |
+| Restore manual and agent socket labels: rename printed socket references from J1-J4 to S1-S4, including side-aware cable instructions | Hardware docs + Power Pages + Azure telemetry + Copilot Studio agent | ⬜ Verify | Issue #139 — source data, logic maps, app contracts, Azure telemetry examples, generated manual PDF, wiring docs, and agent knowledge/instructions updated locally. Needs PR review, deployment/push-publish of the Copilot Studio agent, and live Help Fix validation. |
 | Cold-chain, drone, and traffic-signal modes changed from 3 to 2 required sockets | Logic maps + `deviceProfiles.ts` + manual/PDF | ⬜ Verify | A cable only reads when both ends are plugged in, so required-connected sockets must be even; a test in `test_cable_matrix.py` now enforces this for all 12 modes. Needs the Code Site redeploy alongside the Pi update. |
 
 ## Integration (Azure Functions)

@@ -1,6 +1,16 @@
 import type { DeviceProfile, DeviceState, RestoreStep, CableRequirement } from "../types/game";
 import { evaluateLamps, lampDefs, type LampRule } from "../lib/lampLogic";
 
+const SOCKET_TYPES: Record<string, "quad" | "dual"> = { S1: "quad", S2: "dual", S3: "dual", S4: "quad" };
+const CABLE_SPECS: Record<number, readonly ["quad" | "dual", "quad" | "dual"]> = {
+  1: ["quad", "dual"],
+  2: ["quad", "dual"],
+  3: ["quad", "quad"],
+  4: ["quad", "dual"],
+};
+
+const isSocketPin = (pin: string) => /^S[1-4]$/.test(pin);
+
 /**
  * Ported from the validated HTML/JS prototype (see KIOSK_UI_SPEC.md and the "Restore &
  * Spin" artifact). checkWin/computeLamps are pure functions of switch state — they stay
@@ -26,8 +36,8 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 1,
       "sockets": [
-        "J1",
-        "J2"
+        "S1",
+        "S2"
       ]
     }
   ],
@@ -35,8 +45,8 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 1,
       "sockets": [
-        "J1",
-        "J3"
+        "S1",
+        "S3"
       ]
     }
   ],
@@ -44,8 +54,8 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 4,
       "sockets": [
-        "J1",
-        "J2"
+        "S1",
+        "S2"
       ]
     }
   ],
@@ -53,8 +63,8 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 4,
       "sockets": [
-        "J1",
-        "J3"
+        "S1",
+        "S3"
       ]
     }
   ],
@@ -62,8 +72,8 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 3,
       "sockets": [
-        "J1",
-        "J4"
+        "S1",
+        "S4"
       ]
     }
   ],
@@ -71,15 +81,15 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 1,
       "sockets": [
-        "J1",
-        "J2"
+        "S1",
+        "S2"
       ]
     },
     {
       "cable": 2,
       "sockets": [
-        "J4",
-        "J3"
+        "S4",
+        "S3"
       ]
     }
   ],
@@ -87,8 +97,8 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 2,
       "sockets": [
-        "J4",
-        "J2"
+        "S4",
+        "S2"
       ]
     }
   ],
@@ -96,8 +106,8 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 2,
       "sockets": [
-        "J4",
-        "J3"
+        "S4",
+        "S3"
       ]
     }
   ],
@@ -105,8 +115,8 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 2,
       "sockets": [
-        "J1",
-        "J2"
+        "S1",
+        "S2"
       ]
     }
   ],
@@ -114,8 +124,8 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 2,
       "sockets": [
-        "J1",
-        "J3"
+        "S1",
+        "S3"
       ]
     }
   ],
@@ -123,15 +133,15 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 1,
       "sockets": [
-        "J1",
-        "J3"
+        "S1",
+        "S3"
       ]
     },
     {
       "cable": 2,
       "sockets": [
-        "J4",
-        "J2"
+        "S4",
+        "S2"
       ]
     }
   ],
@@ -139,15 +149,15 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
     {
       "cable": 4,
       "sockets": [
-        "J1",
-        "J2"
+        "S1",
+        "S2"
       ]
     },
     {
       "cable": 2,
       "sockets": [
-        "J4",
-        "J3"
+        "S4",
+        "S3"
       ]
     }
   ]
@@ -156,145 +166,145 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
 const RESTORE_SEQUENCES = {
   "thermostat": [
     {"physicalPin": "SW3", "key": "fan", "label": "Toggle switch 1 - fan running", "target": true},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": false},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": false},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1", "target": true},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": true},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": true},
     {"physicalPin": "SW2", "key": "eco", "label": "Safety switch 2 - eco lockout", "target": false},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2", "target": false},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": false},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": false},
     {"physicalPin": "SW4", "key": "mode", "label": "Toggle switch 2 - heat/cool select", "target": false},
   ],
   "coldchain-sensor": [
     {"physicalPin": "SW4", "key": "cloudsync", "label": "Toggle switch 2 - cloud sync", "target": true},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": true},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": true},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2", "target": false},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW2", "key": "calibration", "label": "Safety switch 2 - calibration", "target": true},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": false},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": false},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1", "target": false},
     {"physicalPin": "SW3", "key": "threshold", "label": "Toggle switch 1 - threshold", "target": false},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": false},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": false},
   ],
   "elevator": [
     {"physicalPin": "SW2", "key": "brake", "label": "Safety switch 2 - brake release", "target": true},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": false},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": false},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2 - inspection key", "target": true},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": true},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": true},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
     {"physicalPin": "SW3", "key": "doors", "label": "Toggle switch 1 - doors closed", "target": true},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1", "target": false},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": false},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": false},
     {"physicalPin": "SW4", "key": "inspection", "label": "Toggle switch 2 - inspection mode", "target": false},
   ],
   "patient-monitor": [
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1 - nurse key", "target": true},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": true},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": true},
     {"physicalPin": "SW2", "key": "leads", "label": "Safety switch 2 - leads connected", "target": true},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW4", "key": "alarm", "label": "Toggle switch 2 - alarm audible", "target": true},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": false},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": false},
     {"physicalPin": "SW3", "key": "spo2", "label": "Toggle switch 1 - SpO2 sensor", "target": true},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2", "target": false},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": false},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": false},
   ],
   "drone-ground-control": [
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": false},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": false},
     {"physicalPin": "SW4", "key": "uplink", "label": "Toggle switch 2 - uplink", "target": true},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2 - flight key", "target": true},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW2", "key": "gps", "label": "Safety switch 2 - GPS lock", "target": true},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": false},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": false},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1", "target": false},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": true},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": true},
     {"physicalPin": "SW3", "key": "telemetry", "label": "Toggle switch 1 - telemetry", "target": true},
   ],
   "ev-charger": [
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": true},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": true},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1 - service lock", "target": true},
     {"physicalPin": "SW4", "key": "billing", "label": "Toggle switch 2 - billing link", "target": true},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW2", "key": "contactor", "label": "Safety switch 2 - contactor", "target": true},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": true},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": true},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2", "target": false},
     {"physicalPin": "SW3", "key": "ground", "label": "Toggle switch 1 - ground check", "target": true},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": true},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": true},
   ],
   "field-radio": [
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2 - crypto key", "target": true},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": true},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": true},
     {"physicalPin": "SW3", "key": "channelhop", "label": "Toggle switch 1 - channel hop", "target": true},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": false},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": false},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": true},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": true},
     {"physicalPin": "SW2", "key": "encryption", "label": "Safety switch 2 - encryption", "target": true},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1", "target": false},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": false},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": false},
     {"physicalPin": "SW4", "key": "transmit", "label": "Toggle switch 2 - transmit", "target": true},
   ],
   "industrial-robot-arm": [
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": true},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": true},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - main power", "target": true},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2 - teach pendant key", "target": true},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": false},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": false},
     {"physicalPin": "SW3", "key": "servo", "label": "Toggle switch 1 - servo enable", "target": true},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": false},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": false},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1 - cell access", "target": true},
     {"physicalPin": "SW2", "key": "estop", "label": "Safety switch 2 - E-stop reset", "target": true},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": true},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": true},
     {"physicalPin": "SW4", "key": "guard", "label": "Toggle switch 2 - guard door", "target": false},
   ],
   "retail-kiosk": [
     {"physicalPin": "SW3", "key": "reader", "label": "Toggle switch 1 - card reader", "target": true},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2 - cash drawer key", "target": true},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": false},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": false},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": true},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": true},
     {"physicalPin": "SW4", "key": "network", "label": "Toggle switch 2 - network", "target": true},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW2", "key": "printer", "label": "Safety switch 2 - receipt printer", "target": true},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": false},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": false},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1", "target": false},
   ],
   "smart-lock": [
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": false},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": false},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1 - service key", "target": true},
     {"physicalPin": "SW2", "key": "deadbolt", "label": "Safety switch 2 - deadbolt", "target": true},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": false},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": false},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
     {"physicalPin": "SW4", "key": "alarm", "label": "Toggle switch 2 - alarm arm", "target": true},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW3", "key": "autolock", "label": "Toggle switch 1 - auto-lock", "target": false},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2", "target": true},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": true},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": true},
   ],
   "traffic-signal": [
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW4", "key": "manual", "label": "Toggle switch 2 - manual override", "target": false},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": true},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": true},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1 - cabinet key", "target": true},
     {"physicalPin": "SW2", "key": "controller", "label": "Safety switch 2 - controller", "target": true},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": true},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": true},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2", "target": false},
     {"physicalPin": "SW3", "key": "timing", "label": "Toggle switch 1 - timing plan", "target": true},
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": true},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": true},
   ],
   "water-pump": [
-    {"physicalPin": "J4", "key": "socket_j4", "label": "Socket J4 connected", "target": true},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": true},
     {"physicalPin": "SW2", "key": "pumpenable", "label": "Safety switch 2 - pump enable", "target": true},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1", "target": false},
-    {"physicalPin": "J1", "key": "socket_j1", "label": "Socket J1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
     {"physicalPin": "SW4", "key": "remote", "label": "Toggle switch 2 - remote override", "target": false},
-    {"physicalPin": "J2", "key": "socket_j2", "label": "Socket J2 connected", "target": true},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": true},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
-    {"physicalPin": "J3", "key": "socket_j3", "label": "Socket J3 connected", "target": true},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": true},
     {"physicalPin": "SW6", "key": "keyed_two", "label": "Keyed switch 2", "target": true},
     {"physicalPin": "SW3", "key": "relief", "label": "Toggle switch 1 - pressure relief", "target": true},
   ],
@@ -303,7 +313,7 @@ const RESTORE_SEQUENCES = {
 type RestoreSequenceKey = keyof typeof RESTORE_SEQUENCES;
 
 function controlName(control: RestoreStep) {
-  if (control.physicalPin.startsWith("J")) return control.physicalPin;
+  if (isSocketPin(control.physicalPin)) return control.physicalPin;
   if (control.physicalPin === "SW5") return "Keyed switch 1";
   if (control.physicalPin === "SW6") return "Keyed switch 2";
   return `Switch ${control.physicalPin.replace("SW", "")}`;
@@ -330,7 +340,24 @@ export function cablesMatch(required: readonly CableRequirement[], actual?: read
 }
 
 export function cableActions(required: readonly CableRequirement[]) {
-  return [...required.map(cable => `Connect Cable ${cable.cable} to ${cable.sockets.join(" and ")}`), "Remove all other cables"];
+  return [
+    ...required.map((cable) => {
+      const spec = cable.cable === null ? undefined : CABLE_SPECS[cable.cable];
+      if (!spec) return `Connect ${cable.cable === null ? "unrecognised cable" : `Cable ${cable.cable}`} to ${cable.sockets.join(" and ")}`;
+      if (spec[0] === spec[1]) {
+        return `Connect Cable ${cable.cable} between ${cable.sockets[0]} and ${cable.sockets[1]} (reversible; either side can go into either socket)`;
+      }
+      const unused = [...cable.sockets];
+      const sideSockets = spec.map((endType) => {
+        const index = unused.findIndex((socket) => SOCKET_TYPES[socket] === endType);
+        if (index < 0) return undefined;
+        return unused.splice(index, 1)[0];
+      });
+      if (!sideSockets[0] || !sideSockets[1]) return `Connect Cable ${cable.cable} to ${cable.sockets.join(" and ")}`;
+      return `Connect Cable ${cable.cable} Side A (${spec[0]}) to ${sideSockets[0]} and Side B (${spec[1]}) to ${sideSockets[1]}`;
+    }),
+    "Remove all other cables",
+  ];
 }
 
 function socketActionsFrom(sequence: readonly RestoreStep[], _state?: DeviceState) {
@@ -374,7 +401,7 @@ function sequence(slug: RestoreSequenceKey) {
 // (see the "Per-mode LED behavior" table in hardware/raspberry-pi/README.md); "restored"
 // itself always evaluates false here because evaluateLamps' win override already forces
 // every lamp green the instant a mode is won, exactly like the Pi's `restored=win`.
-const anySocket = (s: DeviceState) => !!s.socket_j1 || !!s.socket_j2 || !!s.socket_j3 || !!s.socket_j4;
+const anySocket = (s: DeviceState) => !!s.socket_s1 || !!s.socket_s2 || !!s.socket_s3 || !!s.socket_s4;
 
 const LAMPS: Record<string, LampRule[]> = {
   thermostat: [

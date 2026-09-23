@@ -26,7 +26,7 @@ const { outputFiles } = await esbuild.build({
   platform: "neutral",
 });
 const profileUrl = `data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString("base64")}`;
-const { DEVICE_PROFILES, DEVICE_ORDER, CABLE_RECIPES, cablesMatch } = await import(profileUrl);
+const { DEVICE_PROFILES, DEVICE_ORDER, CABLE_RECIPES, cablesMatch, cableActions } = await import(profileUrl);
 const promptSource = readFileSync(new URL("../src/lib/quickFixPrompt.ts", import.meta.url), "utf8");
 const promptJs = ts.transpileModule(promptSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replace('"../data/deviceProfiles"', JSON.stringify(profileUrl));
 const { buildQuickFixPrompt } = await import(`data:text/javascript;base64,${Buffer.from(promptJs).toString("base64")}`);
@@ -51,7 +51,7 @@ for (const slug of DEVICE_ORDER) {
   assert.deepEqual(device.requiredCables, map.requiredCables);
   assert.deepEqual(device.restoreSequence, map.restoreSequence, `${slug}: restore contract drift`);
   assert.deepEqual(device.fault, map.faultStartingState, `${slug}: initial state drift`);
-  assert.deepEqual([...device.restoreSequence.map(c => c.physicalPin)].sort(), ["J1", "J2", "J3", "J4", "SW1", "SW2", "SW3", "SW4", "SW5", "SW6"]);
+  assert.deepEqual([...device.restoreSequence.map(c => c.physicalPin)].sort(), ["S1", "S2", "S3", "S4", "SW1", "SW2", "SW3", "SW4", "SW5", "SW6"]);
   for (const control of [...map.switches, ...map.connectors]) {
     const step = device.restoreSequence.find(c => c.physicalPin === control.physicalPin);
     assert.equal(step.key, control.key, `${slug}: physical binding`);
@@ -61,7 +61,7 @@ for (const slug of DEVICE_ORDER) {
   assert.match(prompt, /restoration checks the final switch positions and cable connections/);
   assert.match(prompt, /Actions can be completed in any order/);
   assert.doesNotMatch(prompt, /restored in the listed order|change, in order/);
-  for (const cable of map.requiredCables) assert.ok(prompt.includes(`Connect Cable ${cable.cable} to ${cable.sockets.join(" and ")}`));
+  for (const action of cableActions(map.requiredCables)) assert.ok(prompt.includes(action));
   assert.ok(prompt.includes("Remove all other cables"));
   const keys = device.restoreSequence.map(c => c.key);
   assert.equal(device.checkWin({}), false, `${slug}: missing telemetry cannot win`);
@@ -115,5 +115,5 @@ for (const slug of DEVICE_ORDER) {
   assert.equal(device.checkWin(target, device.requiredCables.map(c => ({ ...c, cable: null }))), false);
   assert.equal(device.checkWin(target, [...device.requiredCables, device.requiredCables[0]]), false);
 }
-assert.equal(cablesMatch(CABLE_RECIPES.thermostat, [{ cable: 1, sockets: ["J1", "J1"] }]), false);
+assert.equal(cablesMatch(CABLE_RECIPES.thermostat, [{ cable: 1, sockets: ["S1", "S1"] }]), false);
 console.log("Exact cable recipes verified across all 144 mode pairs, missing/unknown/extra cables, and reversed ends.");

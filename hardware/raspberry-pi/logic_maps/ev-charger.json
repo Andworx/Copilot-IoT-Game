@@ -38,31 +38,31 @@
   ],
   "connectors": [
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected"
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected"
     },
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected"
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected"
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected"
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected"
     },
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected"
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected"
     }
   ],
   "restoreSequence": [
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected",
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected",
       "target": true
     },
     {
@@ -84,9 +84,9 @@
       "target": true
     },
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected",
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected",
       "target": true
     },
     {
@@ -96,9 +96,9 @@
       "target": true
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected",
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected",
       "target": true
     },
     {
@@ -114,9 +114,9 @@
       "target": true
     },
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected",
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected",
       "target": true
     }
   ],
@@ -139,7 +139,7 @@
       "physicalPin": "LED3",
       "key": "charging",
       "label": "Orange charging lamp",
-      "when": "contactor and (socket_j1 or socket_j2 or socket_j3 or socket_j4)",
+      "when": "contactor and (socket_s1 or socket_s2 or socket_s3 or socket_s4)",
       "pattern": "blink"
     },
     {
@@ -150,33 +150,33 @@
       "pattern": "on"
     }
   ],
-  "win": "socket_j3 and power and keyed_one and billing and socket_j1 and contactor and socket_j4 and not keyed_two and ground and socket_j2",
+  "win": "socket_s3 and power and keyed_one and billing and socket_s1 and contactor and socket_s4 and not keyed_two and ground and socket_s2",
   "faultStartingState": {
-    "socket_j3": false,
+    "socket_s3": false,
     "power": false,
     "keyed_one": false,
     "billing": false,
-    "socket_j1": false,
+    "socket_s1": false,
     "contactor": false,
-    "socket_j4": false,
+    "socket_s4": false,
     "keyed_two": true,
     "ground": false,
-    "socket_j2": false
+    "socket_s2": false
   },
   "winMessage": "EV charger restored \u2014 charging resumed.",
   "requiredCables": [
     {
       "cable": 1,
       "sockets": [
-        "J1",
-        "J2"
+        "S1",
+        "S2"
       ]
     },
     {
       "cable": 2,
       "sockets": [
-        "J4",
-        "J3"
+        "S4",
+        "S3"
       ]
     }
   ]

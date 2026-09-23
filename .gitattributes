@@ -3,3 +3,4 @@
 # line fails there ("bad interpreter"), so force LF regardless of the
 # checkout platform's core.autocrlf setting.
 *.sh text eol=lf
+*.pdf binary

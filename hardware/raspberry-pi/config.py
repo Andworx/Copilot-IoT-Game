@@ -28,11 +28,11 @@ LED_PINS = {
 # own GPIO: {socket: {contact pin: BCM GPIO}}. Nothing on a socket goes to GND;
 # cables are identified by which contacts they bridge (see cable_matrix.py and
 # the README's "Cable matrix" section).
-# J1/J4 are quad sockets; J2/J3 dual. J4 wires contacts 3 and 2 only.
+# S1/S4 are quad sockets; S2/S3 dual. S4 wires contacts 3 and 2 only.
 SOCKET_NODES = {
-    "J1": {1: 4, 2: 18, 3: 24, 4: 16},
-    "J2": {1: 25, 2: 20},
-    "J3": {1: 2, 2: 12},
-    "J4": {3: 3, 2: 7},
+    "S1": {1: 4, 2: 18, 3: 24, 4: 16},
+    "S2": {1: 25, 2: 20},
+    "S3": {1: 2, 2: 12},
+    "S4": {3: 3, 2: 7},
 }
 

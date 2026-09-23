@@ -3,6 +3,7 @@ import type { PanelCable } from "../types/telemetry";
 import { restoreActionsFrom } from "../data/deviceProfiles";
 
 const stateWord = (on: boolean, isSocket: boolean) => (isSocket ? (on ? "CONNECTED" : "OPEN") : on ? "ON" : "OFF");
+const isSocketPin = (pin: string) => /^S[1-4]$/.test(pin);
 
 function describeCables(cables: PanelCable[] | undefined): string {
   if (!cables || cables.length === 0) return "No cables detected.";
@@ -26,7 +27,7 @@ export function buildQuickFixPrompt(
     .join("\n");
   const controls = device.restoreSequence
     .map((step, index) => {
-      const isSocket = step.physicalPin.startsWith("J");
+      const isSocket = isSocketPin(step.physicalPin);
       const current = Boolean(state[step.key]);
       const verdict = current === step.target ? "OK" : "WRONG";
       return (
@@ -43,7 +44,7 @@ export function buildQuickFixPrompt(
     `CURRENT_STATE:\n` +
     `${controls}\n` +
     `CABLES: ${describeCables(cables)} A socket reads CONNECTED only while both ends of a cable are plugged in, ` +
-    `so sockets connect and disconnect in pairs. Cable identity matters; unknown, missing or extra cables prevent restoration.\n` +
+    `so sockets connect and disconnect in pairs. Cable side placement matters: Side A and Side B must go into the named S1-S4 sockets. Cable identity matters; unknown, missing or extra cables prevent restoration.\n` +
     `ACTIONS_TO_RETURN:\n${actions}\n` +
     `What must the player change to restore this device? ` +
     `Reply with ONLY the numbered ACTIONS_TO_RETURN list. ` +
