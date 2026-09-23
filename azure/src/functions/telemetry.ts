@@ -1,4 +1,4 @@
-import { app, output, InvocationContext } from "@azure/functions";
+import { app, output, InvocationContext, RetryOptions } from "@azure/functions";
 import { createTelemetryEvent } from "../lib/dataverse";
 import {
   buildSignalRMessages,
@@ -24,7 +24,24 @@ import {
  * dedicated to this Function App -- sharing one with another reader (for example the
  * sibling copilot-iot-service app's `funcapp` group) splits partition leases and each
  * app then misses events.
+ *
+ * The SignalR output binding's actual HTTP call to the SignalR service happens in the
+ * WebJobs host after this handler already returned, so a failure there (seen live: 429
+ * Too Many Requests from a burst of rapid panel state changes) can't be caught here --
+ * `retry` below is the supported fix (see Microsoft's Azure Functions error-handling
+ * guidance): the Event Hubs extension only checkpoints a batch once the retry policy
+ * finishes, so a throttled/dropped broadcast gets the whole batch replayed instead of
+ * silently losing that update. This can replay a `createTelemetryEvent` write too (a
+ * harmless duplicate append-only log row) alongside the SignalR broadcast it's retrying
+ * for; `andy_iottelemetryevent` is a log, not a state store, so that's an acceptable
+ * trade-off for not dropping kiosk updates.
  */
+const retryPolicy: RetryOptions = {
+  strategy: "exponentialBackoff",
+  maxRetryCount: 5,
+  minimumInterval: { seconds: 2 },
+  maximumInterval: { seconds: 30 },
+};
 const signalROutput = output.generic({
   type: "signalR",
   name: "signalRMessages",
@@ -76,5 +93,6 @@ app.eventHub("iot-telemetry", {
   consumerGroup: process.env.IOT_EVENTHUB_CONSUMER_GROUP ?? "$Default",
   cardinality: "many",
   extraOutputs: [signalROutput],
+  retry: retryPolicy,
   handler: iotTelemetry,
 });
