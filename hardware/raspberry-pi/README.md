@@ -7,6 +7,11 @@ switches, and 2 keyed switches) and scans 4 panel-side cable sockets; drives
 4 LEDs; and publishes state to Azure IoT Hub. It does
 **not** drive the kiosk touchscreen.
 
+On startup, before the first mode loads, the Pi runs a fixed self-test
+animation: all 4 LEDs light for 5 seconds, then it chases left to right
+(LED1 blue → LED2 yellow → LED3 orange → LED4 green), one LED at a time. See
+`PanelController._run_boot_animation` in `panel_controller.py`.
+
 ## Relationship to the playable modes
 
 The panel has **12 playable modes** selected by the Power App/Page. The physical
@@ -24,7 +29,10 @@ order:
 The selected mode determines which real-world meaning each control has. The
 same restore sequence is represented in the Power Pages `deviceProfiles.ts` data
 and in the Pi `logic_maps/<slug>.json` files so the screen instructions and Pi
-win logic stay aligned. **LED1-LED4** map to each mode's lamp expressions.
+win logic stay aligned. **LED1-LED4** map to each mode's lamp expressions, and
+each mode has its own LED story (which condition lights which lamp, steady or
+blinking) so the panel gives a distinct visual cue per mode — see "Per-mode
+LED behavior" below.
 
 Use `RESTORE-MODES-MANUAL.md` as the operator-facing guide for restoring each
 of the 12 playable modes during demos.
@@ -216,10 +224,18 @@ service after deploying the reviewed firmware, then verify the physical cables.
   non-blocking) so a slow/dropped network connection never stalls GPIO
   polling. Runs in console-only mode if `AZURE_IOT_CONNECTION_STRING` isn't
   set, for bench-testing without cloud credentials.
-- **`panel_controller.py`** — the main loop: selects the active mode from the
-  Power App/Page state, reads SW1-SW6 and J1-J4 (via the cable matrix) into that mode's restore keys,
-  evaluates `win` and each lamp's `when` expression, drives the 4 LEDs, and
-  publishes telemetry on mode change, state change, heartbeat, and win.
+- **`lamp_patterns.py`** — evaluates each lamp's `when` expression into an
+  `{active, pattern}` state (`on`/`blink`/`fast_blink`), forcing all 4 lamps
+  solid on the moment a mode is won, and drives gpiozero `LED`s so a blink
+  only (re)starts when its requested pattern actually changes — not on every
+  50ms GPIO scan. Kept independent of gpiozero so it's tested off-Pi with
+  `python -m unittest test_lamp_patterns`.
+- **`panel_controller.py`** — the main loop: runs the boot animation once at
+  startup, then selects the active mode from the Power App/Page state, reads
+  SW1-SW6 and J1-J4 (via the cable matrix) into that mode's restore keys,
+  evaluates `win` and each lamp's `when`/`pattern` via `lamp_patterns.py`,
+  drives the 4 LEDs, and publishes telemetry on mode change, state change,
+  heartbeat, and win.
 - **`logic_maps/<slug>.json`** — one file per Power App-selectable device/mode.
   There are 12 playable maps plus `demo-info.json` for the intro state. Each
   playable map includes a `restoreSequence` that mirrors
@@ -237,7 +253,7 @@ service after deploying the reviewed firmware, then verify the physical cables.
     { "physicalPin": "SW1", "key": "power", "label": "Power" }
   ],
   "lamps": [
-    { "physicalPin": "LED1", "key": "power", "label": "Power", "when": "power" }
+    { "physicalPin": "LED1", "key": "power", "label": "Power", "when": "power", "pattern": "on" }
   ],
   "win": "power and fan and not mode",
   "faultStartingState": { "power": true, "eco": true, "fan": false, "mode": true },
@@ -245,10 +261,42 @@ service after deploying the reviewed firmware, then verify the physical cables.
 }
 ```
 
+Each lamp's `when` is a restricted boolean expression (`and`/`or`/`not` over
+switch/connector keys and `win` only — see `safe_eval.py`) and `pattern` is
+`on` (steady, the default when omitted), `blink` (0.5s on/off), or
+`fast_blink` (0.15s on/off — see `lamp_patterns.py`). The moment a mode is
+won, all 4 lamps go solid on regardless of their individual `when`/`pattern`,
+so the restored cue is identical across every mode.
+
 `faultStartingState` isn't enforced by the firmware — the Pi can't move a
 physical toggle switch. It's informational: a staff cheat-sheet for how to
 manually re-arm the panel's real switches between attendees (print it, or
 extend `panel_controller.py` to log it when the selected mode changes).
+
+### Per-mode LED behavior
+
+LED1 (blue, ready) is solid on whenever `power` is on, and LED4 (green,
+restored) is solid on whenever `win` is true, in every mode. LED2 (yellow)
+and LED3 (orange) carry each mode's own story:
+
+| Mode | LED2 yellow | LED3 orange |
+|---|---|---|
+| coldchain-sensor | `threshold` fast-blinks (temperature alarm) | `cloudsync` + any socket blinks (syncing) |
+| drone-ground-control | `not gps` blinks (acquiring lock) | `uplink` + any socket, solid |
+| elevator | `inspection` blinks (inspection mode) | `doors` + any socket, solid (car ready) |
+| ev-charger | `not ground` fast-blinks (ground fault) | `contactor` + any socket blinks (charging) |
+| field-radio | `transmit` fast-blinks (on air) | `encryption` + any socket, solid (secure link) |
+| industrial-robot-arm | `guard` fast-blinks (guard door open) | `servo` + any socket blinks (servo active) |
+| patient-monitor | `not leads` blinks (leads not connected) | `alarm` and `spo2` fast-blinks (clinical alarm) |
+| retail-kiosk | `not network` blinks (network searching) | `reader` and `printer` + any socket, solid |
+| smart-lock | `alarm` fast-blinks (alarm armed) | `deadbolt` + any socket, solid |
+| thermostat | `fan` blinks (fan running) | `not eco` + any socket, solid (climate active) |
+| traffic-signal | `manual` fast-blinks (manual override) | `timing` + any socket blinks (signal cycling) |
+| water-pump | `remote` blinks (remote override) | `pumpenable` + any socket fast-blinks (pump running) |
+
+No two modes share an identical 4-lamp script (see
+`test_logic_map_lamps.test_no_two_modes_share_an_identical_lamp_script`).
+`demo-info` keeps all 4 lamps off (`when: "false"`) and is unaffected.
 
 ### Telemetry payload
 
@@ -260,7 +308,13 @@ change, and the moment a device is won:
   "deviceSlug": "thermostat",
   "modeIndex": 2,
   "switches": { "power": true, "eco": false, "fan": true, "mode": false },
-  "lamps": { "power": true, "heating": true, "cooling": false, "fault": false },
+  "lamps": { "power": true, "fan_running": true, "climate_active": false, "restored": false },
+  "lampPatterns": {
+    "power": { "active": true, "pattern": "on" },
+    "fan_running": { "active": true, "pattern": "blink" },
+    "climate_active": { "active": false, "pattern": "on" },
+    "restored": { "active": false, "pattern": "on" }
+  },
   "connectors": { "J1": false, "J2": true, "J3": true, "J4": false },
   "cables": [{ "cable": 4, "sockets": ["J2", "J3"] }],
   "win": true,
@@ -269,7 +323,10 @@ change, and the moment a device is won:
 }
 ```
 
-New fields need no schema change: the event log stores the whole payload as JSON. See
+`lamps` (boolean, keyed by lamp `key`) is kept for existing consumers;
+`lampPatterns` adds each lamp's `pattern` alongside `active` so the kiosk can
+render the same blink intent the panel is showing. New fields need no schema
+change: the event log stores the whole payload as JSON. See
 "Telemetry payload and the cloud pipeline" above.
 
 ## Setup

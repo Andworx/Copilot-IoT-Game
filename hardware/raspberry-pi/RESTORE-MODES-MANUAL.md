@@ -26,12 +26,21 @@ Use this guide to restore each playable mode on the physical Pi panel. The Power
 
 ## LED guide
 
+At startup, all 4 LEDs light for 5 seconds, then chase left to right
+(LED1 → LED2 → LED3 → LED4) before the first mode loads — a self-test, not a
+game state.
+
 | LED | Color | Meaning |
 |---|---|---|
-| LED1 | Blue | Ready/power condition is active |
-| LED2 | Yellow | Restoration is still in progress |
-| LED3 | Orange | At least one socket is connected |
-| LED4 | Green | Current mode is restored successfully |
+| LED1 | Blue | Ready/power condition is active (same in every mode) |
+| LED2 | Yellow | Mode-specific alert or progress cue — steady or blinking; see the per-mode LED table in `README.md` |
+| LED3 | Orange | Mode-specific socket/system cue — steady or blinking; see the per-mode LED table in `README.md` |
+| LED4 | Green | Current mode is restored successfully (same in every mode; forces all 4 LEDs solid on) |
+
+LED2 and LED3's exact condition and color-blink pattern differ by mode — that
+is intentional, so each mode has its own recognisable look on the panel. Only
+LED4 green is a universal completion signal; don't use LED2/LED3 as a
+generic step counter.
 
 ## Demo cable build reference
 
