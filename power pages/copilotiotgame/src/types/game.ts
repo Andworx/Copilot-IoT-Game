@@ -10,35 +10,9 @@ export type SurfaceKind =
   | "elevator-service" | "traffic-cabinet" | "patient-monitor"
   | "payment-terminal" | "drone-ground-station" | "robot-teach-pendant";
 
-export interface InstrumentBindings {
-  dial?: string;
-  gauge?: string;
-  guards?: readonly [string, string];
-  button?: string;
-  signal?: string;
-}
-
-export type LayoutKind =
-  | "dial-arc"
-  | "keypad"
-  | "dip-strip"
-  | "paired-columns"
-  | "radio-cluster";
-
-export interface SwitchDef {
-  physicalPin: PhysicalControlKey;
-  key: string;
-  label: string;
-}
-
 export interface LampDef {
   key: string;
   label: string;
-}
-
-export interface ReadoutText {
-  fault: string;
-  ok: string;
 }
 
 export type PhysicalControlKey =
@@ -73,13 +47,9 @@ export interface DeviceProfile {
   dialPosition: number;
   restoreSequence: readonly RestoreStep[];
   isGameDevice: boolean;
-  /** Temporary adapter for modes awaiting dedicated surfaces. */
-  layout: LayoutKind;
   surfaceKind: SurfaceKind;
-  instruments: InstrumentBindings;
   accent: string;
   displayFont: string;
-  switches: SwitchDef[];
   lamps: LampDef[];
   fault: DeviceState;
   requiredCables: readonly CableRequirement[];
@@ -90,7 +60,6 @@ export interface DeviceProfile {
   steps: string[];
   winMessage: string;
   restoreItems: string[];
-  readout?: ReadoutText;
 }
 
 export interface Prize {

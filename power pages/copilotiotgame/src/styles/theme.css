@@ -291,177 +291,6 @@ input:focus-visible {
   50%, 100% { opacity: 0.22; }
 }
 
-/* ---- shared control materials ---- */
-.panel-body button {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.08s ease, filter 0.08s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-}
-.panel-body button:active { transform: scale(0.94); filter: brightness(0.88); }
-.panel-body label { font-size: 0.7rem; letter-spacing: 0.04em; color: var(--color-text-muted); }
-
-.ripple {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.32);
-  transform: scale(0);
-  pointer-events: none;
-  animation: rippleFx 0.5s ease-out forwards;
-}
-@keyframes rippleFx {
-  to { transform: scale(2.4); opacity: 0; }
-}
-
-.dial-ticks { position: absolute; inset: 0; pointer-events: none; }
-.dial-ticks svg { width: 100%; height: 100%; overflow: visible; }
-
-/* ---- Thermostat: dial + arc gauge + button row ---- */
-.th-layout { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.th-arc { position: relative; width: 240px; height: 70px; }
-.th-arc .lamp-dot { position: absolute; top: 50%; }
-.th-arc .a1 { left: 4%; transform: translateY(40%); }
-.th-arc .a2 { left: 32%; transform: translateY(-90%); }
-.th-arc .a3 { left: 62%; transform: translateY(-90%); }
-.th-arc .a4 { left: 90%; transform: translateY(40%); }
-.th-dial-wrap { position: relative; width: 176px; height: 176px; }
-.th-dial-wrap .dial-ticks { color: var(--color-text-muted); opacity: 0.7; }
-.th-dial {
-  position: absolute; top: 25px; left: 25px; width: 126px; height: 126px; border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 40%),
-    radial-gradient(circle at 35% 30%, var(--color-surface-2), var(--color-surface));
-  border: 3px solid var(--color-border-strong);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45), inset 0 2px 3px rgba(255, 255, 255, 0.05), inset 0 -3px 6px rgba(0, 0, 0, 0.35);
-  transition: border-color 0.2s ease;
-}
-.th-dial[aria-pressed="true"] { border-color: var(--device-accent); }
-.th-dial .pointer {
-  position: absolute; top: 13px; left: 50%; width: 4px; height: 42px; background: var(--color-text-muted);
-  transform-origin: 50% 50px; transform: rotate(-55deg);
-  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
-}
-.th-dial[aria-pressed="true"] .pointer { transform: rotate(55deg); background: var(--device-accent); }
-.th-dial .dial-label { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font-size: 0.72rem; color: var(--color-text-muted); }
-.th-buttons { display: flex; gap: 12px; }
-.th-btn {
-  padding: 11px 20px; border-radius: 20px;
-  background: linear-gradient(180deg, var(--color-surface-3), var(--color-surface-2));
-  border: 1px solid var(--color-border-strong); color: var(--color-text-muted);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-.th-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--device-accent) 18%, transparent); border-color: var(--device-accent); color: var(--color-text-bright); }
-
-/* ---- Smart Lock: 2x2 keypad + LCD readout + side LED column ---- */
-.lk-layout { display: flex; gap: 36px; align-items: center; justify-content: center; }
-.lk-stack { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.lk-lcd {
-  font-size: 0.86rem; letter-spacing: 0.14em; padding: 7px 18px; border-radius: 2px;
-  background: var(--color-surface-2); border: 1px solid var(--color-border-strong);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5); color: var(--color-danger); text-shadow: 0 0 6px currentColor;
-  transition: color 0.2s ease;
-}
-.lk-lcd[data-mode="ok"] { color: var(--color-accent); }
-.lk-keypad { display: grid; grid-template-columns: repeat(2, 96px); grid-template-rows: repeat(2, 80px); gap: 12px; }
-.lk-key {
-  border-radius: 5px; background: linear-gradient(160deg, var(--color-surface-2), var(--color-surface-3));
-  border: 1px solid var(--color-border-strong); color: var(--color-text-muted);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 3px 5px rgba(0, 0, 0, 0.35);
-}
-.lk-key[aria-pressed="true"] { background: color-mix(in srgb, var(--device-accent) 18%, transparent); border-color: var(--device-accent); color: var(--color-text-bright); box-shadow: 0 0 10px var(--device-accent-glow); }
-.lk-led-col { display: flex; flex-direction: column; gap: 14px; }
-.lk-led-row { display: flex; align-items: center; gap: 12px; }
-
-/* ---- Cold-Chain: DIP switch bank + live sparkline + LED strip ---- */
-.cc-layout { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.cc-dip-row { display: flex; gap: 16px; }
-.cc-dip {
-  width: 50px; height: 72px; border-radius: 2px; background: linear-gradient(180deg, var(--color-surface-2), var(--color-surface-3));
-  border: 1px solid var(--color-border-strong); position: relative; color: var(--color-text-muted);
-  padding-top: 48px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-.cc-dip::before {
-  content: ""; position: absolute; top: 5px; left: 8px; right: 8px; height: 30px;
-  background: var(--color-surface-2); border: 1px solid var(--color-border-strong); border-radius: 1px;
-  transition: top 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
-}
-.cc-dip[aria-pressed="true"]::before { top: 35px; background: var(--device-accent); box-shadow: 0 0 8px var(--device-accent-glow); }
-.cc-readout-row { display: flex; align-items: center; gap: 16px; }
-.cc-readout { font-family: var(--display-font); font-size: 1.8rem; color: var(--device-accent); letter-spacing: 0.04em; }
-.cc-spark { width: 150px; height: 46px; }
-.cc-spark polyline { fill: none; stroke: var(--device-accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
-.cc-lamp-row { display: flex; gap: 16px; }
-
-/* ---- Water Pump: pressure gauge + paired lamp-over-rocker columns ---- */
-.wp-stack { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
-.wp-gauge { width: 190px; height: 114px; }
-.wp-gauge .needle { transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: 55px 58px; }
-.wp-layout { display: flex; justify-content: space-around; align-items: center; width: 100%; }
-.wp-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.wp-rocker {
-  width: 76px; height: 48px; border-radius: 5px; position: relative;
-  background: linear-gradient(180deg, #3a4550, #232b33); border: 1px solid var(--color-border-strong);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-.wp-rocker::before { content: ""; position: absolute; inset: 3px; background: var(--color-surface-3); border-radius: 2px; transition: background 0.15s ease, box-shadow 0.15s ease; }
-.wp-rocker[aria-pressed="true"] { border-color: var(--device-accent); }
-.wp-rocker[aria-pressed="true"]::before { background: var(--device-accent); box-shadow: 0 0 8px var(--device-accent-glow); }
-
-/* ---- Field Radio: guarded toggles + tuning dial + waveform + lamp cluster ---- */
-.fr-layout { display: flex; align-items: center; justify-content: space-around; width: 100%; }
-.fr-guards { display: flex; flex-direction: column; gap: 20px; }
-.fr-guard {
-  width: 96px; height: 54px; background: linear-gradient(180deg, var(--color-surface-2), var(--color-surface-3));
-  border: 1px solid var(--color-border-strong); color: var(--color-text-muted); position: relative; overflow: hidden;
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.35);
-}
-.fr-guard .flap { position: absolute; top: 0; left: 0; right: 0; height: 100%; background: var(--color-surface-2); border-bottom: 2px solid var(--color-border-strong); transform-origin: top; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.fr-guard[aria-pressed="true"] .flap { transform: scaleY(0.18); }
-.fr-guard[aria-pressed="true"] { color: var(--device-accent); box-shadow: inset 0 0 0 1px var(--device-accent); }
-.fr-dial-wrap { position: relative; width: 160px; height: 160px; }
-.fr-dial-wrap .dial-ticks { color: var(--color-text-muted); opacity: 0.7; }
-.fr-dial {
-  position: absolute; top: 21px; left: 21px; width: 118px; height: 118px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, var(--color-surface-2), var(--color-surface));
-  border: 3px solid var(--color-border-strong);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45), inset 0 2px 3px rgba(255, 255, 255, 0.05), inset 0 -3px 6px rgba(0, 0, 0, 0.35);
-}
-.fr-dial[aria-pressed="true"] { border-color: var(--device-accent); }
-.fr-dial .pointer {
-  position: absolute; top: 11px; left: 50%; width: 4px; height: 38px; background: var(--color-text-muted);
-  transform-origin: 50% 46px; transform: rotate(-40deg); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
-}
-.fr-dial[aria-pressed="true"] .pointer { transform: rotate(220deg); background: var(--device-accent); }
-.fr-right { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.fr-sq {
-  width: 90px; height: 54px; background: linear-gradient(180deg, var(--color-surface-2), var(--color-surface-3));
-  border: 1px solid var(--color-border-strong); color: var(--color-text-muted);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 3px 5px rgba(0, 0, 0, 0.3);
-}
-.fr-sq[aria-pressed="true"] { background: color-mix(in srgb, var(--device-accent) 18%, transparent); border-color: var(--device-accent); color: var(--color-text-bright); }
-.fr-lamp-cluster { display: grid; grid-template-columns: repeat(2, auto); gap: 9px; }
-.fr-wave { display: flex; align-items: flex-end; gap: 3px; height: 26px; }
-.fr-wave span { width: 5px; background: var(--color-border-strong); border-radius: 1px; height: 30%; transition: background 0.3s ease; animation: waveIdle 1.6s ease-in-out infinite; }
-.fr-wave span:nth-child(2) { animation-delay: 0.1s; }
-.fr-wave span:nth-child(3) { animation-delay: 0.2s; }
-.fr-wave span:nth-child(4) { animation-delay: 0.3s; }
-.fr-wave span:nth-child(5) { animation-delay: 0.4s; }
-.fr-wave span:nth-child(6) { animation-delay: 0.5s; }
-.fr-wave span:nth-child(7) { animation-delay: 0.6s; }
-.fr-wave.is-active span { background: var(--color-accent); animation: waveActive 0.9s ease-in-out infinite; }
-@keyframes waveIdle {
-  0%, 100% { height: 20%; }
-  50% { height: 40%; }
-}
-@keyframes waveActive {
-  0%, 100% { height: 25%; }
-  50% { height: 100%; }
-}
-
 /* ---- Help-Fix (matches AgentButton.tsx pattern — see KIOSK_UI_SPEC.md §1.5) ---- */
 .help-fix-row { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding-top: 6px; }
 .help-fix-row .rule { flex: 1; height: 1px; background: var(--color-border-strong); }
@@ -725,20 +554,8 @@ input:focus-visible {
   --panel-radius: 3px;
 }
 
-/* Physical inputs retain the printed panel order independently of restore guidance. */
-.physical-inputs { position: relative; z-index: 1; flex-shrink: 0; }
-.physical-inputs-heading { display: flex; justify-content: space-between; font: 11px system-ui; color: var(--color-text); margin-bottom: 6px; letter-spacing: .05em; }
-.physical-inputs-heading span { letter-spacing: 0; }
-.physical-input-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
-.physical-input { display: grid; grid-template-columns: 30px 1fr; gap: 1px 5px; border: 1px solid var(--color-border-strong); border-radius: 5px; padding: 5px 7px; background: var(--color-surface); min-width: 0; }
-.physical-input strong { grid-row: span 2; align-self: center; font-size: 13px; color: var(--color-text-bright); }
-.physical-input-name { font: 11px/1.2 system-ui; text-transform: capitalize; }
-.physical-input-value { font: 12px/1.2 system-ui; color: var(--color-text); }
-.physical-input-value[data-on="true"] { color: var(--color-text-bright); font-weight: 700; }
 @media (max-width: 600px) {
   .kiosk-screen { overflow-y: auto; min-height: 100vh; height: auto; }
-  .physical-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .physical-inputs-heading { flex-direction: column; gap: 4px; }
 }
 
 /* Instrument shell: fixed shared chrome, mode-owned geometry. */
@@ -752,36 +569,7 @@ input:focus-visible {
 .instrument-status { display: flex; gap: 8px; align-items: center; font: 12px/1.2 system-ui; }
 .instrument-status small { display: block; color: var(--color-text); font-size: 10px; margin-top: 2px; }
 .instrument-status .lamp-dot { width: 14px; height: 14px; }
-.legacy-instrument { width: 100%; position: relative; display: flex; justify-content: center; align-items: center; }
-.legacy-instrument[data-available="false"] > :first-child { opacity: .2; }
-.instrument-unavailable { position: absolute; background: var(--color-surface); padding: 10px 18px; border: 1px solid var(--color-border-strong); border-radius: 8px; font: 14px system-ui; }
 .panel-surface[data-live="false"] *, .panel-surface[data-live="false"] *::after { animation-play-state: paused !important; transition: none !important; }
-/* Transitional layouts fit above the ten-input rail. New surfaces don't inherit these sizes. */
-.legacy-instrument .th-layout { flex-direction: row; gap: 22px; }
-.legacy-instrument .th-arc { display: none; } /* Labeled semantic indicators live in the shared strip. */
-.legacy-instrument .th-dial-wrap { width: 150px; height: 150px; }
-.legacy-instrument .th-dial { top: 18px; left: 18px; width: 114px; height: 114px; }
-.legacy-instrument .th-buttons { flex-direction: column; gap: 6px; }
-.legacy-instrument .th-btn { padding: 7px 16px; color: var(--color-text); }
-.legacy-instrument .lk-keypad { grid-template-columns: repeat(2, 116px); grid-template-rows: repeat(2, 48px); gap: 8px; }
-.legacy-instrument .lk-key { color: var(--color-text); }
-.legacy-instrument .lk-stack { gap: 8px; }
-.legacy-instrument .lk-led-col, .legacy-instrument .cc-lamp-row, .legacy-instrument .fr-lamp-cluster { display: none; }
-.legacy-instrument .cc-dip { width: 120px; color: var(--color-text); }
-.legacy-instrument .cc-layout { gap: 8px; }
-.legacy-instrument .cc-readout { font-size: 15px; }
-.legacy-instrument .wp-stack { gap: 6px; }
-.legacy-instrument .wp-gauge { width: 110px; height: 66px; }
-.legacy-instrument .wp-col { gap: 6px; }
-.legacy-instrument .wp-rocker { height: 32px; }
-.legacy-instrument label { color: var(--color-text); font-size: 11px; }
-.gauge-caption { font: 12px system-ui; text-transform: capitalize; }
-.legacy-instrument .fr-layout { max-width: 570px; }
-.legacy-instrument .fr-guards { gap: 8px; }
-.legacy-instrument .fr-guard, .legacy-instrument .fr-sq { width: 140px; height: 42px; color: var(--color-text); }
-.radio-dial-label { position: absolute; bottom: 10px; left: 0; right: 0; font-size: 11px; color: var(--color-text); }
-.fr-wave:not(.is-active) span { animation: none; }
-.arc-indicator { display: flex; flex-direction: column; align-items: center; font-size: 10px; }
 @media (prefers-reduced-motion: reduce) {
   .panel-surface *, .panel-surface *::after { animation: none !important; transition: none !important; }
 }
@@ -789,9 +577,6 @@ input:focus-visible {
   .panel-body { min-height: 490px; }
   .surface-instrument { min-height: 175px; }
   .surface-status-strip { grid-template-columns: repeat(2, 1fr); }
-  .legacy-instrument .cc-dip { width: 70px; font-size: 10px; }
-  .legacy-instrument .fr-guard, .legacy-instrument .fr-sq { width: 90px; }
-  .legacy-instrument .wp-layout { flex-wrap: wrap; gap: 8px; }
 }
 
 /* Thermostat: a domestic HVAC faceplate with independent equipment feedback. */

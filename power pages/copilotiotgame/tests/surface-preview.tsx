@@ -13,7 +13,17 @@ const device = DEVICE_PROFILES[params.get("mode") ?? "thermostat"];
 const fixtures = surfaceFixtures(device);
 const fixtureName = params.get("state") ?? "fault";
 const fixture = fixtures[fixtureName as keyof typeof fixtures] ?? fixtures.fault;
-const { state, connection } = fixture;
+const { connection } = fixture;
+// Exercise actual surface bindings, including keys read only in particular states.
+const controlKeys = new Set(device.restoreSequence.map(control => control.key));
+const state = new Proxy(fixture.state, {
+  get(target, key) {
+    if (typeof key === "string" && key !== "toJSON" && !controlKeys.has(key)) {
+      throw new Error(`${device.slug}: surface reads unknown telemetry key ${key}`);
+    }
+    return Reflect.get(target, key);
+  },
+});
 const win = device.checkWin(state, device.requiredCables);
 const lamps = device.computeLamps(state, win);
 Object.assign(window, {

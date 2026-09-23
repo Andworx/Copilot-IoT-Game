@@ -113,3 +113,17 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Merged current main and all remaining mode work into feat/robot-arm-surface, preserving each dedicated component, test and note. Removed all remaining registry adapters.
 - Built every intermediate combination successfully; all 12,288 contracts pass each time. Simulated squash-merge sequence showed sequential mode PRs would conflict again, so PR #111 is being consolidated to include all five remaining modes and supersede #107-110.
 - Combined browser suites in progress. Do not claim production/live validation complete; #70 remains open.
+
+## Issue #75 completion cleanup
+- Clarified Help Fix final-configuration semantics; numbered actions do not require temporal order.
+- Replaced stale cable UI assertions with Pi-map recipe and all-ten-control checks; expanded Help Fix fallback coverage to all twelve modes.
+- Added prompt regression coverage to the prebuild contract checks. Validation in progress; live verification remains pending.
+- Validation passed: 60 surface fixtures, all twelve Help Fix fallbacks, 12,288 configurations, 144 cable recipe pairs, and clean installs/production builds for Azure and the page. Inspected setup/help screenshots and skill-client state. Local Node 24; CI uses required Node 22.
+- Remaining: merge/release through deploy-apps.yml and live Pi/page verification before closing #75.
+
+## Issue #76 architecture cleanup
+- Removed unused positional layouts, mutable helpers, adapter-only profile fields, and retired layout/physical-rail CSS.
+- Updated active architecture guidance to the twelve-surface registry. Fixtures guard semantic telemetry reads against the mode contract.
+- User will perform live Pi validation after deployment; retain Verify. Local checks in progress.
+- Passed clean Azure/page installs and builds, 60 guarded surface fixtures, 12,288 configurations/144 cable recipes, and Game Mode ON/OFF completion/reset checks. Reviewed skill-client state and instrument/setup screenshots. CSS reduced from about 75 KB to 63 KB.
+- Remaining: PR merge and normal CI deployment, then user Pi verification.
