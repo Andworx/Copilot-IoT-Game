@@ -51,7 +51,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| Physical control/visual contracts across twelve modes (#75) | Code Site | ⬜ Verify | Six switches and four sockets visible; stale keys and lamps reconciled; exhaustive 12,288-state Pi contract check runs before builds. Local checks pass; live Pi/page validation pending. |
+| Physical control/visual contracts across twelve modes (#75) | Code Site | ⬜ Verify | Six switches and four sockets available in gear setup; domain-only instruments. Contract checks cover 12,288 states, exact cable recipes, and any-order Help Fix wording. Surface checks cover all twelve modes and their setup/help recipes. Live Pi/page validation pending. |
 | Typed read-only surface registry and shared primitives (#76) | Code Site | ⬜ Verify | Explicit legacy bindings, connection freshness, semantic indicators, and deterministic fixtures; other modes remain adapters. Recovery follow-up: retry startup/long outages and resync mode after browser wake. Live recovery validation pending. |
 | Dedicated thermostat instrument pilot (#77) | Code Site | ⬜ Verify | Circular heat/cool face, state-driven fan, eco lockout, and physical mappings. No inferred temperatures. Local browser checks pass; live validation pending. |
 | `copilotiotgame`: `KioskInfoPage` + `KioskDevicePage`, all 12 playable modes, 10s reset timer (800×480 viewport) | Code Site pages | ⬜ Verify | Issues #43/#44 — mode cards now mirror the 12 Pi restore sequences and expose ordered restore steps. Verify with local build and live page after deployment. |
