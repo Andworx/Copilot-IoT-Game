@@ -1,10 +1,36 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import ts from "typescript";
+import { fileURLToPath } from "node:url";
+import esbuild from "esbuild";
 
-const source = readFileSync(new URL("../src/data/deviceProfiles.ts", import.meta.url), "utf8");
-const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } });
-const { DEVICE_PROFILES, DEVICE_ORDER, CABLE_RECIPES, cablesMatch } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`);
+// Bundled (not just transpiled) so deviceProfiles.ts's value-level import of
+// lib/lampLogic.ts resolves too — a data: URL module has no base path to resolve a bare
+// relative import against. Type-only imports (e.g. "../types/game") never reach the
+// bundle graph, so they don't need a real file to resolve against.
+const entry = fileURLToPath(new URL("../src/data/deviceProfiles.ts", import.meta.url));
+const { outputFiles } = await esbuild.build({
+  entryPoints: [entry],
+  bundle: true,
+  write: false,
+  format: "esm",
+  target: "es2022",
+  platform: "neutral",
+});
+const { DEVICE_PROFILES, DEVICE_ORDER, CABLE_RECIPES, cablesMatch } = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString("base64")}`);
+
+// This is repository-owned Boolean syntax, not user input (win and every lamp's `when`
+// in logic_maps/<slug>.json). Validate the grammar, then compile to a real JS predicate
+// so it can be compared against the kiosk's TS translation at every possible input.
+function compileExpr(expr, keys, label) {
+  const tokens = expr.match(/[a-z_][a-z_0-9]*|[()]/g);
+  assert.equal(tokens.join(""), expr.replace(/\s/g, ""), label);
+  assert.ok(tokens.every(t => keys.includes(t) || ["and", "or", "not", "(", ")"].includes(t)), label);
+  const body = tokens.map(t => ({ and: "&&", or: "||", not: "!" })[t] ?? t).join(" ");
+  return new Function(...keys, `return Boolean(${body})`);
+}
+// Mirrors lib/lampLogic.ts's PATTERN_COLOR — keep both in sync by hand.
+const PATTERN_COLOR = { on: "green", blink: "amber", fast_blink: "red" };
+
 assert.equal(DEVICE_ORDER.length, 12);
 for (const slug of DEVICE_ORDER) {
   const device = DEVICE_PROFILES[slug];
@@ -28,13 +54,18 @@ for (const slug of DEVICE_ORDER) {
   }
   if (device.instruments.signal) assert.ok(device.lamps.some(l => l.key === device.instruments.signal));
 
-  // This is repository-owned Boolean syntax, not user input. Validate the grammar
-  // before translating the Pi expression, then compare every possible configuration.
-  const tokens = map.win.match(/[a-z_][a-z_0-9]*|[()]/g);
-  assert.equal(tokens.join(""), map.win.replace(/\s/g, ""));
-  assert.ok(tokens.every(t => keys.includes(t) || ["and", "or", "not", "(", ")"].includes(t)));
-  const expression = tokens.map(t => ({ and: "&&", or: "||", not: "!" })[t] ?? t).join(" ");
-  const piWin = new Function(...keys, `return Boolean(${expression})`);
+  // Same lamp logic on both sides (issue #102 follow-up): the kiosk's lamp keys must
+  // match the Pi's exactly, and every lamp's condition/pattern must agree at every input.
+  assert.deepEqual(device.lamps.map(l => l.key).sort(), map.lamps.map(l => l.key).sort(), `${slug}: lamp keys diverge from the Pi`);
+  const piWin = compileExpr(map.win, keys, `${slug}: win grammar`);
+  // Unlike `win`, a lamp's `when` may itself reference "win" (e.g. "restored"'s is
+  // literally "win") — safe_eval.py adds it to `variables` alongside the switch/connector
+  // state, so it's an extra allowed token/argument here too.
+  const piLamps = map.lamps.map((lamp) => ({
+    key: lamp.key,
+    pattern: lamp.pattern ?? "on",
+    test: compileExpr(lamp.when, [...keys, "win"], `${slug}: lamp ${lamp.key} grammar`),
+  }));
   for (let mask = 0; mask < 2 ** keys.length; mask++) {
     const state = Object.fromEntries(keys.map((key, i) => [key, Boolean(mask & (1 << i))]));
     const guarded = new Proxy(state, { get(target, key) {
@@ -47,6 +78,11 @@ for (const slug of DEVICE_ORDER) {
     assert.deepEqual(Object.keys(lamps).sort(), device.lamps.map(l => l.key).sort());
     assert.ok(Object.values(lamps).every(color => ["off", "green", "amber", "red"].includes(color)));
     if (win) assert.ok(!Object.values(lamps).includes("red"), `${slug}: restored panel still faults`);
+    for (const piLamp of piLamps) {
+      const active = win || piLamp.test(...keys.map(key => state[key]), win);
+      const expected = active ? PATTERN_COLOR[win ? "on" : piLamp.pattern] : "off";
+      assert.equal(lamps[piLamp.key], expected, `${slug}: lamp ${piLamp.key} diverges from the Pi at mask ${mask}`);
+    }
   }
   const target = Object.fromEntries(device.restoreSequence.map(c => [c.key, c.target]));
   for (const step of device.restoreSequence) {

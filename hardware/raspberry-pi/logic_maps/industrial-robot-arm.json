@@ -125,25 +125,29 @@
       "physicalPin": "LED1",
       "key": "power",
       "label": "Blue ready lamp",
-      "when": "power"
+      "when": "power",
+      "pattern": "on"
     },
     {
       "physicalPin": "LED2",
-      "key": "progress",
-      "label": "Yellow progress lamp",
-      "when": "not win"
+      "key": "guard_open",
+      "label": "Yellow guard-door lamp",
+      "when": "guard",
+      "pattern": "fast_blink"
     },
     {
       "physicalPin": "LED3",
-      "key": "socket_ready",
-      "label": "Orange socket lamp",
-      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+      "key": "servo_active",
+      "label": "Orange servo-active lamp",
+      "when": "servo and (socket_j1 or socket_j2 or socket_j3 or socket_j4)",
+      "pattern": "blink"
     },
     {
       "physicalPin": "LED4",
       "key": "restored",
       "label": "Green restored lamp",
-      "when": "win"
+      "when": "win",
+      "pattern": "on"
     }
   ],
   "win": "socket_j4 and power and keyed_two and not socket_j2 and servo and not socket_j1 and keyed_one and estop and socket_j3 and not guard",

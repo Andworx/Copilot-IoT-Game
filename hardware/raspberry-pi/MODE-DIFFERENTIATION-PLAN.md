@@ -1,6 +1,9 @@
 # Mode differentiation: issues #102 and #112
 
-Status: implementation started; neither issue is closed or live-verified.
+Status: #102's lamp engine is now wired into the controller with a distinct
+per-mode LED script and a boot self-test animation; not yet live-verified on
+hardware. #112 (cable integration) is unaffected by this update. Neither
+issue is closed.
 
 ## Findings
 
@@ -52,23 +55,46 @@ pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
    design tests pass. New cables still need building and live continuity checks.
 2. Implemented: four-cable decoder, J4 mapping, exact Pi/kiosk recipes, explicit
    setup/help, schema gate and updated manuals. Verify after coordinated rollout.
-3. Author a distinct per-mode LED story with semantic labels and conditions.
-   Keep a common all-four-solid restored cue; use a short nonblocking chase
-   on mode change. Do not delay GPIO scanning or telemetry for the animation.
-4. Integrate the lamp engine into the controller. Retain boolean `lamps` for
-   compatibility; add `lampPatterns` with physical pin, semantic key, label,
-   active state, and pattern. Broadcast changes of intent, not every blink edge.
+3. ✅ Authored a distinct per-mode LED story with semantic labels and
+   conditions in every playable `logic_maps/<slug>.json` (LED1 power/LED4 win
+   stay universal; LED2/LED3 use each mode's own switches, with `blink`/
+   `fast_blink` where an alert fits). Kept the common all-four-solid restored
+   cue (forced by `lamp_patterns.evaluate_lamps(..., restored=win)`).
+   Added instead of the planned mode-change chase: a one-time boot
+   animation (`PanelController._run_boot_animation` — all 4 LEDs on 5s, then
+   a left-to-right chase) since that's what was actually requested; a
+   per-mode-change chase is still open if wanted later. Neither delays GPIO
+   scanning or telemetry — the boot animation runs once before the loop
+   starts, and mode changes only call `LampDriver.reset()`.
+4. ✅ Integrated the lamp engine into the controller
+   (`panel_controller.py` now imports `lamp_patterns.LampDriver`/
+   `evaluate_lamps`). Kept boolean `lamps` for compatibility; added
+   `lampPatterns` (physical pin's semantic key → `{active, pattern}`) to the
+   telemetry payload. `LampDriver` only calls gpiozero `on`/`off`/`blink`
+   when the requested pattern changes, not every 50ms scan.
 5. Render that live intent in the kiosk, including blink timing and off/stale
    states. Keep physical mappings in gear setup/help per Power Pages conventions.
+   Not yet done — the kiosk's `computeLamps` in `deviceProfiles.ts` still
+   simulates its own lamp colors independently of `lampPatterns`.
 6. Revise switch roles, polarities, and cable requirements together in Pi maps,
    kiosk profiles, agent instructions, and manuals. Exhaustively test realizable
    cable placements and all 64 switch combinations. Require each mode to be
    solvable and every winning setup to fail the other eleven modes; document
    any consciously retained shared switch role.
-7. Update the operator manual and regenerate/visually verify its PDF when the
-   restoration procedures change. Run app builds and Python tests; review the
-   PR, then deploy apps through CI and Pi firmware through its documented path.
-8. Verify every mode on the panel and kiosk; keep issues open until that passes.
+7. Updated `README.md` (per-mode LED table, boot animation, lamp schema,
+   telemetry payload) and `RESTORE-MODES-MANUAL.md` (LED guide is now
+   mode-specific, points to the README table; `build_restore_manual.py`'s
+   generic LED2/LED3 copy no longer claims one universal meaning). The
+   restoration procedures (switches/cables/win) themselves did not change, so
+   the 100-page PDF's content is still accurate on substance, but it has not
+   been regenerated/visually re-verified since `reportlab` isn't installed in
+   this environment — do that (`python build_restore_manual.py`) before
+   closing out documentation. Added `test_logic_map_lamps.py` covering lamp
+   validity, uniqueness, and the restored-state override; run app builds and
+   Python tests, review the PR, then deploy apps through CI and Pi firmware
+   through its documented path.
+8. Verify every mode and the boot animation on the panel and kiosk; keep
+   issues open until that passes.
 
 GPIO timing reference: [gpiozero LED API](https://gpiozero.readthedocs.io/en/stable/api_output.html#led).
 Use LED blink for discrete patterns; smooth fades require a PWMLED and are not

@@ -23,6 +23,7 @@ import config
 import safe_eval
 from cable_rules import cables_match
 from cable_matrix import CableMatrix
+from lamp_patterns import LampDriver, evaluate_lamps
 from pulled_input import PulledInput
 from telemetry import TelemetryClient
 
@@ -33,6 +34,10 @@ HEARTBEAT_INTERVAL = 30.0   # seconds between full-state heartbeats regardless o
 MODE_POLL_INTERVAL = 2.0    # seconds between Power App/Page mode checks
 DEFAULT_MODE_SLUG = "thermostat"
 
+BOOT_ALL_ON_SECONDS = 5.0   # all four LEDs lit at startup, before the chase
+BOOT_CHASE_STEP_SECONDS = 0.3  # per-LED dwell time in the left-to-right boot chase
+BOOT_CHASE_ORDER = ["LED1", "LED2", "LED3", "LED4"]  # left to right: blue, yellow, orange, green
+
 log = logging.getLogger("panel_controller")
 
 
@@ -42,6 +47,7 @@ class PanelController:
             name: PulledInput(pin) for name, pin in config.SWITCH_PINS.items()
         }
         self.leds = {name: LED(pin) for name, pin in config.LED_PINS.items()}
+        self.lamp_driver = LampDriver(self.leds)
         self.cable_matrix = CableMatrix()
 
         self.telemetry = TelemetryClient()
@@ -138,15 +144,24 @@ class PanelController:
         win = safe_eval.evaluate(profile["win"], state) and cables_match(profile["requiredCables"], cables)
         variables = dict(state)
         variables["win"] = win
-        lamp_state = {
-            lamp["physicalPin"]: safe_eval.evaluate(lamp["when"], variables)
-            for lamp in profile["lamps"]
-        }
-        return state, win, lamp_state
+        lamp_states = evaluate_lamps(profile["lamps"], variables, restored=win)
+        return state, win, lamp_states
 
-    def _drive_leds(self, lamp_state):
-        for pin_name, led in self.leds.items():
-            (led.on if lamp_state.get(pin_name, False) else led.off)()
+    def _drive_leds(self, lamp_states):
+        self.lamp_driver.apply(lamp_states)
+
+    def _run_boot_animation(self):
+        """All four LEDs on for BOOT_ALL_ON_SECONDS, then a left-to-right chase."""
+        log.info("Boot animation: all LEDs on for %.0fs, then chase", BOOT_ALL_ON_SECONDS)
+        for led in self.leds.values():
+            led.on()
+        time.sleep(BOOT_ALL_ON_SECONDS)
+        for led in self.leds.values():
+            led.off()
+        for pin_name in BOOT_CHASE_ORDER:
+            self.leds[pin_name].on()
+            time.sleep(BOOT_CHASE_STEP_SECONDS)
+            self.leds[pin_name].off()
 
     def _on_mode_change(self, slug):
         profile = self.logic_maps[slug]
@@ -155,8 +170,7 @@ class PanelController:
         self._active_profile = profile
         self._win_latched = False
         self._last_state_sent = None
-        for led in self.leds.values():
-            led.off()
+        self.lamp_driver.reset()
         self.telemetry.publish(
             {
                 "deviceSlug": slug,
@@ -173,6 +187,8 @@ class PanelController:
             len(config.SOCKET_NODES),
         )
         try:
+            self._run_boot_animation()
+            self.lamp_driver.reset()
             while True:
                 loop_start = time.monotonic()
                 self._poll_mode_selection()
@@ -181,13 +197,13 @@ class PanelController:
                 raw_connectors, cables = self._read_connector_state()
 
                 if self._active_profile is not None:
-                    state, win, lamp_state = self._apply_profile(
+                    state, win, lamp_states = self._apply_profile(
                         self._active_profile,
                         raw_switches,
                         raw_connectors,
                         cables,
                     )
-                    self._drive_leds(lamp_state)
+                    self._drive_leds(lamp_states)
 
                     payload_state = {
                         "deviceSlug": self._active_profile.get("slug"),
@@ -199,8 +215,15 @@ class PanelController:
                         "cables": cables,
                         "cableSchema": "panel-cable-build/v1",
                         "lamps": {
-                            lamp["key"]: lamp_state.get(lamp["physicalPin"], False)
-                            for lamp in self._active_profile["lamps"]
+                            lamp_state["key"]: lamp_state["active"]
+                            for lamp_state in lamp_states.values()
+                        },
+                        "lampPatterns": {
+                            lamp_state["key"]: {
+                                "active": lamp_state["active"],
+                                "pattern": lamp_state["pattern"],
+                            }
+                            for lamp_state in lamp_states.values()
                         },
                         "win": win,
                     }

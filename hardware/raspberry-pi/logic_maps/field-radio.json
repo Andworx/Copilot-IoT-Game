@@ -125,25 +125,29 @@
       "physicalPin": "LED1",
       "key": "power",
       "label": "Blue ready lamp",
-      "when": "power"
+      "when": "power",
+      "pattern": "on"
     },
     {
       "physicalPin": "LED2",
-      "key": "progress",
-      "label": "Yellow progress lamp",
-      "when": "not win"
+      "key": "transmitting",
+      "label": "Yellow transmit lamp",
+      "when": "transmit",
+      "pattern": "fast_blink"
     },
     {
       "physicalPin": "LED3",
-      "key": "socket_ready",
-      "label": "Orange socket lamp",
-      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+      "key": "secure_link",
+      "label": "Orange secure-link lamp",
+      "when": "encryption and (socket_j1 or socket_j2 or socket_j3 or socket_j4)",
+      "pattern": "on"
     },
     {
       "physicalPin": "LED4",
       "key": "restored",
       "label": "Green restored lamp",
-      "when": "win"
+      "when": "win",
+      "pattern": "on"
     }
   ],
   "win": "keyed_two and socket_j2 and channelhop and not socket_j1 and power and socket_j4 and encryption and not keyed_one and not socket_j3 and transmit",

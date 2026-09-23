@@ -125,25 +125,29 @@
       "physicalPin": "LED1",
       "key": "power",
       "label": "Blue ready lamp",
-      "when": "power"
+      "when": "power",
+      "pattern": "on"
     },
     {
       "physicalPin": "LED2",
-      "key": "progress",
-      "label": "Yellow progress lamp",
-      "when": "not win"
+      "key": "gps_search",
+      "label": "Yellow GPS search lamp",
+      "when": "not gps",
+      "pattern": "blink"
     },
     {
       "physicalPin": "LED3",
-      "key": "socket_ready",
-      "label": "Orange socket lamp",
-      "when": "socket_j1 or socket_j2 or socket_j3 or socket_j4"
+      "key": "uplink_ready",
+      "label": "Orange uplink lamp",
+      "when": "uplink and (socket_j1 or socket_j2 or socket_j3 or socket_j4)",
+      "pattern": "on"
     },
     {
       "physicalPin": "LED4",
       "key": "restored",
       "label": "Green restored lamp",
-      "when": "win"
+      "when": "win",
+      "pattern": "on"
     }
   ],
   "win": "not socket_j2 and uplink and keyed_two and socket_j1 and gps and not socket_j3 and power and not keyed_one and socket_j4 and telemetry",
