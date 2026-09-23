@@ -53,7 +53,7 @@ try {
       await page.locator(`.ev-surface[data-${features[key]}="enabled"]`).waitFor();
       for (const other of Object.keys(features).filter(k => k !== key)) assert.equal(await page.locator(".ev-surface").getAttribute(`data-${features[other]}`),"disabled");
     }
-    for (const [key,value,operation] of [["power",false,"unpowered"],["ground",false,"ground-disabled"],["contactor",false,"contactor-disabled"],["billing",false,"billing-disabled"],["keyed_one",false,"service-lock"],["keyed_two",true,"interlocked"],["socket_j1",false,"interlocked"]]) {
+    for (const [key,value,operation] of [["power",false,"unpowered"],["ground",false,"ground-disabled"],["contactor",false,"contactor-disabled"],["billing",false,"billing-disabled"],["keyed_one",false,"service-lock"],["keyed_two",true,"interlocked"],["socket_s1",false,"interlocked"]]) {
       telemetry("ev-charger",{...target,[key]:value});
       await page.locator(`.ev-surface[data-operation="${operation}"]`).waitFor();
       assert.equal(await page.locator(".ev-energy").evaluate(el=>getComputedStyle(el).animationName),"none");

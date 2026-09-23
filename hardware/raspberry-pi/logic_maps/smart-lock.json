@@ -38,31 +38,31 @@
   ],
   "connectors": [
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected"
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected"
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected"
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected"
     },
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected"
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected"
     },
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected"
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected"
     }
   ],
   "restoreSequence": [
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected",
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected",
       "target": false
     },
     {
@@ -78,9 +78,9 @@
       "target": true
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected",
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected",
       "target": false
     },
     {
@@ -96,9 +96,9 @@
       "target": true
     },
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected",
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected",
       "target": true
     },
     {
@@ -114,9 +114,9 @@
       "target": true
     },
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected",
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected",
       "target": true
     }
   ],
@@ -139,7 +139,7 @@
       "physicalPin": "LED3",
       "key": "deadbolt_engaged",
       "label": "Orange deadbolt lamp",
-      "when": "deadbolt and (socket_j1 or socket_j2 or socket_j3 or socket_j4)",
+      "when": "deadbolt and (socket_s1 or socket_s2 or socket_s3 or socket_s4)",
       "pattern": "on"
     },
     {
@@ -150,26 +150,26 @@
       "pattern": "on"
     }
   ],
-  "win": "not socket_j2 and keyed_one and deadbolt and not socket_j4 and power and alarm and socket_j1 and not autolock and keyed_two and socket_j3",
+  "win": "not socket_s2 and keyed_one and deadbolt and not socket_s4 and power and alarm and socket_s1 and not autolock and keyed_two and socket_s3",
   "faultStartingState": {
-    "socket_j2": true,
+    "socket_s2": true,
     "keyed_one": false,
     "deadbolt": false,
-    "socket_j4": true,
+    "socket_s4": true,
     "power": false,
     "alarm": false,
-    "socket_j1": false,
+    "socket_s1": false,
     "autolock": true,
     "keyed_two": false,
-    "socket_j3": false
+    "socket_s3": false
   },
   "winMessage": "House is secured now.",
   "requiredCables": [
     {
       "cable": 2,
       "sockets": [
-        "J1",
-        "J3"
+        "S1",
+        "S3"
       ]
     }
   ]

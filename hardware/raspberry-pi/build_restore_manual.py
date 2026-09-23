@@ -14,6 +14,9 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 HERE = Path(__file__).resolve().parent
 OUT = HERE.parents[1] / 'output' / 'pdf' / 'RESTORE-MODES-MANUAL.pdf'
 SOURCE = (HERE / 'RESTORE-MODES-MANUAL.md').read_text(encoding='utf-8')
+BUILD_PLAN = json.loads((HERE / 'cable-build-plan.json').read_text(encoding='utf-8'))
+CABLES = {c['id']: c for c in BUILD_PLAN['cables']}
+SOCKET_TYPES = BUILD_PLAN['socketTypes']
 INK = colors.HexColor('#202932')
 GRAY = colors.HexColor('#eef0f2')
 styles = {
@@ -42,9 +45,12 @@ def table(rows, widths, row_height=None):
     ]))
     return t
 
+def is_socket_pin(pin):
+    return re.match(r'^S[1-4]$', pin) is not None
+
 def control_name(control):
     pin = control['physicalPin']
-    if pin.startswith('J'):
+    if is_socket_pin(pin):
         return pin
     if pin == 'SW5':
         return 'Keyed switch 1'
@@ -55,18 +61,35 @@ def control_name(control):
 def switch_action(control):
     return f"Turn {control_name(control)} {'on' if control['target'] else 'off'}"
 
+def cable_action(required_cable):
+    cable = CABLES[required_cable['cable']]
+    sockets = required_cable['sockets']
+    if cable['ends'][0] == cable['ends'][1]:
+        return f"Connect Cable {cable['id']} between {sockets[0]} and {sockets[1]} (reversible; either side can go into either socket)"
+
+    side_sockets = []
+    unused = list(sockets)
+    for end_type in cable['ends']:
+        match = next(socket for socket in unused if SOCKET_TYPES[socket] == end_type)
+        side_sockets.append(match)
+        unused.remove(match)
+    return (
+        f"Connect Cable {cable['id']} Side A ({cable['ends'][0]}) to {side_sockets[0]} "
+        f"and Side B ({cable['ends'][1]}) to {side_sockets[1]}"
+    )
+
 def restore_actions(sequence, required_cables):
     actions = []
     for control in sorted([c for c in sequence if re.match(r'^SW[1-4]$', c['physicalPin'])], key=lambda c: c['physicalPin']):
         actions.append(switch_action(control))
     for control in sorted([c for c in sequence if re.match(r'^SW[5-6]$', c['physicalPin'])], key=lambda c: c['physicalPin']):
         actions.append(switch_action(control))
-    actions.extend(f"Connect Cable {c['cable']} to {' and '.join(c['sockets'])}" for c in required_cables)
+    actions.extend(cable_action(c) for c in required_cables)
     actions.append('Remove all other cables')
     return actions
 
 def state_text(control):
-    if control['physicalPin'].startswith('J'):
+    if is_socket_pin(control['physicalPin']):
         return 'connected' if control['target'] else 'open'
     return 'on' if control['target'] else 'off'
 
@@ -124,7 +147,7 @@ page('method','Operating method','GENERAL GUIDANCE / 01',
     h('1. Establish the selected mode'),
     'Read the selection in the Power App/Page and find the matching chapter. Identify both its number and name. Do not infer the mode from positions left by a previous participant: a position can be correct for one mode and incorrect for another.',
     h('2. Interpret the labels'),
-    'Locate the control label on the panel, then consult the chapter dictionary. SW1-SW6 identify switches; J1-J4 identify socket inputs. Functional wording describes the scenario. Physical labels remain the same when the scenario changes.',
+    'Locate the control label on the panel, then consult the chapter dictionary. SW1-SW6 identify switches; S1-S4 identify socket inputs. Functional wording describes the scenario. Physical labels remain the same when the scenario changes.',
     h('3. Record the initial condition'),
     'Observe before adjusting. Record six switch positions, four socket conditions, and four indicator states. Mark uncertain readings unknown. A written observation is more useful than an assumption about the previous participant.',
     h('4. Work through restoration'),
@@ -144,7 +167,7 @@ page('switches','Switch identification','GENERAL GUIDANCE / 02',
     'Switch index: page '+ref('index-sw1')+'.')
 page('sockets','Socket interpretation','GENERAL GUIDANCE / 03',
     h('Four named inputs'),
-    'The socket inputs are J1, J2, J3, and J4. A procedure can require some connected and others open. A connected socket is not automatically correct; the selected mode determines the required combination.',
+    'The socket inputs are S1, S2, S3, and S4. A procedure can require some connected and others open. A connected socket is not automatically correct; the selected mode determines the required combination.',
     tb([['Instruction','Required condition','Confirmation'],['Plug in','Connected','Confirm the named socket is connected.'],['Unplug','Open','Confirm the named socket is left open.'],['Already correct','Keep the condition','Verify its identifier before continuing.']], [110,130,264]),
     h('What LED3 tells you'),
     "Orange reports a mode-specific socket/system condition; its exact meaning and whether it is steady or blinking change by mode (see the chapter). It does not identify which socket, count connections, or certify the correct combination. An extra connected socket can keep orange on while preventing restoration.",
@@ -152,7 +175,7 @@ page('sockets','Socket interpretation','GENERAL GUIDANCE / 03',
     'Inspect every input involved in the change. A cable arrangement may involve more than one connection; the procedure still specifies the state of each named input. Recheck earlier steps if a later adjustment disturbed them.',
     h('Cable preparation is separate'),
     'The appendix lists the demo cable pinouts. During restoration, work from socket labels and required states in the active chapter.',
-    'Socket index: page '+ref('index-j1')+'. Cable reference: page '+ref('cables')+'.')
+    'Socket index: page '+ref('index-S1')+'. Cable reference: page '+ref('cables')+'.')
 page('leds','Indicator interpretation','GENERAL GUIDANCE / 04',
     tb([['Light','Meaning when lit','Does not establish'],['LED1 / Blue','Ready/power condition active.','All ten inputs match.'],['LED2 / Yellow','Mode-specific alert or progress cue; steady or blinking.','Which input is incorrect.'],['LED3 / Orange','Mode-specific socket/system cue; steady or blinking.','Correct socket combination.'],['LED4 / Green','Current mode restored.','Another mode is restored.']], [100,204,200]),
     h('Interpret lights with the mode'),
@@ -168,11 +191,11 @@ page('survey','Initial condition survey','GENERAL GUIDANCE / 05',
     h('Selection and chapter'),
     'Write the mode name. Locate its chapter and check the title against the screen. Leave controls unchanged until the selection is clear. If the selection changes during a run, re-establish the mode before continuing.',
     h('Physical controls'),
-    'Read SW1-SW6 in numerical order and record ON, OFF, or unknown. Then read J1-J4 and record connected, open, or unknown. This survey order records observations; the restoration order is in the chapter.',
+    'Read SW1-SW6 in numerical order and record ON, OFF, or unknown. Then read S1-S4 and record connected, open, or unknown. This survey order records observations; the restoration order is in the chapter.',
     h('Panel indicators'),
     'Record whether LED1-LED4 are lit. Use each identifier as well as its color. If green is already present, tell the facilitator before starting a timed restoration: the configuration may already be restored.',
     h('Observation versus interpretation'),
-    'Write "J2 connected" as an observation. Write "J2 may be incorrect for this mode" as an interpretation until the procedure confirms its target. A suspected cause is not a measured condition.',
+    'Write "S2 connected" as an observation. Write "S2 may be incorrect for this mode" as an interpretation until the procedure confirms its target. A suspected cause is not a measured condition.',
     h('Recording uncertainty'),
     'If you cannot read a label, determine a position, or confirm a mode, record the uncertainty. Random adjustments make it harder to reconstruct the state. Resolve the unknown or involve the facilitator.',
     'Worksheet: page '+ref('worksheet')+'. Diagnostic routing: page '+ref('routing')+'.')
@@ -190,8 +213,8 @@ for n, raw_title, slug, rows, success, actions in modes:
     section = f'MODE {int(n):02} / {title}'
     on_sw = [r for r in rows if r[1].startswith('SW') and r[3]=='on']
     off_sw = [r for r in rows if r[1].startswith('SW') and r[3]=='off']
-    on_j = [r for r in rows if r[1].startswith('J') and r[3]=='connected']
-    off_j = [r for r in rows if r[1].startswith('J') and r[3]=='open']
+    on_j = [r for r in rows if is_socket_pin(r[1]) and r[3]=='connected']
+    off_j = [r for r in rows if is_socket_pin(r[1]) and r[3]=='open']
     page(f'm{n}-overview', title, f'CHAPTER {int(n):02} / OPERATING CONTEXT',
         f'This chapter applies when <b>{title}</b> is selected in the Power App/Page. The panel has six switches and four socket inputs. This mode assigns their scenario meanings and required states.',
         h('Restoration objective'), escape(success),
@@ -229,7 +252,7 @@ for n, raw_title, slug, rows, success, actions in modes:
         h('B. Review the switches'),
         f'Confirm {len(on_sw)} switches closed and {len(off_sw)} open. Review each SW instruction on pages {mr(n,"first")} and {mr(n,"second")}. Matching the count is insufficient: positions must belong to the named switches.',
         h('C. Review the sockets'),
-        f'Confirm {len(on_j)} inputs connected and {len(off_j)} open. Inspect J1-J4 against their steps. Orange cannot distinguish the intended combination from an incorrect combination with at least one connection.',
+        f'Confirm {len(on_j)} inputs connected and {len(off_j)} open. Inspect S1-S4 against their steps. Orange cannot distinguish the intended combination from an incorrect combination with at least one connection.',
         h('D. Observe completion'),
         'Check LED4. If green, record the selected mode as restored. If absent, the mode has not passed acceptance even when every written step is ticked off. Continue with unresolved-fault review.',
         h('E. Record the outcome'),escape(success),
@@ -249,7 +272,7 @@ for n, raw_title, slug, rows, success, actions in modes:
         'If all ten targets appear correct and green is absent, record the mode, every input, and LED1-LED4. Report disagreement between a visible position and an app-reported condition. Refer further setup diagnosis to the facilitator.',
         'Capture the condition on page '+ref('worksheet')+'. Return to page '+mr(n,'accept')+' after checking any new adjustment.')
 
-for group, controls in [('sw1',['SW1','SW2','SW3']),('sw2',['SW4','SW5','SW6']),('j1',['J1','J2']),('j2',['J3','J4'])]:
+for group, controls in [('sw1',['SW1','SW2','SW3']),('sw2',['SW4','SW5','SW6']),('S1',['S1','S2']),('S2',['S3','S4'])]:
     index_rows=[['Mode']+[c+' step / page' for c in controls]]
     for n,title,slug,rows,success,actions in modes:
         cells=[f'{int(n):02}. {escape(title)}']
@@ -270,19 +293,19 @@ for line in SOURCE.splitlines():
 page('cables','Demo cable build reference','REFERENCE / DEMO PREPARATION',
     'For preparing the demo cable bundle. Each cable has a different wiring pattern, so the panel can tell the cables apart. This is not a mode selection table.',
     tb(cables,[65,259,180]),h('Plug types'),
-    'Side A is quad on all four cables. Side B is dual on C1/C2/C4 and quad on C3. Use molded contact numbers; label both ends. J4 wires only contacts 2 and 3.',
+    'Side A is quad on all four cables. Side B is dual on C1/C2/C4 and quad on C3. Use molded contact numbers; label both ends. S4 wires only contacts 2 and 3.',
     h('Where it plugs'),
     'The last column records which sockets a cable works in. It does not establish which socket states a mode requires. Use the active chapter for restoration targets.',
     h('Panel harness reference'),
     'hardware/raspberry-pi/README.md in the repository contains the wiring and GPIO reference.')
 page('glossary','Terminology','REFERENCE / READING THE MANUAL',
-    tb([['Term','Meaning in this handbook'],['Acceptance check','Final review of mode, inputs, and LED4.'],['Closed','ON state of a switch input.'],['Connected','Required plugged-in state of a socket input.'],['Control identifier','Physical label such as SW3 or J2.'],['Fault starting state','Deliberately unrestored initial configuration.'],['Function label','Scenario meaning assigned to an input.'],['Mode','One of twelve scenarios selected through the app.'],['Open','OFF for a switch; unplugged/open for a socket.'],['Restoration target','Required final condition of a named input.'],['Restore order','Documented method for checking ten inputs.'],['Selected configuration','Current inputs evaluated for the active mode.'],['Success indication','LED4 green for the selected mode.'],['Unknown','Condition not observed or not determined.']], [140,364]),
+    tb([['Term','Meaning in this handbook'],['Acceptance check','Final review of mode, inputs, and LED4.'],['Closed','ON state of a switch input.'],['Connected','Required plugged-in state of a socket input.'],['Control identifier','Physical label such as SW3 or S2.'],['Fault starting state','Deliberately unrestored initial configuration.'],['Function label','Scenario meaning assigned to an input.'],['Mode','One of twelve scenarios selected through the app.'],['Open','OFF for a switch; unplugged/open for a socket.'],['Restoration target','Required final condition of a named input.'],['Restore order','Documented method for checking ten inputs.'],['Selected configuration','Current inputs evaluated for the active mode.'],['Success indication','LED4 green for the selected mode.'],['Unknown','Condition not observed or not determined.']], [140,364]),
     'These terms describe the demonstration panel. Similar terminology in real devices does not extend the scope of this handbook.')
 page('worksheet','Diagnostic worksheet','RECORD / UNRESOLVED CONDITION',
     'Selected mode: ______________________________________________',
     'Participant / run: ____________________  Time: __________________',
     'Record ON, OFF, or unknown for switches; connected, open, or unknown for sockets. Record observations before suspected causes.',
-    tb([['Input','Observed condition','Step checked / note']]+[[c,'',''] for c in ['SW1','SW2','SW3','SW4','SW5','SW6','J1','J2','J3','J4']], [70,180,254]),
+    tb([['Input','Observed condition','Step checked / note']]+[[c,'',''] for c in ['SW1','SW2','SW3','SW4','SW5','SW6','S1','S2','S3','S4']], [70,180,254]),
     h('Indicator observations'),
     'LED1: __________ LED2: __________ LED3: __________ LED4: __________',
     h('Last adjustment and observed effect'),

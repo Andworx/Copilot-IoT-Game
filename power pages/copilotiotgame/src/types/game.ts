@@ -22,10 +22,10 @@ export type PhysicalControlKey =
   | "SW4"
   | "SW5"
   | "SW6"
-  | "J1"
-  | "J2"
-  | "J3"
-  | "J4";
+  | "S1"
+  | "S2"
+  | "S3"
+  | "S4";
 
 export interface RestoreStep {
   physicalPin: PhysicalControlKey;

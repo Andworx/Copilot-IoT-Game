@@ -60,7 +60,7 @@ for the current device:
 - **Live** (a reading for this mode in the last 45 s; the Pi heartbeats every 30 s): the
   on-screen controls mirror the Pi's `controls` (same keys as `deviceProfiles.ts`), taps
   are ignored, the header shows the real "last update" age, and the footer lists the
-  cables the Pi sees (`#4 J1↔J2`).
+  cables the Pi sees (`#4 S1↔S2`).
 - **No signal:** controls remain read-only, the instrument shows unavailable/stale status,
   physical values show Unknown, and activity animations stop.
 

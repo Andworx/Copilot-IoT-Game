@@ -61,9 +61,9 @@ class CableBuildPlanTests(unittest.TestCase):
         self.assertTrue(all(signature not in known for signature in partial))
 
     def test_expected_placements(self):
-        expected = {1: {("J1", "J2"), ("J1", "J3")},
-                    2: {("J1", "J2"), ("J1", "J3"), ("J2", "J4"), ("J3", "J4")},
-                    3: {("J1", "J4")}, 4: {("J1", "J2"), ("J1", "J3")}}
+        expected = {1: {("S1", "S2"), ("S1", "S3")},
+                    2: {("S1", "S2"), ("S1", "S3"), ("S2", "S4"), ("S3", "S4")},
+                    3: {("S1", "S4")}, 4: {("S1", "S2"), ("S1", "S3")}}
         for cable in PLAN["cables"]:
             self.assertEqual({tuple(sorted(pair)) for pair, _, full in placements(cable) if full}, expected[cable["id"]])
 

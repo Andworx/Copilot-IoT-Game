@@ -53,7 +53,7 @@ try {
       await page.locator(`.elevator-surface[data-${features[key]}="enabled"]`).waitFor();
       for (const other of Object.keys(features).filter(k => k !== key)) assert.equal(await page.locator(".elevator-surface").getAttribute(`data-${features[other]}`),"disabled");
     }
-    for (const [key,value,operation] of [["power",false,"unpowered"],["doors",false,"doors-open"],["brake",false,"brake-held"],["inspection",true,"inspection"],["keyed_two",false,"interlocked"],["socket_j1",false,"interlocked"]]) {
+    for (const [key,value,operation] of [["power",false,"unpowered"],["doors",false,"doors-open"],["brake",false,"brake-held"],["inspection",true,"inspection"],["keyed_two",false,"interlocked"],["socket_s1",false,"interlocked"]]) {
       telemetry("elevator",{...target,[key]:value});
       await page.locator(`.elevator-surface[data-operation="${operation}"]`).waitFor();
       assert.equal(await page.locator(".elevator-car").evaluate(el=>getComputedStyle(el).animationName),"none");

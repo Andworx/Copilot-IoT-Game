@@ -2,7 +2,7 @@
  * What the panel Pi publishes (hardware/raspberry-pi/panel_controller.py), relayed
  * unchanged by the Function App's iot-telemetry trigger as `SendTelemetryUpdate`
  * (azure/src/lib/telemetry.ts). `controls` is keyed by the same restore-sequence keys as
- * deviceProfiles.ts (e.g. "power", "socket_j1"), so it can be used directly as DeviceState.
+ * deviceProfiles.ts (e.g. "power", "socket_s1"), so it can be used directly as DeviceState.
  */
 export interface PanelCable {
   /** Cable number from the build list, or null for something unrecognised. */

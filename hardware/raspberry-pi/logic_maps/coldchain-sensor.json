@@ -38,24 +38,24 @@
   ],
   "connectors": [
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected"
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected"
     },
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected"
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected"
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected"
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected"
     },
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected"
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected"
     }
   ],
   "restoreSequence": [
@@ -66,9 +66,9 @@
       "target": true
     },
     {
-      "physicalPin": "J3",
-      "key": "socket_j3",
-      "label": "Socket J3 connected",
+      "physicalPin": "S3",
+      "key": "socket_s3",
+      "label": "Socket S3 connected",
       "target": true
     },
     {
@@ -84,9 +84,9 @@
       "target": false
     },
     {
-      "physicalPin": "J1",
-      "key": "socket_j1",
-      "label": "Socket J1 connected",
+      "physicalPin": "S1",
+      "key": "socket_s1",
+      "label": "Socket S1 connected",
       "target": true
     },
     {
@@ -96,9 +96,9 @@
       "target": true
     },
     {
-      "physicalPin": "J4",
-      "key": "socket_j4",
-      "label": "Socket J4 connected",
+      "physicalPin": "S4",
+      "key": "socket_s4",
+      "label": "Socket S4 connected",
       "target": false
     },
     {
@@ -114,9 +114,9 @@
       "target": false
     },
     {
-      "physicalPin": "J2",
-      "key": "socket_j2",
-      "label": "Socket J2 connected",
+      "physicalPin": "S2",
+      "key": "socket_s2",
+      "label": "Socket S2 connected",
       "target": false
     }
   ],
@@ -139,7 +139,7 @@
       "physicalPin": "LED3",
       "key": "cloud_link",
       "label": "Orange cloud sync lamp",
-      "when": "cloudsync and (socket_j1 or socket_j2 or socket_j3 or socket_j4)",
+      "when": "cloudsync and (socket_s1 or socket_s2 or socket_s3 or socket_s4)",
       "pattern": "blink"
     },
     {
@@ -150,26 +150,26 @@
       "pattern": "on"
     }
   ],
-  "win": "cloudsync and socket_j3 and power and not keyed_two and socket_j1 and calibration and not socket_j4 and not keyed_one and not threshold and not socket_j2",
+  "win": "cloudsync and socket_s3 and power and not keyed_two and socket_s1 and calibration and not socket_s4 and not keyed_one and not threshold and not socket_s2",
   "faultStartingState": {
     "cloudsync": false,
-    "socket_j3": false,
+    "socket_s3": false,
     "power": false,
     "keyed_two": true,
-    "socket_j1": false,
+    "socket_s1": false,
     "calibration": false,
-    "socket_j4": true,
+    "socket_s4": true,
     "keyed_one": true,
     "threshold": true,
-    "socket_j2": true
+    "socket_s2": true
   },
   "winMessage": "Cold storage is stable and monitoring is back online.",
   "requiredCables": [
     {
       "cable": 1,
       "sockets": [
-        "J1",
-        "J3"
+        "S1",
+        "S3"
       ]
     }
   ]

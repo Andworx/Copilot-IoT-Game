@@ -22,23 +22,23 @@ pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
 
 | Mode | Switch target | Connected sockets |
 |---|---|---|
-| coldchain-sensor | 110100 | J1, J2 |
-| drone-ground-control | 111101 | J1, J4 |
-| elevator | 111001 | J1, J2 |
-| ev-charger | 111110 | J1, J4 |
-| field-radio | 111101 | J2, J3 |
-| industrial-robot-arm | 111011 | J2, J3 |
-| patient-monitor | 111110 | J1, J2 |
-| retail-kiosk | 111101 | J3, J4 |
-| smart-lock | 110111 | J3, J4 |
-| thermostat | 101010 | J1, J2 |
-| traffic-signal | 111010 | J1, J3 |
-| water-pump | 111001 | J2, J4 |
+| coldchain-sensor | 110100 | S1, S2 |
+| drone-ground-control | 111101 | S1, S4 |
+| elevator | 111001 | S1, S2 |
+| ev-charger | 111110 | S1, S4 |
+| field-radio | 111101 | S2, S3 |
+| industrial-robot-arm | 111011 | S2, S3 |
+| patient-monitor | 111110 | S1, S2 |
+| retail-kiosk | 111101 | S3, S4 |
+| smart-lock | 110111 | S3, S4 |
+| thermostat | 101010 | S1, S2 |
+| traffic-signal | 111010 | S1, S3 |
+| water-pump | 111001 | S2, S4 |
 
 ## First implementation
 
-- #112: README and wiring diagram reflect J4 quad contact 3 to GPIO3 and
-  contact 2 to GPIO7; J1/J2/J3 unchanged. Record 4 quad / 2 dual cable connectors
+- #112: README and wiring diagram reflect S4 quad contact 3 to GPIO3 and
+  contact 2 to GPIO7; S1/S2/S3 unchanged. Record 4 quad / 2 dual cable connectors
   and the already built Cable 1 (quad 3 to dual 1, quad 4 to dual 2).
 - #102: `lamp_patterns.py` adds restricted boolean condition evaluation,
   steady/slow-blink/fast-blink intent, common all-solid restored behavior, and
@@ -50,10 +50,10 @@ pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
 
 ## Remaining implementation and verification
 
-1. Inventory and J4 wiring confirmed by owner. Four-cable design and twelve
+1. Inventory and S4 wiring confirmed by owner. Four-cable design and twelve
    distinct recipes are in [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md); automated
    design tests pass. New cables still need building and live continuity checks.
-2. Implemented: four-cable decoder, J4 mapping, exact Pi/kiosk recipes, explicit
+2. Implemented: four-cable decoder, S4 mapping, exact Pi/kiosk recipes, explicit
    setup/help, schema gate and updated manuals. Verify after coordinated rollout.
 3. ✅ Authored a distinct per-mode LED story with semantic labels and
    conditions in every playable `logic_maps/<slug>.json` (LED1 power/LED4 win

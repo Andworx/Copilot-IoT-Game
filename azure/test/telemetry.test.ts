@@ -19,10 +19,10 @@ const restoring: PanelPayload = {
   modeIndex: 1,
   eventType: "state_change",
   timestamp: "2026-09-19T11:59:00.000Z",
-  controls: { fan: true, socket_j1: true, socket_j2: true },
+  controls: { fan: true, socket_s1: true, socket_s2: true },
   rawSwitches: { SW1: true, SW2: false },
-  rawConnectors: { J1: true, J2: true, J3: false, J4: false },
-  cables: [{ cable: 4, sockets: ["J1", "J2"] }],
+  rawConnectors: { S1: true, S2: true, S3: false, S4: false },
+  cables: [{ cable: 4, sockets: ["S1", "S2"] }],
   lamps: { power: true, progress: true },
   win: false,
 };
@@ -86,8 +86,8 @@ describe("toTelemetryRecord", () => {
     assert.equal(payload.schema, PAYLOAD_SCHEMA);
     assert.equal(payload.deviceSlug, "thermostat");
     assert.equal(payload.win, false);
-    assert.deepEqual(payload.cables, [{ cable: 4, sockets: ["J1", "J2"] }]);
-    assert.deepEqual(payload.controls, { fan: true, socket_j1: true, socket_j2: true });
+    assert.deepEqual(payload.cables, [{ cable: 4, sockets: ["S1", "S2"] }]);
+    assert.deepEqual(payload.controls, { fan: true, socket_s1: true, socket_s2: true });
     assert.deepEqual(payload.lamps, { power: true, progress: true });
   });
 
@@ -128,7 +128,7 @@ describe("buildSignalRMessages", () => {
     const telemetry = messages[0].arguments[0] as { deviceId: string; data: PanelPayload; source: string };
     assert.equal(telemetry.deviceId, "pi-a");
     assert.equal(telemetry.source, "iot-hub");
-    assert.deepEqual(telemetry.data.cables, [{ cable: 4, sockets: ["J1", "J2"] }]);
+    assert.deepEqual(telemetry.data.cables, [{ cable: 4, sockets: ["S1", "S2"] }]);
   });
 
   it("sends only telemetry for a restored panel", () => {
