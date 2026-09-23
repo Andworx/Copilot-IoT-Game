@@ -58,11 +58,17 @@ a straight-on photograph of the installed frame plus the marked locator tiles.
 ## Intended final architecture
 
 The final cassette will use the four-boss frame as a permanent mounting
-interface and divide the 255 x 183 mm rib opening into three removable bays:
+interface and divide the 255 x 183 mm rib opening into three bays. Viewed with
+the open lid in the same orientation as the supplied photograph, they are:
 
-- flat-coil cable storage with positive clips for the 6-inch leads;
-- a lidded adapter/key cartridge; and
-- an empty safety-switch garage wherever the witness test locates the covers.
+- left: a permanently open safety-switch garage;
+- centre: flat-coil cable storage with positive clips for the 6-inch leads; and
+- right: a lidded adapter/key cartridge.
+
+The two storage bays can share one removable cover. Its visible face becomes
+the Andworx advertising panel while the entire left bay remains open. The
+switch witness test still determines the final size and edge clearances of that
+left cutout; the named bay is not permission to skip the closure test.
 
 The nominal storage depth is limited to 28 mm. This leaves room for a 2-3 mm
 base/cover and a 3-5 mm clearance allowance within the measured 35 mm lid.
@@ -87,4 +93,3 @@ Do not design or print the full storage cassette until:
 - the gasket and ribs remain clear;
 - the safety-switch envelope is transferred into lid coordinates; and
 - the maximum safe pocket depth is confirmed with the complete panel installed.
-

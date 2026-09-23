@@ -104,21 +104,35 @@ module storage_concept() {
     // Three removable bays demonstrate the intended modular architecture.
     // Whichever bay receives the safety-switch witness mark becomes the open
     // switch garage; the remaining bays become storage cartridges.
-    labels = ["CABLES", "ADAPTERS / KEYS", "SWITCH GARAGE"];
+    labels = ["SWITCH GARAGE", "CABLES", "ADAPTERS / KEYS"];
     for (i = [-1, 0, 1]) {
         x = i * (module_width + module_gap);
-        color(i == 1 ? [0.95, 0.75, 0.1, 0.28] : [0.15, 0.2, 0.5, 0.28])
-            translate([x, 0, frame_thickness])
-                difference() {
-                    linear_extrude(usable_storage_depth)
-                        rounded_rect_2d([module_width, module_height], 5);
-                    translate([0, 0, 2.4])
+        if (i == -1) {
+            // The entire left bay stays open so the safety covers can project
+            // into the lid.  The yellow outline is visualization only.
+            color([0.95, 0.75, 0.1, 0.55])
+                translate([x, 0, frame_thickness])
+                    linear_extrude(0.4)
+                        difference() {
+                            rounded_rect_2d([module_width, module_height], 5);
+                            rounded_rect_2d([module_width - 3,
+                                             module_height - 3], 3.5);
+                        }
+        } else {
+            color([0.15, 0.2, 0.5, 0.28])
+                translate([x, 0, frame_thickness])
+                    difference() {
                         linear_extrude(usable_storage_depth)
-                            rounded_rect_2d([module_width - 5,
-                                             module_height - 5], 3.5);
-                }
-        color([1, 1, 1])
-            translate([x, 0, frame_thickness + usable_storage_depth + 0.05])
+                            rounded_rect_2d([module_width, module_height], 5);
+                        translate([0, 0, 2.4])
+                            linear_extrude(usable_storage_depth)
+                                rounded_rect_2d([module_width - 5,
+                                                 module_height - 5], 3.5);
+                    }
+        }
+        color(i == -1 ? [0.95, 0.75, 0.1] : [1, 1, 1])
+            translate([x, 0, frame_thickness +
+                       (i == -1 ? 0.45 : usable_storage_depth + 0.05)])
                 linear_extrude(0.4)
                     text(labels[i + 1], size = 5, font = font_bold,
                          halign = "center", valign = "center");
