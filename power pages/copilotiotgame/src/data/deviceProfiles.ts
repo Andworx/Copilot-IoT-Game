@@ -369,16 +369,6 @@ function sequence(slug: RestoreSequenceKey) {
   return RESTORE_SEQUENCES[slug];
 }
 
-// The restore list is guidance, not an enforced action order. Completion checks
-// the final configuration, matching the Pi expression in logic_maps/<slug>.json.
-function switchesFrom(slug: RestoreSequenceKey) {
-  return sequence(slug).filter((item) => /^SW[1-4]$/.test(item.physicalPin))
-    .sort((a, b) => a.physicalPin.localeCompare(b.physicalPin))
-    .map(({ key, label, physicalPin }) => ({
-      key, physicalPin, label: label.replace(/^.*? - /, ""),
-    }));
-}
-
 export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
   thermostat: {
     slug: "thermostat",
@@ -388,12 +378,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 1,
     restoreSequence: sequence("thermostat"),
     isGameDevice: true,
-    layout: "dial-arc",
     surfaceKind: "hvac-thermostat",
-    instruments: { dial: "fan" },
     accent: "#d98b4a",
     displayFont: "'Baloo 2', system-ui, sans-serif",
-    switches: switchesFrom("thermostat"),
     lamps: [
       { key: "power", label: "Power" },
       { key: "heating", label: "Heating" },
@@ -424,12 +411,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 2,
     restoreSequence: sequence("smart-lock"),
     isGameDevice: true,
-    layout: "keypad",
     surfaceKind: "security-door-panel",
-    instruments: {},
     accent: "#4c8dff",
     displayFont: "'IBM Plex Mono', monospace",
-    switches: switchesFrom("smart-lock"),
     lamps: [
       { key: "locked", label: "Bolt engaged" },
       { key: "alarm", label: "Alarm armed" },
@@ -460,12 +444,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 3,
     restoreSequence: sequence("coldchain-sensor"),
     isGameDevice: true,
-    layout: "dip-strip",
     surfaceKind: "coldchain-logger",
-    instruments: {},
     accent: "#2dd4c7",
     displayFont: "'Chakra Petch', sans-serif",
-    switches: switchesFrom("coldchain-sensor"),
     lamps: [
       { key: "calibrated", label: "Calibrated" },
       { key: "threshold", label: "Threshold ready" },
@@ -496,12 +477,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 4,
     restoreSequence: sequence("water-pump"),
     isGameDevice: true,
-    layout: "paired-columns",
     surfaceKind: "pump-scada",
-    instruments: { gauge: "relief" },
     accent: "#f2c230",
     displayFont: "'Fjalla One', sans-serif",
-    switches: switchesFrom("water-pump"),
     lamps: [
       { key: "running", label: "Pump enabled" },
       { key: "relief", label: "Relief enabled" },
@@ -532,12 +510,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 5,
     restoreSequence: sequence("field-radio"),
     isGameDevice: true,
-    layout: "radio-cluster",
     surfaceKind: "field-radio",
-    instruments: { dial: "channelhop", guards: ["power", "transmit"], button: "encryption", signal: "signal" },
     accent: "#8a9a4a",
     displayFont: "'Black Ops One', sans-serif",
-    switches: switchesFrom("field-radio"),
     lamps: [
       { key: "signal", label: "Channel selected" },
       { key: "encrypted", label: "Encryption enabled" },
@@ -568,12 +543,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 6,
     restoreSequence: sequence("ev-charger"),
     isGameDevice: true,
-    layout: "paired-columns",
     surfaceKind: "ev-charge-pedestal",
-    instruments: { gauge: "ground" },
     accent: "#4ade80",
     displayFont: "'Sora', sans-serif",
-    switches: switchesFrom("ev-charger"),
     lamps: [
       { key: "contactor", label: "Contactor closed" },
       { key: "ground", label: "Ground check" },
@@ -604,12 +576,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 7,
     restoreSequence: sequence("elevator"),
     isGameDevice: true,
-    layout: "keypad",
     surfaceKind: "elevator-service",
-    instruments: {},
     accent: "#8a9aa8",
     displayFont: "'Rajdhani', sans-serif",
-    switches: switchesFrom("elevator"),
     lamps: [
       { key: "brake", label: "Brake released" },
       { key: "doors", label: "Doors closed" },
@@ -640,12 +609,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 8,
     restoreSequence: sequence("traffic-signal"),
     isGameDevice: true,
-    layout: "dip-strip",
     surfaceKind: "traffic-cabinet",
-    instruments: {},
     accent: "#ff7a33",
     displayFont: "'Oswald', sans-serif",
-    switches: switchesFrom("traffic-signal"),
     lamps: [
       { key: "controller", label: "Controller enabled" },
       { key: "timing", label: "Timing plan" },
@@ -676,12 +642,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 9,
     restoreSequence: sequence("patient-monitor"),
     isGameDevice: true,
-    layout: "dial-arc",
     surfaceKind: "patient-monitor",
-    instruments: { dial: "spo2" },
     accent: "#5ec8f2",
     displayFont: "'Public Sans', sans-serif",
-    switches: switchesFrom("patient-monitor"),
     lamps: [
       { key: "leads", label: "Leads connected" },
       { key: "spo2", label: "SpO2 connected" },
@@ -712,12 +675,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 10,
     restoreSequence: sequence("retail-kiosk"),
     isGameDevice: true,
-    layout: "keypad",
     surfaceKind: "payment-terminal",
-    instruments: {},
     accent: "#ff6f91",
     displayFont: "'Manrope', sans-serif",
-    switches: switchesFrom("retail-kiosk"),
     lamps: [
       { key: "reader", label: "Reader online" },
       { key: "printer", label: "Printer ready" },
@@ -748,12 +708,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 11,
     restoreSequence: sequence("drone-ground-control"),
     isGameDevice: true,
-    layout: "radio-cluster",
     surfaceKind: "drone-ground-station",
-    instruments: { dial: "gps", guards: ["power", "uplink"], button: "telemetry", signal: "gps" },
     accent: "#7c6ff2",
     displayFont: "'Orbitron', sans-serif",
-    switches: switchesFrom("drone-ground-control"),
     lamps: [
       { key: "gps", label: "GPS lock" },
       { key: "telemetry", label: "Telemetry link" },
@@ -784,12 +741,9 @@ export const DEVICE_PROFILES: Record<string, DeviceProfile> = {
     modeIndex: 12,
     restoreSequence: sequence("industrial-robot-arm"),
     isGameDevice: true,
-    layout: "paired-columns",
     surfaceKind: "robot-teach-pendant",
-    instruments: { gauge: "servo" },
     accent: "#ff8a3d",
     displayFont: "'Chakra Petch', sans-serif",
-    switches: switchesFrom("industrial-robot-arm"),
     lamps: [
       { key: "estop", label: "E-stop reset" },
       { key: "servo", label: "Servo enabled" },

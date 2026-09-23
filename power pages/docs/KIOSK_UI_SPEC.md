@@ -1,9 +1,8 @@
 # Kiosk & Player UI Spec
 
-> **Architecture update (#73/#76):** The five reusable layouts below are historical
-> designs retained as migration adapters. New work uses the per-mode surface registry
-> and explicit control bindings in [KIOSK_MODE_UI_REDESIGN.md](KIOSK_MODE_UI_REDESIGN.md).
-> There are twelve playable modes, with six switches and four sockets per mode.
+> **Architecture (#73/#76):** All twelve modes use dedicated read-only surfaces selected
+> by a typed registry. The five positional layouts and migration adapters have been
+> removed. See [KIOSK_MODE_UI_REDESIGN.md](KIOSK_MODE_UI_REDESIGN.md) for mode designs.
 
 Companion to [`GAME_MODE_PLAN.md`](GAME_MODE_PLAN.md), which covers architecture, data model,
 and the win/claim flow. This document is the **visual and interaction spec** for the
@@ -17,7 +16,7 @@ disagree, treat it as a bug to reconcile, not a tiebreaker either way.
 Target hardware: **official Raspberry Pi 7" touchscreen, 800×480, landscape** (see
 `GAME_MODE_PLAN.md` §3a). Every kiosk measurement below assumes that viewport.
 
-## 1. Shared foundation (constant across all 11 devices)
+## 1. Shared foundation (constant across all twelve devices)
 
 These never change per device — they're what makes all 11 screens read as "the same real
 hardware" despite looking different everywhere else.
@@ -125,11 +124,9 @@ Deliberately upgraded from flat/static to feel like real physical instruments:
   dome reads as slightly recessed. Lit lamps get a slow "breathing" brightness pulse
   (`lampBreathe`, 2.6s ease-in-out) — **red lamps breathe faster** (1.15s) than
   green/amber, so a fault state feels more urgent even before the player reads any text.
-- **Every switch/button press** gets immediate tactile feedback: `transform: scale(0.94)`
-  + a brightness dip on `:active`, plus a short-lived ripple — a semi-transparent circle
-  that expands from the exact touch point and fades over ~0.5s (`rippleFx`). This is
-  layered on top of whatever the widget's own on/off animation is, not a replacement
-  for it.
+- **Instrument interaction is read-only.** Physical telemetry drives visible changes.
+  Reserve clickable controls for navigation, opt-in setup/help, and player flows;
+  do not recreate the retired mutable switches, dials, or ripple helpers.
 - **Needles and pointers** (thermostat fan dial, field-radio channel dial, water-pump
   gauge needle) ease with a slight overshoot (`cubic-bezier(.34,1.56,.64,1)`) rather than
   linear or ease-out — they "snap into place" the way a physical needle settles, instead
@@ -138,214 +135,51 @@ Deliberately upgraded from flat/static to feel like real physical instruments:
   all carry a paired shadow (`box-shadow`: an outer soft drop shadow + an inset highlight
   near the top edge) and a subtle gradient instead of a solid color, so they read as
   physically raised/beveled rather than drawn.
-- Respect `prefers-reduced-motion` throughout (§5) — the breathing pulse, ripple, and
+- Respect `prefers-reduced-motion` throughout (§5) — the breathing pulse and
   needle overshoot should all fall back to instant/static rather than forcing motion.
 
-## 2. Per-device design
+## 2. Mode-specific surfaces
 
-Five distinct identities, one shared skeleton (§1.4). `--device-accent` is set via
-`document.documentElement.style.setProperty('--device-accent', …)` (or its real-build
-equivalent) so the outer dial-position UI matches whichever device is active, not just the
-panel itself.
+`DeviceProfile.surfaceKind` selects one of twelve dedicated React components through
+`src/components/surfaces/registry.tsx`. Each surface owns its geometry and interprets
+explicit semantic telemetry keys. Never infer meaning from switch/lamp array positions.
+There are no positional layout adapters or `layout`/`instruments` profile fields.
 
-### 2.1 Thermostat — Home — `andy_dialposition = 2`
+`PanelSurfaceProps` supplies the device profile, Boolean state, semantic lamp colors,
+completion, connection freshness, and physical control mappings. It exposes no mutation
+callback. `PanelSurface` shares the connection banner and labeled status indicators;
+mode-specific SVGs and qualitative readouts remain in their own components.
 
-| Token | Value |
-|---|---|
-| Background family | `#1c1510` / `#241b13` / `#2b2117` / `#332819` |
-| Text (muted / base / bright) | `#6b5c47` / `#cbb89e` / `#f0e2cf` |
-| Border | `#2f2417` / `#3d301f` |
-| Device accent | `#d98b4a` (warm copper), glow `rgba(217,139,74,0.30)` |
-| Display font | `Baloo 2` (rounded, friendly — the one device that isn't monospace-headed and isn't shouting in caps: header keeps normal case, `letter-spacing: 0.01em`) |
-| Motif | Soft warm radial glow (two overlapping ellipses), **no grid texture** — deliberately the calmest, least "technical-instrument" screen of the five |
-| Shape | Panel corner radius bumped to **10px** (the only device that isn't sharp-cornered) |
+`KioskDevicePage` owns routing, telemetry subscriptions, Help Fix, completion, prize
+requests, and mode changes. The physical panel is the source of control changes.
+Normal instruments display domain names and current state only. Physical identifiers,
+required switch positions, and cable recipes belong only in opt-in gear setup or Help Fix.
+The gear dialog exposes all six switch and four socket mappings; do not add a bottom rail.
 
-**Control layout — "dial + arc":**
-- One big rotary dial (`Fan`) centered, ~78px circle, ringed by a 9-tick scale (spanning
-  −75° to +75°, drawn as an SVG `dial-ticks` ring in `--color-text-muted` at 70% opacity —
-  see the shared `tickRingSVG` helper, reused by the field-radio dial too) so it reads as a
-  real gauge face, not a bare knob. A pointer line rotates from −55° (off) to +55° (on) on
-  toggle, with the label "FAN" beneath it.
-- Three pill-shaped buttons below the dial: Power, Eco, Heat/Cool — rounded (16px radius),
-  muted by default, tinted with `--device-accent` at 18% + accent-colored border/text when
-  pressed.
-- Four small lamp dots arranged in an arc **above** the dial (like a gauge scale) rather
-  than a row: Power, Heating, Cooling, Fault.
-
-### 2.2 Smart Lock & Security Panel — Home/Security — `andy_dialposition = 3`
-
-| Token | Value |
-|---|---|
-| Background family | `#0b0e12` / `#10151b` / `#151b23` / `#1b232c` |
-| Text (muted / base / bright) | `#4d5a67` / `#b9c3cf` / `#e7edf3` |
-| Border | `#1a222b` / `#232e3a` |
-| Device accent | `#4c8dff` (cool blue), glow `rgba(76,141,255,0.28)` |
-| Display font | `IBM Plex Mono` (same as the data layer — reads as a digital keypad/LCD, not a separate typeface) |
-| Motif | Fine dot grid (1.2px dots, 14px pitch) **plus** an animated horizontal scan-line sweep (`scanSweep`, 4s linear loop, top to bottom) — a security-camera-scan cue |
-
-**Control layout — "keypad":**
-- An LCD-style readout above the keypad — small caps text, red with a text-shadow glow
-  reading "ALERT" while faulted, switching to green "SECURE" once restored. Recessed
-  background (inset shadow) so it reads as a tiny embedded display, not a label.
-- 2×2 grid of square keypad buttons, 62×54px each: PWR / BOLT / AUTO / ALARM.
-- A vertical LED column to the right of the keypad — one row per lamp (Locked / Ajar /
-  Battery / Tamper), each a small square dot with its label to the right — mirrors a real
-  alarm panel's side status strip rather than a row underneath.
-
-### 2.3 Cold-Chain Warehouse Sensor — Enterprise/Industrial — `andy_dialposition = 4`
-
-| Token | Value |
-|---|---|
-| Background family | `#0a1014` / `#0e161b` / `#121d23` / `#17242b` |
-| Text (muted / base / bright) | `#4a6167` / `#a9c8cf` / `#dff5f7` |
-| Border | `#17252b` / `#203540` |
-| Device accent | `#2dd4c7` (cyan/teal), glow `rgba(45,212,199,0.28)` |
-| Display font | `Chakra Petch` (technical/angular) |
-| Motif | Cyan-tinted blueprint grid (1px lines, 24px pitch) + open corner crosshair register marks top-left/bottom-right — a deliberate callback to the engineering-drawing look already used in `.github/skills/andworx-style-diagram-generator` |
-
-**Control layout — "DIP-switch bank":**
-- A tight row of 4 small (30×44px) DIP-style flip switches along the top: PWR / CAL / THR /
-  SYNC — a sliding internal bar moves from top (off) to bottom-third (on, accent-colored
-  with a glow), mimicking a PCB switch bank rather than a toggle.
-- A fake digital numeric readout centered below the switches (e.g. `−18.4°C ⚠` while
-  faulted, `2.1°C ✓` once restored) in the display font, accent-colored — the one device
-  with a literal data readout as a design element.
-- A small **live sparkline** (SVG polyline, 92×28) directly beside the readout — a rolling
-  16-point trend line that re-draws roughly every 900ms, drifting toward the top of the
-  chart while faulted and settling low/flat once resolved. This is the one instrument that
-  animates continuously rather than only on interaction, and the only sparkline among the
-  11 devices — appropriate for the one device whose whole premise is a sensor logging a
-  reading over time.
-- A row of 4 small square LEDs along the bottom: In-Range / Alert-High / Alert-Low / Link.
-
-### 2.4 Water Pump Station Controller — Public Sector/Utility — `andy_dialposition = 5`
-
-| Token | Value |
-|---|---|
-| Background family | `#0a1420` / `#0e1a28` / `#13212f` / `#182838` |
-| Text (muted / base / bright) | `#55637a` / `#b7c4d6` / `#e6edf7` |
-| Border | `#172332` / `#223144` |
-| Device accent | `#f2c230` (safety yellow), glow `rgba(242,194,48,0.28)` |
-| Display font | `Fjalla One` (bold condensed — civic/signage feel) |
-| Motif | An **opaque** yellow/black diagonal hazard-stripe bar, 5px tall, across the very top edge of the screen — plus a faint (5% opacity) diagonal pinstripe wash across the whole background. Keep the hazard bar opaque and thin; a full-screen diagonal stripe fill at higher opacity was tried and was overpowering — don't repeat that. |
-
-**Control layout — "paired columns":**
-- A **real pressure gauge** centered above the columns — an SVG semicircle dial (110×66)
-  with 3 colored zones (red/amber/green, matching the global semantic colors, never
-  re-hued) and a needle that swings from deep in the red zone (fault — pressure not
-  relieved) to deep in the green zone (restored), with the overshoot-eased transition from
-  §1.7. This is the centerpiece instrument for the one device whose whole premise is a
-  pressure reading.
-- 4 vertical columns spread across the panel width, each column = one large (26px) lamp
-  directly above one large (48×30px) chunky rocker switch, with a label beneath: Power /
-  Pump / Relief / Remote. Reads like breaker-panel switches, each with its own indicator
-  light, rather than two separate switch/lamp rows.
-
-### 2.5 Tactical Field Radio — Military/Defense — `andy_dialposition = 6`
-
-| Token | Value |
-|---|---|
-| Background family | `#12160f` / `#171c13` / `#1c2216` / `#222a1a` |
-| Text (muted / base / bright) | `#5c5f47` / `#c2c2a0` / `#e8e8c8` |
-| Border | `#1f2618` / `#2a331f` |
-| Device accent | `#8a9a4a` (muted olive), glow `rgba(138,154,74,0.28)` |
-| Display font | `Black Ops One` (stencil — literally how real field-gear ID plates are lettered) |
-| Motif | Woven canvas/cross-hatch texture (two overlapping diagonal hairline patterns) + 4 small rivet dots in the screen corners |
-
-**Control layout — "radio cluster":**
-- Left: a vertical column of 2 **guarded** toggle switches (PWR, TX) — each has a hinged
-  "flap" that lifts (scales down to 18% height) when engaged, like a protected tactical
-  switch.
-- Center: one large (74px) circular channel-tuning dial (`channelhop`), also ringed by a
-  10-tick scale (the same `tickRingSVG` helper as the thermostat, but spanning a much wider
-  −50° to 230° arc) — pointer swings from −40° to 220° on toggle, reading as a full tuning
-  rotation rather than a small flip.
-- Right: a square Encryption button, a tight 2×2 cluster of 4 small square lamps
-  (Signal / Encrypted / Battery / Interference), and a **signal-strength waveform** — 7
-  thin bars with staggered animation delays. Idle (no signal lock) they sit low and muted;
-  once `signal` reads green they turn accent-colored and animate to full height, like a
-  handset's live signal meter.
-
-Kept to comms/sensor/logistics-flavored gear rather than weapons, per
-`GAME_MODE_PLAN.md` §11 — reads as "cool tactical tech," not out of place at a booth.
-
-### 2.6 Devices 6–11 — the dial-count correction (12 positions, not 6)
-
-Six more devices, added once the real dial turned out to have 12 positions
-(`GAME_MODE_PLAN.md` §0). No new control-widget behavior — each reuses one of the 5
-layouts from §2.1–§2.5 exactly as built, with its own palette/font/motif. This is the
-`andy_layout` field (§5's schema note) doing its job: a new device is a data row plus a
-skin, not a new component.
-
-| Device | Sector | Layout reused | Accent | Font | Motif |
-|---|---|---|---|---|---|
-| Smart EV Charger | Home | Paired columns (§2.4) | `#4ade80` green | Sora | Soft green radial glow (same technique as §2.1, re-tinted) |
-| Elevator Control Panel | Enterprise/Facilities | Keypad (§2.2) | `#8a9aa8` steel gray | Rajdhani | Fine dot grid (same technique as §2.2, no scan-sweep) |
-| Traffic Signal Controller | Public Sector/Transportation | DIP-strip (§2.3) | `#ff7a33` orange | Oswald | Faint horizontal dashed lane-line pattern |
-| Hospital Patient Monitor | Healthcare | Dial + arc (§2.1) | `#5ec8f2` cyan-blue | Public Sans | Soft blue radial glow |
-| Retail Payment Kiosk | Commercial/Retail | Keypad (§2.2), 2nd reuse | `#ff6f91` coral-pink | Manrope | Fine dot grid, coral-tinted |
-| Drone Ground Control | Aerospace/Defense | Radio cluster (§2.5), 2nd reuse | `#7c6ff2` indigo | Orbitron | Sparse starfield dots |
-
-**Positional convention, not hardcoded keys.** The 5 layout components take a `device`
-prop and read `device.switches[i]` / `device.lamps[i]` by array position — they do not
-reference any device's actual switch/lamp key names. That's what makes reuse across
-completely different switch/lamp vocabularies (e.g. Field Radio's `channelhop` vs. Drone's
-`rthoverride` both landing on "the big dial") work without touching the layout component
-itself. The convention per layout, so a new device assigned to it lands in the right slot:
-
-- **Dial + arc** (§2.1): `switches[2]` → the dial; `switches[0,1,3]` → the 3 buttons, in
-  that order; `lamps[0..3]` → the arc, in order.
-- **Keypad** (§2.2): `switches[0..3]` → the 2×2 grid, in order; `lamps[0..3]` → the LED
-  column, in order.
-- **DIP-strip** (§2.3): `switches[0..3]` → the DIP row, in order; `lamps[0..3]` → the LED
-  row, in order; `device.readout`, if present, drives the digital readout.
-- **Paired columns** (§2.4): `switches[i]` pairs with `lamps[i]` for each column;
-  `switches[2]` also drives the gauge needle (green zone when that switch is on).
-- **Radio cluster** (§2.5): `switches[0,3]` → the two guarded toggles; `switches[2]` → the
-  big dial; `switches[1]` → the square button; `lamps[0..3]` → the cluster; the waveform
-  activates when `lamps[0]` reads green.
-
-When authoring a 12th+ device: **order its `switches`/`lamps` arrays to match the
-convention above for whichever layout it uses** — the "resolved" indicator needs to land
-at the position that layout treats as meaningful (e.g. index 2 for paired-columns' gauge),
-not just wherever it falls naturally out of the device's own narrative.
+Follow [the active mode designs](KIOSK_MODE_UI_REDESIGN.md) for each surface's geometry.
+All modes must fit 800x480, label semantic statuses, show unavailable data as unknown,
+stop activity when stale, and respect reduced motion. Do not infer measured quantities
+from Boolean controls; omit them or clearly label illustrative/simulated content.
 
 ## 3. Data contract
 
-Every device is one config object — this is the shape the real build should read from
-`andy_deviceprofile` (plus a bit of hardcoded per-layout presentation logic; see the schema
-note below):
+The authoritative frontend type is `src/types/game.ts:DeviceProfile`, with profiles in
+`src/data/deviceProfiles.ts`. These are code-owned definitions; this cleanup does not
+change Dataverse schemas. Relevant fields are:
 
-```js
-{
-  label, sector, position, unit,       // header/status-bar text
-  switches: [{ key, label }, ...],     // 4 entries — used for the win-preview button
-                                        // and as the source of truth for control keys
-  lamps:    [{ key, label }, ...],     // 4 entries
-  fault:    { switchKey: boolean, ... }, // initial (faulted) switch state
-  checkWin: (state) => boolean,        // pure function of switch state
-  computeLamps: (state, win) => { lampKey: "green"|"amber"|"red"|"off", ... },
-  faultText, okText,                   // HTML strings for the status banner
-  steps: [string, ...],                // Help-Fix numbered list (3 short imperative lines)
-  winMessage,                          // win overlay headline
-  restoreItems: [string, ...],         // win overlay checklist (4 short lines)
-  readout: { fault, ok } | undefined   // only the cold-chain sensor uses this
-}
-```
+- `slug`, `label`, `sector`, `modeIndex`, `dialPosition`: identity and header metadata.
+- `surfaceKind`: typed registry selection, independent of array order.
+- `restoreSequence`: all ten physical mappings, semantic keys, labels, and target values.
+- `requiredCables`: cable identities and socket pairs.
+- `lamps`, `fault`, `computeLamps`: semantic indicators and Boolean fixture state.
+- `checkWin(state, cables)`: final configuration validation, not temporal action order.
+- `faultText`, `okText`, `steps`, `winMessage`, `restoreItems`: status and help/completion copy.
 
-`checkWin` / `computeLamps` are logic, not content — they stay in code (or a small rules
-engine) rather than Dataverse. Everything else above is plausible as `andy_deviceprofile`
-columns (§5 of `GAME_MODE_PLAN.md` already has most of these; `faultText`/`okText`/`steps`/
-`winMessage`/`restoreItems` map onto `andy_introcopy`-style fields once that table is fleshed
-out for real content).
-
-**Schema addition to flag:** `andy_deviceprofile` doesn't yet have a column for *which
-control-panel layout* a device uses (dial-arc / keypad / dip-strip / paired-columns /
-radio-cluster from §2). Recommend adding `andy_layout` (Choice, one option per layout) so a
-6th device added later picks an existing layout via data rather than needing a code branch
-by slug. The 5 layout **implementations** themselves (the actual widget markup/CSS) are
-still one component each in code — only the *selection* of which one renders should be
-data-driven.
+Pi logic maps remain the source for physical contracts. Run `npm test` for exhaustive
+configuration and exact cable-recipe checks. The surface fixtures guard actual telemetry
+key reads against `restoreSequence`; browser checks cover all twelve modes in fault,
+partial, restored, stale, and waiting states, plus setup/help. The kiosk-flow suite checks
+Game Mode ON/OFF completion and mode-change reset. See the app README for commands.
 
 ## 4. Player phone (`/play-spin`)
 

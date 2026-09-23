@@ -120,3 +120,10 @@ Original prompt: begin working 75 and then 76 then 77. we will then add a pr to 
 - Added prompt regression coverage to the prebuild contract checks. Validation in progress; live verification remains pending.
 - Validation passed: 60 surface fixtures, all twelve Help Fix fallbacks, 12,288 configurations, 144 cable recipe pairs, and clean installs/production builds for Azure and the page. Inspected setup/help screenshots and skill-client state. Local Node 24; CI uses required Node 22.
 - Remaining: merge/release through deploy-apps.yml and live Pi/page verification before closing #75.
+
+## Issue #76 architecture cleanup
+- Removed unused positional layouts, mutable helpers, adapter-only profile fields, and retired layout/physical-rail CSS.
+- Updated active architecture guidance to the twelve-surface registry. Fixtures guard semantic telemetry reads against the mode contract.
+- User will perform live Pi validation after deployment; retain Verify. Local checks in progress.
+- Passed clean Azure/page installs and builds, 60 guarded surface fixtures, 12,288 configurations/144 cable recipes, and Game Mode ON/OFF completion/reset checks. Reviewed skill-client state and instrument/setup screenshots. CSS reduced from about 75 KB to 63 KB.
+- Remaining: PR merge and normal CI deployment, then user Pi verification.

@@ -96,12 +96,12 @@ src/
 ├── lib/quickFixPrompt.ts       # the structured prompt Help Fix sends
 ├── types/telemetry.ts          # the Pi payload as relayed by the Function App
 ├── components/
-│   ├── LampDot.tsx, TactileButton.tsx, DialTicks.tsx   # shared primitives
+│   ├── LampDot.tsx               # semantic lamp primitive
 │   ├── HelpFixBar.tsx, WinOverlay.tsx, SuccessPopup.tsx, DemoGearMenu.tsx
-│   └── layouts/             # the 5 distinct control-panel layouts (KIOSK_UI_SPEC.md §2)
+│   └── surfaces/                  # typed registry and twelve read-only mode instruments
 ├── pages/
 │   ├── KioskInfoPage.tsx, KioskDevicePage.tsx, PlaySpinPage.tsx (placeholder)
-└── styles/theme.css          # shared tokens + all 5 skins
+└── styles/theme.css          # shared tokens + all twelve skins
 ```
 
 ## Deployment
@@ -121,6 +121,8 @@ See [the active redesign notes](../docs/KIOSK_MODE_UI_REDESIGN.md). Mode surface
 `surfaceKind` and explicit instrument bindings. All ten physical inputs are available
 in the gear setup dialog; instruments show domain names and current state only. `npm test` exhaustively validates the frontend
 contract against the Pi logic maps and runs automatically before `npm run build`.
+Legacy layouts, mutable widget helpers, and adapter-only profile fields have been removed.
+Surface fixtures reject reads of semantic keys absent from the mode?s restore contract.
 The ordered repair guidance does not impose temporal order on win detection.
 For isolated visual fixtures, run Vite and open
 `/tests/surface-preview.html?mode=thermostat&state=partial` (fault, partial, restored,

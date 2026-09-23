@@ -7,6 +7,8 @@ Issue: #73 (epic); foundation #75 / #76; thermostat pilot #77.
 `src/components/surfaces/registry.tsx` selects a read-only surface via
 `DeviceProfile.surfaceKind`. All twelve modes now select dedicated surfaces.
 Each surface binds controls by semantic key; array order never defines instrument meaning.
+The five legacy layouts, their mutable widget helpers, and adapter-only profile metadata
+have been removed; `surfaceKind` is the only rendering selector.
 The `PanelSurfaceProps` contract includes state, semantic lamps, completion, connection
 freshness, and all ten physical control mappings. There is no mutation callback.
 `PanelSurface` owns the connection banner and semantic status strip. Do not add a
@@ -14,7 +16,8 @@ bottom physical-input rail to any mode. The gear menu opens a shared panel setup
 dialog with all six required switch positions and four socket requirements; `KioskDevicePage` continues to own Help Fix, telemetry, completion, and prizes.
 
 `npm test` compares all 12,288 Boolean configurations with the Pi logic maps, checks
-physical labels/keys/targets, and rejects unknown instrument/lamp bindings. This runs
+physical labels/keys/targets, and rejects unknown lamp/win bindings. Surface fixtures
+reject actual instrument reads of unknown telemetry keys. This runs
 before production builds. Restore sequence order is guidance only: win detection checks
 the final configuration, not temporal action order. No Pi win rules changed.
 
