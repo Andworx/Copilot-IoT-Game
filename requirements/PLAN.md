@@ -14,14 +14,14 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 5 | 2 | 0 | 0 | 7 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
-| Power Pages | 4 | 8 | 1 | 0 | 13 |
+| Power Pages | 5 | 7 | 1 | 0 | 13 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
 | Integration (Azure Functions) | 7 | 3 | 0 | 0 | 10 |
 | Power Apps | 2 | 4 | 0 | 0 | 6 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 18 | 21 | 5 | 2 | 46 |
+| Totals | 19 | 20 | 5 | 2 | 46 |
 
 ## Dataverse
 
@@ -52,7 +52,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Item | Type | Status | Notes |
 |---|---|---|---|
 | Physical control/visual contracts across twelve modes (#75) | Code Site | ⬜ Verify | Six switches and four sockets available in gear setup; domain-only instruments. Contract checks cover 12,288 states, exact cable recipes, and any-order Help Fix wording. Surface checks cover all twelve modes and their setup/help recipes. Live Pi/page validation pending. |
-| Typed read-only surface registry and shared primitives (#76) | Code Site | ? Verify | All twelve dedicated surfaces use semantic keys; legacy layouts, helper widgets, profile metadata and CSS removed. Architecture guidance reflects registry ownership. 60 surface fixtures, completion/reset flow, 12,288 configurations and required builds pass locally. User will verify the Pi after deployment. |
+| Typed read-only surface registry and shared primitives (#76) | Code Site | ✅ Done | Closed via #89/#90/#135. All twelve dedicated surfaces use semantic keys; legacy layouts, helper widgets, profile metadata and CSS removed. Architecture guidance reflects registry ownership. 60 surface fixtures, completion/reset flow, 12,288 configurations and required builds passed locally, and #135's deploy-apps.yml run succeeded on main. |
 | Dedicated thermostat instrument pilot (#77) | Code Site | ⬜ Verify | Circular heat/cool face, state-driven fan, eco lockout, and physical mappings. No inferred temperatures. Local browser checks pass; live validation pending. |
 | `copilotiotgame`: `KioskInfoPage` + `KioskDevicePage`, all 12 playable modes, 10s reset timer (800×480 viewport) | Code Site pages | ⬜ Verify | Issues #43/#44 — mode cards now mirror the 12 Pi restore sequences and expose ordered restore steps. Verify with local build and live page after deployment. |
 | `copilotiotgame`: `/play-spin` page, QR generation on kiosk win, wheel animation | Code Site page | ✅ Done | GAME_MODE_PLAN.md §7, Phase 6 — except real QR encoding (placeholder pattern) and the real claim call (depends on the Integration claim endpoint below) |
