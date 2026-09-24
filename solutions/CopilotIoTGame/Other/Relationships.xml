@@ -7,6 +7,7 @@
   <EntityRelationship Name="business_unit_andy_deviceprofile" />
   <EntityRelationship Name="business_unit_andy_gameboxstate" />
   <EntityRelationship Name="business_unit_andy_gamewin" />
+  <EntityRelationship Name="contact_andy_gamewin" />
   <EntityRelationship Name="lk_andy_deviceprofile_createdby" />
   <EntityRelationship Name="lk_andy_deviceprofile_modifiedby" />
   <EntityRelationship Name="lk_andy_gameboxstate_createdby" />

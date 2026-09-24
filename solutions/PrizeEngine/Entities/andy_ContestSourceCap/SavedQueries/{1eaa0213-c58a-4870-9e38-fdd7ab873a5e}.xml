@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{1eaa0213-c58a-4870-9e38-fdd7ab873a5e}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_settingname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_contestsourcecapid">
+          <cell name="andy_settingname" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_contestsourcecap">
+          <attribute name="andy_contestsourcecapid" />
+          <attribute name="andy_settingname" />
+          <attribute name="createdon" />
+          <order attribute="andy_settingname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="1" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Inactive Contest Source Caps" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

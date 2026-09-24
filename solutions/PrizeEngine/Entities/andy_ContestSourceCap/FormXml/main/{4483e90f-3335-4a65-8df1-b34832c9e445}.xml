@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{4483e90f-3335-4a65-8df1-b34832c9e445}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{24F5297E-5FB0-4E28-B122-C0CC8F5D1170}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{060F98BB-9FE5-43DC-AAE6-4EBE46171A62}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{AC7CD44D-A26D-494F-AA63-F6D470048C49}">
+                        <labels>
+                          <label description="Setting Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_settingname" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_settingname" />
+                      </cell>
+                    </row>
+                    <row></row>
+                    <row>
+                      <cell id="{b7b2f456-e58a-4e87-a134-5a0698eee197}">
+                        <labels>
+                          <label description="Source Identifier" languagecode="1033" />
+                        </labels>
+                        <control id="andy_sourceidentifier" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_sourceidentifier" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ed7888a0-e277-4df4-a424-db37960d90d7}">
+                        <labels>
+                          <label description="Max Entries Per Contact" languagecode="1033" />
+                        </labels>
+                        <control id="andy_maxentriespercontact" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_maxentriespercontact" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{bbeb610b-dd52-484f-b5f5-08f1e313a16f}">
+                        <labels>
+                          <label description="Max Entries Per Day" languagecode="1033" />
+                        </labels>
+                        <control id="andy_maxentriesperday" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_maxentriesperday" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ef005edc-64ae-497e-9bfa-3dd606cfa748}">
+                        <labels>
+                          <label description="Check-In Required" languagecode="1033" />
+                        </labels>
+                        <control id="andy_checkinrequired" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_checkinrequired" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5b6ebf3a-c4c0-4b59-8748-3939de496edc}">
+                        <labels>
+                          <label description="Campaign Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_campaignname" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_campaignname" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

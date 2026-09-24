@@ -11,17 +11,17 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Area | ✅ Done | ⬜ Verify | ⬜ TODO | Future | Total |
 |---|---:|---:|---:|---:|---:|
-| Dataverse | 5 | 2 | 0 | 0 | 7 |
+| Dataverse | 5 | 4 | 2 | 0 | 11 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
 | Power Pages | 5 | 7 | 1 | 0 | 13 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
-| Integration (Azure Functions) | 7 | 3 | 0 | 0 | 10 |
+| Integration (Azure Functions) | 7 | 4 | 0 | 0 | 11 |
 | Power Apps | 2 | 4 | 0 | 0 | 6 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 19 | 20 | 5 | 2 | 46 |
+| Totals | 19 | 23 | 7 | 2 | 51 |
 
 ## Dataverse
 
@@ -34,6 +34,10 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `andy_gameboxstate` — singleton row tracking the active device | Table | ✅ Done | GAME_MODE_PLAN.md §5, Phase 2a — confirmed end to end 2026-09-08 by both `GET /api/kiosk-state` and a real `set-mode` write |
 | `andy_deviceprofile.andy_isenabled` + `andy_gameboxstate.andy_gamemodeenabled` — per-mode disable + master Game Mode toggle | Boolean columns | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09) — created via Web API (`BooleanAttributeMetadata`), both default `true`/backfilled `true` on all existing rows so behavior was unaffected until explicitly toggled; confirmed live via `GET /api/device-profiles`/`kiosk-state` |
 | `andy_iottelemetryevent` generic event log (name, device id, event type, value, JSON payload) | Table | ⬜ Verify | Created in `andy_PrizeEngine` (shared) and `CopilotIoTGame`, organization-owned; `Copilot IoT Game Security Role` has Create and Read only. Verified: the game function writes a row per state change or win. Still to do: `pac solution export` + unpack `CopilotIoTGame` into `solutions/`. Spec: `azure/README.md`. |
+| Shared contest/campaign, Contact identity, source caps, and grand-prize entry model | Design | ⬜ TODO | Issue #123 / epic #121 — proposed in `power pages/docs/SHARED_CONTEST_ENTRY_MODEL.md`; solution rollout should be staged: first remove inline contestant fields from the `andy_gamewin` form, then add `andy_gamewin.andy_contact`, then add the grand-prize entry tables/forms/subgrid experience. |
+| Game Win form contestant-field cleanup | Model-driven form | ⬜ Verify | Issue #123 / epic #121 staged push 1 — removed `andy_sharedinfo`, `andy_contestantname`, and `andy_contestantemail` from the `andy_gamewin` main form XML while leaving the columns in table metadata for later cleanup. Packed/imported/published to Development 2026-09-24; still needs visual form verification. |
+| `andy_gamewin.andy_contact` Contact lookup | Lookup relationship | ⬜ Verify | Issue #123 / epic #121 staged push 2 — added optional Game Win -> Contact lookup metadata with remove-link delete behavior. Packed/imported/published to Development 2026-09-24; still needs metadata/form verification before deploying the Azure Function version that binds `andy_Contact@odata.bind`. |
+| Instant-win and grand-prize entry decoupling contract | Design | ⬜ TODO | Issue #126 / epic #121 — `andy_gamewin` remains the IoT instant-prize source record; shared grand-prize eligibility uses `andy_grandprizeentry` with portable `sourceKey`/`sourceTable`/`sourceRecordId` linkage so future games do not write IoT-only rows or fields. |
 
 ## Flows
 
@@ -95,6 +99,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `GET /api/kiosk-state`, `GET /api/device-profiles` | Azure Function endpoints (`azure/`) | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2a — confirmed 2026-09-08 end to end against live Dataverse on `func-aw-azcom-copilot-iot-game` (Node 22, `restore-and-spin-function` as a Dataverse Application User) |
 | `POST /api/set-mode`, `POST /api/negotiate` | Azure Function endpoints (`azure/`) | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2a — confirmed 2026-09-08: a real `set-mode` call (from Game Box Control) wrote `andy_gameboxstate` and broadcast over `negotiate`'s SignalR hub to a live kiosk tab, which navigated with no reload |
 | `POST /api/prizes`, `POST /api/create-win`, `POST /api/claim-prize` (validate token → weighted-pick prize **type** → atomic-claim a prize **instance**, falling back to the designated fallback type → mark claimed) | Azure Function endpoints (`azure/`) | ⬜ Verify | `power pages/docs/archive/PRIZE_CODE_MIGRATION.md` — rewritten against the new `andy_PrizeTypes`/`andy_Prizes` split (was the old single-row `andy_prize` decrement), deployed to `func-aw-azcom-copilot-iot-game` and smoke-tested live 2026-09-09 (all 3 endpoints + a real claim verified against `andy_gamewin`'s binds); fixed a live-only OData `in`-operator rejection along the way. Needs `⬜ Verify`: seeded Prize Type data has only 1 active non-fallback type (`Trick or Treat Candy`) with zero instance stock, so every real claim currently falls through to the fallback (`Pin or Sticker`) — see `power pages/docs/archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md` for the maker-portal decision needed (add instance stock and/or reactivate the other 3 seeded types) |
+| Contact upsert during prize claim | Azure Function endpoint (`azure/`) | ⬜ Verify | Issue #125 / epic #121 — `claim-prize` now creates or reuses standard Dataverse `contact` by normalized email only when `sharedInfo` is true and contact email is supplied, then binds `andy_gamewin.andy_contact` when a Contact exists. Inline `andy_gamewin` contestant name/email fields are redundant after the lookup schema is deployed; Contact consent/preference fields are not overwritten. Local `npm test` passes; live Dataverse claim validation pending. |
 | `POST /api/toggle-device`, `POST /api/set-game-mode`, `POST /api/pick-random-mode` | Azure Function endpoints (`azure/`) | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09) — `toggle-device`/`set-game-mode` are function-key gated like `set-mode`; `pick-random-mode` is anonymous like `create-win`/`claim-prize` (kiosk-triggered, no staff auth available) and reuses the existing `setActiveDeviceProfile` write + `deviceChanged` SignalR broadcast. Deployed and smoke-tested live: confirmed a disabled device is never picked, `kiosk-state`/`device-profiles` correctly surface the new flags |
 | Consolidated Azure deployment target | Azure Function App + GitHub Actions | ⬜ Verify | Issue #13 — new Node 22 Flex Consumption Function App `func-aw-azcom-iot-game` created in `rg-aw-azcom-iot-copilot` with dedicated storage `stawazcomiotgamefn`, shared Serverless SignalR `signalr-aw-iot-copilot`, app settings, CORS, GitHub variable update, and Website Contributor RBAC for the GitHub OIDC identity. Needs `⬜ Verify`: full GitHub deployment from `main`, Power Pages build using the new API base URL, and end-to-end Function/SignalR smoke test before deleting the old resource group. |
 | Event Hub trigger `iot-telemetry`: panel Pi telemetry → SignalR `SendTelemetryUpdate`/`TriggerAgentHelp` (gamebox hub) + `andy_iottelemetryevent` row | Azure Function (`azure/`) | ✅ Done | Verified live 2026-09-19: the trigger runs on every Pi heartbeat (30 s) with identity-based access, the SignalR broadcast is flowing (hundreds of messages), and after a real switch change a row landed in `andy_iottelemetryevent` with the `restore-and-spin/v1` payload (mode, controls, sockets, cables, lamps, timestamp). Only `state_change` and `win` are logged. |

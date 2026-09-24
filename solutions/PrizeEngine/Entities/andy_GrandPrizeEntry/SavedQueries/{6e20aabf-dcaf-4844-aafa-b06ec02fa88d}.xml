@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{6e20aabf-dcaf-4844-aafa-b06ec02fa88d}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_participantname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_grandprizeentryid">
+          <cell name="andy_participantname" width="300" />
+          <cell name="andy_entrytimestamp" width="150" />
+          <cell name="andy_entrycount" width="150" />
+          <cell name="andy_eligibilitystatus" width="150" />
+          <cell name="andy_checkincode" width="150" />
+          <cell name="andy_sharedinformation" width="150" />
+          <cell name="andy_privacyacceptancetime" width="150" />
+          <cell name="andy_privacynoticeversion" width="150" />
+          <cell name="andy_campaignname" width="150" />
+          <cell name="andy_contact" width="150" />
+          <cell name="andy_sourceidentifier" width="150" />
+          <cell name="andy_gamewin" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_grandprizeentry">
+          <attribute name="andy_grandprizeentryid" />
+          <attribute name="andy_participantname" />
+          <attribute name="createdon" />
+          <order attribute="andy_participantname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="andy_entrytimestamp" />
+          <attribute name="andy_entrycount" />
+          <attribute name="andy_eligibilitystatus" />
+          <attribute name="andy_checkincode" />
+          <attribute name="andy_sharedinformation" />
+          <attribute name="andy_privacyacceptancetime" />
+          <attribute name="andy_privacynoticeversion" />
+          <attribute name="andy_campaignname" />
+          <attribute name="andy_contact" />
+          <attribute name="andy_sourceidentifier" />
+          <attribute name="andy_gamewin" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Grand Prize Entries" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

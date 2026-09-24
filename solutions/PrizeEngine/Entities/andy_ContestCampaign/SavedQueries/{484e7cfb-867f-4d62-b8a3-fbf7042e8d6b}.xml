@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{484e7cfb-867f-4d62-b8a3-fbf7042e8d6b}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_eventname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_contestcampaignid">
+          <cell name="andy_eventname" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_contestcampaign">
+          <attribute name="andy_contestcampaignid" />
+          <attribute name="andy_eventname" />
+          <attribute name="createdon" />
+          <order attribute="andy_eventname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="1" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Inactive Contest Campaigns" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

@@ -2,22 +2,28 @@ import { ConfidentialClientApplication } from "@azure/msal-node";
 
 const DATAVERSE_URL = (process.env.DATAVERSE_URL ?? "").replace(/\/$/, "");
 
-const msalClient = new ConfidentialClientApplication({
-  auth: {
-    clientId: process.env.DATAVERSE_CLIENT_ID ?? "",
-    authority: `https://login.microsoftonline.com/${process.env.DATAVERSE_TENANT_ID ?? ""}`,
-    clientSecret: process.env.DATAVERSE_CLIENT_SECRET ?? "",
-  },
-});
-
+let msalClient: ConfidentialClientApplication | null = null;
 let cachedToken: { value: string; expiresAt: number } | null = null;
+
+function getMsalClient(): ConfidentialClientApplication {
+  if (!msalClient) {
+    msalClient = new ConfidentialClientApplication({
+      auth: {
+        clientId: process.env.DATAVERSE_CLIENT_ID ?? "",
+        authority: `https://login.microsoftonline.com/${process.env.DATAVERSE_TENANT_ID ?? ""}`,
+        clientSecret: process.env.DATAVERSE_CLIENT_SECRET ?? "",
+      },
+    });
+  }
+  return msalClient;
+}
 
 async function getAccessToken(): Promise<string> {
   const now = Date.now();
   if (cachedToken && cachedToken.expiresAt - 60_000 > now) {
     return cachedToken.value;
   }
-  const result = await msalClient.acquireTokenByClientCredential({
+  const result = await getMsalClient().acquireTokenByClientCredential({
     scopes: [`${DATAVERSE_URL}/.default`],
   });
   if (!result?.accessToken) {
@@ -72,6 +78,10 @@ export async function createTelemetryEvent(record: Record<string, unknown>): Pro
  * $filter strings, so this is the injection guard for that. */
 function isGuidLike(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
+function escapeODataString(value: string): string {
+  return value.replace(/'/g, "''");
 }
 
 export interface GameBoxState {
@@ -240,7 +250,7 @@ export class ClaimError extends Error {
  */
 export async function createGameWin(deviceSlug: string): Promise<{ claimToken: string }> {
   const deviceResponse = await dataverseFetch(
-    `andy_deviceprofiles?$filter=andy_deviceslug eq '${deviceSlug.replace(/'/g, "''")}'` +
+    `andy_deviceprofiles?$filter=andy_deviceslug eq '${escapeODataString(deviceSlug)}'` +
       "&$select=andy_deviceprofileid&$top=1"
   );
   const deviceBody = (await deviceResponse.json()) as {
@@ -260,7 +270,6 @@ export async function createGameWin(deviceSlug: string): Promise<{ claimToken: s
       andy_status: GAMEWIN_STATUS_UNCLAIMED,
       andy_redemptionstatus: REDEMPTION_STATUS_NOT_REDEEMED,
       andy_wontime: new Date().toISOString(),
-      andy_sharedinfo: false,
     }),
   });
   return { claimToken };
@@ -272,6 +281,9 @@ export async function createGameWin(deviceSlug: string): Promise<{ claimToken: s
 // pluralization double-pluralizes them -- not a typo.
 const PRIZE_TYPES_SET = "andy_prizetypeses";
 const PRIZES_SET = "andy_prizeses";
+const CONTEST_CAMPAIGNS_SET = "andy_contestcampaigns";
+const CONTEST_SOURCE_CAPS_SET = "andy_contestsourcecaps";
+const GRAND_PRIZE_ENTRIES_SET = "andy_grandprizeentries";
 
 // Navigation properties -- confirmed against solutions/CopilotIoTGame/Other/
 // Relationships/{andy_GameWin,andy_PrizeTypes,andy_Prizes}.xml after the Phase 5
@@ -279,11 +291,17 @@ const PRIZES_SET = "andy_prizeses";
 const PRIZES_GAMEWIN_NAV = "andy_GameWin"; // on andy_Prizes, -> andy_GameWin
 const GAMEWIN_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_gamewin, -> andy_PrizeTypes
 const GAMEWIN_PRIZEINSTANCE_NAV = "andy_PrizeInstance"; // on andy_gamewin, -> andy_Prizes
+const GAMEWIN_CONTACT_NAV = "andy_Contact"; // on andy_gamewin, -> contact
+const GRAND_PRIZE_ENTRY_CAMPAIGN_NAV = "andy_CampaignName"; // on andy_grandprizeentry, -> andy_contestcampaign
+const GRAND_PRIZE_ENTRY_CONTACT_NAV = "andy_Contact"; // on andy_grandprizeentry, -> contact
+const GRAND_PRIZE_ENTRY_GAMEWIN_NAV = "andy_GameWin"; // on andy_grandprizeentry, -> andy_gamewin
+const GRAND_PRIZE_ENTRY_SOURCE_CAP_NAV = "andy_SourceIdentifier"; // on andy_grandprizeentry, -> andy_contestsourcecap
 // Same string as GAMEWIN_PRIZETYPE_NAV above, but a *different* relationship -- this one
 // is on andy_Prizes (confirmed against solutions/PrizeEngine/Other/Relationships/
 // andy_PrizeTypes.xml), not andy_gamewin. Kept as its own constant so the two don't get
 // conflated if either relationship's nav property name ever diverges.
 const PRIZES_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_Prizes, -> andy_PrizeTypes
+const IOT_CONTEST_SOURCE_IDENTIFIER = "iot";
 
 /** Active, non-fallback prize types -- for the prize wheel SPA's wheel rendering (not
  * the pick itself, which stays server-side and can also draw the fallback type). */
@@ -556,6 +574,133 @@ interface ContestantInfo {
   sharedInfo: boolean;
 }
 
+export function normalizeContestantEmail(email: string | undefined): string | null {
+  const trimmed = email?.trim();
+  return trimmed ? trimmed.toLowerCase() : null;
+}
+
+function normalizeContestantName(name: string | undefined): string | null {
+  const trimmed = name?.trim();
+  return trimmed || null;
+}
+
+export function buildContactCreatePayload(contestant: ContestantInfo): Record<string, string> | null {
+  if (!contestant.sharedInfo) return null;
+
+  const email = normalizeContestantEmail(contestant.email);
+  if (!email) return null;
+
+  const name = normalizeContestantName(contestant.name);
+  return {
+    emailaddress1: email,
+    ...(name ? { fullname: name } : {}),
+  };
+}
+
+function parseDataverseIdFromEntityUrl(entityUrl: string | null): string | null {
+  return entityUrl?.match(/\(([0-9a-f-]{36})\)$/i)?.[1] ?? null;
+}
+
+interface ActiveContestCampaign {
+  id: string;
+  eventName: string | null;
+}
+
+async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | null> {
+  const response = await dataverseFetch(
+    `${CONTEST_CAMPAIGNS_SET}?$select=andy_contestcampaignid,andy_eventname&$filter=statecode eq 0&$orderby=createdon desc&$top=1`
+  );
+  const body = (await response.json()) as {
+    value: Array<{ andy_contestcampaignid: string; andy_eventname?: string | null }>;
+  };
+  const campaign = body.value[0];
+  return campaign ? { id: campaign.andy_contestcampaignid, eventName: campaign.andy_eventname ?? null } : null;
+}
+
+async function fetchContestSourceCap(campaignId: string): Promise<string | null> {
+  const response = await dataverseFetch(
+    `${CONTEST_SOURCE_CAPS_SET}?$select=andy_contestsourcecapid` +
+      `&$filter=statecode eq 0 and _andy_campaignname_value eq ${campaignId}` +
+      ` and andy_sourceidentifier eq '${escapeODataString(IOT_CONTEST_SOURCE_IDENTIFIER)}'&$top=1`
+  );
+  const body = (await response.json()) as { value: Array<{ andy_contestsourcecapid: string }> };
+  return body.value[0]?.andy_contestsourcecapid ?? null;
+}
+
+export function buildGrandPrizeEntryPayload(input: {
+  campaignId: string;
+  contactId: string;
+  gameWinId: string;
+  contestant: ContestantInfo;
+  sourceCapId?: string | null;
+  now?: Date;
+}): Record<string, string | number> {
+  const email = normalizeContestantEmail(input.contestant.email);
+  const name = normalizeContestantName(input.contestant.name) ?? email ?? "Grand Prize Entry";
+  const timestamp = (input.now ?? new Date()).toISOString();
+
+  return {
+    andy_participantname: name,
+    andy_entrytimestamp: timestamp,
+    andy_entrycount: 1,
+    andy_sharedinformation: "Yes",
+    andy_privacyacceptancetime: timestamp,
+    [`${GRAND_PRIZE_ENTRY_CAMPAIGN_NAV}@odata.bind`]: `/${CONTEST_CAMPAIGNS_SET}(${input.campaignId})`,
+    [`${GRAND_PRIZE_ENTRY_CONTACT_NAV}@odata.bind`]: `/contacts(${input.contactId})`,
+    [`${GRAND_PRIZE_ENTRY_GAMEWIN_NAV}@odata.bind`]: `/andy_gamewins(${input.gameWinId})`,
+    ...(input.sourceCapId
+      ? { [`${GRAND_PRIZE_ENTRY_SOURCE_CAP_NAV}@odata.bind`]: `/${CONTEST_SOURCE_CAPS_SET}(${input.sourceCapId})` }
+      : {}),
+  };
+}
+
+async function createGrandPrizeEntryForClaim(gameWinId: string, contactId: string, contestant: ContestantInfo) {
+  const campaign = await fetchActiveContestCampaign();
+  if (!campaign) return;
+
+  const sourceCapId = await fetchContestSourceCap(campaign.id);
+  await dataverseFetch(GRAND_PRIZE_ENTRIES_SET, {
+    method: "POST",
+    body: JSON.stringify(
+      buildGrandPrizeEntryPayload({
+        campaignId: campaign.id,
+        contactId,
+        gameWinId,
+        contestant,
+        sourceCapId,
+      })
+    ),
+  });
+}
+
+async function upsertContestantContact(contestant: ContestantInfo): Promise<string | null> {
+  const payload = buildContactCreatePayload(contestant);
+  if (!payload) return null;
+
+  const contactResponse = await dataverseFetch(
+    `contacts?$select=contactid,fullname&$filter=emailaddress1 eq '${escapeODataString(payload.emailaddress1)}'&$top=1`
+  );
+  const contactBody = (await contactResponse.json()) as {
+    value: Array<{ contactid: string; fullname?: string | null }>;
+  };
+  const existingContact = contactBody.value[0];
+  if (existingContact) {
+    if (payload.fullname && !existingContact.fullname?.trim()) {
+      await dataverseFetch(`contacts(${existingContact.contactid})`, {
+        method: "PATCH",
+        body: JSON.stringify({ fullname: payload.fullname }),
+      });
+    }
+    return existingContact.contactid;
+  }
+
+  const createResponse = await dataverseFetch("contacts", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return parseDataverseIdFromEntityUrl(createResponse.headers.get("OData-EntityId"));
+}
+
 /**
  * Validates the claim token is Unclaimed, runs the weighted-type-pick +
  * atomic-instance-claim (PRIZE_CODE_MIGRATION.md), generates the redemption code, and
@@ -584,6 +729,8 @@ export async function claimGameWin(
     throw new ClaimError("already_claimed", "This claim token has already been used");
   }
 
+  const contactId = await upsertContestantContact(contestant);
+
   const prize = await selectAndClaimPrize(gameWin.andy_gamewinid);
   const redemptionCode = generateRedemptionCode();
 
@@ -597,11 +744,15 @@ export async function claimGameWin(
       andy_status: GAMEWIN_STATUS_CLAIMED,
       andy_redemptioncode: redemptionCode,
       andy_claimedtime: new Date().toISOString(),
-      andy_sharedinfo: contestant.sharedInfo,
-      ...(contestant.name ? { andy_contestantname: contestant.name } : {}),
-      ...(contestant.email ? { andy_contestantemail: contestant.email } : {}),
+      ...(contactId ? { [`${GAMEWIN_CONTACT_NAV}@odata.bind`]: `/contacts(${contactId})` } : {}),
     }),
   });
+
+  if (contactId) {
+    createGrandPrizeEntryForClaim(gameWin.andy_gamewinid, contactId, contestant).catch((error) => {
+      console.error("Failed to create Grand Prize Entry for claimed game win", error);
+    });
+  }
 
   return { prizeName: prize.typeName, redemptionCode };
 }

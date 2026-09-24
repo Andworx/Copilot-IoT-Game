@@ -109,37 +109,6 @@
                         <control id="andy_redeemedtime" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="andy_redeemedtime" disabled="false" />
                       </cell>
                     </row>
-                    <row>
-                      <cell id="{c48574b4-9cf9-449d-9908-27ed10492193}" locklevel="0" colspan="1" rowspan="1" labelid="{e3e2fe1d-3e6b-4475-94e1-d1a05ff9958c}">
-                        <labels>
-                          <label description="Shared Info" languagecode="1033" />
-                        </labels>
-                        <control id="andy_sharedinfo" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="andy_sharedinfo" disabled="false" />
-                      </cell>
-                    </row>
-                  </rows>
-                </section>
-                <section showlabel="true" showbar="false" IsUserDefined="1" id="{11796e16-44db-4577-a88d-b28bfe03601f}" name="section_contestant" labelid="{72ac4efa-1159-4e13-a5aa-ed2771d82e55}">
-                  <labels>
-                    <label description="Contestant" languagecode="1033" />
-                  </labels>
-                  <rows>
-                    <row>
-                      <cell id="{a3938029-cf83-4ec0-a20c-f8321f3fb070}" locklevel="0" colspan="1" rowspan="1" labelid="{f32f86ab-eea9-4388-9f86-50eabeec1dbd}">
-                        <labels>
-                          <label description="Contestant Name" languagecode="1033" />
-                        </labels>
-                        <control id="andy_contestantname" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="andy_contestantname" disabled="false" />
-                      </cell>
-                    </row>
-                    <row>
-                      <cell id="{42cf5a10-855a-4953-a96f-113373e4a48a}" locklevel="0" colspan="1" rowspan="1" labelid="{33cd553b-df20-4c9f-925f-6bc01d667a04}">
-                        <labels>
-                          <label description="Contestant Email" languagecode="1033" />
-                        </labels>
-                        <control id="andy_contestantemail" classid="{ADA2203E-B4CD-49BE-9DDF-234642B43B52}" datafieldname="andy_contestantemail" disabled="false" />
-                      </cell>
-                    </row>
                   </rows>
                 </section>
               </sections>
