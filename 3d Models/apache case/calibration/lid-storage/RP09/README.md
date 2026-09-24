@@ -18,7 +18,7 @@ fits the configured Bambu Lab X1 Carbon bed.
 
 ## Print first
 
-Print only these three files initially:
+Print these three low-material fit parts initially:
 
 1. `exports/lid_fit_frame_L.stl`
 2. `exports/lid_fit_frame_R.stl`
@@ -54,6 +54,31 @@ alignment feature: the four case screws carry the prototype.
 
 Report the measured boss pitch if either frame half misses a hole, and provide
 a straight-on photograph of the installed frame plus the marked locator tiles.
+
+## Printable storage prototype
+
+After the two fit-frame halves align, print:
+
+1. `exports/lid_fit_frame_L.stl` — the left perimeter and open switch garage.
+2. `exports/lid_storage_carrier_R.stl` — the right frame half and common tray.
+3. `exports/lid_storage_cable_insert.stl` — four pockets for flat-coiled
+   6-inch cables.
+4. `exports/lid_storage_accessory_key_insert.stl` — general adapter, key, and
+   spare-item pockets.
+5. `exports/lid_storage_cover_base.stl` — the common screw-down cover.
+6. `exports/lid_storage_cover_logo.stl` — the contrasting Andworx/Field Kit
+   inlay.
+
+The carrier, inserts, and cover form a nominal 23.4 mm stack from the lid
+floor. The left third has no floor or cover. The cover uses six M3 clearance
+holes over 4.0 mm heat-set-insert pilots in the carrier. Install the cover
+inserts before loading anything, and use short screws that cannot bottom out in
+the carrier.
+
+This remains a test assembly. Before closing the lid, verify that every cable
+coil sits below the carrier rim, the adapter and keys cannot rock above the rim,
+and the cover lies flat without preload. Close the lid gently without engaging
+the latches for the first test.
 
 ## Intended final architecture
 

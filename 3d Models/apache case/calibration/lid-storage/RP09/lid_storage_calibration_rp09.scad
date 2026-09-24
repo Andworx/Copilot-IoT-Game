@@ -28,6 +28,31 @@ module_gap = 4;
 module_width = (between_ribs[0] - 2 * module_gap) / 3;
 module_height = between_ribs[1];
 
+// Printable storage prototype.  The left third remains completely open.  The
+// centre and right thirds share one carrier and cover, with removable inserts.
+storage_wall = 2.4;
+storage_floor = 2.4;
+storage_height = 21;
+storage_bay_width = module_width - 2;
+storage_outer_size = [2 * storage_bay_width + module_gap, module_height - 2];
+storage_center_x = (module_width + module_gap) / 2;
+storage_bay_centers = [0, module_width + module_gap];
+insert_size = [72, 167];
+insert_floor = 1.2;
+insert_wall = 1.6;
+insert_height = 17;
+cover_thickness = 2.4;
+cover_clearance = 0.35;
+cover_size = [storage_outer_size[0] - 2 * cover_clearance,
+              storage_outer_size[1] - 2 * cover_clearance];
+cover_fastener_x = [-79.35, 0, 79.35];
+cover_fastener_y = [-86, 86];
+cover_hole_diameter = 3.4;
+cover_head_diameter = 6.6;
+cover_insert_pilot = 4.0;
+cover_boss_diameter = 9;
+cover_insert_depth = 5.5;
+
 font_bold = "Liberation Sans:style=Bold";
 
 module rounded_rect_2d(size, radius) {
@@ -183,6 +208,165 @@ module branding_insert() {
     }
 }
 
+module storage_carrier_right() {
+    // Right frame half plus the common two-bay carrier.  The open area to its
+    // left is the safety-switch garage.
+    difference() {
+        union() {
+            frame_half(1);
+
+            // Shared base and outside wall.
+            translate([storage_center_x, 0, 0])
+                linear_extrude(storage_floor)
+                    rounded_rect_2d(storage_outer_size, 5);
+            translate([storage_center_x, 0, 0])
+                linear_extrude(storage_height)
+                    difference() {
+                        rounded_rect_2d(storage_outer_size, 5);
+                        for (x = [-storage_bay_centers[1] / 2,
+                                  storage_bay_centers[1] / 2])
+                            translate([x, 0])
+                                rounded_rect_2d([
+                                    storage_bay_width - 2 * storage_wall,
+                                    storage_outer_size[1] - 2 * storage_wall
+                                ], 3);
+                    }
+
+            // Short bridges tie the tray to the frame rails without entering
+            // the left safety-switch opening.
+            for (y = [-1, 1])
+                translate([storage_center_x,
+                           y * (storage_outer_size[1] / 2 + 2),
+                           frame_thickness / 2])
+                    cube([storage_outer_size[0] + 1, 4.5, frame_thickness],
+                         center = true);
+            translate([storage_center_x + storage_outer_size[0] / 2 + 2.25,
+                       0, frame_thickness / 2])
+                cube([5.5, storage_outer_size[1] + 1, frame_thickness],
+                     center = true);
+
+            // Six insert bosses retain the removable cover.
+            for (x = cover_fastener_x, y = cover_fastener_y)
+                translate([storage_center_x + x, y, 0])
+                    cylinder(h = storage_height, d = cover_boss_diameter);
+        }
+
+        // Heat-set insert pilots open from the cover side.
+        for (x = cover_fastener_x, y = cover_fastener_y)
+            translate([storage_center_x + x, y,
+                       storage_height - cover_insert_depth])
+                cylinder(h = cover_insert_depth + 0.05,
+                         d = cover_insert_pilot);
+    }
+}
+
+module insert_shell() {
+    difference() {
+        linear_extrude(insert_height)
+            rounded_rect_2d(insert_size, 4);
+        translate([0, 0, insert_floor])
+            linear_extrude(insert_height)
+                rounded_rect_2d([insert_size[0] - 2 * insert_wall,
+                                 insert_size[1] - 2 * insert_wall], 2.5);
+    }
+}
+
+module cable_insert() {
+    difference() {
+        union() {
+            linear_extrude(insert_floor)
+                rounded_rect_2d(insert_size, 4);
+            // Four individually retained flat-coil pockets.
+            for (y = [-61.5, -20.5, 20.5, 61.5])
+                translate([0, y, 0])
+                    linear_extrude(insert_height)
+                        difference() {
+                            rounded_rect_2d([insert_size[0], 39], 4);
+                            rounded_rect_2d([insert_size[0] - 2 * insert_wall,
+                                             39 - 2 * insert_wall], 2.5);
+                        }
+        }
+        // Finger notches make each cable coil removable after the cover is off.
+        for (y = [-61.5, -20.5, 20.5, 61.5])
+            translate([insert_size[0] / 2, y, insert_height - 5])
+                rotate([0, 90, 0]) cylinder(h = 4, d = 12, center = true);
+    }
+}
+
+module accessory_insert() {
+    pockets = [[48, 68], [-12, 42], [-61, 40]];
+    difference() {
+        union() {
+            linear_extrude(insert_floor)
+                rounded_rect_2d(insert_size, 4);
+            for (item = pockets)
+                translate([0, item[0], 0])
+                    linear_extrude(insert_height)
+                        difference() {
+                            rounded_rect_2d([insert_size[0], item[1]], 4);
+                            rounded_rect_2d([insert_size[0] - 2 * insert_wall,
+                                             item[1] - 2 * insert_wall], 2.5);
+                        }
+        }
+        for (item = pockets)
+            translate([insert_size[0] / 2, item[0], insert_height - 5])
+                rotate([0, 90, 0]) cylinder(h = 4, d = 12, center = true);
+    }
+}
+
+module storage_cover_base() {
+    difference() {
+        linear_extrude(cover_thickness)
+            rounded_rect_2d(cover_size, 5);
+        for (x = cover_fastener_x, y = cover_fastener_y) {
+            translate([x, y, -0.05])
+                cylinder(h = cover_thickness + 0.1, d = cover_hole_diameter);
+            translate([x, y, cover_thickness - 1.5])
+                cylinder(h = 1.55, d = cover_head_diameter);
+        }
+        translate([0, 18, cover_thickness - 0.7])
+            linear_extrude(0.72)
+                offset(delta = 0.18)
+                    scale([0.12, 0.12]) andworx_word_2d();
+        translate([0, -8, cover_thickness - 0.7])
+            linear_extrude(0.72)
+                text("FIELD KIT", size = 9, font = font_bold,
+                     halign = "center", valign = "center");
+        for (item = [[-43, -48, "CABLES"],
+                     [43, -48, "ADAPTERS / KEYS"]])
+            translate([item[0], item[1], cover_thickness - 0.5])
+                linear_extrude(0.52)
+                    text(item[2], size = 4, font = font_bold,
+                         halign = "center", valign = "center");
+    }
+}
+
+module storage_cover_logo() {
+    union() {
+        translate([0, 18, 0])
+            linear_extrude(0.9)
+                scale([0.12, 0.12]) andworx_word_2d();
+        translate([0, -8, 0])
+            linear_extrude(0.9)
+                text("FIELD KIT", size = 9, font = font_bold,
+                     halign = "center", valign = "center");
+    }
+}
+
+module storage_assembly_preview() {
+    color([0.12, 0.12, 0.14]) frame_half(-1);
+    color([0.12, 0.12, 0.14]) storage_carrier_right();
+    color([0.85, 0.2, 0.15])
+        translate([storage_bay_centers[0], 0, storage_floor]) cable_insert();
+    color([0.25, 0.55, 0.85])
+        translate([storage_bay_centers[1], 0, storage_floor]) accessory_insert();
+    color([0.10, 0.12, 0.28, 0.8])
+        translate([storage_center_x, 0, storage_height + 14]) storage_cover_base();
+    color([0.95, 0.92, 0.28])
+        translate([storage_center_x, 0,
+                   storage_height + cover_thickness + 14]) storage_cover_logo();
+}
+
 module layout() {
     rib_envelope_reference();
     color([0.12, 0.12, 0.14]) frame_half(-1);
@@ -200,4 +384,10 @@ else if (part == "frame_right") frame_half(1);
 else if (part == "locator_tile") locator_tile();
 else if (part == "branding_base") branding_base();
 else if (part == "branding_insert") branding_insert();
+else if (part == "storage_carrier_right") storage_carrier_right();
+else if (part == "cable_insert") cable_insert();
+else if (part == "accessory_insert") accessory_insert();
+else if (part == "storage_cover_base") storage_cover_base();
+else if (part == "storage_cover_logo") storage_cover_logo();
+else if (part == "storage_assembly_preview") storage_assembly_preview();
 else assert(false, str("Unknown part: ", part));

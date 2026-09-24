@@ -17,6 +17,11 @@ $parts = @{
     'locator_tile' = 'switch_locator_tile.stl'
     'branding_base' = 'andworx_field_kit_base.stl'
     'branding_insert' = 'andworx_field_kit_logo.stl'
+    'storage_carrier_right' = 'lid_storage_carrier_R.stl'
+    'cable_insert' = 'lid_storage_cable_insert.stl'
+    'accessory_insert' = 'lid_storage_accessory_key_insert.stl'
+    'storage_cover_base' = 'lid_storage_cover_base.stl'
+    'storage_cover_logo' = 'lid_storage_cover_logo.stl'
 }
 
 foreach ($entry in $parts.GetEnumerator()) {
@@ -38,8 +43,13 @@ $preview = Join-Path $exports 'lid_storage_concept.png'
     --camera='0,-310,340,58,0,0,550' -D 'part="layout"' -o $preview $source
 if ($LASTEXITCODE -ne 0) { throw 'Lid-storage preview render failed' }
 
+$assemblyPreview = Join-Path $exports 'lid_storage_printable_assembly.png'
+& $openscad --imgsize=1800,1300 --viewall --autocenter --projection=p `
+    --camera='0,-330,320,58,0,0,560' -D 'part="storage_assembly_preview"' `
+    -o $assemblyPreview $source
+if ($LASTEXITCODE -ne 0) { throw 'Lid-storage assembly preview render failed' }
+
 & $python (Join-Path $root 'validate_lid_storage_calibration.py')
 if ($LASTEXITCODE -ne 0) { throw 'Lid-storage calibration validation failed' }
 
 & (Join-Path $models 'Save-ModelVersion.ps1') -Tag 'after-validated-RP09-lid-storage-calibration'
-
