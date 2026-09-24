@@ -53,7 +53,7 @@ class SignatureTableTests(unittest.TestCase):
         _table, ambiguous = cm.build_signature_table()
         self.assertEqual(ambiguous, set())
 
-    def test_all_four_cables_are_recognisable(self):
+    def test_all_cables_are_recognisable(self):
         table, _ = cm.build_signature_table()
         self.assertEqual({c for c, _ in table.values()}, set(cm.CABLES))
 
@@ -79,9 +79,9 @@ class DecodeTests(unittest.TestCase):
                     )
                     self.assertEqual(sum(plugged.values()), 2)
                     checked += 1
-        self.assertEqual(checked, 10)
+        self.assertEqual(checked, 9)
 
-    def test_cable_one_in_j4_is_partial_and_unknown(self):
+    def test_cable_one_in_s4_is_partial_and_unknown(self):
         m = matrix_for(plug(1, "S4", "S2"))
         cables, plugged = m.decode(m.scan_bridges())
         self.assertEqual(cables, [{"cable": None, "sockets": ["S2", "S4"]}])

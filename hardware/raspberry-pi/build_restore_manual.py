@@ -293,7 +293,7 @@ for line in SOURCE.splitlines():
 page('cables','Demo cable build reference','REFERENCE / DEMO PREPARATION',
     'For preparing the demo cable bundle. Each cable has a different wiring pattern, so the panel can tell the cables apart. This is not a mode selection table.',
     tb(cables,[65,259,180]),h('Plug types'),
-    'Side A is quad on all four cables. Side B is dual on C1/C2/C4 and quad on C3. Use molded contact numbers; label both ends. S4 wires only contacts 2 and 3.',
+    'Cable 1 and Cable 3 are already built. Side A is quad on C1/C3/C4, triple on C2, and dual on C5. Side B is dual on C1/C2/C4/C5 and triple on C3. Use molded contact numbers; label both ends. S4 is the triple socket and wires only contacts 2 and 3.',
     h('Where it plugs'),
     'The last column records which sockets a cable works in. It does not establish which socket states a mode requires. Use the active chapter for restoration targets.',
     h('Panel harness reference'),

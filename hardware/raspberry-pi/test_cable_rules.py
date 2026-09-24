@@ -15,7 +15,7 @@ class CableRuleTests(unittest.TestCase):
         for source in profiles:
             wires = set()
             for c in source["requiredCables"]:
-                # Recipes list quad first (C3 is reversible).
+                # Recipes list side A first when a cable has different end types.
                 wires |= plug(c["cable"], *c["sockets"])
             matrix = matrix_for(wires)
             cables, plugged = matrix.decode(matrix.scan_bridges())

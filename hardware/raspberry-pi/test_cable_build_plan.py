@@ -1,7 +1,7 @@
 """Verify proposed builds against connector stock and wired socket contacts.
 
 This tests the new design, not the legacy runtime decoder catalogue.
-Only like connector types mate; no quad-to-dual adapters are assumed.
+Only like connector types mate; no quad-to-dual/triple adapters are assumed.
 """
 import itertools
 import json
@@ -42,7 +42,8 @@ class CableBuildPlanTests(unittest.TestCase):
             for side, kind in enumerate(cable["ends"]):
                 pins = [wire[side] for wire in cable["wires"]]
                 self.assertEqual(len(set(pins)), 2)
-                self.assertTrue(all(1 <= p <= (4 if kind == "quad" else 2) for p in pins))
+                contact_count = {"dual": 2, "triple": 3, "quad": 4}[kind]
+                self.assertTrue(all(1 <= p <= contact_count for p in pins))
             self.assertTrue(any(full for _, _, full in placements(cable)))
 
     def test_full_signatures_unique_and_partial_wires_never_match(self):
@@ -57,13 +58,14 @@ class CableBuildPlanTests(unittest.TestCase):
                     partial.extend(signature - {wire} for wire in signature)
                 else:
                     partial.append(signature)
-        self.assertEqual(len(known), 9)
+        self.assertEqual(len(known), 8)
         self.assertTrue(all(signature not in known for signature in partial))
 
     def test_expected_placements(self):
         expected = {1: {("S1", "S2"), ("S1", "S3")},
-                    2: {("S1", "S2"), ("S1", "S3"), ("S2", "S4"), ("S3", "S4")},
-                    3: {("S1", "S4")}, 4: {("S1", "S2"), ("S1", "S3")}}
+                    2: {("S2", "S4"), ("S3", "S4")},
+                    3: {("S1", "S4")}, 4: {("S1", "S2"), ("S1", "S3")},
+                    5: {("S2", "S3")}}
         for cable in PLAN["cables"]:
             self.assertEqual({tuple(sorted(pair)) for pair, _, full in placements(cable) if full}, expected[cable["id"]])
 
@@ -91,7 +93,7 @@ class CableBuildPlanTests(unittest.TestCase):
         actual_modes = {json.loads(p.read_text())["slug"] for p in Path(__file__).with_name("logic_maps").glob("*.json")
                         if json.loads(p.read_text()).get("isGameDevice", True)}
         self.assertEqual({m["mode"] for m in modes}, actual_modes)
-        self.assertEqual(len({recipe(m["cables"]) for m in modes}), 12)
+        self.assertEqual(len({recipe(m["cables"]) for m in modes}), len(modes))
         builds = {c["id"]: c for c in PLAN["cables"]}
         for mode in modes:
             occupied, used = set(), set()
