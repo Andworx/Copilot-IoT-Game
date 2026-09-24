@@ -1,12 +1,15 @@
 import type { DeviceProfile, DeviceState, RestoreStep, CableRequirement } from "../types/game";
 import { evaluateLamps, lampDefs, type LampRule } from "../lib/lampLogic";
 
-const SOCKET_TYPES: Record<string, "quad" | "dual"> = { S1: "quad", S2: "dual", S3: "dual", S4: "quad" };
-const CABLE_SPECS: Record<number, readonly ["quad" | "dual", "quad" | "dual"]> = {
+type SocketType = "quad" | "triple" | "dual";
+
+const SOCKET_TYPES: Record<string, SocketType> = { S1: "quad", S2: "dual", S3: "dual", S4: "triple" };
+const CABLE_SPECS: Record<number, readonly [SocketType, SocketType]> = {
   1: ["quad", "dual"],
-  2: ["quad", "dual"],
-  3: ["quad", "quad"],
+  2: ["triple", "dual"],
+  3: ["quad", "triple"],
   4: ["quad", "dual"],
+  5: ["dual", "dual"],
 };
 
 const isSocketPin = (pin: string) => /^S[1-4]$/.test(pin);
@@ -113,18 +116,25 @@ export const CABLE_RECIPES: Record<string, readonly CableRequirement[]> = {
   ],
   "retail-kiosk": [
     {
-      "cable": 2,
+      "cable": 5,
       "sockets": [
-        "S1",
-        "S2"
+        "S2",
+        "S3"
       ]
     }
   ],
   "smart-lock": [
     {
-      "cable": 2,
+      "cable": 3,
       "sockets": [
         "S1",
+        "S4"
+      ]
+    },
+    {
+      "cable": 5,
+      "sockets": [
+        "S2",
         "S3"
       ]
     }
@@ -267,16 +277,16 @@ const RESTORE_SEQUENCES = {
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
     {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": true},
     {"physicalPin": "SW4", "key": "network", "label": "Toggle switch 2 - network", "target": true},
-    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},
+    {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": false},
     {"physicalPin": "SW2", "key": "printer", "label": "Safety switch 2 - receipt printer", "target": true},
-    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": false},
+    {"physicalPin": "S3", "key": "socket_s3", "label": "Socket S3 connected", "target": true},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1", "target": false},
   ],
   "smart-lock": [
-    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": false},
+    {"physicalPin": "S2", "key": "socket_s2", "label": "Socket S2 connected", "target": true},
     {"physicalPin": "SW5", "key": "keyed_one", "label": "Keyed switch 1 - service key", "target": true},
     {"physicalPin": "SW2", "key": "deadbolt", "label": "Safety switch 2 - deadbolt", "target": true},
-    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": false},
+    {"physicalPin": "S4", "key": "socket_s4", "label": "Socket S4 connected", "target": true},
     {"physicalPin": "SW1", "key": "power", "label": "Safety switch 1 - power", "target": true},
     {"physicalPin": "SW4", "key": "alarm", "label": "Toggle switch 2 - alarm arm", "target": true},
     {"physicalPin": "S1", "key": "socket_s1", "label": "Socket S1 connected", "target": true},

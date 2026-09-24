@@ -44,15 +44,16 @@ generic step counter.
 
 ## Demo cable build reference
 
-Four cables total, including the already-built Cable 1. Cable numbers and socket
+Five cables total, including the already-built Cable 1 and Cable 3. Cable numbers and socket
 pairs must both match the selected mode. Unknown or extra cables prevent a win.
 
 | Cable | Pinout | Where it plugs |
 |---|---|---|
 | Cable 1 | Side A Quad Pin 3 - Side B Dual Pin 1<br>Side A Quad Pin 4 - Side B Dual Pin 2 | Side A in S1; Side B in S2/S3 |
-| Cable 2 | Side A Quad Pin 3 - Side B Dual Pin 1<br>Side A Quad Pin 2 - Side B Dual Pin 2 | Side A in S1/S4; Side B in S2/S3 |
-| Cable 3 | Side A Quad Pin 2 - Side B Quad Pin 3<br>Side A Quad Pin 3 - Side B Quad Pin 2 | S1 to S4, reversible |
+| Cable 2 | Side A Triple Pin 2 - Side B Dual Pin 1<br>Side A Triple Pin 3 - Side B Dual Pin 2 | Side A in S4; Side B in S2/S3 |
+| Cable 3 | Side A Quad Pin 2 - Side B Triple Pin 2<br>Side A Quad Pin 3 - Side B Triple Pin 3 | Side A in S1; Side B in S4 |
 | Cable 4 | Side A Quad Pin 1 - Side B Dual Pin 1<br>Side A Quad Pin 2 - Side B Dual Pin 2 | Side A in S1; Side B in S2/S3 |
+| Cable 5 | Side A Dual Pin 1 - Side B Dual Pin 1<br>Side A Dual Pin 2 - Side B Dual Pin 2 | S2 to S3, reversible |
 
 ## Before each run
 
@@ -87,8 +88,9 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 Side A (quad) to S1 and Side B (dual) to S3
-8. Remove all other cables
+7. Connect Cable 3 Side A (quad) to S1 and Side B (triple) to S4
+8. Connect Cable 5 between S2 and S3 (reversible; either side can go into either socket)
+9. Remove all other cables
 
 **Success check:** Smart Lock & Security Panel restored.
 
@@ -118,7 +120,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
 7. Connect Cable 4 Side A (quad) to S1 and Side B (dual) to S2
-8. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S3
+8. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S3
 9. Remove all other cables
 
 **Success check:** Water Pump Station Controller restored.
@@ -133,7 +135,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S2
+7. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S2
 8. Remove all other cables
 
 **Success check:** Tactical Field Radio restored.
@@ -149,7 +151,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
 7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S2
-8. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S3
+8. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S3
 9. Remove all other cables
 
 **Success check:** Smart EV Charger restored.
@@ -180,7 +182,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
 7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S3
-8. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S2
+8. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S2
 9. Remove all other cables
 
 **Success check:** Traffic Signal Controller restored.
@@ -210,7 +212,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 Side A (quad) to S1 and Side B (dual) to S2
+7. Connect Cable 5 between S2 and S3 (reversible; either side can go into either socket)
 8. Remove all other cables
 
 **Success check:** Retail Payment Kiosk restored.
@@ -225,7 +227,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 3 between S1 and S4 (reversible; either side can go into either socket)
+7. Connect Cable 3 Side A (quad) to S1 and Side B (triple) to S4
 8. Remove all other cables
 
 **Success check:** Drone Ground Control restored.
@@ -240,7 +242,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 Side A (quad) to S4 and Side B (dual) to S3
+7. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S3
 8. Remove all other cables
 
 **Success check:** Industrial Robot Arm restored.

@@ -63,7 +63,7 @@
       "physicalPin": "S2",
       "key": "socket_s2",
       "label": "Socket S2 connected",
-      "target": false
+      "target": true
     },
     {
       "physicalPin": "SW5",
@@ -81,7 +81,7 @@
       "physicalPin": "S4",
       "key": "socket_s4",
       "label": "Socket S4 connected",
-      "target": false
+      "target": true
     },
     {
       "physicalPin": "SW1",
@@ -150,12 +150,12 @@
       "pattern": "on"
     }
   ],
-  "win": "not socket_s2 and keyed_one and deadbolt and not socket_s4 and power and alarm and socket_s1 and not autolock and keyed_two and socket_s3",
+  "win": "socket_s2 and keyed_one and deadbolt and socket_s4 and power and alarm and socket_s1 and not autolock and keyed_two and socket_s3",
   "faultStartingState": {
-    "socket_s2": true,
+    "socket_s2": false,
     "keyed_one": false,
     "deadbolt": false,
-    "socket_s4": true,
+    "socket_s4": false,
     "power": false,
     "alarm": false,
     "socket_s1": false,
@@ -166,9 +166,16 @@
   "winMessage": "House is secured now.",
   "requiredCables": [
     {
-      "cable": 2,
+      "cable": 3,
       "sockets": [
         "S1",
+        "S4"
+      ]
+    },
+    {
+      "cable": 5,
+      "sockets": [
+        "S2",
         "S3"
       ]
     }

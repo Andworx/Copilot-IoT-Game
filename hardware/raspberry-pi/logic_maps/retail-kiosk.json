@@ -99,7 +99,7 @@
       "physicalPin": "S1",
       "key": "socket_s1",
       "label": "Socket S1 connected",
-      "target": true
+      "target": false
     },
     {
       "physicalPin": "SW2",
@@ -111,7 +111,7 @@
       "physicalPin": "S3",
       "key": "socket_s3",
       "label": "Socket S3 connected",
-      "target": false
+      "target": true
     },
     {
       "physicalPin": "SW5",
@@ -150,7 +150,7 @@
       "pattern": "on"
     }
   ],
-  "win": "reader and keyed_two and not socket_s4 and power and socket_s2 and network and socket_s1 and printer and not socket_s3 and not keyed_one",
+  "win": "reader and keyed_two and not socket_s4 and power and socket_s2 and network and not socket_s1 and printer and socket_s3 and not keyed_one",
   "faultStartingState": {
     "reader": false,
     "keyed_two": false,
@@ -158,18 +158,18 @@
     "power": false,
     "socket_s2": false,
     "network": false,
-    "socket_s1": false,
+    "socket_s1": true,
     "printer": false,
-    "socket_s3": true,
+    "socket_s3": false,
     "keyed_one": true
   },
   "winMessage": "Payment kiosk back online and processing.",
   "requiredCables": [
     {
-      "cable": 2,
+      "cable": 5,
       "sockets": [
-        "S1",
-        "S2"
+        "S2",
+        "S3"
       ]
     }
   ]

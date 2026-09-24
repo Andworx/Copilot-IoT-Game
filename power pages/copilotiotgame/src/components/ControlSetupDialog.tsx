@@ -22,7 +22,7 @@ export function ControlSetupDialog({ device, onClose }: { device: DeviceProfile;
       </tbody></table></section>
       <section aria-label="Required cable connections"><h3>Cables</h3><ul>{cableActions(device.requiredCables).map(action => <li key={action}>{action}</li>)}</ul>
         <ul>{sockets.map(c => <li key={c.key} data-pin={c.physicalPin}><strong>{c.physicalPin}</strong>: {c.target ? "Connected" : "Leave open"}</li>)}</ul>
-        <p>Match both cable numbers and sockets. Quad ends fit S1/S4; dual ends fit S2/S3. Unknown or extra cables prevent restoration.</p>
+        <p>Match both cable numbers and sockets. Quad ends fit S1, triple ends fit S4, and dual ends fit S2/S3. Unknown or extra cables prevent restoration.</p>
       </section>
     </div>
   </dialog>;

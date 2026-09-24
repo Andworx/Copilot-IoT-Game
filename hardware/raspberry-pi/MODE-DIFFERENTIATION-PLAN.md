@@ -37,9 +37,9 @@ pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
 
 ## First implementation
 
-- #112: README and wiring diagram reflect S4 quad contact 3 to GPIO3 and
-  contact 2 to GPIO7; S1/S2/S3 unchanged. Record 4 quad / 2 dual cable connectors
-  and the already built Cable 1 (quad 3 to dual 1, quad 4 to dual 2).
+- #112/#142: README and wiring diagram reflect S4 moved from the broken quad socket
+   to a triple socket: contact 2 to GPIO3 and contact 3 to GPIO7; S1/S2/S3 unchanged.
+   Record Cable 1 and Cable 3 as already built, with Cables 2/4/5 remaining.
 - #102: `lamp_patterns.py` adds restricted boolean condition evaluation,
   steady/slow-blink/fast-blink intent, common all-solid restored behavior, and
   GPIO driving that does not restart background blinking every scan.
@@ -50,10 +50,10 @@ pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
 
 ## Remaining implementation and verification
 
-1. Inventory and S4 wiring confirmed by owner. Four-cable design and twelve
+1. Inventory and S4 wiring confirmed by owner. Five-cable design and twelve
    distinct recipes are in [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md); automated
    design tests pass. New cables still need building and live continuity checks.
-2. Implemented: four-cable decoder, S4 mapping, exact Pi/kiosk recipes, explicit
+2. Implemented: five-cable decoder, S4 mapping, exact Pi/kiosk recipes, explicit
    setup/help, schema gate and updated manuals. Verify after coordinated rollout.
 3. ✅ Authored a distinct per-mode LED story with semantic labels and
    conditions in every playable `logic_maps/<slug>.json` (LED1 power/LED4 win

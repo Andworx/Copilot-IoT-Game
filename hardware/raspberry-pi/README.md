@@ -22,8 +22,9 @@ order:
 - `SW1-SW2` — safety switches.
 - `SW3-SW4` — toggle switches.
 - `SW5-SW6` — keyed switches.
-- `S1-S4` — panel-side cable sockets: `S1` and `S4` are quad (4-pin) sockets; `S2-S3`
-  are double (2-pin) sockets. S4 wires only contacts 3 and 2. A socket reads as connected when a cable is
+- `S1-S4` — panel-side cable sockets: `S1` is a quad (4-pin) socket, `S4` is a
+  triple (3-pin) socket, and `S2-S3` are double (2-pin) sockets. S4 wires only
+  contacts 2 and 3. A socket reads as connected when a cable is
   plugged into it (see "Cable matrix" below).
 
 The selected mode determines which real-world meaning each control has. The
@@ -68,10 +69,12 @@ App-selected mode rather than to any physical selector.
 | 2 | Toggle switches | SW3-SW4 |
 | 2 | Keyed switches | SW5-SW6 |
 | 4 | Single-color LEDs (5mm) + 330Ω resistors | LED1 blue, LED2 yellow, LED3 orange, LED4 green; one resistor each, LED cathode/resistor to GND |
-| 2 | Quad (4-pin) panel-mount jacks/receptacles | S1: contacts 1-4; S4: contacts 3 and 2 only |
+| 1 | Quad (4-pin) panel-mount jack/receptacle | S1: contacts 1-4 |
+| 1 | Triple (3-pin) panel-mount jack/receptacle | S4: contacts 2 and 3 only |
 | 2 | Double (2-pin) panel-mount jacks/receptacles | S2, S3: contacts 1-2 wired |
-| 4 quad + 2 dual | Available cable connectors recorded in #112 | Inventory inclusion of the built Cable 1 awaits confirmation |
+| 1 quad + 1 triple + 4 dual | Available cable connectors for remaining cables | Cable 1 and Cable 3 are already built |
 | 1 | Confirmed built cable: quad to dual | Quad 3 to dual 1; quad 4 to dual 2 |
+| 1 | Confirmed built cable: quad to triple | Quad 2 to triple 2; quad 3 to triple 3 |
 | — | Hookup wire, breadboard/perfboard, pull-up not needed (internal pull-ups used throughout) | |
 
 ## GPIO pinout (BCM numbering)
@@ -102,15 +105,15 @@ No external resistors are needed except the LED current-limiting resistors.
 | S2 pin 2 | S2P2 | GPIO20 | 38 |
 | S3 pin 1 | S3P1 | GPIO2 | 3 |
 | S3 pin 2 | S3P2 | GPIO12 | 32 |
-| S4 pin 3 | S4P3 | GPIO3 | 5 |
-| S4 pin 2 | S4P2 | GPIO7 | 26 |
+| S4 pin 2 | S4P2 | GPIO3 | 5 |
+| S4 pin 3 | S4P3 | GPIO7 | 26 |
 
 **20 of the Pi's 26 usable GPIO pins used, 6 spare** (GPIO8, 9, 10, 11, 14, 15 —
 the SPI0 and UART pins, which this project has found unreliable as pulled-up
 inputs; see `pulled_input.py`). GPIO0/1 (ID_SD/ID_SC, reserved for HAT EEPROM)
 are not used. GPIO2/3 have board-level I2C pull-ups, which is fine here since
 the cable scan only ever drives them low. GPIO7 has only been proven as an
-output on this project, so bench-test S4 pin 2 first. All pin assignments live
+output on this project, so bench-test S4 pin 3 first. All pin assignments live
 in `config.py` — change them there, not in `panel_controller.py`.
 
 ## Wiring diagram
@@ -140,9 +143,9 @@ switch harness, LED harness, cable socket matrix, and common ground rail.
    GPIO24 ────[S1 pin 3]
    GPIO16 ────[S1 pin 4]            S3 (double)
                                     GPIO2  ────[S3 pin 1]
-   S4 (quad)                      GPIO12 ────[S3 pin 2]
-   GPIO3  ────[S4 pin 3]
-   GPIO7  ────[S4 pin 2]
+  S4 (triple)                    GPIO12 ────[S3 pin 2]
+  GPIO3  ────[S4 pin 2]
+  GPIO7  ────[S4 pin 3]
         (direct GPIO wiring, no series resistors; no socket contact goes to
          GND; cables bridge contacts to each other)
 ```
@@ -158,7 +161,7 @@ nothing on a socket goes to GND. A cable only bridges contacts to each other.
 | S1 | Quad (4-pin) | pins 1, 2, 3, 4 | Unchanged; the only socket with all four contacts wired. |
 | S2 | Double (2-pin) | pins 1, 2 | The contacts a 2-pin side A plug lands on. |
 | S3 | Double (2-pin) | pins 1, 2 | Same. |
-| S4 | Quad (4-pin) | pins 3, 2 | Contact 3 to GPIO3; contact 2 to GPIO7. Contacts 1/4 unwired. |
+| S4 | Triple (3-pin) | pins 2, 3 | Contact 2 to GPIO3; contact 3 to GPIO7. Contact 1 unwired. |
 
 The GPIO for each contact is in the pinout table above and in
 `config.SOCKET_NODES`. Leave unlisted contacts open.
@@ -178,19 +181,19 @@ something the build list does not recognise, such as a cable with a broken wire.
 A plug that lands only on unwired contacts (for example a side B plug using pin
 3 in S2) reads as unplugged.
 
-### Confirmed four-cable build plan (#112)
+### Confirmed five-cable build plan (#112/#142)
 
-Cable 1 is already built. The owner confirmed **4 spare quad and 2 spare dual
-connectors in addition to Cable 1**, and S4 is already wired on contacts 3/2.
-Build two quad-to-dual cables and one quad-to-quad cable from that stock.
+Cable 1 and Cable 3 are already built. S4 moves from the broken quad socket to a
+triple socket using contacts 2/3. Build one triple-to-dual cable, one quad-to-dual
+cable, and one dual-to-dual cable from the remaining stock.
 
 See [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md) for the exact pinouts, valid
 placements, twelve proposed mode use cases, and continuity checks. The wiring
 diagram now includes a **Cable Build Plan** page with each wire drawn.
 `cable-build-plan.json` is the tested design source.
 
-The decoder reads the four builds from `cable-build-plan.json`. `config.py` maps
-S4 contacts 3/2 to GPIO3/7. Each mode's `requiredCables` must match exactly before
+The decoder reads the five builds from `cable-build-plan.json`. `config.py` maps
+S4 contacts 2/3 to GPIO3/7. Each mode's `requiredCables` must match exactly before
 its switch/socket expression can win. The page independently checks the recipe,
 fresh telemetry, `cableSchema: "panel-cable-build/v1"`, and the Pi's win flag.
 Setup and Help Fix name each cable and its socket pair. Unknown/extra cables
@@ -218,7 +221,7 @@ service after deploying the reviewed firmware, then verify the physical cables.
   if a future gpiozero release fixes the bug, this workaround can go.
 - **`cable_matrix.py`** — scans the 10 socket contacts (drive one low, read the
   rest), debounces, and decodes the bridges into per-socket presence and cable
-  numbers. Its `CABLES` table loads the four-cable JSON build list. Tested off-Pi with
+  numbers. Its `CABLES` table loads the five-cable JSON build list. Tested off-Pi with
   `python -m unittest test_cable_matrix` (fake GPIO backend, no `lgpio`).
 - **`telemetry.py`** — a background-threaded Azure IoT Hub publisher (queued,
   non-blocking) so a slow/dropped network connection never stalls GPIO

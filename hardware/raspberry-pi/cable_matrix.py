@@ -7,7 +7,7 @@ time, and reads the rest: any other node that follows it low is wired to it
 through a cable. Only one node is ever driven, and only low, so a mis-plugged
 cable cannot short two outputs together.
 
-Cable identity comes from the four-cable build plan. Only mechanically matching
+Cable identity comes from the five-cable build plan. Only mechanically matching
 ends are considered. Both wires must be visible to identify a cable.
 """
 import json
