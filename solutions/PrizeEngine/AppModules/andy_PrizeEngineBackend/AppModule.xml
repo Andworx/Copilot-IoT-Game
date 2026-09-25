@@ -11,6 +11,7 @@
   <NavigationType>0</NavigationType>
   <AppModuleComponents>
     <AppModuleComponent type="1" schemaName="andy_contestcampaign" />
+    <AppModuleComponent type="1" schemaName="andy_contestsource" />
     <AppModuleComponent type="1" schemaName="andy_contestsourcecap" />
     <AppModuleComponent type="1" schemaName="andy_gamewin" />
     <AppModuleComponent type="1" schemaName="andy_grandprizeentry" />

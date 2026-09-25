@@ -11,6 +11,8 @@
       <grid name="andy_contestsourcecaps" jump="andy_settingname" select="1" icon="1" preview="0">
         <row name="andy_contestsourcecap" id="andy_contestsourcecapid">
           <cell name="andy_settingname" width="300" />
+          <cell name="andy_source" width="150" />
+          <cell name="andy_campaignname" width="150" />
           <cell name="createdon" width="125" />
         </row>
       </grid>
@@ -21,6 +23,8 @@
         <entity name="andy_contestsourcecap">
           <attribute name="andy_contestsourcecapid" />
           <attribute name="andy_settingname" />
+          <attribute name="andy_source" />
+          <attribute name="andy_campaignname" />
           <attribute name="createdon" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
