@@ -6,6 +6,16 @@
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
     <form headerdensity="HighWithControls">
+      <formLibraries>
+        <Library name="andy_contestcampaign_form.js" libraryUniqueId="{7bc4cc22-e136-42ee-b492-bc79113432ef}" />
+      </formLibraries>
+      <events>
+        <event name="onload" application="false" active="true">
+          <Handlers>
+            <Handler functionName="AndworxPrizeEngine.ContestCampaign.onLoad" libraryName="andy_contestcampaign_form.js" handlerUniqueId="{5d0a2588-9f71-4331-98d1-6f277e839776}" enabled="true" parameters="" passExecutionContext="true" />
+          </Handlers>
+        </event>
+      </events>
       <tabs>
         <tab verticallayout="true" id="{1F3003DC-92DF-40F5-8C7D-1BBE32CF57B2}" IsUserDefined="1">
           <labels>
@@ -93,9 +103,9 @@
                   <rows>
                     <row />
                     <row>
-                      <cell locklevel="0" id="{0d39b705-e955-435c-b9cf-94bf1ef09cd2}" rowspan="4" colspan="1" auto="false" showlabel="false">
+                      <cell locklevel="0" id="{0d39b705-e955-435c-b9cf-94bf1ef09cd2}" rowspan="4" colspan="1" auto="false" showlabel="true">
                         <labels>
-                          <label description="New SG control 1790282446692" languagecode="1033" />
+                          <label description="Contest Source Cap" languagecode="1033" />
                         </labels>
                         <control indicationOfSubgrid="true" id="Subgrid_new_1" classid="{E7A81278-8635-4D9E-8D4D-59480B391C5B}">
                           <parameters>
@@ -112,9 +122,9 @@
                           </parameters>
                         </control>
                       </cell>
-                      <cell locklevel="0" id="{713b3c69-eddd-43fc-83d9-dab01fc932dc}" rowspan="4" colspan="1" auto="false" showlabel="false">
+                      <cell locklevel="0" id="{713b3c69-eddd-43fc-83d9-dab01fc932dc}" rowspan="4" colspan="1" auto="false" showlabel="true">
                         <labels>
-                          <label description="New SG control 1790282452050" languagecode="1033" />
+                          <label description="Grand Prize Entries" languagecode="1033" />
                         </labels>
                         <control indicationOfSubgrid="true" id="Subgrid_new_2" classid="{E7A81278-8635-4D9E-8D4D-59480B391C5B}">
                           <parameters>

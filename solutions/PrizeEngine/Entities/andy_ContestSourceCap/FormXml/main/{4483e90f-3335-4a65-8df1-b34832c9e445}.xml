@@ -62,11 +62,15 @@
                       </cell>
                     </row>
                     <row>
-                      <cell id="{ef005edc-64ae-497e-9bfa-3dd606cfa748}">
+                      <cell locklevel="0" id="{bc157b69-bf43-4622-967d-84f3278fc3f4}">
                         <labels>
-                          <label description="Check-In Required" languagecode="1033" />
+                          <label description="" languagecode="1033" />
                         </labels>
-                        <control id="andy_checkinrequired" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_checkinrequired" />
+                      </cell>
+                      <cell locklevel="0" id="{d1464495-b187-4e83-af08-31f325146870}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
                       </cell>
                       <cell id="{41715001-7f04-4016-80c2-527c1e8e8844}" colspan="1" rowspan="1">
                         <labels>
@@ -74,15 +78,28 @@
                         </labels>
                         <control id="andy_source" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_source" />
                       </cell>
-                      <cell locklevel="0" id="{03caa8cf-db07-4b5a-adaa-3bc0bc5b41a1}">
+                    </row>
+                    <row>
+                      <cell locklevel="0" id="{2ff571f9-1798-4037-9e13-d954ce0b54cb}">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
                       </cell>
-                      <cell locklevel="0" id="{506a4fab-eb43-4ec0-bdf7-15ba801a1fed}">
+                      <cell locklevel="0" id="{612b7ea5-bebd-49fe-8450-9a63441199f7}">
                         <labels>
                           <label description="" languagecode="1033" />
                         </labels>
+                      </cell>
+                      <cell locklevel="0" id="{799a914e-201c-4b4d-af1e-79aeedee0c70}" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="New QV control 1790342111689" languagecode="1033" />
+                        </labels>
+                        <control id="QuickviewControl1790342111689" classid="{5C5600E0-1D6E-4205-A272-BE80DA87FD42}" datafieldname="andy_source">
+                          <parameters>
+                            <DisplayAsCustomer360Tile>false</DisplayAsCustomer360Tile>
+                            <QuickForms>&lt;QuickFormIds&gt;&lt;QuickFormId entityname="andy_contestsource"&gt;feb26d7f-aab3-4499-a3b1-9bf802b596ef&lt;/QuickFormId&gt;&lt;/QuickFormIds&gt;</QuickForms>
+                          </parameters>
+                        </control>
                       </cell>
                     </row>
                   </rows>

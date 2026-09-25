@@ -11,7 +11,6 @@
       <grid name="resultset" jump="andy_settingname" select="1" icon="1" preview="1">
         <row name="result" id="andy_contestsourcecapid">
           <cell name="andy_settingname" width="300" />
-          <cell name="andy_checkinrequired" width="150" />
           <cell name="andy_source" width="150" />
           <cell name="andy_campaignname" width="150" />
         </row>
@@ -28,7 +27,6 @@
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
-          <attribute name="andy_checkinrequired" />
           <attribute name="andy_source" />
           <attribute name="andy_campaignname" />
         </entity>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <EntityRelationship Name="andy_contestsourcecap_Source_andy_contestsource">
     <EntityRelationshipType>OneToMany</EntityRelationshipType>
@@ -18,7 +18,7 @@
     <ReferencingAttributeName>andy_Source</ReferencingAttributeName>
     <RelationshipDescription>
       <Descriptions>
-        <Description description="" languagecode="1033" />
+        <Description description="Contest source this campaign source cap applies to." languagecode="1033" />
       </Descriptions>
     </RelationshipDescription>
     <EntityRelationshipRoles>

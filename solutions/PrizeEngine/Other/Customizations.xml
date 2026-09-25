@@ -38,6 +38,16 @@
       <statecode>0</statecode>
       <statuscode>1</statuscode>
     </msdyn_helppage>
+    <msdyn_helppage msdyn_helppageid="dfec4d93-ddb8-f111-aaab-6045bdd94001">
+      <iscustomizable>1</iscustomizable>
+      <msdyn_content>&lt;pphml&gt;&lt;h1&gt;Managing Source Caps&lt;/h1&gt;&lt;p&gt;Each event and each game source will have a &lt;/p&gt;&lt;/pphml&gt;</msdyn_content>
+      <msdyn_contenttype>text/pphml</msdyn_contenttype>
+      <msdyn_displayname>Managing Source Caps</msdyn_displayname>
+      <msdyn_locale>1033</msdyn_locale>
+      <msdyn_path>CDS/Apps/andy_PrizeEngineBackend/Entities/andy_contestsourcecap/Forms/Default</msdyn_path>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </msdyn_helppage>
   </msdyn_helppages>
   <Languages>
     <Language>1033</Language>
