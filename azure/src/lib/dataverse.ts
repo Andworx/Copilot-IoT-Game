@@ -224,13 +224,10 @@ export async function pickRandomEnabledMode(
 
 // ============ Prize engine (PRIZE_ENGINE_SPEC.md) ============
 
-// andy_gamewinstatus / andy_redemptionstatus option values -- see
-// tables/choices/andy_gamewinstatus.json and andy_redemptionstatus.json. Confirmed
-// against this environment's real exported OptionSets (both happened to land on the
-// same values as documented there, no drift).
-const GAMEWIN_STATUS_UNCLAIMED = 435700000;
-const GAMEWIN_STATUS_CLAIMED = 435700001;
-const REDEMPTION_STATUS_NOT_REDEEMED = 435700000;
+// Prize claim status option values -- see tables/choices/andy_prizeclaim_*.json.
+const PRIZE_CLAIM_STATUS_UNCLAIMED = 435700000;
+const PRIZE_CLAIM_STATUS_CLAIMED = 435700001;
+const PRIZE_CLAIM_REDEMPTION_STATUS_NOT_REDEEMED = 435710000;
 
 export class ClaimError extends Error {
   constructor(
@@ -242,11 +239,8 @@ export class ClaimError extends Error {
 }
 
 /**
- * Creates the andy_gamewin row for a resolved fault, per PRIZE_ENGINE_SPEC.md §3 step 1.
- * Stands in for the not-yet-built Copilot Studio resolved-topic action -- same schema
- * effect (andy_status = Unclaimed, fresh andy_claimtoken), just triggered by the kiosk
- * client detecting `device.checkWin()` instead of a Copilot Studio topic. Swap the
- * caller, not this function, once that topic exists.
+ * Creates the shared Prize Claim parent plus the IoT Game Win detail row for a resolved
+ * fault. The kiosk still receives only the bearer claim token it encodes into the QR.
  */
 export async function createGameWin(deviceSlug: string): Promise<{ claimToken: string }> {
   const deviceResponse = await dataverseFetch(
@@ -262,15 +256,19 @@ export async function createGameWin(deviceSlug: string): Promise<{ claimToken: s
   }
 
   const claimToken = crypto.randomUUID();
-  await dataverseFetch("andy_gamewins", {
+  const now = new Date();
+  const prizeClaimResponse = await dataverseFetch(PRIZE_CLAIMS_SET, {
     method: "POST",
-    body: JSON.stringify({
-      andy_claimtoken: claimToken,
-      "andy_DeviceProfile@odata.bind": `/andy_deviceprofiles(${deviceProfileId})`,
-      andy_status: GAMEWIN_STATUS_UNCLAIMED,
-      andy_redemptionstatus: REDEMPTION_STATUS_NOT_REDEEMED,
-      andy_wontime: new Date().toISOString(),
-    }),
+    body: JSON.stringify(buildPrizeClaimCreatePayload({ claimToken, deviceSlug, now })),
+  });
+  const prizeClaimId = parseDataverseIdFromEntityUrl(prizeClaimResponse.headers.get("OData-EntityId"));
+  if (!prizeClaimId) {
+    throw new Error("Dataverse did not return the created Prize Claim id");
+  }
+
+  await dataverseFetch(IOT_GAME_WINS_SET, {
+    method: "POST",
+    body: JSON.stringify(buildIotGameWinCreatePayload({ prizeClaimId, deviceProfileId, deviceSlug, now })),
   });
   return { claimToken };
 }
@@ -281,27 +279,53 @@ export async function createGameWin(deviceSlug: string): Promise<{ claimToken: s
 // pluralization double-pluralizes them -- not a typo.
 const PRIZE_TYPES_SET = "andy_prizetypeses";
 const PRIZES_SET = "andy_prizeses";
+const PRIZE_CLAIMS_SET = "andy_prizeclaims";
+const IOT_GAME_WINS_SET = "andy_iotgamewins";
 const CONTEST_CAMPAIGNS_SET = "andy_contestcampaigns";
 const CONTEST_SOURCE_CAPS_SET = "andy_contestsourcecaps";
 const GRAND_PRIZE_ENTRIES_SET = "andy_grandprizeentries";
 
-// Navigation properties -- confirmed against solutions/CopilotIoTGame/Other/
-// Relationships/{andy_GameWin,andy_PrizeTypes,andy_Prizes}.xml after the Phase 5
-// export, not assumed.
-const PRIZES_GAMEWIN_NAV = "andy_GameWin"; // on andy_Prizes, -> andy_GameWin
-const GAMEWIN_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_gamewin, -> andy_PrizeTypes
-const GAMEWIN_PRIZEINSTANCE_NAV = "andy_PrizeInstance"; // on andy_gamewin, -> andy_Prizes
-const GAMEWIN_CONTACT_NAV = "andy_Contact"; // on andy_gamewin, -> contact
+// Navigation properties -- confirmed against the unpacked Dataverse relationship XML,
+// not assumed from logical column names.
+const PRIZE_CLAIM_PRIZEINSTANCE_NAV = "andy_Prize_Instance"; // on andy_prizeclaim, -> andy_Prizes
+const PRIZE_CLAIM_CONTACT_NAV = "andy_Contact"; // on andy_prizeclaim, -> contact
+const IOT_GAME_WIN_PRIZE_CLAIM_NAV = "andy_prize_claim"; // on andy_iotgamewin, -> andy_prizeclaim
+const IOT_GAME_WIN_DEVICE_PROFILE_NAV = "andy_device_profile"; // on andy_iotgamewin, -> andy_deviceprofile
 const GRAND_PRIZE_ENTRY_CAMPAIGN_NAV = "andy_CampaignName"; // on andy_grandprizeentry, -> andy_contestcampaign
 const GRAND_PRIZE_ENTRY_CONTACT_NAV = "andy_Contact"; // on andy_grandprizeentry, -> contact
 const GRAND_PRIZE_ENTRY_GAMEWIN_NAV = "andy_GameWin"; // on andy_grandprizeentry, -> andy_gamewin
 const GRAND_PRIZE_ENTRY_SOURCE_CAP_NAV = "andy_SourceIdentifier"; // on andy_grandprizeentry, -> andy_contestsourcecap
-// Same string as GAMEWIN_PRIZETYPE_NAV above, but a *different* relationship -- this one
-// is on andy_Prizes (confirmed against solutions/PrizeEngine/Other/Relationships/
-// andy_PrizeTypes.xml), not andy_gamewin. Kept as its own constant so the two don't get
-// conflated if either relationship's nav property name ever diverges.
 const PRIZES_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_Prizes, -> andy_PrizeTypes
 const IOT_CONTEST_SOURCE_IDENTIFIER = "iot";
+
+export function buildPrizeClaimCreatePayload(input: {
+  claimToken: string;
+  deviceSlug: string;
+  now?: Date;
+}): Record<string, string | number> {
+  const timestamp = (input.now ?? new Date()).toISOString();
+  return {
+    andy_name: `IoT ${input.deviceSlug} ${timestamp}`,
+    andy_claim_token: input.claimToken,
+    andy_claim_status: PRIZE_CLAIM_STATUS_UNCLAIMED,
+    andy_redemption_status: PRIZE_CLAIM_REDEMPTION_STATUS_NOT_REDEEMED,
+    andy_win_time: timestamp,
+  };
+}
+
+export function buildIotGameWinCreatePayload(input: {
+  prizeClaimId: string;
+  deviceProfileId: string;
+  deviceSlug: string;
+  now?: Date;
+}): Record<string, string> {
+  const timestamp = (input.now ?? new Date()).toISOString();
+  return {
+    andy_name: `IoT ${input.deviceSlug} ${timestamp}`,
+    [`${IOT_GAME_WIN_PRIZE_CLAIM_NAV}@odata.bind`]: `/${PRIZE_CLAIMS_SET}(${input.prizeClaimId})`,
+    [`${IOT_GAME_WIN_DEVICE_PROFILE_NAV}@odata.bind`]: `/andy_deviceprofiles(${input.deviceProfileId})`,
+  };
+}
 
 /** Active, non-fallback prize types -- for the prize wheel SPA's wheel rendering (not
  * the pick itself, which stays server-side and can also draw the fallback type). */
@@ -489,16 +513,13 @@ function pickWeightedType(types: EligiblePrizeType[]): EligiblePrizeType {
 
 /** Conditional claim of one specific instance row -- false means it changed since it
  * was read (someone else just claimed it), which the caller retries from selection,
- * not just this claim, since the eligible/stock set may have changed. Binds the
- * instance straight to this win via andy_GameWin (the new andy_Prizes lookup), rather
- * than the old single-row decrement this replaces. */
-async function tryClaimInstance(instance: UntakenInstance, gameWinId: string): Promise<boolean> {
+ * not just this claim, since the eligible/stock set may have changed. */
+async function tryClaimInstance(instance: UntakenInstance): Promise<boolean> {
   const response = await dataverseFetchRaw(`${PRIZES_SET}(${instance.id})`, {
     method: "PATCH",
     headers: { "If-Match": instance.etag },
     body: JSON.stringify({
       andy_prizetaken: true,
-      [`${PRIZES_GAMEWIN_NAV}@odata.bind`]: `/andy_gamewins(${gameWinId})`,
     }),
   });
   if (response.status === 412) return false;
@@ -515,7 +536,7 @@ interface SelectedPrize {
   typeId: string;
   typeName: string;
   /** null for a fallback claim -- the fallback type isn't instance-tracked, so there's
-   * nothing to bind andy_gamewin.andy_PrizeInstance to. */
+   * no prize instance to bind to the Prize Claim. */
   instanceId: string | null;
 }
 
@@ -523,7 +544,7 @@ interface SelectedPrize {
  * stock (falling back to the designated andy_isfallback type, which isn't
  * instance-tracked, if none do), then atomically claims one specific instance row of
  * the chosen type. Retries the whole selection on a losing race. */
-async function selectAndClaimPrize(gameWinId: string): Promise<SelectedPrize> {
+async function selectAndClaimPrize(): Promise<SelectedPrize> {
   for (let attempt = 0; attempt < MAX_CLAIM_RETRIES; attempt++) {
     const eligibleTypes = await fetchEligiblePrizeTypes();
     const instances = await fetchUntakenInstances(eligibleTypes.map((t) => t.id));
@@ -551,7 +572,7 @@ async function selectAndClaimPrize(gameWinId: string): Promise<SelectedPrize> {
     const chosenType = pickWeightedType(typesWithStock);
     const candidates = instancesByType.get(chosenType.id) ?? [];
     const chosenInstance = candidates[Math.floor(Math.random() * candidates.length)];
-    if (await tryClaimInstance(chosenInstance, gameWinId)) {
+    if (await tryClaimInstance(chosenInstance)) {
       return { typeId: chosenType.id, typeName: chosenType.name, instanceId: chosenInstance.id };
     }
     // 412 -- someone else claimed that exact instance between read and write. Retry
@@ -630,7 +651,7 @@ async function fetchContestSourceCap(campaignId: string): Promise<string | null>
 export function buildGrandPrizeEntryPayload(input: {
   campaignId: string;
   contactId: string;
-  gameWinId: string;
+  gameWinId?: string | null;
   contestant: ContestantInfo;
   sourceCapId?: string | null;
   now?: Date;
@@ -647,14 +668,14 @@ export function buildGrandPrizeEntryPayload(input: {
     andy_privacyacceptancetime: timestamp,
     [`${GRAND_PRIZE_ENTRY_CAMPAIGN_NAV}@odata.bind`]: `/${CONTEST_CAMPAIGNS_SET}(${input.campaignId})`,
     [`${GRAND_PRIZE_ENTRY_CONTACT_NAV}@odata.bind`]: `/contacts(${input.contactId})`,
-    [`${GRAND_PRIZE_ENTRY_GAMEWIN_NAV}@odata.bind`]: `/andy_gamewins(${input.gameWinId})`,
+    ...(input.gameWinId ? { [`${GRAND_PRIZE_ENTRY_GAMEWIN_NAV}@odata.bind`]: `/andy_gamewins(${input.gameWinId})` } : {}),
     ...(input.sourceCapId
       ? { [`${GRAND_PRIZE_ENTRY_SOURCE_CAP_NAV}@odata.bind`]: `/${CONTEST_SOURCE_CAPS_SET}(${input.sourceCapId})` }
       : {}),
   };
 }
 
-async function createGrandPrizeEntryForClaim(gameWinId: string, contactId: string, contestant: ContestantInfo) {
+async function createGrandPrizeEntryForClaim(contactId: string, contestant: ContestantInfo, gameWinId?: string | null) {
   const campaign = await fetchActiveContestCampaign();
   if (!campaign) return;
 
@@ -703,9 +724,9 @@ async function upsertContestantContact(contestant: ContestantInfo): Promise<stri
 
 /**
  * Validates the claim token is Unclaimed, runs the weighted-type-pick +
- * atomic-instance-claim (PRIZE_CODE_MIGRATION.md), generates the redemption code, and
- * marks the andy_gamewin row Claimed. Throws ClaimError for anything the caller should
- * turn into a 4xx rather than a 500 (bad/reused token, no prizes configured).
+ * atomic-instance-claim, generates the redemption code, and marks the Prize Claim
+ * Claimed. Throws ClaimError for anything the caller should turn into a 4xx rather
+ * than a 500 (bad/reused token, no prizes configured).
  */
 export async function claimGameWin(
   claimToken: string,
@@ -715,42 +736,42 @@ export async function claimGameWin(
     throw new ClaimError("invalid_token", "claimToken is not a valid GUID");
   }
 
-  const gameWinResponse = await dataverseFetch(
-    `andy_gamewins?$filter=andy_claimtoken eq '${claimToken}'&$select=andy_gamewinid,andy_status&$top=1`
+  const prizeClaimResponse = await dataverseFetch(
+    `${PRIZE_CLAIMS_SET}?$filter=andy_claim_token eq '${claimToken}'` +
+      "&$select=andy_prizeclaimid,andy_claim_status&$top=1"
   );
-  const gameWinBody = (await gameWinResponse.json()) as {
-    value: Array<{ andy_gamewinid: string; andy_status: number }>;
+  const prizeClaimBody = (await prizeClaimResponse.json()) as {
+    value: Array<{ andy_prizeclaimid: string; andy_claim_status: number }>;
   };
-  const gameWin = gameWinBody.value[0];
-  if (!gameWin) {
-    throw new ClaimError("not_found", "No andy_gamewin row matches that claim token");
+  const prizeClaim = prizeClaimBody.value[0];
+  if (!prizeClaim) {
+    throw new ClaimError("not_found", "No Prize Claim row matches that claim token");
   }
-  if (gameWin.andy_status !== GAMEWIN_STATUS_UNCLAIMED) {
+  if (prizeClaim.andy_claim_status !== PRIZE_CLAIM_STATUS_UNCLAIMED) {
     throw new ClaimError("already_claimed", "This claim token has already been used");
   }
 
   const contactId = await upsertContestantContact(contestant);
 
-  const prize = await selectAndClaimPrize(gameWin.andy_gamewinid);
+  const prize = await selectAndClaimPrize();
   const redemptionCode = generateRedemptionCode();
 
-  await dataverseFetch(`andy_gamewins(${gameWin.andy_gamewinid})`, {
+  await dataverseFetch(`${PRIZE_CLAIMS_SET}(${prizeClaim.andy_prizeclaimid})`, {
     method: "PATCH",
     body: JSON.stringify({
-      [`${GAMEWIN_PRIZETYPE_NAV}@odata.bind`]: `/${PRIZE_TYPES_SET}(${prize.typeId})`,
       ...(prize.instanceId
-        ? { [`${GAMEWIN_PRIZEINSTANCE_NAV}@odata.bind`]: `/${PRIZES_SET}(${prize.instanceId})` }
+        ? { [`${PRIZE_CLAIM_PRIZEINSTANCE_NAV}@odata.bind`]: `/${PRIZES_SET}(${prize.instanceId})` }
         : {}),
-      andy_status: GAMEWIN_STATUS_CLAIMED,
-      andy_redemptioncode: redemptionCode,
-      andy_claimedtime: new Date().toISOString(),
-      ...(contactId ? { [`${GAMEWIN_CONTACT_NAV}@odata.bind`]: `/contacts(${contactId})` } : {}),
+      andy_claim_status: PRIZE_CLAIM_STATUS_CLAIMED,
+      andy_redemption_code: redemptionCode,
+      andy_claimed_time: new Date().toISOString(),
+      ...(contactId ? { [`${PRIZE_CLAIM_CONTACT_NAV}@odata.bind`]: `/contacts(${contactId})` } : {}),
     }),
   });
 
   if (contactId) {
-    createGrandPrizeEntryForClaim(gameWin.andy_gamewinid, contactId, contestant).catch((error) => {
-      console.error("Failed to create Grand Prize Entry for claimed game win", error);
+    createGrandPrizeEntryForClaim(contactId, contestant).catch((error) => {
+      console.error("Failed to create Grand Prize Entry for claimed Prize Claim", error);
     });
   }
 

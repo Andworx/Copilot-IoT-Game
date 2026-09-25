@@ -18,6 +18,7 @@ This avoids turning the existing IoT `andy_gamewin` table into a cross-game tabl
 - After the preferred solution was set to `CopilotIoTGame`, MCP table creation produced the correct `andy_iotgamewin` table. The updated CopilotIoTGame solution was exported, unpacked into `solutions/CopilotIoTGame`, packed, imported, and published successfully.
 - IoT Game Win is intentionally minimal for Stage 2: generated name, required Prize Claim lookup, and optional Device Profile lookup only.
 - IoT Game Win now has a dedicated SVG table icon: `andy_iotgamewin_icon` is imported as a vector webresource, `andy_iotgamewin` references it through `IconVectorName`, and the CopilotIoTGame MDA sitemap uses it for the IoT Game Win subarea.
+- Stage 3 backend cutover is implemented locally: `create-win` now creates Prize Claim plus IoT Game Win for new wins, and `claim-prize` now claims against Prize Claim instead of legacy Game Win. The CopilotIoTGame security role was packed/imported/published with privileges for `andy_prizeclaim` and `andy_iotgamewin`. Function App deployment and live QR claim smoke testing are still pending.
 
 ### PrizeEngine: Prize Claim
 
@@ -121,9 +122,9 @@ Expected changes:
 
 Validation:
 
-- Azure unit tests cover Prize Claim payloads, new IoT Game Win payloads, and any temporary legacy compatibility path.
+- Azure unit tests cover Prize Claim payloads, new IoT Game Win payloads, and the no-legacy-Game-Win grand-prize entry payload path. Completed locally 2026-09-25.
 - Local Function App smoke tests pass for create-win and claim-prize.
-- Existing QR claim flow still works.
+- Existing QR claim flow still works after deployment.
 
 ### Stage 4: Move Users to New IoT Game Win Surfaces
 
