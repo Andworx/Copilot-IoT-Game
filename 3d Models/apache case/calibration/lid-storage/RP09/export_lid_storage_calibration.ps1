@@ -18,10 +18,13 @@ $parts = @{
     'branding_base' = 'andworx_field_kit_base.stl'
     'branding_insert' = 'andworx_field_kit_logo.stl'
     'storage_carrier_right' = 'lid_storage_carrier_R.stl'
+    'storage_frame_left' = 'lid_storage_frame_L.stl'
     'cable_insert' = 'lid_storage_cable_insert.stl'
     'accessory_insert' = 'lid_storage_accessory_key_insert.stl'
     'storage_cover_base' = 'lid_storage_cover_base.stl'
+    'storage_cover_blank' = 'lid_storage_cover_blank.stl'
     'storage_cover_logo' = 'lid_storage_cover_logo.stl'
+    'left_design_plate_blank' = 'lid_storage_left_design_plate_blank.stl'
 }
 
 foreach ($entry in $parts.GetEnumerator()) {

@@ -74,10 +74,13 @@ expected = {
     "andworx_field_kit_base.stl",
     "andworx_field_kit_logo.stl",
     "lid_storage_carrier_R.stl",
+    "lid_storage_frame_L.stl",
     "lid_storage_cable_insert.stl",
     "lid_storage_accessory_key_insert.stl",
     "lid_storage_cover_base.stl",
+    "lid_storage_cover_blank.stl",
     "lid_storage_cover_logo.stl",
+    "lid_storage_left_design_plate_blank.stl",
 }
 actual = {path.name for path in EXPORTS.glob("*.stl")}
 assert actual == expected, (sorted(expected - actual), sorted(actual - expected))
@@ -110,13 +113,18 @@ assert meshes["andworx_field_kit_logo.stl"]["bounds_mm"][2] == 0.9
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][0] <= 190.0
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][1] == 216.0
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][2] == 21.0
+assert meshes["lid_storage_frame_L.stl"]["bounds_mm"] == [165.0, 216.0, 9.2]
 for name in ("lid_storage_cable_insert.stl",
              "lid_storage_accessory_key_insert.stl"):
     assert meshes[name]["bounds_mm"] == [72.0, 167.0, 17.0], \
         (name, meshes[name]["bounds_mm"])
 assert meshes["lid_storage_cover_base.stl"]["bounds_mm"] == \
        [163.967, 180.3, 2.4]
+assert meshes["lid_storage_cover_blank.stl"]["bounds_mm"] == \
+       [163.967, 180.3, 2.4]
 assert meshes["lid_storage_cover_logo.stl"]["bounds_mm"][2] == 0.9
+assert meshes["lid_storage_left_design_plate_blank.stl"]["bounds_mm"] == \
+       [85.0, 196.0, 1.6]
 
 report = {
     "revision": "RP09 calibration only",
@@ -127,6 +135,9 @@ report = {
         "lid_depth": 35.0,
         "provisional_storage_depth": 28.0,
         "prototype_stack_depth": 23.4,
+        "seam_tongue_engagement": 20.0,
+        "seam_pocket_height": 9.8,
+        "left_design_plate": [85.0, 196.0, 1.6],
         "adapter_length": 45.0,
         "key_length": 34.0,
         "cable_length": 152.4,
@@ -139,6 +150,8 @@ report = {
         "The final switch garage preserves at least 3-5 mm clearance.",
         "All four cable coils fit below the installed cover without pinching.",
         "The adapter and keys remain captured with the lid vertical and inverted.",
+        "Both left tongues fully enter the right pockets and accept M3 bolts without forcing.",
+        "Captive M3 nuts remain seated and no bolt head protrudes against the lid floor.",
     ],
     "meshes": meshes,
 }

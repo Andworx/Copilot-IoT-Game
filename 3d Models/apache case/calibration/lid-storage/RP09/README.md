@@ -59,7 +59,8 @@ a straight-on photograph of the installed frame plus the marked locator tiles.
 
 After the two fit-frame halves align, print:
 
-1. `exports/lid_fit_frame_L.stl` — the left perimeter and open switch garage.
+1. `exports/lid_storage_frame_L.stl` — the left perimeter, open switch garage,
+   two seam tongues, and four design-plate mounting bosses.
 2. `exports/lid_storage_carrier_R.stl` — the right frame half and common tray.
 3. `exports/lid_storage_cable_insert.stl` — four pockets for flat-coiled
    6-inch cables.
@@ -68,6 +69,30 @@ After the two fit-frame halves align, print:
 5. `exports/lid_storage_cover_base.stl` — the common screw-down cover.
 6. `exports/lid_storage_cover_logo.stl` — the contrasting Andworx/Field Kit
    inlay.
+
+Two optional blank parts are also included:
+
+- `exports/lid_storage_cover_blank.stl` has the same outline and six mounting
+  holes as the branded cover, but no text or logo pockets. Use it as the source
+  for future text or graphics.
+- `exports/lid_storage_left_design_plate_blank.stl` is an 85 x 196 x 1.6 mm
+  border plate with a 73 x 174 mm switch opening. Its four M3 holes align with
+  the raised bosses on the left frame. Add designs only to the border; do not
+  reduce the central safety-switch opening until physical closure testing proves
+  the smaller opening safe.
+
+## Left/right seam hardware
+
+The updated left frame has two 20 x 8 x 3.2 mm tongues. They slide into
+three-sided pockets at the top and bottom of the right carrier; the case lid
+closes the fourth side after installation. Each joint uses one M3 screw through
+the tongue and pocket roof, with an M3 hex nut captured from the front. The
+screw head is recessed into the tongue on the lid side.
+
+Start with M3 x 12 mm countersunk screws and standard M3 nuts, but verify the
+actual screw does not bottom out or protrude toward the lid. Insert both tongues
+fully before installing either screw. The joint must pull together without
+bending the long frame rails.
 
 The carrier, inserts, and cover form a nominal 23.4 mm stack from the lid
 floor. The left third has no floor or cover. The cover uses six M3 clearance
