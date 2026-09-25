@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{4e669d08-1434-4890-bafe-5aef4dcd972f}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{d7bf0274-ec54-4c3f-875e-d9db35370a27}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{8c59a688-d4a7-4aac-8168-78d7dc612e73}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{9d0e7806-d788-4e4c-8628-9fe853609c10}">
+                        <labels>
+                          <label description="Prize Claim Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_name" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{324646e1-cff3-4ff7-84fa-f0199919d003}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b44d7976-893a-45c6-9ad5-9af861e1dbf3}">
+                        <labels>
+                          <label description="Campaign" languagecode="1033" />
+                        </labels>
+                        <control id="andy_campaign" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_campaign" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{de124814-40aa-4977-aa88-c632d8e58ea7}">
+                        <labels>
+                          <label description="Contest Source" languagecode="1033" />
+                        </labels>
+                        <control id="andy_contest_source" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_contest_source" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{608dfd26-a2ba-40d9-bf6f-5386e7e64d6f}">
+                        <labels>
+                          <label description="Contact" languagecode="1033" />
+                        </labels>
+                        <control id="andy_contact" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_contact" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1074fb82-73e2-4d77-9b66-6bd8e160a7b6}">
+                        <labels>
+                          <label description="Prize Instance" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prize_instance" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_prize_instance" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{bd7d4214-a94f-4568-8908-fda1a9c4cf28}">
+                        <labels>
+                          <label description="Claim Token" languagecode="1033" />
+                        </labels>
+                        <control id="andy_claim_token" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_claim_token" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{3d48b558-1f1e-449e-b4e9-5416e4795b70}">
+                        <labels>
+                          <label description="Claim Status" languagecode="1033" />
+                        </labels>
+                        <control id="andy_claim_status" classid="{3ef39988-22bb-4f0b-bbbe-64b5a3748aee}" datafieldname="andy_claim_status" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{67a48e61-29e2-421d-bbbb-34e09900f5ef}">
+                        <labels>
+                          <label description="Claimed Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_claimed_time" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_claimed_time" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{0db57df1-a8c1-4754-89ab-859c8df0ddd5}">
+                        <labels>
+                          <label description="Redemption Code" languagecode="1033" />
+                        </labels>
+                        <control id="andy_redemption_code" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_redemption_code" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{8a8a476d-b614-4712-98b2-6a8ac60000bc}">
+                        <labels>
+                          <label description="Redemption Status" languagecode="1033" />
+                        </labels>
+                        <control id="andy_redemption_status" classid="{3ef39988-22bb-4f0b-bbbe-64b5a3748aee}" datafieldname="andy_redemption_status" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e125c001-c98f-45e5-a9ea-79259c7af734}">
+                        <labels>
+                          <label description="Redeemed By" languagecode="1033" />
+                        </labels>
+                        <control id="andy_redeemed_by" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_redeemed_by" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{149ec731-cb6f-48ab-a0b7-48ce78d95625}">
+                        <labels>
+                          <label description="Redeemed Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_redeemed_time" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_redeemed_time" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{15cef186-7ef9-4bc3-a6ff-d2cf8f02f6f7}">
+                        <labels>
+                          <label description="Win Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_win_time" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_win_time" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

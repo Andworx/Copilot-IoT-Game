@@ -86,9 +86,11 @@
       <RootComponent type="1" schemaName="andy_gamewin" behavior="1" />
       <RootComponent type="1" schemaName="andy_grandprizeentry" behavior="0" />
       <RootComponent type="1" schemaName="andy_iottelemetryevent" behavior="0" />
+      <RootComponent type="1" schemaName="andy_prizeclaim" behavior="0" />
       <RootComponent type="1" schemaName="andy_prizes" behavior="0" />
       <RootComponent type="1" schemaName="andy_prizetypes" behavior="0" />
       <RootComponent type="1" schemaName="contact" behavior="1" />
+      <RootComponent type="1" schemaName="systemuser" behavior="1" />
       <RootComponent type="29" id="{54c7c125-647b-f011-b4cc-7c1e52578ac0}" behavior="0" />
       <RootComponent type="61" schemaName="andy_contestcampaign_form.js" behavior="0" />
       <RootComponent type="61" schemaName="andy_contestcampaign_icon" behavior="0" />

@@ -1,0 +1,95 @@
+{
+  "relationships": [
+    {
+      "schemaName": "andy_andy_contestcampaign_Campaign_andy_prizeclaim",
+      "description": "Links a Prize Claim to the Contest Campaign that owns contest-level eligibility and entry caps.",
+      "referencedEntity": "andy_contestcampaign",
+      "referencedAttribute": "andy_contestcampaignid",
+      "referencingEntity": "andy_prizeclaim",
+      "referencingAttribute": "andy_campaign",
+      "cascadeDelete": "Restrict",
+      "cascadeAssign": "NoCascade",
+      "cascadeReparent": "NoCascade",
+      "cascadeShare": "NoCascade",
+      "cascadeUnshare": "NoCascade"
+    },
+    {
+      "schemaName": "andy_andy_contestsource_Contest_Source_andy_prizeclaim",
+      "description": "Links a Prize Claim to the source game or channel that generated the win.",
+      "referencedEntity": "andy_contestsource",
+      "referencedAttribute": "andy_contestsourceid",
+      "referencingEntity": "andy_prizeclaim",
+      "referencingAttribute": "andy_contest_source",
+      "cascadeDelete": "Restrict",
+      "cascadeAssign": "NoCascade",
+      "cascadeReparent": "NoCascade",
+      "cascadeShare": "NoCascade",
+      "cascadeUnshare": "NoCascade"
+    },
+    {
+      "schemaName": "andy_contact_Contact_andy_prizeclaim",
+      "description": "Links a Prize Claim to the Contact created or reused when a player shares contact information.",
+      "referencedEntity": "contact",
+      "referencedAttribute": "contactid",
+      "referencingEntity": "andy_prizeclaim",
+      "referencingAttribute": "andy_contact",
+      "cascadeDelete": "RemoveLink",
+      "cascadeAssign": "NoCascade",
+      "cascadeReparent": "NoCascade",
+      "cascadeShare": "NoCascade",
+      "cascadeUnshare": "NoCascade"
+    },
+    {
+      "schemaName": "andy_andy_prizes_Prize_Instance_andy_prizeclaim",
+      "description": "Links a Prize Claim to the assigned prize instance.",
+      "referencedEntity": "andy_prizes",
+      "referencedAttribute": "andy_prizesid",
+      "referencingEntity": "andy_prizeclaim",
+      "referencingAttribute": "andy_prize_instance",
+      "cascadeDelete": "Restrict",
+      "cascadeAssign": "NoCascade",
+      "cascadeReparent": "NoCascade",
+      "cascadeShare": "NoCascade",
+      "cascadeUnshare": "NoCascade"
+    },
+    {
+      "schemaName": "andy_systemuser_Redeemed_By_andy_prizeclaim",
+      "description": "Links a Prize Claim to the Dataverse user who completed staff redemption.",
+      "referencedEntity": "systemuser",
+      "referencedAttribute": "systemuserid",
+      "referencingEntity": "andy_prizeclaim",
+      "referencingAttribute": "andy_redeemed_by",
+      "cascadeDelete": "RemoveLink",
+      "cascadeAssign": "NoCascade",
+      "cascadeReparent": "NoCascade",
+      "cascadeShare": "NoCascade",
+      "cascadeUnshare": "NoCascade"
+    },
+    {
+      "schemaName": "andy_andy_prizeclaim_Prize_Claim_andy_iotgamewin",
+      "description": "Links an IoT Game Win detail row to its shared Prize Claim parent.",
+      "referencedEntity": "andy_prizeclaim",
+      "referencedAttribute": "andy_prizeclaimid",
+      "referencingEntity": "andy_iotgamewin",
+      "referencingAttribute": "andy_prize_claim",
+      "cascadeDelete": "Restrict",
+      "cascadeAssign": "NoCascade",
+      "cascadeReparent": "NoCascade",
+      "cascadeShare": "NoCascade",
+      "cascadeUnshare": "NoCascade"
+    },
+    {
+      "schemaName": "andy_andy_deviceprofile_Device_Profile_andy_iotgamewin",
+      "description": "Links an IoT Game Win detail row to the Device Profile that produced the win.",
+      "referencedEntity": "andy_deviceprofile",
+      "referencedAttribute": "andy_deviceprofileid",
+      "referencingEntity": "andy_iotgamewin",
+      "referencingAttribute": "andy_device_profile",
+      "cascadeDelete": "Restrict",
+      "cascadeAssign": "NoCascade",
+      "cascadeReparent": "NoCascade",
+      "cascadeShare": "NoCascade",
+      "cascadeUnshare": "NoCascade"
+    }
+  ]
+}

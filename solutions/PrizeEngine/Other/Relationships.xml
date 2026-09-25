@@ -1,5 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <EntityRelationship Name="andy_andy_contestcampaign_Campaign_andy_prizeclaim" />
+  <EntityRelationship Name="andy_andy_contestsource_Contest_Source_andy_prizeclaim" />
+  <EntityRelationship Name="andy_andy_prizes_Prize_Instance_andy_prizeclaim" />
+  <EntityRelationship Name="andy_contact_Contact_andy_prizeclaim" />
   <EntityRelationship Name="andy_contestsourcecap_CampaignName_andy_contestcampaign" />
   <EntityRelationship Name="andy_contestsourcecap_Source_andy_contestsource" />
   <EntityRelationship Name="andy_grandprizeentry_CampaignName_andy_contestcampaign" />
@@ -8,8 +12,10 @@
   <EntityRelationship Name="andy_grandprizeentry_SourceCap_andy_contestsourcecap" />
   <EntityRelationship Name="andy_prizes_GameWin_andy_gamewin" />
   <EntityRelationship Name="andy_prizes_PrizeType_andy_prizetypes" />
+  <EntityRelationship Name="andy_systemuser_Redeemed_By_andy_prizeclaim" />
   <EntityRelationship Name="business_unit_andy_contestsource" />
   <EntityRelationship Name="business_unit_andy_grandprizeentry" />
+  <EntityRelationship Name="business_unit_andy_prizeclaim" />
   <EntityRelationship Name="business_unit_andy_prizes" />
   <EntityRelationship Name="business_unit_andy_prizetypes" />
   <EntityRelationship Name="FileAttachment_andy_PrizeTypes_andy_PrizeImageFile" />
@@ -23,6 +29,8 @@
   <EntityRelationship Name="lk_andy_grandprizeentry_modifiedby" />
   <EntityRelationship Name="lk_andy_iottelemetryevent_createdby" />
   <EntityRelationship Name="lk_andy_iottelemetryevent_modifiedby" />
+  <EntityRelationship Name="lk_andy_prizeclaim_createdby" />
+  <EntityRelationship Name="lk_andy_prizeclaim_modifiedby" />
   <EntityRelationship Name="lk_andy_prizes_createdby" />
   <EntityRelationship Name="lk_andy_prizes_modifiedby" />
   <EntityRelationship Name="lk_andy_prizetypes_createdby" />
@@ -32,14 +40,17 @@
   <EntityRelationship Name="organization_andy_iottelemetryevent" />
   <EntityRelationship Name="owner_andy_contestsource" />
   <EntityRelationship Name="owner_andy_grandprizeentry" />
+  <EntityRelationship Name="owner_andy_prizeclaim" />
   <EntityRelationship Name="owner_andy_prizes" />
   <EntityRelationship Name="owner_andy_prizetypes" />
   <EntityRelationship Name="team_andy_contestsource" />
   <EntityRelationship Name="team_andy_grandprizeentry" />
+  <EntityRelationship Name="team_andy_prizeclaim" />
   <EntityRelationship Name="team_andy_prizes" />
   <EntityRelationship Name="team_andy_prizetypes" />
   <EntityRelationship Name="user_andy_contestsource" />
   <EntityRelationship Name="user_andy_grandprizeentry" />
+  <EntityRelationship Name="user_andy_prizeclaim" />
   <EntityRelationship Name="user_andy_prizes" />
   <EntityRelationship Name="user_andy_prizetypes" />
 </EntityRelationships>

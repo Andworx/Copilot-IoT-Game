@@ -24,6 +24,12 @@
         <SubArea Id="subarea_contestcampaign" Icon="/$webresource:andy_contestcampaign_icon" Entity="andy_contestcampaign" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
         <SubArea Id="subarea_contestsource" Icon="/$webresource:andy_contestsource_icon" Entity="andy_contestsource" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
         <SubArea Id="subarea_contestsourcecap" Icon="/$webresource:andy_contestsourcecap_icon" Entity="andy_contestsourcecap" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
+      </Group>
+      <Group Id="group_37b0a386" ResourceId="SitemapDesigner.NewGroup" DescriptionResourceId="SitemapDesigner.NewGroup" IntroducedVersion="7.0.0.0" IsProfile="false" ToolTipResourseId="SitemapDesigner.Unknown">
+        <Titles>
+          <Title LCID="1033" Title="Game" />
+        </Titles>
+        <SubArea Id="subarea_prizeclaim" Entity="andy_prizeclaim" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
         <SubArea Id="subarea_grandprizeentry" Icon="/$webresource:andy_grandprizeentry_icon" Entity="andy_grandprizeentry" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
         <SubArea Id="subarea_gamewin" Icon="/$webresource:andy_gamewin_icon" Entity="andy_gamewin" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
       </Group>

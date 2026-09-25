@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{dbc66812-dff7-4950-843e-09135da5d852}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_name" select="1" icon="1" preview="1">
+        <row name="result" id="andy_prizeclaimid">
+          <cell name="andy_name" width="300" />
+          <cell name="createdon" width="125" />
+          <cell name="andy_campaign" width="150" />
+          <cell name="andy_contest_source" width="150" />
+          <cell name="andy_contact" width="150" />
+          <cell name="andy_prize_instance" width="150" />
+          <cell name="andy_claim_token" width="150" />
+          <cell name="andy_claim_status" width="150" />
+          <cell name="andy_claimed_time" width="150" />
+          <cell name="andy_redemption_code" width="150" />
+          <cell name="andy_redemption_status" width="150" />
+          <cell name="andy_redeemed_by" width="150" />
+          <cell name="andy_redeemed_time" width="150" />
+          <cell name="andy_win_time" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_prizeclaim">
+          <attribute name="andy_prizeclaimid" />
+          <attribute name="andy_name" />
+          <attribute name="createdon" />
+          <order attribute="andy_name" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="andy_campaign" />
+          <attribute name="andy_contest_source" />
+          <attribute name="andy_contact" />
+          <attribute name="andy_prize_instance" />
+          <attribute name="andy_claim_token" />
+          <attribute name="andy_claim_status" />
+          <attribute name="andy_claimed_time" />
+          <attribute name="andy_redemption_code" />
+          <attribute name="andy_redemption_status" />
+          <attribute name="andy_redeemed_by" />
+          <attribute name="andy_redeemed_time" />
+          <attribute name="andy_win_time" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Prize Claims" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

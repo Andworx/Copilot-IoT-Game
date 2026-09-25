@@ -11,7 +11,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Area | ✅ Done | ⬜ Verify | ⬜ TODO | Future | Total |
 |---|---:|---:|---:|---:|---:|
-| Dataverse | 5 | 4 | 2 | 0 | 11 |
+| Dataverse | 5 | 5 | 2 | 0 | 12 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
 | Power Pages | 5 | 7 | 1 | 0 | 13 |
@@ -21,7 +21,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Integration (Azure Functions) | 7 | 4 | 0 | 0 | 11 |
 | Power Apps | 2 | 4 | 0 | 0 | 6 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 19 | 23 | 7 | 2 | 51 |
+| Totals | 19 | 24 | 7 | 2 | 52 |
 
 ## Dataverse
 
@@ -35,6 +35,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `andy_deviceprofile.andy_isenabled` + `andy_gameboxstate.andy_gamemodeenabled` — per-mode disable + master Game Mode toggle | Boolean columns | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09) — created via Web API (`BooleanAttributeMetadata`), both default `true`/backfilled `true` on all existing rows so behavior was unaffected until explicitly toggled; confirmed live via `GET /api/device-profiles`/`kiosk-state` |
 | `andy_iottelemetryevent` generic event log (name, device id, event type, value, JSON payload) | Table | ⬜ Verify | Created in `andy_PrizeEngine` (shared) and `CopilotIoTGame`, organization-owned; `Copilot IoT Game Security Role` has Create and Read only. Verified: the game function writes a row per state change or win. Still to do: `pac solution export` + unpack `CopilotIoTGame` into `solutions/`. Spec: `azure/README.md`. |
 | Shared contest/campaign, Contact identity, source caps, and grand-prize entry model | Design | ⬜ Verify | Issue #123 / epic #121 — implemented as relationship-first PrizeEngine metadata in `solutions/PrizeEngine`: Campaigns, Source Caps, Grand Prize Entries, Contact references, app navigation, and table icons. Packed/imported once; current check-in-field import is in progress. |
+| Shared Prize Claim table and IoT Game Win rollout | Table + rollout | ⬜ Verify | Issue #149 / epic #121 — PrizeEngine-owned `andy_prizeclaim` and CopilotIoTGame-owned `andy_iotgamewin` created live with the correct preferred solution context; both solutions exported/unpacked, packed, imported, and published. `andy_iotgamewin` is intentionally minimal: Prize Claim + Device Profile only, and now has the imported `andy_iotgamewin_icon` SVG webresource bound in the CopilotIoTGame sitemap. Next: cut Function App writes over for new records, then retire legacy dependencies in order. Historical `andy_gamewin` rows do not need migration. |
 | Campaign-owned entry cap and Source Cap cleanup | Columns + form | ⬜ TODO | Issue #146 / epic #121 — keep `Max Entries Per Contact` as a global Campaign setting; remove Source Cap `Max Entries Per Contact` and `Max Entries Per Day`; add a Campaign quick view to the Source Cap form so makers can see the effective global cap without duplicating rule fields. |
 | Source catalog lookup for Contest Source Cap | Table + lookup | ⬜ TODO | Issue #147 / epic #121 — replace free-text `Source Identifier` entry with a source catalog lookup so makers select `IoT`, `Plinko`, etc.; backend should resolve the selected source's stable key such as `iot`. |
 | Contest Source Cap generated setting name | Form script | ⬜ TODO | Issue #148 / epic #121 — add model-driven form JavaScript that sets `Setting Name` from the selected Campaign and Source, using a format like `<Campaign Event Name> - <Source Name>`. |
