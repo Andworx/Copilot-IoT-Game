@@ -53,6 +53,33 @@ cover_insert_pilot = 4.0;
 cover_boss_diameter = 9;
 cover_insert_depth = 5.5;
 
+// Positive left/right seam.  The left tongues slide into enclosed pockets on
+// the right carrier and are locked by M3 screws with captive hex nuts.
+seam_tongue_length = 20;
+seam_tongue_width = 8;
+seam_slot_clearance = 0.4;
+seam_pocket_length = 24;
+seam_pocket_width = 14;
+seam_pocket_height = 9.8;
+seam_fastener_x = 10;
+seam_hole_diameter = 3.4;
+seam_head_recess_diameter = 6.6;
+seam_nut_diameter = 6.6;
+seam_nut_depth = 2.6;
+
+// Optional thin design-frame plate around the switch garage.  Its large open
+// centre preserves the safety-cover path while the border accepts alternate
+// graphics or future inserts.
+design_plate_center_x = -87;
+design_plate_size = [85, 196];
+design_plate_opening = [73, 174];
+design_plate_thickness = 1.6;
+design_mount_x = [-112, -62];
+design_mount_y = [-94, 94];
+design_mount_boss_diameter = 9;
+design_mount_boss_height = 6;
+design_mount_pilot = 4.0;
+
 font_bold = "Liberation Sans:style=Bold";
 
 module rounded_rect_2d(size, radius) {
@@ -113,6 +140,98 @@ module frame_half(side = -1) {
                        [side * 68, -boss_pitch[1] / 2], 3.2);
         recessed_label("HINGE", [side * 105, -boss_pitch[1] / 2], 2.6);
         recessed_label("LATCH", [side * 105, boss_pitch[1] / 2], 2.6);
+    }
+}
+
+module storage_frame_left_2d() {
+    union() {
+        translate([-boss_pitch[0] / 2, 0])
+            square([rail_width, boss_pitch[1] + 2 * frame_overhang], center = true);
+        for (y = [-boss_pitch[1] / 2, boss_pitch[1] / 2]) {
+            translate([-boss_pitch[0] / 2, y]) circle(d = boss_pad_diameter);
+            translate([-boss_pitch[0] / 4, y])
+                square([boss_pitch[0] / 2, rail_width], center = true);
+            // Rectangular tongue reaches into the enclosed right-hand pocket.
+            translate([seam_tongue_length / 2 - 1, y])
+                square([seam_tongue_length + 2, seam_tongue_width], center = true);
+        }
+    }
+}
+
+module storage_frame_left() {
+    difference() {
+        union() {
+            linear_extrude(frame_thickness) storage_frame_left_2d();
+
+            // Four raised insert bosses support interchangeable design plates.
+            for (x = design_mount_x, y = design_mount_y)
+                translate([x, y, frame_thickness])
+                    cylinder(h = design_mount_boss_height,
+                             d = design_mount_boss_diameter);
+        }
+
+        for (y = [-boss_pitch[1] / 2, boss_pitch[1] / 2]) {
+            boss_hole(-boss_pitch[0] / 2, y);
+            translate([seam_fastener_x, y, -0.05])
+                cylinder(h = frame_thickness + 0.1, d = seam_hole_diameter);
+            translate([seam_fastener_x, y, -0.05])
+                cylinder(h = 1.65, d = seam_head_recess_diameter);
+        }
+
+        for (x = design_mount_x, y = design_mount_y)
+            translate([x, y,
+                       frame_thickness + design_mount_boss_height -
+                       cover_insert_depth])
+                cylinder(h = cover_insert_depth + 0.05,
+                         d = design_mount_pilot);
+    }
+}
+
+module storage_frame_right_2d() {
+    union() {
+        translate([boss_pitch[0] / 2, 0])
+            square([rail_width, boss_pitch[1] + 2 * frame_overhang], center = true);
+        for (y = [-boss_pitch[1] / 2, boss_pitch[1] / 2]) {
+            translate([boss_pitch[0] / 2, y]) circle(d = boss_pad_diameter);
+            translate([boss_pitch[0] / 4, y])
+                square([boss_pitch[0] / 2, rail_width], center = true);
+        }
+    }
+}
+
+module seam_pocket(y) {
+    translate([seam_pocket_length / 2 - 2, y, seam_pocket_height / 2])
+        cube([seam_pocket_length, seam_pocket_width, seam_pocket_height],
+             center = true);
+}
+
+module seam_pocket_cut(y) {
+    // Open-bottom slot: the case lid is the fourth side of the assembled
+    // pocket.  The slot stops 1.6 mm before the pocket's closed right end.
+    translate([8.7, y, (frame_thickness + seam_slot_clearance) / 2 - 0.05])
+        cube([seam_tongue_length + 3.4,
+              seam_tongue_width + seam_slot_clearance,
+              frame_thickness + seam_slot_clearance + 0.1], center = true);
+    translate([seam_fastener_x, y, -0.05])
+        cylinder(h = seam_pocket_height + 0.1, d = seam_hole_diameter);
+    translate([seam_fastener_x, y,
+               seam_pocket_height - seam_nut_depth])
+        rotate([0, 0, 30])
+            cylinder(h = seam_nut_depth + 0.05,
+                     d = seam_nut_diameter, $fn = 6);
+}
+
+module left_design_plate_blank() {
+    difference() {
+        linear_extrude(design_plate_thickness)
+            difference() {
+                rounded_rect_2d(design_plate_size, 5);
+                rounded_rect_2d(design_plate_opening, 3);
+            }
+        for (x = design_mount_x, y = design_mount_y)
+            translate([x - design_plate_center_x, y, -0.05])
+                cylinder(h = design_plate_thickness + 0.1,
+                         d = cover_hole_diameter);
     }
 }
 
@@ -213,7 +332,9 @@ module storage_carrier_right() {
     // left is the safety-switch garage.
     difference() {
         union() {
-            frame_half(1);
+            linear_extrude(frame_thickness) storage_frame_right_2d();
+            for (y = [-boss_pitch[1] / 2, boss_pitch[1] / 2])
+                seam_pocket(y);
 
             // Shared base and outside wall.
             translate([storage_center_x, 0, 0])
@@ -257,6 +378,11 @@ module storage_carrier_right() {
                        storage_height - cover_insert_depth])
                 cylinder(h = cover_insert_depth + 0.05,
                          d = cover_insert_pilot);
+
+        for (y = [-boss_pitch[1] / 2, boss_pitch[1] / 2])
+            boss_hole(boss_pitch[0] / 2, y);
+        for (y = [-boss_pitch[1] / 2, boss_pitch[1] / 2])
+            seam_pocket_cut(y);
     }
 }
 
@@ -341,6 +467,19 @@ module storage_cover_base() {
     }
 }
 
+module storage_cover_blank() {
+    difference() {
+        linear_extrude(cover_thickness)
+            rounded_rect_2d(cover_size, 5);
+        for (x = cover_fastener_x, y = cover_fastener_y) {
+            translate([x, y, -0.05])
+                cylinder(h = cover_thickness + 0.1, d = cover_hole_diameter);
+            translate([x, y, cover_thickness - 1.5])
+                cylinder(h = 1.55, d = cover_head_diameter);
+        }
+    }
+}
+
 module storage_cover_logo() {
     union() {
         translate([0, 18, 0])
@@ -354,7 +493,7 @@ module storage_cover_logo() {
 }
 
 module storage_assembly_preview() {
-    color([0.12, 0.12, 0.14]) frame_half(-1);
+    color([0.12, 0.12, 0.14]) storage_frame_left();
     color([0.12, 0.12, 0.14]) storage_carrier_right();
     color([0.85, 0.2, 0.15])
         translate([storage_bay_centers[0], 0, storage_floor]) cable_insert();
@@ -365,6 +504,10 @@ module storage_assembly_preview() {
     color([0.95, 0.92, 0.28])
         translate([storage_center_x, 0,
                    storage_height + cover_thickness + 14]) storage_cover_logo();
+    color([0.65, 0.68, 0.74])
+        translate([design_plate_center_x, 0,
+                   frame_thickness + design_mount_boss_height + 6])
+            left_design_plate_blank();
 }
 
 module layout() {
@@ -385,9 +528,12 @@ else if (part == "locator_tile") locator_tile();
 else if (part == "branding_base") branding_base();
 else if (part == "branding_insert") branding_insert();
 else if (part == "storage_carrier_right") storage_carrier_right();
+else if (part == "storage_frame_left") storage_frame_left();
 else if (part == "cable_insert") cable_insert();
 else if (part == "accessory_insert") accessory_insert();
 else if (part == "storage_cover_base") storage_cover_base();
+else if (part == "storage_cover_blank") storage_cover_blank();
 else if (part == "storage_cover_logo") storage_cover_logo();
+else if (part == "left_design_plate_blank") left_design_plate_blank();
 else if (part == "storage_assembly_preview") storage_assembly_preview();
 else assert(false, str("Unknown part: ", part));
