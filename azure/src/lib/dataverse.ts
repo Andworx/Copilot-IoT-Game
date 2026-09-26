@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 
 const DATAVERSE_URL = (process.env.DATAVERSE_URL ?? "").replace(/\/$/, "");
@@ -315,7 +316,7 @@ const IOT_GAME_WIN_PRIZE_CLAIM_NAV = "andy_prize_claim"; // on andy_iotgamewin, 
 const IOT_GAME_WIN_DEVICE_PROFILE_NAV = "andy_device_profile"; // on andy_iotgamewin, -> andy_deviceprofile
 const GRAND_PRIZE_ENTRY_CAMPAIGN_NAV = "andy_CampaignName"; // on andy_grandprizeentry, -> andy_contestcampaign
 const GRAND_PRIZE_ENTRY_CONTACT_NAV = "andy_Contact"; // on andy_grandprizeentry, -> contact
-const GRAND_PRIZE_ENTRY_GAMEWIN_NAV = "andy_GameWin"; // on andy_grandprizeentry, -> andy_gamewin
+const GRAND_PRIZE_ENTRY_PRIZE_CLAIM_NAV = "andy_PrizeClaim"; // on andy_grandprizeentry, -> andy_prizeclaim
 const GRAND_PRIZE_ENTRY_SOURCE_CAP_NAV = "andy_SourceIdentifier"; // on andy_grandprizeentry, -> andy_contestsourcecap
 const PRIZES_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_Prizes, -> andy_PrizeTypes
 const IOT_CONTEST_SOURCE_IDENTIFIER = "iot";
@@ -654,6 +655,7 @@ interface ActiveContestCampaign {
   id: string;
   eventName: string | null;
   maxEntriesPerContact: number | null;
+  checkInCodePrefix: string | null;
 }
 
 interface ContestSource {
@@ -663,10 +665,15 @@ interface ContestSource {
 
 async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | null> {
   const response = await dataverseFetch(
-    `${CONTEST_CAMPAIGNS_SET}?$select=andy_contestcampaignid,andy_eventname,andy_maxentriespercontact&$filter=statecode eq 0&$orderby=createdon desc&$top=1`
+    `${CONTEST_CAMPAIGNS_SET}?$select=andy_contestcampaignid,andy_eventname,andy_maxentriespercontact,andy_checkincodeprefix&$filter=statecode eq 0&$orderby=createdon desc&$top=1`
   );
   const body = (await response.json()) as {
-    value: Array<{ andy_contestcampaignid: string; andy_eventname?: string | null; andy_maxentriespercontact?: number | null }>;
+    value: Array<{
+      andy_contestcampaignid: string;
+      andy_eventname?: string | null;
+      andy_maxentriespercontact?: number | null;
+      andy_checkincodeprefix?: string | null;
+    }>;
   };
   const campaign = body.value[0];
   return campaign
@@ -674,24 +681,27 @@ async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | nul
         id: campaign.andy_contestcampaignid,
         eventName: campaign.andy_eventname ?? null,
         maxEntriesPerContact: campaign.andy_maxentriespercontact ?? null,
+        checkInCodePrefix: campaign.andy_checkincodeprefix ?? null,
       }
     : null;
 }
 
 async function fetchContestCampaignById(campaignId: string): Promise<ActiveContestCampaign | null> {
   const response = await dataverseFetch(
-    `${CONTEST_CAMPAIGNS_SET}(${campaignId})?$select=andy_contestcampaignid,andy_eventname,andy_maxentriespercontact`
+    `${CONTEST_CAMPAIGNS_SET}(${campaignId})?$select=andy_contestcampaignid,andy_eventname,andy_maxentriespercontact,andy_checkincodeprefix`
   );
   if (response.status === 404) return null;
   const campaign = (await response.json()) as {
     andy_contestcampaignid: string;
     andy_eventname?: string | null;
     andy_maxentriespercontact?: number | null;
+    andy_checkincodeprefix?: string | null;
   };
   return {
     id: campaign.andy_contestcampaignid,
     eventName: campaign.andy_eventname ?? null,
     maxEntriesPerContact: campaign.andy_maxentriespercontact ?? null,
+    checkInCodePrefix: campaign.andy_checkincodeprefix ?? null,
   };
 }
 
@@ -732,9 +742,10 @@ async function countGrandPrizeEntriesForContact(campaignId: string, contactId: s
 export function buildGrandPrizeEntryPayload(input: {
   campaignId: string;
   contactId: string;
-  gameWinId?: string | null;
+  prizeClaimId?: string | null;
   contestant: ContestantInfo;
   sourceCapId?: string | null;
+  checkInCode?: string | null;
   now?: Date;
 }): Record<string, string | number> {
   const email = normalizeContestantEmail(input.contestant.email);
@@ -744,22 +755,26 @@ export function buildGrandPrizeEntryPayload(input: {
   return {
     andy_participantname: name,
     andy_entrytimestamp: timestamp,
-    andy_entrycount: 1,
-    andy_sharedinformation: "Yes",
     andy_privacyacceptancetime: timestamp,
+    ...(input.checkInCode ? { andy_checkincode: input.checkInCode } : {}),
     [`${GRAND_PRIZE_ENTRY_CAMPAIGN_NAV}@odata.bind`]: `/${CONTEST_CAMPAIGNS_SET}(${input.campaignId})`,
     [`${GRAND_PRIZE_ENTRY_CONTACT_NAV}@odata.bind`]: `/contacts(${input.contactId})`,
-    ...(input.gameWinId ? { [`${GRAND_PRIZE_ENTRY_GAMEWIN_NAV}@odata.bind`]: `/andy_gamewins(${input.gameWinId})` } : {}),
+    ...(input.prizeClaimId ? { [`${GRAND_PRIZE_ENTRY_PRIZE_CLAIM_NAV}@odata.bind`]: `/${PRIZE_CLAIMS_SET}(${input.prizeClaimId})` } : {}),
     ...(input.sourceCapId
       ? { [`${GRAND_PRIZE_ENTRY_SOURCE_CAP_NAV}@odata.bind`]: `/${CONTEST_SOURCE_CAPS_SET}(${input.sourceCapId})` }
       : {}),
   };
 }
 
+function generateCheckInCode(prefix: string | null): string {
+  const normalizedPrefix = (prefix ?? "GP").replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 10) || "GP";
+  return `${normalizedPrefix}-${randomInt(0, 1_000_000).toString().padStart(6, "0")}`;
+}
+
 async function createGrandPrizeEntryForClaim(
   contactId: string,
   contestant: ContestantInfo,
-  input: { campaignId?: string | null; contestSourceKey?: string | null; gameWinId?: string | null } = {}
+  input: { campaignId?: string | null; contestSourceKey?: string | null; prizeClaimId?: string | null } = {}
 ): Promise<GrandPrizeEntryResult> {
   const campaign = input.campaignId ? await fetchContestCampaignById(input.campaignId) : await fetchActiveContestCampaign();
   if (!campaign) return { status: "skipped", reason: "no_active_campaign" };
@@ -782,9 +797,10 @@ async function createGrandPrizeEntryForClaim(
       buildGrandPrizeEntryPayload({
         campaignId: campaign.id,
         contactId,
-        gameWinId: input.gameWinId,
+        prizeClaimId: input.prizeClaimId,
         contestant,
         sourceCapId,
+        checkInCode: generateCheckInCode(campaign.checkInCodePrefix),
       })
     ),
   });
@@ -885,6 +901,7 @@ export async function claimGameWin(
       grandPrizeEntry = await createGrandPrizeEntryForClaim(contactId, contestant, {
         campaignId: prizeClaim._andy_campaign_value ?? null,
         contestSourceKey: prizeClaim[PRIZE_CLAIM_CONTEST_SOURCE_NAV]?.andy_sourcekey ?? null,
+        prizeClaimId: prizeClaim.andy_prizeclaimid,
       });
     } catch (error) {
       console.error("Failed to create Grand Prize Entry for claimed Prize Claim", error);

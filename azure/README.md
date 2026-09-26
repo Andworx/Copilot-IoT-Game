@@ -21,17 +21,16 @@ isn't actually built yet, so this lives here instead, in this repo.
 
 `/api/claim-prize` also performs the Contact and grand-prize entry flow for epic #121:
 when `sharedInfo` is true and `contestantEmail` is supplied, it normalizes the email,
-finds or creates a standard Dataverse `contact`, links the `andy_gamewin` row to that
+finds or creates a standard Dataverse `contact`, links the `andy_prizeclaim` row to that
 Contact, and creates an `andy_grandprizeentry` row linked to the active Contest Campaign,
-Contact, Source Cap, and Game Win when campaign configuration exists. Existing Contact
-consent/preference fields are left untouched. The older inline `andy_gamewin`
-name/email/shared-info fields are redundant after that lookup is deployed and should be
-removed from code/forms as part of the schema migration.
+Contact, Source Cap, and Prize Claim when campaign configuration exists. Existing Contact
+consent/preference fields are left untouched. Legacy `andy_gamewin` rows are no longer
+used for new prize claims.
 
-Deploy order matters: ship the Dataverse solution push that adds `andy_gamewin.andy_contact`
-and the PrizeEngine grand-prize tables before this Function version is deployed, because
-claims with contact info bind `andy_Contact@odata.bind` and create
-`andy_grandprizeentries` rows.
+Deploy order matters: ship the Dataverse solution push that adds the Prize Claim,
+IoT Game Win, and Grand Prize Entry relationships before this Function version is deployed,
+because claims with contact info bind `andy_Contact@odata.bind` on Prize Claim and create
+`andy_grandprizeentries` rows linked back through `andy_PrizeClaim@odata.bind`.
 
 `set-mode`'s function key is what stands in for "only the Power App can call this" right
 now — the Power App's custom connector holds the key. `GAME_MODE_PLAN.md` §4a describes
