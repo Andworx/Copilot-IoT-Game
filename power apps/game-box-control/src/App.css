@@ -1,0 +1,41 @@
+* { box-sizing: border-box; }
+:root { font-family: "Segoe UI", system-ui, sans-serif; color: #182a40; background: #f3f6fa; font-synthesis: none; }
+body { margin: 0; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #427de8; outline-offset: 4px; }
+[hidden] { display: none !important; }
+.app-shell { display: grid; grid-template-columns: 264px minmax(0, 1fr); min-height: 100vh; }
+.sidebar { background: #11253b; color: #fff; padding: 36px 20px 24px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
+.brand { display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 700; padding: 0 10px; }
+.brand span:not(.brand-mark), .sidebar-footer span { display: block; font-size: 12px; font-weight: 400; color: #aebed1; margin-top: 5px; }
+.brand-mark { display: grid; place-items: center; width: 40px; height: 40px; background: #66dfc4; color: #11253b; border-radius: 12px; }
+.nav-label { font-size: 10px; letter-spacing: .16em; color: #aebed1; margin: 48px 12px 14px; }
+nav { display: grid; gap: 8px; }
+.nav-item { display: flex; gap: 12px; align-items: center; text-align: left; border: 1px solid transparent; color: #d6e1ef; background: transparent; border-radius: 10px; padding: 15px 12px; font-weight: 600; }
+.nav-item:hover { background: #213c56; }
+.nav-item[aria-current] { background: #254662; border-color: #426580; color: #fff; }
+.nav-number { color: #7cdec8; font-size: 11px; }
+.nav-item small { display: block; font-size: 11px; line-height: 1.5; font-weight: 400; color: #b9c9d9; margin-top: 4px; }
+.sidebar-footer { margin-top: auto; padding: 28px 12px 0; font-size: 12px; }
+main { width: 100%; max-width: 1250px; padding: 44px 48px 64px; }
+.page-header { margin-bottom: 32px; }
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .14em; color: #64758c; margin: 0 0 10px; }
+h1 { font-size: 34px; letter-spacing: -.04em; margin: 0 0 10px; }
+h2 { font-size: 22px; margin: 0; letter-spacing: -.02em; }
+h3 { font-size: 17px; margin: 26px 0 8px; }
+.page-header > p:last-child, .section-description { color: #607086; font-size: 14px; line-height: 1.6; }
+.game-selector { display: flex; align-items: center; gap: 32px; padding: 22px 26px; background: #e7eef6; border: 1px solid #d9e3ee; border-radius: 14px; }
+.game-selector label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+.game-selector select { min-width: 240px; padding: 10px 12px; border: 1px solid #b9c9db; border-radius: 7px; background: white; color: #182a40; }
+.game-selector p { max-width: 360px; color: #586c83; font-size: 13px; line-height: 1.6; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 30px 0 18px; }
+.refresh-button { padding: 9px 15px; border: 1px solid #c8d5e3; background: #fff; border-radius: 7px; color: #294969; font-size: 13px; }
+.control-panel, .tool-panel { background: #fff; border: 1px solid #dfe6ef; padding: 26px; border-radius: 14px; box-shadow: 0 4px 20px #182a4004; }
+.tool-panel { max-width: 850px; overflow-wrap: anywhere; }
+.tool-panel input, .tool-panel select { max-width: 100%; }
+.skip-link { position: fixed; top: -100px; left: 16px; z-index: 10; background: white; padding: 12px; }
+.skip-link:focus { top: 12px; }
+@media (max-width: 960px) { .app-shell { grid-template-columns: 220px minmax(0, 1fr); } main { padding: 32px 24px; } .game-selector { align-items: stretch; flex-direction: column; gap: 4px; } .game-selector select { width: 100%; min-width: 0; } }
+@media (max-width: 640px) { .app-shell { display: block; } .sidebar { position: static; height: auto; padding: 20px 16px; } .brand { font-size: 17px; } .nav-label, .sidebar-footer, .nav-item small, .nav-number { display: none; } nav { grid-template-columns: repeat(3, 1fr); margin-top: 20px; } .nav-item { justify-content: center; padding: 12px 8px; font-size: 13px; } main { padding: 28px 16px; } h1 { font-size: 28px; } .control-panel, .tool-panel { padding: 16px; } .control-panel > div:first-child { flex-wrap: wrap; } }
