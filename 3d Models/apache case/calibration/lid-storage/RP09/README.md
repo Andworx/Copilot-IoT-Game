@@ -62,10 +62,11 @@ After the two fit-frame halves align, print:
 1. `exports/lid_storage_frame_L.stl` — the left perimeter, open switch garage,
    two seam tongues, and four design-plate mounting bosses.
 2. `exports/lid_storage_carrier_R.stl` — the right frame half with a 34 mm
-   carrier well that projects **behind the frame into the lid**. It does not
-   project forward toward the controls. All compartments are printed directly
-   into it: the left storage bay has four cable cells, while the 80 mm-wide
-   right bay has a 120 mm lower compartment and a 53.8 mm upper tray.
+   total carrier well. The original 21 mm cavity remains in front of the frame,
+   and an additional 13 mm extends behind the frame into the lid. All
+   compartments are printed directly into it: the left storage bay has four
+   cable cells, while the 80 mm-wide right bay has a 120 mm lower compartment
+   and a 53.8 mm upper tray.
 3. `exports/lid_storage_cover_base.stl` — the common snap-fit cover.
 4. `exports/lid_storage_cover_logo.stl` — the contrasting Andworx/Field Kit
    inlay.
@@ -115,13 +116,14 @@ actual screw does not bottom out or protrude toward the lid. Insert both tongues
 fully before installing either screw. The joint must pull together without
 bending the long frame rails.
 
-The frame/cover interface is the Z=0 mounting plane. The carrier floor is
-34 mm behind that plane, toward the moulded lid, providing 31.6 mm clear depth
-above its 2.4 mm floor. The removable cover projects 2.4 mm forward; only the
-reinforced snap guides reach 3.2 mm forward. The measured lid depth is about
-35 mm, so perform a clay or tape witness test and confirm at least 1 mm floor
-clearance before latching the case. The cover retains six M3 clearance holes
-over 4.0 mm heat-set-insert pilots as optional backup fastening points.
+The mounting frame crosses the carrier depth. The carrier floor is 13 mm behind
+the frame, toward the moulded lid, while the cavity continues 21 mm in front of
+the frame to the removable cover. This provides 31.6 mm clear internal depth
+above the 2.4 mm floor. The cover face is 23.4 mm forward of the frame and the
+reinforced snap guides reach 24.2 mm. Perform a clay or tape witness test to
+confirm the new 13 mm rear extension clears the lid before latching the case.
+The cover retains six M3 clearance holes over 4.0 mm heat-set-insert pilots as
+optional backup fastening points.
 
 This remains a test assembly. Before closing the lid, verify that every cable
 coil sits below the integrated dividers, the adapter and keys cannot rock above
@@ -144,9 +146,9 @@ the Andworx advertising panel while the entire left bay remains open. The
 switch witness test still determines the final size and edge clearances of that
 left cutout; the named bay is not permission to skip the closure test.
 
-The prototype carrier uses 34 mm of the measured 35 mm lid depth and therefore
-has only 1 mm nominal clearance at the deepest floor. Physical witness results
-override this nominal value; do not latch the case until the rearward projection
+The prototype carrier adds 13 mm behind the frame to the previously acceptable
+21 mm front cavity, producing 34 mm total depth. Physical witness results
+override the nominal dimensions; do not latch the case until the rear extension
 and safety-switch garage have both passed a clay or tape witness test.
 
 The final storage covers will use captured screws or sliding retainers so every

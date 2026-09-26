@@ -36,10 +36,13 @@ module_height = between_ribs[1];
 storage_wall = 2.4;
 storage_floor = 2.4;
 storage_height = 34;
-// The frame and removable cover meet at Z=0.  Storage depth extends toward
-// the moulded lid (negative Z), never forward into the case controls.
-storage_front_z = 0;
-storage_back_z = storage_front_z - storage_height;
+// The mounting frame crosses the carrier depth: 13 mm projects behind the
+// frame into the moulded lid and the proven 21 mm cavity remains in front.
+storage_frame_z = 0;
+storage_back_depth = 13;
+storage_front_height = storage_height - storage_back_depth;
+storage_back_z = storage_frame_z - storage_back_depth;
+storage_cover_z = storage_frame_z + storage_front_height;
 carrier_frame_overlap = 0.4;
 storage_bay_width = module_width - 2;
 storage_outer_size = [2 * storage_bay_width + module_gap, module_height - 2];
@@ -239,7 +242,7 @@ module storage_frame_right_2d() {
 }
 
 module cover_top_retainer() {
-    edge_top = storage_front_z + cover_thickness - snap_edge_recess_depth;
+    edge_top = storage_cover_z + cover_thickness - snap_edge_recess_depth;
     lip_bottom = edge_top + snap_vertical_clearance;
 
     // The back overlaps the carrier wall by about 0.45 mm and extends upward
@@ -247,9 +250,9 @@ module cover_top_retainer() {
     translate([storage_center_x,
                cover_size[1] / 2 + snap_vertical_clearance +
                snap_back_thickness / 2,
-               (storage_front_z + lip_bottom + snap_top_lip_height) / 2])
+               (storage_cover_z + lip_bottom + snap_top_lip_height) / 2])
         cube([cover_size[0] - 18, snap_back_thickness,
-              lip_bottom + snap_top_lip_height - storage_front_z],
+              lip_bottom + snap_top_lip_height - storage_cover_z],
              center = true);
     translate([storage_center_x,
                cover_size[1] / 2 - snap_top_lip_depth / 2 +
@@ -265,14 +268,14 @@ module cover_side_guides() {
                    side * (cover_size[0] / 2 + snap_vertical_clearance +
                            snap_back_thickness / 2),
                    0,
-                   storage_front_z + snap_guide_height / 2])
+                   storage_cover_z + snap_guide_height / 2])
             cube([snap_back_thickness, cover_size[1] - 34,
                   snap_guide_height], center = true);
 }
 
 module cover_snap_latch(local_x) {
     outside_y = -storage_outer_size[1] / 2 - 1.1;
-    edge_top = storage_front_z + cover_thickness - snap_edge_recess_depth;
+    edge_top = storage_cover_z + cover_thickness - snap_edge_recess_depth;
     hook_bottom = edge_top + snap_vertical_clearance;
     stem_bottom = hook_bottom + snap_top_lip_height - snap_latch_height;
 
@@ -448,9 +451,9 @@ module storage_carrier_right() {
             for (y = [-boss_pitch[1] / 2, boss_pitch[1] / 2])
                 seam_pocket(y);
 
-            // Shared floor and outside wall project behind the mounting plane
-            // into the lid.  A 0.4 mm wall overlap at Z=0 keeps the carrier,
-            // frame bridges, and snap hardware one continuous printable body.
+            // The shared floor sits 13 mm behind the mounting plane.  The wall
+            // continues 21 mm forward to the removable cover.  A 0.4 mm top
+            // overlap keeps the wall and snap hardware one printable body.
             translate([storage_center_x, 0, storage_back_z])
                 linear_extrude(storage_floor)
                     rounded_rect_2d(storage_outer_size, 5);
@@ -512,7 +515,7 @@ module storage_carrier_right() {
         // Heat-set insert pilots open from the cover side.
         for (x = cover_fastener_x, y = cover_fastener_y)
             translate([storage_center_x + x, y,
-                       storage_front_z - cover_insert_depth])
+                       storage_cover_z - cover_insert_depth])
                 cylinder(h = cover_insert_depth + carrier_frame_overlap + 0.05,
                          d = cover_insert_pilot);
 
@@ -524,7 +527,7 @@ module storage_carrier_right() {
         // Matching wall scallop provides access beneath the cover's finger
         // notch without opening either removable storage insert.
         translate([storage_center_x, -storage_outer_size[1] / 2,
-                   storage_front_z - 2.5])
+                   storage_cover_z - 2.5])
             cube([snap_release_diameter + 5, 7, 5.2], center = true);
     }
 }
@@ -645,10 +648,10 @@ module storage_assembly_preview() {
     color([0.12, 0.12, 0.14]) storage_frame_left();
     color([0.12, 0.12, 0.14]) storage_carrier_right();
     color([0.10, 0.12, 0.28, 0.8])
-        translate([storage_center_x, 0, storage_front_z + 14]) storage_cover_base();
+        translate([storage_center_x, 0, storage_cover_z + 14]) storage_cover_base();
     color([0.95, 0.92, 0.28])
         translate([storage_center_x, 0,
-                   storage_front_z + cover_thickness + 14]) storage_cover_logo();
+                   storage_cover_z + cover_thickness + 14]) storage_cover_logo();
     color([0.65, 0.68, 0.74])
         translate([design_plate_center_x, 0,
                    frame_thickness + design_mount_boss_height + 6])
