@@ -75,8 +75,6 @@ expected = {
     "andworx_field_kit_logo.stl",
     "lid_storage_carrier_R.stl",
     "lid_storage_frame_L.stl",
-    "lid_storage_cable_insert.stl",
-    "lid_storage_accessory_key_insert.stl",
     "lid_storage_cover_base.stl",
     "lid_storage_cover_blank.stl",
     "lid_storage_cover_logo.stl",
@@ -112,16 +110,12 @@ assert meshes["andworx_field_kit_base.stl"]["bounds_mm"] == [120.0, 60.0, 2.4]
 assert meshes["andworx_field_kit_logo.stl"]["bounds_mm"][2] == 0.9
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][0] <= 190.0
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][1] == 216.0
-assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][2] == 25.4
+assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][2] == 37.2
 assert meshes["lid_storage_frame_L.stl"]["bounds_mm"] == [165.0, 216.0, 9.2]
-for name in ("lid_storage_cable_insert.stl",
-             "lid_storage_accessory_key_insert.stl"):
-    assert meshes[name]["bounds_mm"] == [72.0, 167.0, 17.0], \
-        (name, meshes[name]["bounds_mm"])
 assert meshes["lid_storage_cover_base.stl"]["bounds_mm"] == \
-       [163.967, 180.3, 2.4]
+       [163.067, 179.4, 2.4]
 assert meshes["lid_storage_cover_blank.stl"]["bounds_mm"] == \
-       [163.967, 180.3, 2.4]
+       [163.067, 179.4, 2.4]
 assert meshes["lid_storage_cover_logo.stl"]["bounds_mm"][2] == 0.9
 assert meshes["lid_storage_left_design_plate_blank.stl"]["bounds_mm"] == \
        [85.0, 196.0, 1.6]
@@ -133,11 +127,17 @@ report = {
         "boss_pitch": [274.0, 200.0],
         "between_ribs": [255.0, 183.0],
         "lid_depth": 35.0,
+        "measured_clearance_above_old_cover": 14.0,
+        "derived_stack_envelope": 37.4,
         "provisional_storage_depth": 28.0,
-        "prototype_stack_depth": 23.4,
-        "snap_fit_max_depth": 25.4,
-        "snap_vertical_clearance": 0.3,
+        "prototype_stack_depth": 36.4,
+        "snap_fit_max_depth": 37.2,
+        "snap_vertical_clearance": 0.25,
         "snap_latch_interference": 0.55,
+        "integrated_left_pocket_width": 77.467,
+        "integrated_right_pocket_width": 80.0,
+        "right_bottom_compartment_length": 120.0,
+        "right_upper_tray_length": 53.8,
         "seam_tongue_engagement": 20.0,
         "seam_pocket_height": 9.8,
         "left_design_plate": [85.0, 196.0, 1.6],
@@ -151,7 +151,8 @@ report = {
         "Painter's tape or clay on locator tiles records the safety-cover position.",
         "The lid closes without a rigid tile or frame touching any control.",
         "The final switch garage preserves at least 3-5 mm clearance.",
-        "All four cable coils fit below the installed cover without pinching.",
+        "All four integrated cable cells retain their coils without pinching.",
+        "The integrated 80 mm right pocket measures at least 120 mm clear below its divider.",
         "The adapter and keys remain captured with the lid vertical and inverted.",
         "Both left tongues fully enter the right pockets and accept M3 bolts without forcing.",
         "Captive M3 nuts remain seated and no bolt head protrudes against the lid floor.",
