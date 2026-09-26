@@ -8,9 +8,8 @@
   <EntityRelationship Name="andy_contestsourcecap_Source_andy_contestsource" />
   <EntityRelationship Name="andy_grandprizeentry_CampaignName_andy_contestcampaign" />
   <EntityRelationship Name="andy_grandprizeentry_Contact_contact" />
-  <EntityRelationship Name="andy_grandprizeentry_GameWin_andy_gamewin" />
+  <EntityRelationship Name="andy_grandprizeentry_PrizeClaim_andy_prizeclaim" />
   <EntityRelationship Name="andy_grandprizeentry_SourceCap_andy_contestsourcecap" />
-  <EntityRelationship Name="andy_prizes_GameWin_andy_gamewin" />
   <EntityRelationship Name="andy_prizes_PrizeType_andy_prizetypes" />
   <EntityRelationship Name="business_unit_andy_contestsource" />
   <EntityRelationship Name="business_unit_andy_grandprizeentry" />

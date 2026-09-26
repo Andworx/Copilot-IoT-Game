@@ -81,43 +81,39 @@ describe("buildGrandPrizeEntryPayload", () => {
       buildGrandPrizeEntryPayload({
         campaignId: "11111111-1111-1111-1111-111111111111",
         contactId: "22222222-2222-2222-2222-222222222222",
-        gameWinId: "33333333-3333-3333-3333-333333333333",
+        prizeClaimId: "33333333-3333-3333-3333-333333333333",
         sourceCapId: "44444444-4444-4444-4444-444444444444",
+        checkInCode: "DEMO-123456",
         contestant: { name: "  Grace Hopper ", email: " GRACE@example.com ", sharedInfo: true },
         now: new Date("2026-09-24T12:00:00.000Z"),
       }),
       {
         andy_participantname: "Grace Hopper",
         andy_entrytimestamp: "2026-09-24T12:00:00.000Z",
-        andy_entrycount: 1,
-        andy_sharedinformation: "Yes",
         andy_privacyacceptancetime: "2026-09-24T12:00:00.000Z",
+        andy_checkincode: "DEMO-123456",
         "andy_CampaignName@odata.bind": "/andy_contestcampaigns(11111111-1111-1111-1111-111111111111)",
         "andy_Contact@odata.bind": "/contacts(22222222-2222-2222-2222-222222222222)",
-        "andy_GameWin@odata.bind": "/andy_gamewins(33333333-3333-3333-3333-333333333333)",
+        "andy_PrizeClaim@odata.bind": "/andy_prizeclaims(33333333-3333-3333-3333-333333333333)",
         "andy_SourceIdentifier@odata.bind": "/andy_contestsourcecaps(44444444-4444-4444-4444-444444444444)",
       }
     );
   });
 
-  it("omits the legacy Game Win lookup for new Prize Claim writes", () => {
+  it("omits optional Prize Claim and source-cap lookups when they are unavailable", () => {
     assert.deepEqual(
       buildGrandPrizeEntryPayload({
         campaignId: "11111111-1111-1111-1111-111111111111",
         contactId: "22222222-2222-2222-2222-222222222222",
-        sourceCapId: "44444444-4444-4444-4444-444444444444",
         contestant: { name: "", email: " PLAYER@example.com ", sharedInfo: true },
         now: new Date("2026-09-25T15:30:00.000Z"),
       }),
       {
         andy_participantname: "player@example.com",
         andy_entrytimestamp: "2026-09-25T15:30:00.000Z",
-        andy_entrycount: 1,
-        andy_sharedinformation: "Yes",
         andy_privacyacceptancetime: "2026-09-25T15:30:00.000Z",
         "andy_CampaignName@odata.bind": "/andy_contestcampaigns(11111111-1111-1111-1111-111111111111)",
         "andy_Contact@odata.bind": "/contacts(22222222-2222-2222-2222-222222222222)",
-        "andy_SourceIdentifier@odata.bind": "/andy_contestsourcecaps(44444444-4444-4444-4444-444444444444)",
       }
     );
   });

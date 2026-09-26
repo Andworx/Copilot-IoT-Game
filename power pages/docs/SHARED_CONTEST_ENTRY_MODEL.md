@@ -5,13 +5,13 @@ Parent epic: [#121](https://github.com/Andworx/Copilot-IoT-Game/issues/121)
 
 ## Purpose
 
-Create a shared Dataverse model for contest configuration, contestant identity, source-specific entry caps, and grand-prize eligibility. This model lets IoT, Plinko, and future games contribute entries without writing their cross-game eligibility data into the IoT-specific `andy_gamewin` table.
+Create a shared Dataverse model for contest configuration, contestant identity, source-specific entry caps, and grand-prize eligibility. This model lets IoT, Plinko, and future games contribute entries through the shared `andy_prizeclaim` parent instead of writing cross-game eligibility data into an IoT-specific table.
 
 ## Ownership
 
 Put the shared contest tables in the `andy_PrizeEngine` solution because it already owns cross-game prize concepts used by both Copilot IoT Game and Clawmachine. Game-specific solutions should reference these tables and keep their own source records, forms, and instant-prize behavior.
 
-`andy_gamewin` remains in `CopilotIoTGame` for the current IoT QR, claim-token, and instant-prize lifecycle.
+`andy_gamewin` is the legacy IoT win table. New QR, claim-token, Contact, and instant-prize lifecycle data belongs on `andy_prizeclaim`, with `andy_iotgamewin` retaining only IoT device context.
 
 ## Entry Timing Decision
 
@@ -34,9 +34,9 @@ Recommended fields:
 
 The capture/upsert flow should normalize email by trimming and lowercasing before lookup. It may populate blank display-name fields, but it must not overwrite existing consent or preference fields unless the contestant explicitly changes them through a consent surface.
 
-### `andy_gamewin`
+### `andy_prizeclaim`
 
-Keep `andy_gamewin` as the IoT instant-prize source record, but relate it to standard Contact instead of storing duplicate contestant fields.
+Use `andy_prizeclaim` as the shared instant-prize claim record and source anchor for grand-prize entries. Game-specific tables such as `andy_iotgamewin` link to Prize Claim for their device/session context.
 
 | Column | Type | Required | Notes |
 |---|---|---|---|
@@ -48,10 +48,10 @@ The existing `andy_contestantname`, `andy_contestantemail`, and `andy_sharedinfo
 
 Roll this into Dataverse in small solution pushes so forms and code never reference missing schema.
 
-1. **Form cleanup push**: remove `andy_contestantname`, `andy_contestantemail`, and `andy_sharedinfo` from the `andy_gamewin` main form. Do not delete the columns in this first push; the goal is only to stop presenting redundant inline fields to admins.
-2. **Contact relationship push**: add the optional `andy_gamewin.andy_contact` lookup to standard `contact`, with remove-link behavior for Contact deletion/privacy cleanup. Deploy this before the Azure Function version that binds `andy_Contact@odata.bind` during `claim-prize`.
-3. **Contest entry experience push**: add the shared `andy_contestcampaign`, `andy_contestsourcecap`, and `andy_grandprizeentry` tables/relationships in `andy_PrizeEngine`; update the `andy_gamewin` form to show the Contact lookup and a grand-prize entries subgrid/timeline view. This is the larger user-facing schema/form update.
-4. **Final field cleanup**: after the Contact lookup and grand-prize entry path are live and historical data has been reviewed, delete the old inline `andy_gamewin` contestant columns from the table/solution if no downstream exports, views, or reports still reference them.
+1. **Shared claim push**: add `andy_prizeclaim` and the game-specific detail table, such as `andy_iotgamewin`, before the Azure Function version that writes them.
+2. **Contest entry experience push**: add Campaign, Source Cap, Grand Prize Entry, Contact relationships, and Prize Claim relationships in `andy_PrizeEngine` before the Function creates grand-prize entries.
+3. **Grand Prize Entry cleanup push**: remove obsolete eligibility, entry-count, shared-info, legacy Game Win, and notes columns after the Prize Claim relationship exists and forms/views no longer reference the old fields.
+4. **Legacy source cleanup**: remove legacy `andy_gamewin` dependencies from app navigation and source packages only after live claim flows prove Prize Claim and IoT Game Win are working. Delete live legacy tables or columns only in an explicit later cleanup window.
 
 ### `andy_contestcampaign`
 
@@ -103,19 +103,15 @@ One eligibility row for a Contact in a campaign, traceable back to the game-spec
 | `andy_campaignname` | Lookup -> `andy_contestcampaign` | Required | Drawing scope. Navigation property: `andy_CampaignName`. |
 | `andy_contact` | Lookup -> `contact` | Required | Contestant identity. Navigation property: `andy_Contact`. |
 | `andy_sourceidentifier` | Lookup -> `andy_contestsourcecap` | Optional | Source rule applied when entry was created. Navigation property: `andy_SourceIdentifier`. |
-| `andy_gamewin` | Lookup -> `andy_gamewin` | Optional | Real relationship to the IoT source win. Navigation property: `andy_GameWin`. |
+| `andy_prizeclaim` | Lookup -> `andy_prizeclaim` | Optional | Shared claim record that produced this grand-prize entry. Navigation property: `andy_PrizeClaim`. |
 | `andy_entrytimestamp` | DateTime | Required | When eligibility was granted. |
-| `andy_entrycount` | Whole Number | Required | Usually `1`; supports weighted/bonus entries later without duplicate rows. |
-| `andy_eligibilitystatus` | Choice | Optional | Eligibility state once the choice values are finalized. |
 | `andy_checkincode` | Text | Optional | Staff-visible check-in or reconciliation code. |
 | `andy_checkinstatus` | Choice | Optional | Booth check-in state: `Not Checked In`, `Checked In`, or `Invalidated`. |
 | `andy_checkintime` | DateTime | Optional | Timestamp recorded when booth check-in succeeds. |
-| `andy_checkinnotes` | Text | Optional | Internal booth-staff note for check-in exceptions or context. |
-| `andy_sharedinformation` | Text | Optional | Whether the contestant opted into sharing identity for this entry. Current Function writes `Yes`. |
 | `andy_privacyacceptancetime` | DateTime | Optional | Timestamp for the notice/consent surface used by the entry. |
 | `andy_privacynoticeversion` | Text | Optional | Version or URL fingerprint shown at capture time. |
 
-For the current IoT flow, the source relationship is the `andy_gamewin` lookup. Future source games can add their own optional source lookup columns or use a polymorphic source model later if needed.
+For the current IoT flow, source traceability runs through `andy_prizeclaim` to `andy_iotgamewin`. Future source games should add their own detail table linked to Prize Claim rather than adding source-specific lookups to Grand Prize Entry.
 
 ## Relationships
 
@@ -124,9 +120,9 @@ For the current IoT flow, the source relationship is the `andy_gamewin` lookup. 
 | Campaign -> Source Caps | Restrict delete. A campaign with source rules should not be deleted accidentally. |
 | Campaign -> Grand-Prize Entries | Restrict delete. Historical entries remain auditable. |
 | Contact -> Grand-Prize Entries | Restrict delete or Remove Link, depending on privacy deletion policy. |
-| Contact -> Game Wins | Remove Link. Contact deletion/privacy cleanup should not delete instant-prize claim history. |
+| Contact -> Prize Claims | Remove Link. Contact deletion/privacy cleanup should not delete instant-prize claim history. |
 | Source Cap -> Grand-Prize Entries | Restrict delete. Preserve the rule used for historical entries. |
-| Game Win -> Grand-Prize Entries | Restrict delete. IoT instant-prize rows remain traceable. |
+| Prize Claim -> Grand-Prize Entries | Remove Link or Restrict delete, depending on final retention policy. Prize Claim is the shared source anchor. |
 
 ## Creation Contract
 
@@ -136,7 +132,8 @@ Each game should call a shared entry-creation contract with this payload shape:
 {
   "campaignId": "<contest campaign guid>",
   "sourceCapId": "<contest source cap guid>",
-  "gameWinId": "<source game win guid>",
+  "prizeClaimId": "<prize claim guid>",
+  "checkInCode": "<generated check-in code>",
   "contestant": {
     "displayName": "Optional Name",
     "email": "person@example.com",
@@ -154,19 +151,19 @@ The contract should:
 1. Reject inactive or out-of-window campaigns using Dataverse status plus the campaign date fields.
 2. Lookup/upsert Contact by normalized email when `sharedInfo` is true and email is supplied.
 3. Never overwrite existing Contact consent/preference fields implicitly.
-4. Apply the campaign/source cap before creating or incrementing an entry.
-5. Link the IoT `andy_gamewin` row to the Contact when the source record is an IoT win.
-6. Create a traceable `andy_grandprizeentry` row linked to Contact, Campaign, Source Cap, and Game Win.
+4. Apply the campaign/source cap before creating an entry.
+5. Link the `andy_prizeclaim` row to the Contact when contact information is shared.
+6. Create a traceable `andy_grandprizeentry` row linked to Contact, Campaign, Source Cap, and Prize Claim.
 7. Return whether an entry was created, capped, or rejected with a reason code.
 
 ## Compatibility Boundary
 
 Existing IoT instant-prize behavior stays compatible:
 
-- `POST /api/create-win` continues creating `andy_gamewin` rows for Game Mode ON completions.
+- `POST /api/create-win` creates the shared `andy_prizeclaim` row plus an `andy_iotgamewin` detail row for Game Mode ON completions.
 - `POST /api/claim-prize` continues using the existing claim token and prize instance logic.
-- Contact information captured from the QR flow belongs on the standard `contact` table and is linked back through `andy_gamewin.andy_contact`.
-- The inline `andy_gamewin.andy_contestantname`, `andy_gamewin.andy_contestantemail`, and `andy_gamewin.andy_sharedinfo` fields are deprecated. Remove them from the form first, then delete them from the table only after the Contact lookup and grand-prize entry creation path are deployed and verified.
+- Contact information captured from the QR flow belongs on the standard `contact` table and is linked back through `andy_prizeclaim.andy_contact`.
+- The legacy `andy_gamewin` table and its prize/contact dependencies are retired after Prize Claim and IoT Game Win are verified in live claim flows. Historical legacy rows do not need migration.
 - New grand-prize eligibility should be additive and should not gate the instant-prize spin.
 
 ## Decoupling Contract For Source Games
@@ -175,7 +172,7 @@ Existing IoT instant-prize behavior stays compatible:
 
 Grand-prize eligibility belongs in `andy_grandprizeentry`. Future games should create their own source records, then either add a real optional lookup from `andy_grandprizeentry` to that source table or introduce a dedicated polymorphic source pattern later. They should not add Plinko, Claw Machine, or future-game-specific columns to `andy_gamewin`, and they should not write fake IoT game-win rows only to become eligible for a drawing.
 
-For IoT entries, `andy_grandprizeentry.andy_gamewin` is the real lookup back to the source win, and `andy_grandprizeentry.andy_sourceidentifier` points to the source-cap row that defined the IoT entry rule.
+For IoT entries, `andy_grandprizeentry.andy_prizeclaim` is the lookup back to the shared claim, `andy_iotgamewin` contains device context through its Prize Claim lookup, and `andy_grandprizeentry.andy_sourceidentifier` points to the source-cap row that defined the IoT entry rule.
 
 ## Deferred Options
 

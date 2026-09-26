@@ -33,9 +33,8 @@
         <Titles>
           <Title LCID="1033" Title="Game" />
         </Titles>
-        <SubArea Id="subarea_prizeclaim" Entity="andy_prizeclaim" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
+        <SubArea Id="subarea_prizeclaim" Icon="/$webresource:andy_prizeclaim_icon" Entity="andy_prizeclaim" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
         <SubArea Id="subarea_grandprizeentry" Icon="/$webresource:andy_grandprizeentry_icon" Entity="andy_grandprizeentry" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
-        <SubArea Id="subarea_gamewin" Icon="/$webresource:andy_gamewin_icon" Entity="andy_gamewin" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
       </Group>
       <Group Id="group_1cbfe504" ResourceId="SitemapDesigner.NewGroup" DescriptionResourceId="SitemapDesigner.NewGroup" IntroducedVersion="7.0.0.0" IsProfile="false" ToolTipResourseId="SitemapDesigner.Unknown">
         <Titles>
