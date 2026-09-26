@@ -11,11 +11,17 @@
       183.0
     ],
     "lid_depth": 35.0,
+    "measured_clearance_above_old_cover": 14.0,
+    "derived_stack_envelope": 37.4,
     "provisional_storage_depth": 28.0,
-    "prototype_stack_depth": 23.4,
-    "snap_fit_max_depth": 25.4,
-    "snap_vertical_clearance": 0.3,
+    "prototype_stack_depth": 36.4,
+    "snap_fit_max_depth": 37.2,
+    "snap_vertical_clearance": 0.25,
     "snap_latch_interference": 0.55,
+    "integrated_left_pocket_width": 77.467,
+    "integrated_right_pocket_width": 80.0,
+    "right_bottom_compartment_length": 120.0,
+    "right_upper_tray_length": 53.8,
     "seam_tongue_engagement": 20.0,
     "seam_pocket_height": 9.8,
     "left_design_plate": [
@@ -33,7 +39,8 @@
     "Painter's tape or clay on locator tiles records the safety-cover position.",
     "The lid closes without a rigid tile or frame touching any control.",
     "The final switch garage preserves at least 3-5 mm clearance.",
-    "All four cable coils fit below the installed cover without pinching.",
+    "All four integrated cable cells retain their coils without pinching.",
+    "The integrated 80 mm right pocket measures at least 120 mm clear below its divider.",
     "The adapter and keys remain captured with the lid vertical and inverted.",
     "Both left tongues fully enter the right pockets and accept M3 bolts without forcing.",
     "Captive M3 nuts remain seated and no bolt head protrudes against the lid floor.",
@@ -322,61 +329,11 @@
       ],
       "fits_256mm_bed": true
     },
-    "lid_storage_accessory_key_insert.stl": {
-      "bounds_mm": [
-        72.0,
-        167.0,
-        17.0
-      ],
-      "closed_edges": true,
-      "winding_consistent": true,
-      "connected_bodies": 1,
-      "component_bounds": [
-        [
-          [
-            -36.0,
-            -83.5,
-            0.0
-          ],
-          [
-            36.0,
-            83.5,
-            17.0
-          ]
-        ]
-      ],
-      "fits_256mm_bed": true
-    },
-    "lid_storage_cable_insert.stl": {
-      "bounds_mm": [
-        72.0,
-        167.0,
-        17.0
-      ],
-      "closed_edges": true,
-      "winding_consistent": true,
-      "connected_bodies": 1,
-      "component_bounds": [
-        [
-          [
-            -36.0,
-            -83.5,
-            0.0
-          ],
-          [
-            36.0,
-            83.5,
-            17.0
-          ]
-        ]
-      ],
-      "fits_256mm_bed": true
-    },
     "lid_storage_carrier_R.stl": {
       "bounds_mm": [
-        185.683,
+        186.817,
         216.0,
-        25.4
+        37.2
       ],
       "closed_edges": true,
       "winding_consistent": true,
@@ -384,14 +341,14 @@
       "component_bounds": [
         [
           [
-            -40.6833,
+            -41.8167,
             -108.0,
             0.0
           ],
           [
             145.0,
             108.0,
-            25.4
+            37.2
           ]
         ]
       ],
@@ -399,8 +356,8 @@
     },
     "lid_storage_cover_base.stl": {
       "bounds_mm": [
-        163.967,
-        180.3,
+        163.067,
+        179.4,
         2.4
       ],
       "closed_edges": true,
@@ -409,13 +366,13 @@
       "component_bounds": [
         [
           [
-            -81.9833,
-            -90.15,
+            -81.5333,
+            -89.7,
             0.0
           ],
           [
-            81.9833,
-            90.15,
+            81.5333,
+            89.7,
             2.4
           ]
         ]
@@ -424,8 +381,8 @@
     },
     "lid_storage_cover_blank.stl": {
       "bounds_mm": [
-        163.967,
-        180.3,
+        163.067,
+        179.4,
         2.4
       ],
       "closed_edges": true,
@@ -434,13 +391,13 @@
       "component_bounds": [
         [
           [
-            -81.9833,
-            -90.15,
+            -81.5333,
+            -89.7,
             0.0
           ],
           [
-            81.9833,
-            90.15,
+            81.5333,
+            89.7,
             2.4
           ]
         ]

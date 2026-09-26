@@ -10,6 +10,8 @@ $fn = 64;
 boss_pitch = [274, 200];
 between_ribs = [255, 183];
 measured_lid_depth = 35;
+measured_clearance_above_old_cover = 14;
+derived_stack_envelope = 23.4 + measured_clearance_above_old_cover;
 
 frame_thickness = 3.2;
 rail_width = 12;
@@ -28,21 +30,38 @@ module_gap = 4;
 module_width = (between_ribs[0] - 2 * module_gap) / 3;
 module_height = between_ribs[1];
 
-// Printable storage prototype.  The left third remains completely open.  The
-// centre and right thirds share one carrier and cover, with removable inserts.
+// Printable storage prototype.  The left third remains available for the
+// design plate.  The centre and right compartments are integrated into one
+// deep carrier so no removable tray inserts are required.
 storage_wall = 2.4;
 storage_floor = 2.4;
-storage_height = 21;
+storage_height = 34;
 storage_bay_width = module_width - 2;
 storage_outer_size = [2 * storage_bay_width + module_gap, module_height - 2];
 storage_center_x = (module_width + module_gap) / 2;
 storage_bay_centers = [0, module_width + module_gap];
+storage_internal_length = storage_outer_size[1] - 2 * storage_wall;
+right_pocket_width = 80;
+left_pocket_width = storage_outer_size[0] - 3 * storage_wall -
+                    right_pocket_width;
+left_pocket_center_local = -storage_outer_size[0] / 2 + storage_wall +
+                           left_pocket_width / 2;
+right_pocket_center_local = storage_outer_size[0] / 2 - storage_wall -
+                            right_pocket_width / 2;
+right_bottom_length = 120;
+right_upper_length = storage_internal_length - right_bottom_length -
+                     storage_wall;
+right_divider_y = -storage_internal_length / 2 + right_bottom_length +
+                  storage_wall / 2;
+left_divider_y = [-44.65, 0, 44.65];
+// Retained only so the legacy insert modules remain reproducible from source;
+// they are no longer part of the printable assembly.
 insert_size = [72, 167];
 insert_floor = 1.2;
 insert_wall = 1.6;
 insert_height = 17;
 cover_thickness = 2.4;
-cover_clearance = 0.35;
+cover_clearance = 0.8;
 cover_size = [storage_outer_size[0] - 2 * cover_clearance,
               storage_outer_size[1] - 2 * cover_clearance];
 cover_fastener_x = [-79.35, 0, 79.35];
@@ -53,16 +72,20 @@ cover_insert_pilot = 4.0;
 cover_boss_diameter = 9;
 cover_insert_depth = 5.5;
 
-// Tool-free cover retention.  The top edge slips below a fixed rail, the side
-// ribs center the plate, and two independent bottom cantilevers snap over it.
-snap_vertical_clearance = 0.3;
-snap_top_lip_depth = 2.8;
+// Tool-free cover retention.  The cover edges are locally recessed so strong,
+// body-integrated rails can capture them without exceeding the measured lid
+// envelope.  Side and top roots are 3.2 mm thick instead of the former 1.4 mm.
+snap_vertical_clearance = 0.25;
+snap_edge_recess_depth = 1.2;
+snap_edge_band = 5;
+snap_back_thickness = 3.2;
+snap_top_lip_depth = 4.5;
 snap_top_lip_height = 1.6;
-snap_guide_height = cover_thickness + snap_vertical_clearance + 1.0;
+snap_guide_height = cover_thickness + 0.8;
 snap_latch_x = [-44, 44];
-snap_latch_width = 10;
-snap_latch_stem = 1.2;
-snap_latch_height = 12;
+snap_latch_width = 12;
+snap_latch_stem = 2.0;
+snap_latch_height = 13;
 snap_latch_interference = 0.55;
 snap_release_diameter = 20;
 
@@ -211,15 +234,22 @@ module storage_frame_right_2d() {
 }
 
 module cover_top_retainer() {
-    // Vertical back and inward top lip form a ledge over the inserted edge.
+    edge_top = storage_height + cover_thickness - snap_edge_recess_depth;
+    lip_bottom = edge_top + snap_vertical_clearance;
+
+    // The back overlaps the carrier wall by about 0.45 mm and extends upward
+    // as one continuous 3.2 mm-thick root for the recessed-edge lip.
     translate([storage_center_x,
-               cover_size[1] / 2 + 1.0,
-               storage_height + snap_guide_height / 2])
-        cube([cover_size[0] - 18, 1.4, snap_guide_height], center = true);
+               cover_size[1] / 2 + snap_vertical_clearance +
+               snap_back_thickness / 2,
+               (storage_height + lip_bottom + snap_top_lip_height) / 2])
+        cube([cover_size[0] - 18, snap_back_thickness,
+              lip_bottom + snap_top_lip_height - storage_height],
+             center = true);
     translate([storage_center_x,
-               cover_size[1] / 2 - snap_top_lip_depth / 2 + 0.7,
-               storage_height + cover_thickness +
-               snap_vertical_clearance + snap_top_lip_height / 2])
+               cover_size[1] / 2 - snap_top_lip_depth / 2 +
+               snap_vertical_clearance,
+               lip_bottom + snap_top_lip_height / 2])
         cube([cover_size[0] - 18, snap_top_lip_depth,
               snap_top_lip_height], center = true);
 }
@@ -227,21 +257,25 @@ module cover_top_retainer() {
 module cover_side_guides() {
     for (side = [-1, 1])
         translate([storage_center_x +
-                   side * (cover_size[0] / 2 + 1.0),
+                   side * (cover_size[0] / 2 + snap_vertical_clearance +
+                           snap_back_thickness / 2),
                    0,
                    storage_height + snap_guide_height / 2])
-            cube([1.4, cover_size[1] - 34, snap_guide_height], center = true);
+            cube([snap_back_thickness, cover_size[1] - 34,
+                  snap_guide_height], center = true);
 }
 
 module cover_snap_latch(local_x) {
-    outside_y = -storage_outer_size[1] / 2 - 0.8;
-    stem_bottom = storage_height - snap_latch_height + 4;
+    outside_y = -storage_outer_size[1] / 2 - 1.1;
+    edge_top = storage_height + cover_thickness - snap_edge_recess_depth;
+    hook_bottom = edge_top + snap_vertical_clearance;
+    stem_bottom = hook_bottom + snap_top_lip_height - snap_latch_height;
 
-    // Bottom bridge anchors a thin, otherwise free-standing cantilever.
+    // Bottom bridge anchors a stout, otherwise free-standing cantilever.
     translate([storage_center_x + local_x,
                -storage_outer_size[1] / 2,
-               stem_bottom + 1])
-        cube([snap_latch_width, 3.2, 2], center = true);
+               stem_bottom + 1.5])
+        cube([snap_latch_width, 4.2, 3], center = true);
     translate([storage_center_x + local_x, outside_y,
                stem_bottom + snap_latch_height / 2])
         cube([snap_latch_width, snap_latch_stem, snap_latch_height],
@@ -251,15 +285,28 @@ module cover_snap_latch(local_x) {
     // returns over the cover with 0.3 mm running clearance.
     hull() {
         translate([storage_center_x + local_x, outside_y,
-                   storage_height + cover_thickness +
-                   snap_vertical_clearance + 1.3])
-            cube([snap_latch_width, snap_latch_stem, 0.8], center = true);
+                   hook_bottom + 1.1])
+            cube([snap_latch_width, snap_latch_stem, 1.0], center = true);
         translate([storage_center_x + local_x,
                    -cover_size[1] / 2 + snap_latch_interference,
-                   storage_height + cover_thickness +
-                   snap_vertical_clearance + 0.4])
-            cube([snap_latch_width, 0.5, 0.8], center = true);
+                   hook_bottom + 0.5])
+            cube([snap_latch_width, 0.7, 1.0], center = true);
     }
+}
+
+module cover_snap_reliefs() {
+    // Recessed top edge fits beneath the continuous top rail.
+    translate([0, cover_size[1] / 2 - snap_edge_band / 2,
+               cover_thickness - snap_edge_recess_depth / 2 + 0.05])
+        cube([cover_size[0] - 16, snap_edge_band,
+              snap_edge_recess_depth + 0.1], center = true);
+
+    // Matching recessed pads receive the two lower snap hooks.
+    for (x = snap_latch_x)
+        translate([x, -cover_size[1] / 2 + snap_edge_band / 2,
+                   cover_thickness - snap_edge_recess_depth / 2 + 0.05])
+            cube([snap_latch_width + 3, snap_edge_band,
+                  snap_edge_recess_depth + 0.1], center = true);
 }
 
 module seam_pocket(y) {
@@ -404,14 +451,28 @@ module storage_carrier_right() {
                 linear_extrude(storage_height)
                     difference() {
                         rounded_rect_2d(storage_outer_size, 5);
-                        for (x = [-storage_bay_centers[1] / 2,
-                                  storage_bay_centers[1] / 2])
-                            translate([x, 0])
-                                rounded_rect_2d([
-                                    storage_bay_width - 2 * storage_wall,
-                                    storage_outer_size[1] - 2 * storage_wall
-                                ], 3);
+                        translate([left_pocket_center_local, 0])
+                            rounded_rect_2d([left_pocket_width,
+                                             storage_internal_length], 3);
+                        translate([right_pocket_center_local, 0])
+                            rounded_rect_2d([right_pocket_width,
+                                             storage_internal_length], 3);
                     }
+
+            // Printed-in cable cells replace the former removable left insert.
+            for (y = left_divider_y)
+                translate([storage_center_x + left_pocket_center_local, y,
+                           (storage_height + storage_floor) / 2])
+                    cube([left_pocket_width + 0.6, storage_wall,
+                          storage_height - storage_floor], center = true);
+
+            // The 80 mm right pocket has a 120 mm clear lower compartment;
+            // the remaining 53.8 mm clear length forms the upper tray.
+            translate([storage_center_x + right_pocket_center_local,
+                       right_divider_y,
+                       (storage_height + storage_floor) / 2])
+                cube([right_pocket_width + 0.6, storage_wall,
+                      storage_height - storage_floor], center = true);
 
             // Short bridges tie the tray to the frame rails without entering
             // the left safety-switch opening.
@@ -524,6 +585,7 @@ module storage_cover_base() {
         }
         translate([0, -cover_size[1] / 2, -0.05])
             cylinder(h = cover_thickness + 0.1, d = snap_release_diameter);
+        cover_snap_reliefs();
         translate([0, 18, cover_thickness - 0.7])
             linear_extrude(0.72)
                 offset(delta = 0.18)
@@ -553,6 +615,7 @@ module storage_cover_blank() {
         }
         translate([0, -cover_size[1] / 2, -0.05])
             cylinder(h = cover_thickness + 0.1, d = snap_release_diameter);
+        cover_snap_reliefs();
     }
 }
 
@@ -571,10 +634,6 @@ module storage_cover_logo() {
 module storage_assembly_preview() {
     color([0.12, 0.12, 0.14]) storage_frame_left();
     color([0.12, 0.12, 0.14]) storage_carrier_right();
-    color([0.85, 0.2, 0.15])
-        translate([storage_bay_centers[0], 0, storage_floor]) cable_insert();
-    color([0.25, 0.55, 0.85])
-        translate([storage_bay_centers[1], 0, storage_floor]) accessory_insert();
     color([0.10, 0.12, 0.28, 0.8])
         translate([storage_center_x, 0, storage_height + 14]) storage_cover_base();
     color([0.95, 0.92, 0.28])

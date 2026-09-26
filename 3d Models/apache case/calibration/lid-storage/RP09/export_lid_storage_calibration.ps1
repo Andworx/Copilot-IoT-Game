@@ -11,6 +11,17 @@ $tempRoot = 'C:\tmp\apache-2800-lid-storage-RP09'
 New-Item -ItemType Directory -Path $exports -Force | Out-Null
 New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 
+# RP09 deep carrier integrates these compartments directly.  Remove obsolete
+# separate-insert exports so the printable set cannot be confused with the
+# current assembly.
+foreach ($legacy in @('lid_storage_cable_insert.stl',
+                       'lid_storage_accessory_key_insert.stl')) {
+    $legacyPath = Join-Path $exports $legacy
+    if (Test-Path -LiteralPath $legacyPath) {
+        Remove-Item -LiteralPath $legacyPath -Force
+    }
+}
+
 $parts = @{
     'frame_left' = 'lid_fit_frame_L.stl'
     'frame_right' = 'lid_fit_frame_R.stl'
@@ -19,8 +30,6 @@ $parts = @{
     'branding_insert' = 'andworx_field_kit_logo.stl'
     'storage_carrier_right' = 'lid_storage_carrier_R.stl'
     'storage_frame_left' = 'lid_storage_frame_L.stl'
-    'cable_insert' = 'lid_storage_cable_insert.stl'
-    'accessory_insert' = 'lid_storage_accessory_key_insert.stl'
     'storage_cover_base' = 'lid_storage_cover_base.stl'
     'storage_cover_blank' = 'lid_storage_cover_blank.stl'
     'storage_cover_logo' = 'lid_storage_cover_logo.stl'

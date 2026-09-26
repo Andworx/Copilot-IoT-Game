@@ -61,14 +61,17 @@ After the two fit-frame halves align, print:
 
 1. `exports/lid_storage_frame_L.stl` — the left perimeter, open switch garage,
    two seam tongues, and four design-plate mounting bosses.
-2. `exports/lid_storage_carrier_R.stl` — the right frame half and common tray.
-3. `exports/lid_storage_cable_insert.stl` — four pockets for flat-coiled
-   6-inch cables.
-4. `exports/lid_storage_accessory_key_insert.stl` — general adapter, key, and
-   spare-item pockets.
-5. `exports/lid_storage_cover_base.stl` — the common screw-down cover.
-6. `exports/lid_storage_cover_logo.stl` — the contrasting Andworx/Field Kit
+2. `exports/lid_storage_carrier_R.stl` — the 34 mm-deep right frame half with
+   all storage compartments printed directly into it. The left storage bay has
+   four cable cells. The 80 mm-wide right bay has a 120 mm lower compartment
+   and a 53.8 mm upper tray.
+3. `exports/lid_storage_cover_base.stl` — the common snap-fit cover.
+4. `exports/lid_storage_cover_logo.stl` — the contrasting Andworx/Field Kit
    inlay.
+
+The former cable and accessory insert STLs are obsolete. Their compartments
+are now integrated into `lid_storage_carrier_R.stl` and must not be printed
+separately.
 
 Two optional blank parts are also included:
 
@@ -83,11 +86,13 @@ Two optional blank parts are also included:
 
 ## Tool-free storage cover
 
-Both the branded and blank storage covers now use the same snap-fit outline.
-Insert the top edge beneath the fixed retaining rail, keep the plate between the
-two side guides, and press the lower corners until both bottom cantilevers click
-over the cover. A 20 mm finger notch and matching carrier-wall scallop provide
-room to lift the lower edge during removal.
+Both the branded and blank storage covers use the same recessed-edge snap-fit
+outline. Insert the thinned top edge beneath the fixed retaining rail, keep the
+plate between the two reinforced side guides, and press the two recessed lower
+pads until both bottom cantilevers click over the cover. A 20 mm finger notch
+and matching carrier-wall scallop provide room to lift the lower edge during
+removal. The top and side roots are 3.2 mm thick and overlap the carrier wall;
+do not print an older cover without the matching edge recesses.
 
 The six original M3 cover holes and heat-set-insert bosses remain available as
 optional backup fasteners, but are not required for normal access. Test the
@@ -109,16 +114,17 @@ actual screw does not bottom out or protrude toward the lid. Insert both tongues
 fully before installing either screw. The joint must pull together without
 bending the long frame rails.
 
-The carrier, inserts, and cover form a nominal 23.4 mm stack from the lid
-floor. The left third has no floor or cover. The cover uses six M3 clearance
-holes over 4.0 mm heat-set-insert pilots in the carrier. Install the cover
-inserts before loading anything, and use short screws that cannot bottom out in
-the carrier.
+The deep carrier and cover form a nominal 36.4 mm stack from the lid mounting
+plane; the reinforced side guides reach 37.2 mm. This is based on the measured
+14 mm space above the earlier 23.4 mm cover face and leaves only about 0.2 mm
+nominal clearance. Perform a clay or tape witness test before latching the case.
+The cover retains six M3 clearance holes over 4.0 mm heat-set-insert pilots as
+optional backup fastening points.
 
 This remains a test assembly. Before closing the lid, verify that every cable
-coil sits below the carrier rim, the adapter and keys cannot rock above the rim,
-and the cover lies flat without preload. Close the lid gently without engaging
-the latches for the first test.
+coil sits below the integrated dividers, the adapter and keys cannot rock above
+the rim, and the cover lies flat without preload. Close the lid gently without
+engaging the case latches for the first test.
 
 ## Intended final architecture
 
@@ -127,8 +133,9 @@ interface and divide the 255 x 183 mm rib opening into three bays. Viewed with
 the open lid in the same orientation as the supplied photograph, they are:
 
 - left: a permanently open safety-switch garage;
-- centre: flat-coil cable storage with positive clips for the 6-inch leads; and
-- right: a lidded adapter/key cartridge.
+- centre: four printed-in flat-coil cable cells for the 6-inch leads; and
+- right: an integrated 80 mm-wide bay with a 120 mm lower compartment and an
+  upper tray.
 
 The two storage bays can share one removable cover. Its visible face becomes
 the Andworx advertising panel while the entire left bay remains open. The
