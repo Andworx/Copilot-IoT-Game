@@ -13,6 +13,29 @@ interface SmokeTestProps {
 }
 
 type SmokeStep = "idle" | "created" | "claimed";
+type BusyState = "create" | "claim" | "full" | "cap" | null;
+
+interface CreateWinResponse {
+  claimToken?: string;
+  error?: string;
+  message?: string;
+}
+
+interface GrandPrizeEntryResult {
+  status: "created" | "capped" | "skipped" | "error";
+  entryId?: string;
+  currentEntries?: number;
+  maxEntriesPerContact?: number;
+  reason?: string;
+  message?: string;
+}
+
+interface ClaimPrizeResponse {
+  prizeName?: string;
+  grandPrizeEntry?: GrandPrizeEntryResult;
+  error?: string;
+  message?: string;
+}
 
 function readError(body: unknown, fallback: string): string {
   if (body && typeof body === "object" && "message" in body && typeof body.message === "string") {
@@ -30,16 +53,64 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
   const [claimToken, setClaimToken] = useState("");
   const [contestantName, setContestantName] = useState("Demo Player");
   const [contestantEmail, setContestantEmail] = useState("demo@example.com");
+  const [capRunCount, setCapRunCount] = useState("4");
   const [sharedInfo, setSharedInfo] = useState(true);
-  const [busy, setBusy] = useState<"create" | "claim" | null>(null);
+  const [busy, setBusy] = useState<BusyState>(null);
   const [step, setStep] = useState<SmokeStep>("idle");
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [lastResponse, setLastResponse] = useState<string | null>(null);
 
-  async function createWin() {
+  async function createWinRequest(sourceKey = contestSourceKey): Promise<CreateWinResponse> {
     const trimmedDeviceSlug = deviceSlug.trim();
-    const trimmedSourceKey = contestSourceKey.trim();
-    if (!trimmedDeviceSlug) {
+    const trimmedSourceKey = sourceKey.trim();
+    const res = await fetch(`${API_BASE_URL}/api/create-win`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        deviceSlug: trimmedDeviceSlug,
+        contestSourceKey: trimmedSourceKey || undefined,
+      }),
+    });
+    const body = (await res.json()) as CreateWinResponse;
+    if (!res.ok || !body.claimToken) {
+      throw new Error(readError(body, `create-win failed: ${res.status}`));
+    }
+    return body;
+  }
+
+  async function claimPrizeRequest(input: {
+    token: string;
+    name: string;
+    email: string;
+    shouldShareInfo: boolean;
+  }): Promise<ClaimPrizeResponse> {
+    const res = await fetch(`${API_BASE_URL}/api/claim-prize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        claimToken: input.token,
+        contestantName: input.name,
+        contestantEmail: input.email,
+        sharedInfo: input.shouldShareInfo,
+      }),
+    });
+    const body = (await res.json()) as ClaimPrizeResponse;
+    if (!res.ok) {
+      throw new Error(readError(body, `claim-prize failed: ${res.status}`));
+    }
+    return body;
+  }
+
+  function formatGrandPrizeEntry(result: GrandPrizeEntryResult | undefined): string {
+    if (!result) return "Grand Prize Entry status unknown";
+    if (result.status === "created") return "Grand Prize Entry created";
+    if (result.status === "capped") return `Grand Prize Entry capped at ${result.maxEntriesPerContact ?? result.currentEntries ?? "limit"}`;
+    if (result.status === "skipped") return `Grand Prize Entry skipped (${result.reason ?? "no reason"})`;
+    return `Grand Prize Entry error (${result.message ?? "unknown error"})`;
+  }
+
+  async function createWin() {
+    if (!deviceSlug.trim()) {
       setMessage({ kind: "error", text: "Device slug is required." });
       return;
     }
@@ -48,20 +119,9 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
     setMessage(null);
     setLastResponse(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/create-win`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deviceSlug: trimmedDeviceSlug,
-          contestSourceKey: trimmedSourceKey || undefined,
-        }),
-      });
-      const body = (await res.json()) as { claimToken?: string; error?: string; message?: string };
+      const body = await createWinRequest();
       setLastResponse(JSON.stringify(body, null, 2));
-      if (!res.ok || !body.claimToken) {
-        throw new Error(readError(body, `create-win failed: ${res.status}`));
-      }
-      setClaimToken(body.claimToken);
+      setClaimToken(body.claimToken ?? "");
       setStep("created");
       setMessage({ kind: "success", text: "Created Prize Claim and IoT Game Win. Claim token is ready." });
     } catch (err) {
@@ -82,28 +142,97 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
     setMessage(null);
     setLastResponse(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/claim-prize`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          claimToken: trimmedToken,
-          contestantName,
-          contestantEmail,
-          sharedInfo,
-        }),
+      const body = await claimPrizeRequest({
+        token: trimmedToken,
+        name: contestantName,
+        email: contestantEmail,
+        shouldShareInfo: sharedInfo,
       });
-      const body = (await res.json()) as { prizeName?: string; error?: string; message?: string };
       setLastResponse(JSON.stringify(body, null, 2));
-      if (!res.ok) {
-        throw new Error(readError(body, `claim-prize failed: ${res.status}`));
-      }
       setStep("claimed");
-      setMessage({
-        kind: "success",
-        text: `Claimed ${body.prizeName ?? "prize"}.`,
-      });
+      setMessage({ kind: "success", text: `Claimed ${body.prizeName ?? "prize"}. ${formatGrandPrizeEntry(body.grandPrizeEntry)}.` });
     } catch (err) {
       setMessage({ kind: "error", text: err instanceof Error ? err.message : "Failed to claim prize." });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function runFullSmokeTest() {
+    if (!deviceSlug.trim()) {
+      setMessage({ kind: "error", text: "Device slug is required." });
+      return;
+    }
+
+    setBusy("full");
+    setMessage(null);
+    setLastResponse(null);
+    try {
+      const created = await createWinRequest();
+      const claimed = await claimPrizeRequest({
+        token: created.claimToken ?? "",
+        name: contestantName,
+        email: contestantEmail,
+        shouldShareInfo: sharedInfo,
+      });
+      setClaimToken(created.claimToken ?? "");
+      setStep("claimed");
+      setLastResponse(JSON.stringify({ created, claimed }, null, 2));
+      setMessage({ kind: "success", text: `Full run claimed ${claimed.prizeName ?? "prize"}. ${formatGrandPrizeEntry(claimed.grandPrizeEntry)}.` });
+    } catch (err) {
+      setMessage({ kind: "error", text: err instanceof Error ? err.message : "Full smoke test failed." });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function runEventCapTest() {
+    if (!deviceSlug.trim()) {
+      setMessage({ kind: "error", text: "Device slug is required." });
+      return;
+    }
+
+    const attempts = Number.parseInt(capRunCount, 10);
+    if (!Number.isFinite(attempts) || attempts < 2) {
+      setMessage({ kind: "error", text: "Cap test run count must be at least 2." });
+      return;
+    }
+
+    const capEmail = `cap-test-${Date.now()}@example.com`;
+    const results: Array<{ attempt: number; claimToken: string; prizeName?: string; grandPrizeEntry?: GrandPrizeEntryResult }> = [];
+    setBusy("cap");
+    setMessage(null);
+    setLastResponse(null);
+    try {
+      for (let attempt = 1; attempt <= attempts; attempt += 1) {
+        const created = await createWinRequest();
+        const claimed = await claimPrizeRequest({
+          token: created.claimToken ?? "",
+          name: `Cap Test ${attempt}`,
+          email: capEmail,
+          shouldShareInfo: true,
+        });
+        results.push({
+          attempt,
+          claimToken: created.claimToken ?? "",
+          prizeName: claimed.prizeName,
+          grandPrizeEntry: claimed.grandPrizeEntry,
+        });
+      }
+
+      const capped = results.find((result) => result.grandPrizeEntry?.status === "capped");
+      const createdEntries = results.filter((result) => result.grandPrizeEntry?.status === "created").length;
+      setClaimToken(results.at(-1)?.claimToken ?? "");
+      setStep("claimed");
+      setLastResponse(JSON.stringify({ capEmail, attempts, results }, null, 2));
+      setMessage(
+        capped
+          ? { kind: "success", text: `Event cap validated for ${capEmail}: ${createdEntries} entries created, attempt ${capped.attempt} was capped.` }
+          : { kind: "error", text: `No cap was reached after ${attempts} claims for ${capEmail}. Increase the run count or verify the active campaign cap.` }
+      );
+    } catch (err) {
+      setLastResponse(JSON.stringify({ capEmail, attempts, results }, null, 2));
+      setMessage({ kind: "error", text: err instanceof Error ? err.message : "Event cap test failed." });
     } finally {
       setBusy(null);
     }
@@ -162,6 +291,25 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
         {busy === "create" ? "Creating..." : "Create Test Win"}
       </button>
 
+      <button
+        onClick={runFullSmokeTest}
+        disabled={busy !== null}
+        style={{
+          marginTop: "0.9rem",
+          marginLeft: "0.6rem",
+          padding: "0.6rem 1.2rem",
+          borderRadius: 6,
+          border: "none",
+          fontWeight: 600,
+          color: "#fff",
+          background: "#0f766e",
+          cursor: busy ? "wait" : "pointer",
+          opacity: busy ? 0.6 : 1,
+        }}
+      >
+        {busy === "full" ? "Running..." : "Run Full Smoke Test"}
+      </button>
+
       <div style={{ marginTop: "1.25rem", borderTop: "1px solid #e5e7eb", paddingTop: "1rem" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "0.75rem" }}>
           <label style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
@@ -214,6 +362,37 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
           }}
         >
           {busy === "claim" ? "Claiming..." : "Claim Prize"}
+        </button>
+      </div>
+
+      <div style={{ marginTop: "1.25rem", borderTop: "1px solid #e5e7eb", paddingTop: "1rem" }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: "0.25rem", maxWidth: 220 }}>
+          <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Cap test runs</span>
+          <input
+            type="number"
+            min={2}
+            value={capRunCount}
+            onChange={(e) => setCapRunCount(e.target.value)}
+            style={{ padding: "0.5rem", borderRadius: 6, border: "1px solid #d1d5db" }}
+          />
+        </label>
+
+        <button
+          onClick={runEventCapTest}
+          disabled={busy !== null}
+          style={{
+            marginTop: "0.9rem",
+            padding: "0.6rem 1.2rem",
+            borderRadius: 6,
+            border: "none",
+            fontWeight: 600,
+            color: "#fff",
+            background: "#9333ea",
+            cursor: busy ? "wait" : "pointer",
+            opacity: busy ? 0.6 : 1,
+          }}
+        >
+          {busy === "cap" ? "Testing cap..." : "Run Event Cap Test"}
         </button>
       </div>
 

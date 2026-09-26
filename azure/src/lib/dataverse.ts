@@ -653,6 +653,7 @@ function parseDataverseIdFromEntityUrl(entityUrl: string | null): string | null 
 interface ActiveContestCampaign {
   id: string;
   eventName: string | null;
+  maxEntriesPerContact: number | null;
 }
 
 interface ContestSource {
@@ -662,13 +663,36 @@ interface ContestSource {
 
 async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | null> {
   const response = await dataverseFetch(
-    `${CONTEST_CAMPAIGNS_SET}?$select=andy_contestcampaignid,andy_eventname&$filter=statecode eq 0&$orderby=createdon desc&$top=1`
+    `${CONTEST_CAMPAIGNS_SET}?$select=andy_contestcampaignid,andy_eventname,andy_maxentriespercontact&$filter=statecode eq 0&$orderby=createdon desc&$top=1`
   );
   const body = (await response.json()) as {
-    value: Array<{ andy_contestcampaignid: string; andy_eventname?: string | null }>;
+    value: Array<{ andy_contestcampaignid: string; andy_eventname?: string | null; andy_maxentriespercontact?: number | null }>;
   };
   const campaign = body.value[0];
-  return campaign ? { id: campaign.andy_contestcampaignid, eventName: campaign.andy_eventname ?? null } : null;
+  return campaign
+    ? {
+        id: campaign.andy_contestcampaignid,
+        eventName: campaign.andy_eventname ?? null,
+        maxEntriesPerContact: campaign.andy_maxentriespercontact ?? null,
+      }
+    : null;
+}
+
+async function fetchContestCampaignById(campaignId: string): Promise<ActiveContestCampaign | null> {
+  const response = await dataverseFetch(
+    `${CONTEST_CAMPAIGNS_SET}(${campaignId})?$select=andy_contestcampaignid,andy_eventname,andy_maxentriespercontact`
+  );
+  if (response.status === 404) return null;
+  const campaign = (await response.json()) as {
+    andy_contestcampaignid: string;
+    andy_eventname?: string | null;
+    andy_maxentriespercontact?: number | null;
+  };
+  return {
+    id: campaign.andy_contestcampaignid,
+    eventName: campaign.andy_eventname ?? null,
+    maxEntriesPerContact: campaign.andy_maxentriespercontact ?? null,
+  };
 }
 
 async function fetchContestSourceByKey(sourceKey: string): Promise<ContestSource | null> {
@@ -693,6 +717,16 @@ async function fetchContestSourceCap(campaignId: string, contestSourceId: string
   );
   const body = (await response.json()) as { value: Array<{ andy_contestsourcecapid: string }> };
   return body.value[0]?.andy_contestsourcecapid ?? null;
+}
+
+async function countGrandPrizeEntriesForContact(campaignId: string, contactId: string, top: number): Promise<number> {
+  const response = await dataverseFetch(
+    `${GRAND_PRIZE_ENTRIES_SET}?$select=andy_grandprizeentryid` +
+      `&$filter=statecode eq 0 and _andy_campaignname_value eq ${campaignId} and _andy_contact_value eq ${contactId}` +
+      `&$top=${top}`
+  );
+  const body = (await response.json()) as { value: Array<{ andy_grandprizeentryid: string }> };
+  return body.value.length;
 }
 
 export function buildGrandPrizeEntryPayload(input: {
@@ -726,15 +760,23 @@ async function createGrandPrizeEntryForClaim(
   contactId: string,
   contestant: ContestantInfo,
   input: { campaignId?: string | null; contestSourceKey?: string | null; gameWinId?: string | null } = {}
-) {
-  const campaign = input.campaignId ? { id: input.campaignId } : await fetchActiveContestCampaign();
-  if (!campaign) return;
+): Promise<GrandPrizeEntryResult> {
+  const campaign = input.campaignId ? await fetchContestCampaignById(input.campaignId) : await fetchActiveContestCampaign();
+  if (!campaign) return { status: "skipped", reason: "no_active_campaign" };
+
+  const maxEntriesPerContact = campaign.maxEntriesPerContact;
+  if (maxEntriesPerContact && maxEntriesPerContact > 0) {
+    const currentEntries = await countGrandPrizeEntriesForContact(campaign.id, contactId, maxEntriesPerContact);
+    if (currentEntries >= maxEntriesPerContact) {
+      return { status: "capped", currentEntries, maxEntriesPerContact };
+    }
+  }
 
   const contestSource = await fetchContestSourceByKey(
     normalizeContestSourceKey(input.contestSourceKey ?? undefined)
   );
   const sourceCapId = await fetchContestSourceCap(campaign.id, contestSource?.id ?? null);
-  await dataverseFetch(GRAND_PRIZE_ENTRIES_SET, {
+  const response = await dataverseFetch(GRAND_PRIZE_ENTRIES_SET, {
     method: "POST",
     body: JSON.stringify(
       buildGrandPrizeEntryPayload({
@@ -746,7 +788,18 @@ async function createGrandPrizeEntryForClaim(
       })
     ),
   });
+  return {
+    status: "created",
+    entryId: parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId")) ?? undefined,
+    maxEntriesPerContact: maxEntriesPerContact ?? undefined,
+  };
 }
+
+export type GrandPrizeEntryResult =
+  | { status: "created"; entryId?: string; maxEntriesPerContact?: number }
+  | { status: "capped"; currentEntries: number; maxEntriesPerContact: number }
+  | { status: "skipped"; reason: "no_contact_info" | "no_active_campaign" }
+  | { status: "error"; message: string };
 
 async function upsertContestantContact(contestant: ContestantInfo): Promise<string | null> {
   const payload = buildContactCreatePayload(contestant);
@@ -785,7 +838,7 @@ async function upsertContestantContact(contestant: ContestantInfo): Promise<stri
 export async function claimGameWin(
   claimToken: string,
   contestant: ContestantInfo
-): Promise<{ prizeName: string }> {
+): Promise<{ prizeName: string; grandPrizeEntry: GrandPrizeEntryResult }> {
   if (!isGuidLike(claimToken)) {
     throw new ClaimError("invalid_token", "claimToken is not a valid GUID");
   }
@@ -826,14 +879,18 @@ export async function claimGameWin(
     }),
   });
 
+  let grandPrizeEntry: GrandPrizeEntryResult = { status: "skipped", reason: "no_contact_info" };
   if (contactId) {
-    createGrandPrizeEntryForClaim(contactId, contestant, {
-      campaignId: prizeClaim._andy_campaign_value ?? null,
-      contestSourceKey: prizeClaim[PRIZE_CLAIM_CONTEST_SOURCE_NAV]?.andy_sourcekey ?? null,
-    }).catch((error) => {
+    try {
+      grandPrizeEntry = await createGrandPrizeEntryForClaim(contactId, contestant, {
+        campaignId: prizeClaim._andy_campaign_value ?? null,
+        contestSourceKey: prizeClaim[PRIZE_CLAIM_CONTEST_SOURCE_NAV]?.andy_sourcekey ?? null,
+      });
+    } catch (error) {
       console.error("Failed to create Grand Prize Entry for claimed Prize Claim", error);
-    });
+      grandPrizeEntry = { status: "error", message: error instanceof Error ? error.message : "Unknown error" };
+    }
   }
 
-  return { prizeName: prize.typeName };
+  return { prizeName: prize.typeName, grandPrizeEntry };
 }
