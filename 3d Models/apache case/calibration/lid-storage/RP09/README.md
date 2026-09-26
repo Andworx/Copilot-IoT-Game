@@ -65,8 +65,8 @@ After the two fit-frame halves align, print:
    total carrier well. The original 21 mm cavity remains in front of the frame,
    and an additional 13 mm extends behind the frame into the lid. All
    compartments are printed directly into it: the left storage bay has four
-   cable cells, while the 80 mm-wide right bay has a 120 mm lower compartment
-   and a 53.8 mm upper tray.
+   cable cells, while the 82 mm-wide right bay has a 120 mm lower compartment
+   and a 53.8 mm upper tray. The lower compartment has 33 mm clear depth.
 3. `exports/lid_storage_cover_base.stl` — the common snap-fit cover.
 4. `exports/lid_storage_cover_logo.stl` — the contrasting Andworx/Field Kit
    inlay.
@@ -118,12 +118,14 @@ bending the long frame rails.
 
 The mounting frame crosses the carrier depth. The carrier floor is 13 mm behind
 the frame, toward the moulded lid, while the cavity continues 21 mm in front of
-the frame to the removable cover. This provides 31.6 mm clear internal depth
-above the 2.4 mm floor. The cover face is 23.4 mm forward of the frame and the
-reinforced snap guides reach 24.2 mm. Perform a clay or tape witness test to
-confirm the new 13 mm rear extension clears the lid before latching the case.
-The cover retains six M3 clearance holes over 4.0 mm heat-set-insert pilots as
-optional backup fastening points.
+the frame to the removable cover. The standard 2.4 mm floor provides 31.6 mm
+clear internal depth. Only the 82 x 120 mm lower-right compartment is locally
+thinned to a 1.0 mm floor, providing 33 mm clear depth without increasing the
+external carrier envelope. The cover face is 23.4 mm forward of the frame and
+the reinforced snap guides reach 24.2 mm. Perform a clay or tape witness test
+to confirm the new 13 mm rear extension clears the lid before latching the
+case. The cover retains six M3 clearance holes over 4.0 mm heat-set-insert
+pilots as optional backup fastening points.
 
 This remains a test assembly. Before closing the lid, verify that every cable
 coil sits below the integrated dividers, the adapter and keys cannot rock above
@@ -138,8 +140,8 @@ the open lid in the same orientation as the supplied photograph, they are:
 
 - left: a permanently open safety-switch garage;
 - centre: four printed-in flat-coil cable cells for the 6-inch leads; and
-- right: an integrated 80 mm-wide bay with a 120 mm lower compartment and an
-  upper tray.
+- right: an integrated 82 mm-wide bay with a 120 x 33 mm lower compartment and
+  an upper tray.
 
 The two storage bays can share one removable cover. Its visible face becomes
 the Andworx advertising panel while the entire left bay remains open. The
