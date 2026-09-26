@@ -1,0 +1,15 @@
+<powerpagecomponent powerpagecomponentid="71b68723-2809-4acb-b3f5-3ef12acbd3d3">
+  <content>{
+  "source": 0,
+  "value": "andy_kioskcontactsid,andy_name,andy_email,andy_phonenumber,andy_jobtitle,andy_organization,andy_location,statecode",
+  "websiteid": "c1b1163c-382d-4601-b33f-9645e45409cf"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Webapi/andy_kioskcontacts/fields</name>
+  <powerpagecomponenttype>9</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>c1b1163c-382d-4601-b33f-9645e45409cf</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

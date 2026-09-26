@@ -1,0 +1,15 @@
+<powerpagecomponent powerpagecomponentid="a43977b6-faa7-4e48-b8d7-8464b55916ba">
+  <content>{
+  "source": 0,
+  "value": "default-src 'self'; script-src 'self' 'nonce' 'sha256-WsMw6kYW5JgghaEMcuOc8rBRK3aPB9M++/v9eKYIB2s=' 'sha256-8QaB5JTHpkmHrqdMYdslhogggJ7q5zmrSv/RNORS0bg=' 'sha256-pSUd4/Q+boMSmv7gf+t+5VkbJutFBfQIoktm6puIOxY=' 'sha256-IloDB4mNw2J6cvWXSizFvUKPRvlIu0BFnldmdy8sJPo=' 'sha256-jb0+1gB9FedmOicRtsEzrUEGz52PIXO85OtyqS7iojk=' 'sha256-fs90hPoFOpwMErTwY64D3ns/HbVRZ1C9HFZ2LHk189U=' 'sha256-/Xzk7FvBtJ69SnWhLnF+cUg4eJNVq67abkE42ceNb64=' 'sha256-PMbnGQPwEq9sNHZF5ulAaDlWjUQMYoXAmUJlnWin8/M=' 'sha256-r4SPWDCreu2/oBNBgoKsi/OO7BoWJJyP4hKETC2cZDU=' content.powerapps.com; style-src 'self' 'unsafe-inline' content.powerapps.com; style-src-elem 'self' 'unsafe-inline' content.powerapps.com; img-src 'self' data: blob: content.powerapps.com https://*.sharepoint.com https://*.sharepointonline.com; font-src 'self' data: blob: https:; connect-src 'self' content.powerapps.com; frame-src 'self' https://apps.powerapps.com https://*.powerapps.com https://content.powerapps.com https://*.powerappsportals.com https://*.microsoftcrmportals.com https://andworx-development.crm.dynamics.com https://*.crm.dynamics.com https://*.dynamics.com https://app.powerbi.com https://*.powerbi.com https://www.microsoft.com https://powerpages.microsoft.com https://andworx.sharepoint.com https://login.microsoftonline.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none';",
+  "websiteid": "c1b1163c-382d-4601-b33f-9645e45409cf"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>HTTP/Content-Security-Policy</name>
+  <powerpagecomponenttype>9</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>c1b1163c-382d-4601-b33f-9645e45409cf</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>

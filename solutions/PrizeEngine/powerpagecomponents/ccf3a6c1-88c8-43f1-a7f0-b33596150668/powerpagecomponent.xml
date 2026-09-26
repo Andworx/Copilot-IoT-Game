@@ -1,0 +1,44 @@
+<powerpagecomponent powerpagecomponentid="ccf3a6c1-88c8-43f1-a7f0-b33596150668">
+  <content>{
+  "copy": "&lt;!doctype html&gt;\n&lt;html lang=\"en\"&gt;\n  &lt;head&gt;\n    &lt;meta charset=\"UTF-8\" /&gt;\n    &lt;link rel=\"icon\" type=\"image/svg+xml\" href=\"./favicon.svg\" /&gt;\n    &lt;meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" /&gt;\n    &lt;title&gt;Andworx Kiosk&lt;/title&gt;\n    &lt;script type=\"module\" crossorigin src=\"./assets/index.js\"&gt;&lt;/script&gt;\n    &lt;link rel=\"stylesheet\" crossorigin href=\"./assets/index.css\"&gt;\n  &lt;/head&gt;\n  &lt;body&gt;\n    &lt;div id=\"root\"&gt;&lt;/div&gt;\n  &lt;/body&gt;\n&lt;/html&gt;\n",
+  "displayorder": 1,
+  "enablerating": false,
+  "enabletracking": false,
+  "excludefromsearch": false,
+  "feedbackpolicy": 756150005,
+  "hiddenfromsitemap": false,
+  "isroot": false,
+  "pagetemplateid": "5c96134f-3932-4781-b56d-65b0c290dc96",
+  "partialurl": "/",
+  "publishingstateid": "214fc845-ad8f-4674-a3a1-68028a0435f5",
+  "rootwebpageid": "12a255bb-d201-4e2e-b3e8-5d80d25f6a25",
+  "sharedpageconfiguration": false,
+  "summary": "&lt;p&gt;This is a sample landing page for you to start creating your website.&lt;/p&gt;",
+  "title": "Home",
+  "webpagelanguageid": "e2e1274d-1573-4d2d-87fa-aee57bde1921",
+  "websiteid": "c1b1163c-382d-4601-b33f-9645e45409cf"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>Home</name>
+  <powerpagecomponenttype>2</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>c1b1163c-382d-4601-b33f-9645e45409cf</powerpagesiteid>
+  </powerpagesiteid>
+  <searchcontent>Home&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;link rel="icon" type="image/svg+xml" href="./favicon.svg" /&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;Andworx Kiosk&lt;/title&gt;
+    &lt;script type="module" crossorigin src="./assets/index.js"&gt;&lt;/script&gt;
+    &lt;link rel="stylesheet" crossorigin href="./assets/index.css"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div id="root"&gt;&lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+Home</searchcontent>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>
