@@ -49,7 +49,7 @@ storage_outer_size = [2 * storage_bay_width + module_gap, module_height - 2];
 storage_center_x = (module_width + module_gap) / 2;
 storage_bay_centers = [0, module_width + module_gap];
 storage_internal_length = storage_outer_size[1] - 2 * storage_wall;
-right_pocket_width = 80;
+right_pocket_width = 82;
 left_pocket_width = storage_outer_size[0] - 3 * storage_wall -
                     right_pocket_width;
 left_pocket_center_local = -storage_outer_size[0] / 2 + storage_wall +
@@ -57,6 +57,10 @@ left_pocket_center_local = -storage_outer_size[0] / 2 + storage_wall +
 right_pocket_center_local = storage_outer_size[0] / 2 - storage_wall -
                             right_pocket_width / 2;
 right_bottom_length = 120;
+right_bottom_floor = 1.0;
+right_bottom_clear_depth = storage_height - right_bottom_floor;
+right_bottom_center_y = -storage_internal_length / 2 +
+                        right_bottom_length / 2;
 right_upper_length = storage_internal_length - right_bottom_length -
                      storage_wall;
 right_divider_y = -storage_internal_length / 2 + right_bottom_length +
@@ -477,7 +481,7 @@ module storage_carrier_right() {
                     cube([left_pocket_width + 0.6, storage_wall,
                           storage_height - storage_floor], center = true);
 
-            // The 80 mm right pocket has a 120 mm clear lower compartment;
+            // The 82 mm right pocket has a 120 mm clear lower compartment;
             // the remaining 53.8 mm clear length forms the upper tray.
             translate([storage_center_x + right_pocket_center_local,
                        right_divider_y,
@@ -518,6 +522,16 @@ module storage_carrier_right() {
                        storage_cover_z - cover_insert_depth])
                 cylinder(h = cover_insert_depth + carrier_frame_overlap + 0.05,
                          d = cover_insert_pilot);
+
+        // Locally thin only the 82 x 120 mm lower-right floor to 1.0 mm.
+        // This yields 33 mm clear internal depth without changing the
+        // carrier's external 13 mm rear / 21 mm front envelope.
+        translate([storage_center_x + right_pocket_center_local,
+                   right_bottom_center_y,
+                   storage_back_z + right_bottom_floor])
+            linear_extrude(storage_floor - right_bottom_floor + 0.05)
+                rounded_rect_2d([right_pocket_width,
+                                 right_bottom_length], 3);
 
         for (y = [-boss_pitch[1] / 2, boss_pitch[1] / 2])
             boss_hole(boss_pitch[0] / 2, y);
