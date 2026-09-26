@@ -426,9 +426,11 @@ module storage_carrier_right() {
                            frame_thickness / 2])
                     cube([storage_outer_size[0] + 1, 4.5, frame_thickness],
                          center = true);
-            translate([storage_center_x + storage_outer_size[0] / 2 + 2.25,
+            // Overlap both the carrier wall and perimeter rail by 0.5 mm so
+            // the slicer receives one continuous right-hand structure.
+            translate([storage_center_x + storage_outer_size[0] / 2 + 2.75,
                        0, frame_thickness / 2])
-                cube([5.5, storage_outer_size[1] + 1, frame_thickness],
+                cube([6.5, storage_outer_size[1] + 1, frame_thickness],
                      center = true);
 
             // Six insert bosses retain the removable cover.
