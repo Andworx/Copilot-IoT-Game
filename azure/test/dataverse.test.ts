@@ -49,7 +49,6 @@ describe("buildPrizeClaimCreatePayload", () => {
         andy_name: "IoT smart-lock 2026-09-25T15:30:00.000Z",
         andy_claim_token: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
         andy_claim_status: 435700000,
-        andy_redemption_status: 435710000,
         andy_win_time: "2026-09-25T15:30:00.000Z",
         "andy_Campaign@odata.bind": "/andy_contestcampaigns(11111111-1111-1111-1111-111111111111)",
         "andy_Contest_Source@odata.bind": "/andy_contestsources(22222222-2222-2222-2222-222222222222)",

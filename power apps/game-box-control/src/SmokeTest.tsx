@@ -92,7 +92,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
           sharedInfo,
         }),
       });
-      const body = (await res.json()) as { prizeName?: string; redemptionCode?: string; error?: string; message?: string };
+      const body = (await res.json()) as { prizeName?: string; error?: string; message?: string };
       setLastResponse(JSON.stringify(body, null, 2));
       if (!res.ok) {
         throw new Error(readError(body, `claim-prize failed: ${res.status}`));
@@ -100,7 +100,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
       setStep("claimed");
       setMessage({
         kind: "success",
-        text: `Claimed ${body.prizeName ?? "prize"}${body.redemptionCode ? ` with code ${body.redemptionCode}` : ""}.`,
+        text: `Claimed ${body.prizeName ?? "prize"}.`,
       });
     } catch (err) {
       setMessage({ kind: "error", text: err instanceof Error ? err.message : "Failed to claim prize." });

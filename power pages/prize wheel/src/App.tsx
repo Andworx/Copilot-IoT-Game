@@ -8,7 +8,6 @@ type Step = "share" | "wheel" | "result" | "error";
 
 interface ClaimResult {
   prizeName: string;
-  redemptionCode: string;
 }
 
 /**
@@ -127,11 +126,9 @@ function App() {
             <span className="eyebrow">Prize secured</span>
             <h3>You won:</h3>
             <div className="result-card">
-              <div className="qr-caption">Redemption code</div>
-              <div className="claim-code">{claimResult.redemptionCode}</div>
               <div className="prize-name">{claimResult.prizeName}</div>
             </div>
-            <p>Show this code to a staff member at the prize table to collect your prize.</p>
+            <p>Show this screen to a staff member at the prize table to collect your prize.</p>
           </div>
         )}
       </div>

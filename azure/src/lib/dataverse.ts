@@ -227,7 +227,6 @@ export async function pickRandomEnabledMode(
 // Prize claim status option values -- see tables/choices/andy_prizeclaim_*.json.
 const PRIZE_CLAIM_STATUS_UNCLAIMED = 435700000;
 const PRIZE_CLAIM_STATUS_CLAIMED = 435700001;
-const PRIZE_CLAIM_REDEMPTION_STATUS_NOT_REDEEMED = 435710000;
 
 export class ClaimError extends Error {
   constructor(
@@ -338,7 +337,6 @@ export function buildPrizeClaimCreatePayload(input: {
     andy_name: `IoT ${input.deviceSlug} ${timestamp}`,
     andy_claim_token: input.claimToken,
     andy_claim_status: PRIZE_CLAIM_STATUS_UNCLAIMED,
-    andy_redemption_status: PRIZE_CLAIM_REDEMPTION_STATUS_NOT_REDEEMED,
     andy_win_time: timestamp,
     ...(input.campaignId ? { [`${PRIZE_CLAIM_CAMPAIGN_NAV}@odata.bind`]: `/${CONTEST_CAMPAIGNS_SET}(${input.campaignId})` } : {}),
     ...(input.contestSourceId
@@ -619,10 +617,6 @@ async function selectAndClaimPrize(): Promise<SelectedPrize> {
   );
 }
 
-function generateRedemptionCode(): string {
-  return `GW-${Math.floor(100000 + Math.random() * 900000)}`;
-}
-
 interface ContestantInfo {
   name?: string;
   email?: string;
@@ -784,14 +778,14 @@ async function upsertContestantContact(contestant: ContestantInfo): Promise<stri
 
 /**
  * Validates the claim token is Unclaimed, runs the weighted-type-pick +
- * atomic-instance-claim, generates the redemption code, and marks the Prize Claim
- * Claimed. Throws ClaimError for anything the caller should turn into a 4xx rather
- * than a 500 (bad/reused token, no prizes configured).
+ * atomic-instance-claim, and marks the Prize Claim Claimed. Throws ClaimError for
+ * anything the caller should turn into a 4xx rather than a 500 (bad/reused token,
+ * no prizes configured).
  */
 export async function claimGameWin(
   claimToken: string,
   contestant: ContestantInfo
-): Promise<{ prizeName: string; redemptionCode: string }> {
+): Promise<{ prizeName: string }> {
   if (!isGuidLike(claimToken)) {
     throw new ClaimError("invalid_token", "claimToken is not a valid GUID");
   }
@@ -819,7 +813,6 @@ export async function claimGameWin(
   const contactId = await upsertContestantContact(contestant);
 
   const prize = await selectAndClaimPrize();
-  const redemptionCode = generateRedemptionCode();
 
   await dataverseFetch(`${PRIZE_CLAIMS_SET}(${prizeClaim.andy_prizeclaimid})`, {
     method: "PATCH",
@@ -828,7 +821,6 @@ export async function claimGameWin(
         ? { [`${PRIZE_CLAIM_PRIZEINSTANCE_NAV}@odata.bind`]: `/${PRIZES_SET}(${prize.instanceId})` }
         : {}),
       andy_claim_status: PRIZE_CLAIM_STATUS_CLAIMED,
-      andy_redemption_code: redemptionCode,
       andy_claimed_time: new Date().toISOString(),
       ...(contactId ? { [`${PRIZE_CLAIM_CONTACT_NAV}@odata.bind`]: `/contacts(${contactId})` } : {}),
     }),
@@ -843,5 +835,5 @@ export async function claimGameWin(
     });
   }
 
-  return { prizeName: prize.typeName, redemptionCode };
+  return { prizeName: prize.typeName };
 }

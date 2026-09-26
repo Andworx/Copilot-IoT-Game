@@ -12,7 +12,6 @@
         <row name="result" id="andy_contestsourceid">
           <cell name="andy_sourcename" width="300" />
           <cell name="andy_sourcekey" width="150" />
-          <cell name="createdon" width="125" />
         </row>
       </grid>
     </layoutxml>
@@ -23,7 +22,6 @@
           <attribute name="andy_contestsourceid" />
           <attribute name="andy_sourcename" />
           <attribute name="andy_sourcekey" />
-          <attribute name="createdon" />
           <order attribute="andy_sourcename" descending="false" />
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />

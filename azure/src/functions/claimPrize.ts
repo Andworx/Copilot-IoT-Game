@@ -19,7 +19,7 @@ const CLAIM_ERROR_STATUS: Record<ClaimError["code"], number> = {
  * POST /api/claim-prize -- called by the prize wheel SPA once it has the token from
  * the kiosk QR (`?token=...`). Runs PRIZE_ENGINE_SPEC.md §1.2/§1.3/§3 step 4 entirely
  * server-side: validates the token is Unclaimed, weighted-picks a prize, atomically
- * claims its stock row, generates the redemption code, and marks the Prize Claim Claimed.
+ * claims its stock row, and marks the Prize Claim Claimed.
  *
  * Anonymous -- the security boundary here is possession of the claim token (a
  * hard-to-guess GUID from the kiosk QR), not a login, per PRIZE_ENGINE_SPEC.md §2.2's

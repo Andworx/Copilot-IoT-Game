@@ -10,7 +10,7 @@
         <LocalizedCollectionName description="IoT Game Wins" languagecode="1033" />
       </LocalizedCollectionNames>
       <Descriptions>
-        <Description description="IoT-specific win detail record linked to the shared Prize Claim parent. Stores only device/game context while shared claim, contact, prize, and redemption data stays on Prize Claim." languagecode="1033" />
+        <Description description="IoT-specific win detail record linked to the shared Prize Claim parent. Stores only device/game context while shared claim, contact, and prize data stays on Prize Claim." languagecode="1033" />
       </Descriptions>
       <attributes>
         <attribute PhysicalName="andy_Device_Profile">

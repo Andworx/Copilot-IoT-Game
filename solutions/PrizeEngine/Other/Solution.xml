@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26083.167" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26083.167" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26083.00167">
+<ImportExportXml version="9.2.26084.171" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26084.171" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26084.00171">
   <SolutionManifest>
     <UniqueName>andy_PrizeEngine</UniqueName>
     <LocalizedNames>
@@ -111,6 +111,10 @@
         <Dependent type="1" schemaName="andy_gamewin" displayName="Game Win" />
       </MissingDependency>
       <MissingDependency>
+        <Required type="1" schemaName="andy_iotgamewin" displayName="IoT Game Win" solution="Active" />
+        <Dependent type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" />
+      </MissingDependency>
+      <MissingDependency>
         <Required type="1" schemaName="andy_sessionprizewin" displayName="Session Prize Win" solution="Active" />
         <Dependent type="1" schemaName="andy_prizes" displayName="Prizes" />
       </MissingDependency>
@@ -135,7 +139,7 @@
         <Dependent type="29" displayName="Update Prize Type" id="{54c7c125-647b-f011-b4cc-7c1e52578ac0}" />
       </MissingDependency>
       <MissingDependency>
-        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.19)" id.uniquename="AppChannel">
+        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.20)" id.uniquename="AppChannel">
           <package appName="PowerAppsAppFramework Package" version="1.0.0.25">PowerAppsAppFramework_Anchor (1.0.0.25)</package>
         </Required>
         <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=andy_PrizeEngineBackend,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="andy_PrizeEngineBackend" id.settingdefinitionid.uniquename="AppChannel" />

@@ -23,7 +23,11 @@
         </Titles>
         <SubArea Id="subarea_contestcampaign" Icon="/$webresource:andy_contestcampaign_icon" Entity="andy_contestcampaign" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
         <SubArea Id="subarea_contestsource" Icon="/$webresource:andy_contestsource_icon" Entity="andy_contestsource" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
-        <SubArea Id="subarea_contestsourcecap" Icon="/$webresource:andy_contestsourcecap_icon" Entity="andy_contestsourcecap" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
+        <SubArea Id="subarea_contestsourcecap" Icon="/$webresource:andy_contestsourcecap_icon" Entity="andy_contestsourcecap" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA">
+          <Titles>
+            <Title LCID="1033" Title="Campaign to Source" />
+          </Titles>
+        </SubArea>
       </Group>
       <Group Id="group_37b0a386" ResourceId="SitemapDesigner.NewGroup" DescriptionResourceId="SitemapDesigner.NewGroup" IntroducedVersion="7.0.0.0" IsProfile="false" ToolTipResourseId="SitemapDesigner.Unknown">
         <Titles>
