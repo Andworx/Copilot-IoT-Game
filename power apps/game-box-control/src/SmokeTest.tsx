@@ -12,8 +12,8 @@ interface SmokeTestProps {
   profiles: DeviceProfile[];
 }
 
-type SmokeStep = "idle" | "created" | "claimed";
-type BusyState = "create" | "claim" | "full" | "cap" | null;
+type SmokeStep = "ready" | "won" | "scanned" | "claimed";
+type BusyState = "create" | "claim" | null;
 
 interface CreateWinResponse {
   claimToken?: string;
@@ -53,10 +53,8 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
   const [claimToken, setClaimToken] = useState("");
   const [contestantName, setContestantName] = useState("Demo Player");
   const [contestantEmail, setContestantEmail] = useState("demo@example.com");
-  const [capRunCount, setCapRunCount] = useState("4");
-  const [sharedInfo, setSharedInfo] = useState(true);
   const [busy, setBusy] = useState<BusyState>(null);
-  const [step, setStep] = useState<SmokeStep>("idle");
+  const [step, setStep] = useState<SmokeStep>("ready");
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [lastResponse, setLastResponse] = useState<string | null>(null);
 
@@ -104,12 +102,12 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
   function formatGrandPrizeEntry(result: GrandPrizeEntryResult | undefined): string {
     if (!result) return "Grand Prize Entry status unknown";
     if (result.status === "created") return "Grand Prize Entry created";
-    if (result.status === "capped") return `Grand Prize Entry capped at ${result.maxEntriesPerContact ?? result.currentEntries ?? "limit"}`;
+    if (result.status === "capped") return `Grand Prize Entry capped at ${result.maxEntriesPerContact ?? result.currentEntries ?? "limit"}; the contact already has the maximum entries for this campaign`;
     if (result.status === "skipped") return `Grand Prize Entry skipped (${result.reason ?? "no reason"})`;
     return `Grand Prize Entry error (${result.message ?? "unknown error"})`;
   }
 
-  async function createWin() {
+  async function winGame() {
     if (!deviceSlug.trim()) {
       setMessage({ kind: "error", text: "Device slug is required." });
       return;
@@ -122,8 +120,8 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
       const body = await createWinRequest();
       setLastResponse(JSON.stringify(body, null, 2));
       setClaimToken(body.claimToken ?? "");
-      setStep("created");
-      setMessage({ kind: "success", text: "Created Prize Claim and IoT Game Win. Claim token is ready." });
+      setStep("won");
+      setMessage({ kind: "success", text: "Game win created. Simulate scanning the QR to continue the claim." });
     } catch (err) {
       setMessage({ kind: "error", text: err instanceof Error ? err.message : "Failed to create test win." });
     } finally {
@@ -131,10 +129,23 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
     }
   }
 
-  async function claimPrize() {
+  function simulateQrScan() {
+    if (!claimToken.trim()) {
+      setMessage({ kind: "error", text: "Claim token is required before scanning the QR." });
+      return;
+    }
+    setStep("scanned");
+    setMessage({ kind: "success", text: "QR scanned. Enter contact details or skip, then spin the wheel." });
+  }
+
+  async function spinWheelAndClaim(shouldShareInfo: boolean) {
     const trimmedToken = claimToken.trim();
     if (!trimmedToken) {
       setMessage({ kind: "error", text: "Claim token is required." });
+      return;
+    }
+    if (shouldShareInfo && !contestantEmail.trim()) {
+      setMessage({ kind: "error", text: "Contestant email is required when testing contact and cap validation." });
       return;
     }
 
@@ -144,95 +155,15 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
     try {
       const body = await claimPrizeRequest({
         token: trimmedToken,
-        name: contestantName,
-        email: contestantEmail,
-        shouldShareInfo: sharedInfo,
+        name: shouldShareInfo ? contestantName : "",
+        email: shouldShareInfo ? contestantEmail : "",
+        shouldShareInfo,
       });
       setLastResponse(JSON.stringify(body, null, 2));
       setStep("claimed");
-      setMessage({ kind: "success", text: `Claimed ${body.prizeName ?? "prize"}. ${formatGrandPrizeEntry(body.grandPrizeEntry)}.` });
+      setMessage({ kind: "success", text: `Spin completed: ${body.prizeName ?? "prize"}. ${formatGrandPrizeEntry(body.grandPrizeEntry)}.` });
     } catch (err) {
       setMessage({ kind: "error", text: err instanceof Error ? err.message : "Failed to claim prize." });
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function runFullSmokeTest() {
-    if (!deviceSlug.trim()) {
-      setMessage({ kind: "error", text: "Device slug is required." });
-      return;
-    }
-
-    setBusy("full");
-    setMessage(null);
-    setLastResponse(null);
-    try {
-      const created = await createWinRequest();
-      const claimed = await claimPrizeRequest({
-        token: created.claimToken ?? "",
-        name: contestantName,
-        email: contestantEmail,
-        shouldShareInfo: sharedInfo,
-      });
-      setClaimToken(created.claimToken ?? "");
-      setStep("claimed");
-      setLastResponse(JSON.stringify({ created, claimed }, null, 2));
-      setMessage({ kind: "success", text: `Full run claimed ${claimed.prizeName ?? "prize"}. ${formatGrandPrizeEntry(claimed.grandPrizeEntry)}.` });
-    } catch (err) {
-      setMessage({ kind: "error", text: err instanceof Error ? err.message : "Full smoke test failed." });
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function runEventCapTest() {
-    if (!deviceSlug.trim()) {
-      setMessage({ kind: "error", text: "Device slug is required." });
-      return;
-    }
-
-    const attempts = Number.parseInt(capRunCount, 10);
-    if (!Number.isFinite(attempts) || attempts < 2) {
-      setMessage({ kind: "error", text: "Cap test run count must be at least 2." });
-      return;
-    }
-
-    const capEmail = `cap-test-${Date.now()}@example.com`;
-    const results: Array<{ attempt: number; claimToken: string; prizeName?: string; grandPrizeEntry?: GrandPrizeEntryResult }> = [];
-    setBusy("cap");
-    setMessage(null);
-    setLastResponse(null);
-    try {
-      for (let attempt = 1; attempt <= attempts; attempt += 1) {
-        const created = await createWinRequest();
-        const claimed = await claimPrizeRequest({
-          token: created.claimToken ?? "",
-          name: `Cap Test ${attempt}`,
-          email: capEmail,
-          shouldShareInfo: true,
-        });
-        results.push({
-          attempt,
-          claimToken: created.claimToken ?? "",
-          prizeName: claimed.prizeName,
-          grandPrizeEntry: claimed.grandPrizeEntry,
-        });
-      }
-
-      const capped = results.find((result) => result.grandPrizeEntry?.status === "capped");
-      const createdEntries = results.filter((result) => result.grandPrizeEntry?.status === "created").length;
-      setClaimToken(results.at(-1)?.claimToken ?? "");
-      setStep("claimed");
-      setLastResponse(JSON.stringify({ capEmail, attempts, results }, null, 2));
-      setMessage(
-        capped
-          ? { kind: "success", text: `Event cap validated for ${capEmail}: ${createdEntries} entries created, attempt ${capped.attempt} was capped.` }
-          : { kind: "error", text: `No cap was reached after ${attempts} claims for ${capEmail}. Increase the run count or verify the active campaign cap.` }
-      );
-    } catch (err) {
-      setLastResponse(JSON.stringify({ capEmail, attempts, results }, null, 2));
-      setMessage({ kind: "error", text: err instanceof Error ? err.message : "Event cap test failed." });
     } finally {
       setBusy(null);
     }
@@ -242,7 +173,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
     <section style={{ border: "1px solid #d1d5db", borderRadius: 8, padding: "1rem", marginBottom: "1.5rem" }}>
       <h2 style={{ fontSize: "1.1rem", marginTop: 0, marginBottom: "0.25rem" }}>Prize Claim Smoke Test</h2>
       <p style={{ color: "#555", marginTop: 0, fontSize: "0.9rem" }}>
-        Create a test win, then claim it with contact details to verify Prize Claim, IoT Game Win, Contact, and Grand Prize Entry writes.
+        Simulate the real player path: win the IoT game, scan the QR, choose whether to share contact info, then spin for the committed prize.
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "0.75rem" }}>
@@ -274,7 +205,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
       </div>
 
       <button
-        onClick={createWin}
+        onClick={winGame}
         disabled={busy !== null}
         style={{
           marginTop: "0.9rem",
@@ -288,12 +219,12 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
           opacity: busy ? 0.6 : 1,
         }}
       >
-        {busy === "create" ? "Creating..." : "Create Test Win"}
+        {busy === "create" ? "Creating..." : "1. Win Game"}
       </button>
 
       <button
-        onClick={runFullSmokeTest}
-        disabled={busy !== null}
+        onClick={simulateQrScan}
+        disabled={busy !== null || !claimToken.trim() || step === "ready"}
         style={{
           marginTop: "0.9rem",
           marginLeft: "0.6rem",
@@ -304,10 +235,10 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
           color: "#fff",
           background: "#0f766e",
           cursor: busy ? "wait" : "pointer",
-          opacity: busy ? 0.6 : 1,
+          opacity: busy || !claimToken.trim() || step === "ready" ? 0.6 : 1,
         }}
       >
-        {busy === "full" ? "Running..." : "Run Full Smoke Test"}
+        2. Simulate QR Scan
       </button>
 
       <div style={{ marginTop: "1.25rem", borderTop: "1px solid #e5e7eb", paddingTop: "1rem" }}>
@@ -341,14 +272,9 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
           </label>
         </div>
 
-        <label style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginTop: "0.75rem", fontSize: "0.9rem" }}>
-          <input type="checkbox" checked={sharedInfo} onChange={(e) => setSharedInfo(e.target.checked)} />
-          Share contact info and create Grand Prize Entry
-        </label>
-
         <button
-          onClick={claimPrize}
-          disabled={busy !== null || !claimToken.trim()}
+          onClick={() => spinWheelAndClaim(true)}
+          disabled={busy !== null || !claimToken.trim() || step !== "scanned"}
           style={{
             marginTop: "0.9rem",
             padding: "0.6rem 1.2rem",
@@ -358,41 +284,29 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
             color: "#fff",
             background: "#16a34a",
             cursor: busy ? "wait" : "pointer",
-            opacity: busy || !claimToken.trim() ? 0.6 : 1,
+            opacity: busy || !claimToken.trim() || step !== "scanned" ? 0.6 : 1,
           }}
         >
-          {busy === "claim" ? "Claiming..." : "Claim Prize"}
+          {busy === "claim" ? "Spinning..." : "3. Enter Info & Spin"}
         </button>
-      </div>
-
-      <div style={{ marginTop: "1.25rem", borderTop: "1px solid #e5e7eb", paddingTop: "1rem" }}>
-        <label style={{ display: "flex", flexDirection: "column", gap: "0.25rem", maxWidth: 220 }}>
-          <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Cap test runs</span>
-          <input
-            type="number"
-            min={2}
-            value={capRunCount}
-            onChange={(e) => setCapRunCount(e.target.value)}
-            style={{ padding: "0.5rem", borderRadius: 6, border: "1px solid #d1d5db" }}
-          />
-        </label>
 
         <button
-          onClick={runEventCapTest}
-          disabled={busy !== null}
+          onClick={() => spinWheelAndClaim(false)}
+          disabled={busy !== null || !claimToken.trim() || step !== "scanned"}
           style={{
             marginTop: "0.9rem",
+            marginLeft: "0.6rem",
             padding: "0.6rem 1.2rem",
             borderRadius: 6,
             border: "none",
             fontWeight: 600,
             color: "#fff",
-            background: "#9333ea",
+            background: "#64748b",
             cursor: busy ? "wait" : "pointer",
-            opacity: busy ? 0.6 : 1,
+            opacity: busy || !claimToken.trim() || step !== "scanned" ? 0.6 : 1,
           }}
         >
-          {busy === "cap" ? "Testing cap..." : "Run Event Cap Test"}
+          {busy === "claim" ? "Spinning..." : "3. Skip Info & Spin"}
         </button>
       </div>
 
@@ -411,7 +325,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
       )}
 
       <div style={{ marginTop: "0.9rem", fontSize: "0.85rem", color: "#555" }}>
-        Status: {step === "idle" ? "Ready" : step === "created" ? "Token created" : "Claim completed"}
+        Status: {step === "ready" ? "Ready" : step === "won" ? "Game won; QR ready" : step === "scanned" ? "QR scanned; ready to spin" : "Claim completed"}
       </div>
 
       {lastResponse && (
