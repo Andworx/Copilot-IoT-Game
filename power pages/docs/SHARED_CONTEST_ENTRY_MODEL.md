@@ -171,7 +171,7 @@ Existing IoT instant-prize behavior stays compatible:
 
 ## Decoupling Contract For Source Games
 
-`andy_gamewin` is an IoT instant-prize source record for v1. It should keep device profile, claim token, redemption code, prize type, prize instance, and an optional Contact lookup for the existing QR claim flow.
+`andy_gamewin` is the legacy IoT instant-prize source record for v1. New writes use `andy_prizeclaim` for the shared claim token, status, Contact, and prize assignment, plus `andy_iotgamewin` for IoT device context. For instant prizes, `Claimed` means booth fulfillment; later redemption/check-in lifecycle belongs on Grand Prize Entry.
 
 Grand-prize eligibility belongs in `andy_grandprizeentry`. Future games should create their own source records, then either add a real optional lookup from `andy_grandprizeentry` to that source table or introduce a dedicated polymorphic source pattern later. They should not add Plinko, Claw Machine, or future-game-specific columns to `andy_gamewin`, and they should not write fake IoT game-win rows only to become eligible for a drawing.
 

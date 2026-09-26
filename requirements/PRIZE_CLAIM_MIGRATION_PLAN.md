@@ -2,7 +2,7 @@
 
 ## Intent
 
-Create a PrizeEngine-owned `Prize Claim` table for the shared prize claim and redemption lifecycle across IoT, Plinko, Claw Machine, and future games. Keep each game solution responsible only for game-specific win detail records.
+Create a PrizeEngine-owned `Prize Claim` table for the shared prize claim lifecycle across IoT, Plinko, Claw Machine, and future games. Keep each game solution responsible only for game-specific win detail records.
 
 This avoids turning the existing IoT `andy_gamewin` table into a cross-game table with a misleading name and too many nullable game-specific columns. Because `andy_gamewin` cannot be renamed cleanly, the transition should introduce a new `IoT Game Win` table for new writes and retire the old Game Win table after code and app dependencies are removed.
 
@@ -18,7 +18,8 @@ This avoids turning the existing IoT `andy_gamewin` table into a cross-game tabl
 - After the preferred solution was set to `CopilotIoTGame`, MCP table creation produced the correct `andy_iotgamewin` table. The updated CopilotIoTGame solution was exported, unpacked into `solutions/CopilotIoTGame`, packed, imported, and published successfully.
 - IoT Game Win is intentionally minimal for Stage 2: generated name, required Prize Claim lookup, and optional Device Profile lookup only.
 - IoT Game Win now has a dedicated SVG table icon: `andy_iotgamewin_icon` is imported as a vector webresource, `andy_iotgamewin` references it through `IconVectorName`, and the CopilotIoTGame MDA sitemap uses it for the IoT Game Win subarea.
-- Stage 3 backend cutover is implemented locally: `create-win` now creates Prize Claim plus IoT Game Win for new wins, and `claim-prize` now claims against Prize Claim instead of legacy Game Win. The CopilotIoTGame security role was packed/imported/published with privileges for `andy_prizeclaim` and `andy_iotgamewin`. Function App deployment and live QR claim smoke testing are still pending.
+- Stage 3 backend cutover was deployed and live-smoked once with the original redemption fields. After the booth workflow decision, the backend now treats `Claimed` as instant-prize fulfillment and no longer writes Prize Claim redemption fields.
+- Prize Claim no longer carries a separate instant-prize redemption lifecycle. Booth staff are present during all operating hours, so `Claimed` means fulfilled for instant prizes. Notes are enabled on Prize Claim for occasional booth/operator context. Grand Prize Entry remains the place for later redemption, check-in, and drawing lifecycle.
 
 ### PrizeEngine: Prize Claim
 
@@ -36,11 +37,8 @@ Recommended columns:
 | Claim Token | Shared QR/bearer claim token. |
 | Claim Status | Shared digital claim lifecycle, such as Unclaimed, Claimed, Expired. |
 | Claimed Time | Timestamp when the claim is completed. |
-| Redemption Code | Staff-visible code for prize handoff. |
-| Redemption Status | Shared fulfillment lifecycle, such as Not Redeemed or Redeemed. |
-| Redeemed By | Staff/user lookup for handoff. |
-| Redeemed Time | Timestamp when the prize is handed off. |
 | Win Time | Timestamp when the source game created the win. |
+| Notes | Optional booth/operator context through Dataverse notes. |
 
 ### Game Solutions: Game-Specific Win Detail
 
@@ -66,10 +64,6 @@ Columns to move off legacy `andy_gamewin` over time:
 | Claimed Time | Prize Claim |
 | Prize Instance | Prize Claim |
 | Prize Type | Remove; infer from Prize Instance. |
-| Redemption Code | Prize Claim |
-| Redemption Status | Prize Claim |
-| Redeemed By | Prize Claim |
-| Redeemed Time | Prize Claim |
 | Contact | Prize Claim |
 | Shared Info | Remove after Contact-driven flow is verified. |
 
@@ -79,9 +73,9 @@ Legacy `andy_gamewin` should remain read-only or hidden during transition, then 
 
 ### Stage 1: Add Shared Prize Claim Table
 
-Create the new Prize Claim table in PrizeEngine with the shared claim, prize, contact, campaign, source, and redemption fields.
+Create the new Prize Claim table in PrizeEngine with the shared claim, prize, contact, campaign, and source fields.
 
-Add forms, views, and PrizeEngine MDA navigation. A dedicated icon can follow in a later polish pass.
+Add forms, views, notes, and PrizeEngine MDA navigation. A dedicated icon can follow in a later polish pass.
 
 Do not remove any `andy_gamewin` columns yet.
 
@@ -97,7 +91,7 @@ Add a new `IoT Game Win` table in the CopilotIoTGame solution.
 
 Add a required or recommended `Prize Claim` lookup to the new IoT Game Win table.
 
-Move only IoT-specific fields to the new table, such as Device Profile and telemetry or hardware context. Do not add claim token, claim status, prize instance, redemption fields, contact, or shared-info fields to the new IoT table.
+Move only IoT-specific fields to the new table, such as Device Profile and telemetry or hardware context. Do not add claim token, claim status, prize instance, contact, or shared-info fields to the new IoT table.
 
 Keep legacy `andy_gamewin` unchanged during this transition.
 
@@ -115,7 +109,7 @@ Update the Azure Function App so new wins create or update the shared Prize Clai
 Expected changes:
 
 - `create-win` creates the Prize Claim parent when an IoT win is created.
-- `claim-prize` reads and updates Prize Claim for claim token, claim status, contact, prize instance, and redemption fields.
+- `claim-prize` reads and updates Prize Claim for claim token, claim status, contact, and prize instance.
 - IoT-specific data is written to the new IoT Game Win table.
 - Grand Prize Entry creation links to Contact, Campaign, Contest Source Cap or Source, Prize Claim, and IoT Game Win detail as needed.
 - Legacy `andy_gamewin` writes are kept only behind a temporary compatibility path if needed for rollback.
@@ -138,7 +132,7 @@ Do not delete legacy schema columns or the legacy table in this stage.
 Validation:
 
 - New IoT Game Win forms focus on IoT detail only.
-- Prize Claim forms show shared claim and redemption lifecycle.
+- Prize Claim forms show shared claim lifecycle and notes.
 - CopilotIoTGame solution packs and imports cleanly.
 
 ### Stage 5: Retire Legacy Game Win Table

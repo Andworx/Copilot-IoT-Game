@@ -53,19 +53,6 @@
       "cascadeUnshare": "NoCascade"
     },
     {
-      "schemaName": "andy_systemuser_Redeemed_By_andy_prizeclaim",
-      "description": "Links a Prize Claim to the Dataverse user who completed staff redemption.",
-      "referencedEntity": "systemuser",
-      "referencedAttribute": "systemuserid",
-      "referencingEntity": "andy_prizeclaim",
-      "referencingAttribute": "andy_redeemed_by",
-      "cascadeDelete": "RemoveLink",
-      "cascadeAssign": "NoCascade",
-      "cascadeReparent": "NoCascade",
-      "cascadeShare": "NoCascade",
-      "cascadeUnshare": "NoCascade"
-    },
-    {
       "schemaName": "andy_andy_prizeclaim_Prize_Claim_andy_iotgamewin",
       "description": "Links an IoT Game Win detail row to its shared Prize Claim parent.",
       "referencedEntity": "andy_prizeclaim",

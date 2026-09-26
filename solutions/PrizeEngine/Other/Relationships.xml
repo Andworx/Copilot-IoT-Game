@@ -12,7 +12,6 @@
   <EntityRelationship Name="andy_grandprizeentry_SourceCap_andy_contestsourcecap" />
   <EntityRelationship Name="andy_prizes_GameWin_andy_gamewin" />
   <EntityRelationship Name="andy_prizes_PrizeType_andy_prizetypes" />
-  <EntityRelationship Name="andy_systemuser_Redeemed_By_andy_prizeclaim" />
   <EntityRelationship Name="business_unit_andy_contestsource" />
   <EntityRelationship Name="business_unit_andy_grandprizeentry" />
   <EntityRelationship Name="business_unit_andy_prizeclaim" />

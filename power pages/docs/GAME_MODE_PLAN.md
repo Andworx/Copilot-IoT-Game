@@ -367,13 +367,12 @@ today — `npm run build` then `pac pages upload-code-site` — no new `pac page
 
 ## 7. Win → QR → Spin flow
 
-> **See [`archive/PRIZE_ENGINE_SPEC.md`](archive/PRIZE_ENGINE_SPEC.md) §3 for the fuller,
-> now-historical version of this flow's redemption side** — it continues past step 6 below
-> into what happens physically at the booth (redemption codes, staff lookup, marking a
-> prize as handed over). The prize-*selection* mechanics it describes are superseded by
-> the live `andy_PrizeTypes`/`andy_Prizes` implementation in
-> [`archive/PRIZE_CODE_MIGRATION.md`](archive/PRIZE_CODE_MIGRATION.md), but the
-> booth/redemption workflow shape hasn't changed.
+> **See [`archive/PRIZE_ENGINE_SPEC.md`](archive/PRIZE_ENGINE_SPEC.md) §3 for the
+> now-historical version of this flow's older redemption side.** The prize-selection
+> mechanics it describes are superseded by the live `andy_PrizeTypes`/`andy_Prizes`
+> implementation in [`archive/PRIZE_CODE_MIGRATION.md`](archive/PRIZE_CODE_MIGRATION.md).
+> Current instant-prize handling treats `Claimed` as booth fulfillment; separate
+> redemption/check-in lifecycle belongs on Grand Prize Entry.
 
 1. Player works through the troubleshooting agent (the `AgentButton` "Help Fix" pattern,
    §1/§8) on the active `/kiosk/:deviceSlug` route (`andy_isgamedevice = Yes` — the demo/info
