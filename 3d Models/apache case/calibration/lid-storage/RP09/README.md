@@ -81,6 +81,21 @@ Two optional blank parts are also included:
   reduce the central safety-switch opening until physical closure testing proves
   the smaller opening safe.
 
+## Tool-free storage cover
+
+Both the branded and blank storage covers now use the same snap-fit outline.
+Insert the top edge beneath the fixed retaining rail, keep the plate between the
+two side guides, and press the lower corners until both bottom cantilevers click
+over the cover. A 20 mm finger notch and matching carrier-wall scallop provide
+room to lift the lower edge during removal.
+
+The six original M3 cover holes and heat-set-insert bosses remain available as
+optional backup fasteners, but are not required for normal access. Test the
+snap action before loading the carrier. The two narrow latch stems are intended
+to flex only far enough for the 0.55 mm hooks to pass the cover; do not bend them
+outward by hand. PETG is preferred for repeated cycling, although a well-tuned
+PLA or PLA+ print should work for the initial fit test.
+
 ## Left/right seam hardware
 
 The updated left frame has two 20 x 8 x 3.2 mm tongues. They slide into

@@ -112,7 +112,7 @@ assert meshes["andworx_field_kit_base.stl"]["bounds_mm"] == [120.0, 60.0, 2.4]
 assert meshes["andworx_field_kit_logo.stl"]["bounds_mm"][2] == 0.9
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][0] <= 190.0
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][1] == 216.0
-assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][2] == 21.0
+assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][2] == 25.4
 assert meshes["lid_storage_frame_L.stl"]["bounds_mm"] == [165.0, 216.0, 9.2]
 for name in ("lid_storage_cable_insert.stl",
              "lid_storage_accessory_key_insert.stl"):
@@ -135,6 +135,9 @@ report = {
         "lid_depth": 35.0,
         "provisional_storage_depth": 28.0,
         "prototype_stack_depth": 23.4,
+        "snap_fit_max_depth": 25.4,
+        "snap_vertical_clearance": 0.3,
+        "snap_latch_interference": 0.55,
         "seam_tongue_engagement": 20.0,
         "seam_pocket_height": 9.8,
         "left_design_plate": [85.0, 196.0, 1.6],
@@ -152,6 +155,9 @@ report = {
         "The adapter and keys remain captured with the lid vertical and inverted.",
         "Both left tongues fully enter the right pockets and accept M3 bolts without forcing.",
         "Captive M3 nuts remain seated and no bolt head protrudes against the lid floor.",
+        "The cover top edge slips under the retaining rail without shaving or forcing.",
+        "Both bottom latches click over the cover and release through the finger notch.",
+        "The snap-fit cover remains captured with the lid vertical and inverted.",
     ],
     "meshes": meshes,
 }

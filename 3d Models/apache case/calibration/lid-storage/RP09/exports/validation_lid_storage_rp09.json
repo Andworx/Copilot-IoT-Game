@@ -13,6 +13,9 @@
     "lid_depth": 35.0,
     "provisional_storage_depth": 28.0,
     "prototype_stack_depth": 23.4,
+    "snap_fit_max_depth": 25.4,
+    "snap_vertical_clearance": 0.3,
+    "snap_latch_interference": 0.55,
     "seam_tongue_engagement": 20.0,
     "seam_pocket_height": 9.8,
     "left_design_plate": [
@@ -33,7 +36,10 @@
     "All four cable coils fit below the installed cover without pinching.",
     "The adapter and keys remain captured with the lid vertical and inverted.",
     "Both left tongues fully enter the right pockets and accept M3 bolts without forcing.",
-    "Captive M3 nuts remain seated and no bolt head protrudes against the lid floor."
+    "Captive M3 nuts remain seated and no bolt head protrudes against the lid floor.",
+    "The cover top edge slips under the retaining rail without shaving or forcing.",
+    "Both bottom latches click over the cover and release through the finger notch.",
+    "The snap-fit cover remains captured with the lid vertical and inverted."
   ],
   "meshes": {
     "andworx_field_kit_base.stl": {
@@ -370,7 +376,7 @@
       "bounds_mm": [
         185.683,
         216.0,
-        21.0
+        25.4
       ],
       "closed_edges": true,
       "winding_consistent": true,
@@ -385,7 +391,7 @@
           [
             145.0,
             108.0,
-            21.0
+            25.4
           ]
         ]
       ],
