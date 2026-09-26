@@ -1,0 +1,38 @@
+{
+  "schemaName": "andy_iotgamewin",
+  "displayName": "IoT Game Win",
+  "displayCollectionName": "IoT Game Wins",
+  "description": "IoT-specific win detail record linked to the shared Prize Claim parent. Stores only device and game context while shared claim, contact, prize, and redemption data stays on Prize Claim.",
+  "primaryNameColumn": "andy_name",
+  "ownership": "User",
+  "isActivity": false,
+  "changeTrackingEnabled": true,
+  "iconSvgFile": "icon.svg",
+  "iconWebResourceName": "andy_iotgamewin_icon",
+  "columns": [
+    {
+      "schemaName": "andy_name",
+      "displayName": "IoT Game Win Name",
+      "description": "Primary display name for the IoT Game Win detail row.",
+      "dataType": "String",
+      "required": "Required",
+      "maxLength": 850
+    },
+    {
+      "schemaName": "andy_prize_claim",
+      "displayName": "Prize Claim",
+      "description": "Shared Prize Claim parent containing claim, contact, prize, and redemption lifecycle data.",
+      "dataType": "Lookup",
+      "required": "Required",
+      "target": "andy_prizeclaim"
+    },
+    {
+      "schemaName": "andy_device_profile",
+      "displayName": "Device Profile",
+      "description": "IoT device profile or exhibit that produced the win.",
+      "dataType": "Lookup",
+      "required": "Optional",
+      "target": "andy_deviceprofile"
+    }
+  ]
+}

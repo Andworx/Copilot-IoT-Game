@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{dd06824b-42a5-4083-a192-0f74acf46067}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{368351fd-40a0-428d-b683-cbab6e57b4a9}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{5cdafe0a-7471-4517-89a6-fe1a47974e36}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{112c5489-af89-40f0-badf-5ee759726059}">
+                        <labels>
+                          <label description="Source Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_sourcename" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_sourcename" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a7c33462-693f-42d7-bb7d-a9ebe4c85415}">
+                        <labels>
+                          <label description="Source Key" languagecode="1033" />
+                        </labels>
+                        <control id="andy_sourcekey" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_sourcekey" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{d7983447-e2ba-4abd-a8bd-d72b4b4d29bc}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{665e9c7f-26f5-4437-981b-18ed3d39cc7e}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{3fb21129-cac5-47fe-8171-1e20082faee5}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{4901eaf3-b042-4e01-a1c6-110251995eef}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{b02528d0-04b3-4fea-aef5-bf9f75257252}" colspan="1" rowspan="1">
+              <labels>
+                <label description="Owner" languagecode="1033" />
+              </labels>
+              <control id="header_ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{3598c7d5-af00-45eb-89fe-4139358c7586}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{caf24156-4ca1-409f-ad49-3f7e5ebe25e0}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{114752c7-26a4-4b9a-8ff5-9fc375dea2f3}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{76d758ed-30de-4273-8d92-33689a72ba8b}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

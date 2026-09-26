@@ -3,13 +3,14 @@ import { createGameWin } from "../lib/dataverse";
 
 interface CreateWinRequestBody {
   deviceSlug: string;
+  contestSourceKey?: string;
 }
 
 /**
  * POST /api/create-win -- called by the kiosk SPA the moment `device.checkWin()`
  * flips true. Stands in for the not-yet-built Copilot Studio resolved-topic action
- * (PRIZE_ENGINE_SPEC.md §3 step 1); creates the andy_gamewin row and returns the
- * claim token the kiosk encodes into the real QR code on WinOverlay.
+ * (PRIZE_ENGINE_SPEC.md §3 step 1); creates the Prize Claim parent and IoT Game
+ * Win detail row, then returns the claim token the kiosk encodes into the real QR.
  *
  * Anonymous, same posture as kiosk-state/device-profiles: any legitimate kiosk
  * visitor who actually fixed the device should be able to trigger this -- that's
@@ -31,11 +32,13 @@ export async function createWin(
   }
 
   try {
-    const { claimToken } = await createGameWin(body.deviceSlug);
+    const { claimToken } = await createGameWin(body.deviceSlug, {
+      contestSourceKey: typeof body.contestSourceKey === "string" ? body.contestSourceKey : undefined,
+    });
     return { jsonBody: { claimToken } };
   } catch (error) {
     context.error("create-win failed", error);
-    return { status: 500, jsonBody: { error: "Failed to create game win" } };
+    return { status: 500, jsonBody: { error: "Failed to create game win claim" } };
   }
 }
 

@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{6a712af4-ebe5-481d-9b82-3bb8739e4edb}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_eventname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_contestcampaignid">
+          <cell name="andy_eventname" width="300" />
+          <cell name="andy_starttime" width="150" />
+          <cell name="andy_endtime" width="150" />
+          <cell name="andy_drawingtime" width="150" />
+          <cell name="andy_maxentriespercontact" width="150" />
+          <cell name="andy_checkincodeprefix" width="150" />
+          <cell name="andy_privacynoticeurl" width="150" />
+          <cell name="andy_notes" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_contestcampaign">
+          <attribute name="andy_contestcampaignid" />
+          <attribute name="andy_eventname" />
+          <attribute name="createdon" />
+          <order attribute="andy_eventname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="andy_starttime" />
+          <attribute name="andy_endtime" />
+          <attribute name="andy_drawingtime" />
+          <attribute name="andy_maxentriespercontact" />
+          <attribute name="andy_checkincodeprefix" />
+          <attribute name="andy_privacynoticeurl" />
+          <attribute name="andy_notes" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Contest Campaigns" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

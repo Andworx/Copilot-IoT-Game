@@ -8,28 +8,56 @@ relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
 Local publishing commands are for explicitly requested recovery/bootstrap work.
 Other Power Platform components retain their existing PAC workflows.
 
-## Solution — Export
+## CopilotIoTGame Solution
+
+### CopilotIoTGame Solution — Export
 
 ```powershell
 pac solution export --name CopilotIoTGame --path "solutions" -ow
 ```
 
-## Solution — Unpack
+### CopilotIoTGame Solution — Unpack
 
 ```powershell
 pac solution unpack --zipfile "solutions\CopilotIoTGame.zip" --folder "solutions\CopilotIoTGame" --allowWrite
 ```
 
-## Solution — Pack
+### CopilotIoTGame Solution — Pack
 
 ```powershell
 pac solution pack -z solutions\CopilotIoTGame.zip -f solutions\CopilotIoTGame -aw
 ```
 
-## Solution — Import
+### CopilotIoTGame Solution — Import
 
 ```powershell
 pac solution import --path "solutions\CopilotIoTGame.zip" -pc
+```
+
+## PrizeEngine Solution
+
+### PrizeEngine Solution — Export
+
+```powershell
+pac solution export --name andy_PrizeEngine --path "solutions" -ow
+```
+
+### PrizeEngine Solution — Unpack
+
+```powershell
+pac solution unpack --zipfile "solutions\andy_PrizeEngine.zip" --folder "solutions\PrizeEngine" --allowWrite
+```
+
+### PrizeEngine Solution — Pack
+
+```powershell
+pac solution pack -z solutions\andy_PrizeEngine.zip -f solutions\PrizeEngine -aw
+```
+
+### PrizeEngine Solution — Import
+
+```powershell
+pac solution import --path "solutions\andy_PrizeEngine.zip" -pc
 ```
 
 ## Power Apps Code App — Build & Push

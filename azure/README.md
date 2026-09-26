@@ -19,6 +19,20 @@ isn't actually built yet, so this lives here instead, in this repo.
 | `/api/directline-token` | GET | anonymous | Exchanges the server-side `DIRECTLINE_SECRET` for a short-lived Direct Line token (503 until the secret is set) |
 | `iot-telemetry` | Event Hub trigger | — | Panel Pi telemetry → SignalR `SendTelemetryUpdate` / `TriggerAgentHelp` (gamebox hub) + an `andy_iottelemetryevent` row |
 
+`/api/claim-prize` also performs the Contact and grand-prize entry flow for epic #121:
+when `sharedInfo` is true and `contestantEmail` is supplied, it normalizes the email,
+finds or creates a standard Dataverse `contact`, links the `andy_gamewin` row to that
+Contact, and creates an `andy_grandprizeentry` row linked to the active Contest Campaign,
+Contact, Source Cap, and Game Win when campaign configuration exists. Existing Contact
+consent/preference fields are left untouched. The older inline `andy_gamewin`
+name/email/shared-info fields are redundant after that lookup is deployed and should be
+removed from code/forms as part of the schema migration.
+
+Deploy order matters: ship the Dataverse solution push that adds `andy_gamewin.andy_contact`
+and the PrizeEngine grand-prize tables before this Function version is deployed, because
+claims with contact info bind `andy_Contact@odata.bind` and create
+`andy_grandprizeentries` rows.
+
 `set-mode`'s function key is what stands in for "only the Power App can call this" right
 now — the Power App's custom connector holds the key. `GAME_MODE_PLAN.md` §4a describes
 validating an Entra ID token passed through instead, for real per-user auth; not done yet,

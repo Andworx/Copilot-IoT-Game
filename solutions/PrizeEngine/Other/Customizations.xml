@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26081.172" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26081.00172">
+<ImportExportXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26083.167" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26083.00167">
   <Entities />
   <Roles />
   <Workflows />
@@ -24,7 +24,31 @@
   <optionsets />
   <WebResources />
   <CustomControls />
+  <AppModuleSiteMaps />
+  <AppModules />
   <EntityDataProviders />
+  <msdyn_helppages>
+    <msdyn_helppage msdyn_helppageid="6adc3073-57b8-f111-aaab-6045bdd94001">
+      <iscustomizable>1</iscustomizable>
+      <msdyn_content>&lt;pphml&gt;&lt;h1&gt;How to add and manage a campaign&lt;/h1&gt;&lt;p&gt;Contest Campaigns are used to declare the event and its paraments&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;The &lt;coachmark target="[data-id=&amp;quot;andy_starttime&amp;quot;]"&gt;Start Tim&lt;/coachmark&gt;e and &lt;coachmark target="[data-id=&amp;quot;andy_endtime&amp;quot;]"&gt;End Time&lt;/coachmark&gt; are used to set the overall event date and time&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;The &lt;coachmark target="[data-id=&amp;quot;andy_maxentriespercontact&amp;quot;]"&gt;Max Entries Per Contact&lt;/coachmark&gt; set the max for how many entries each contact can have during the event. &lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;The &lt;coachmark target="[data-id=&amp;quot;andy_checkincodeprefix&amp;quot;]"&gt;Check-In Code Prefix &lt;/coachmark&gt;is set automaticity when the record is set&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;/pphml&gt;</msdyn_content>
+      <msdyn_contenttype>text/pphml</msdyn_contenttype>
+      <msdyn_displayname>How to add and manage a campaign</msdyn_displayname>
+      <msdyn_locale>1033</msdyn_locale>
+      <msdyn_path>CDS/Apps/andy_PrizeEngineBackend/Entities/andy_contestcampaign/Forms/Default</msdyn_path>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </msdyn_helppage>
+    <msdyn_helppage msdyn_helppageid="dfec4d93-ddb8-f111-aaab-6045bdd94001">
+      <iscustomizable>1</iscustomizable>
+      <msdyn_content>&lt;pphml&gt;&lt;h1&gt;Managing Source Caps&lt;/h1&gt;&lt;p&gt;This table acts as a joiner table between the event and the game&lt;/p&gt;&lt;/pphml&gt;</msdyn_content>
+      <msdyn_contenttype>text/pphml</msdyn_contenttype>
+      <msdyn_displayname>Managing Source Caps</msdyn_displayname>
+      <msdyn_locale>1033</msdyn_locale>
+      <msdyn_path>CDS/Apps/andy_PrizeEngineBackend/Entities/andy_contestsourcecap/Forms/Default</msdyn_path>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </msdyn_helppage>
+  </msdyn_helppages>
   <Languages>
     <Language>1033</Language>
   </Languages>

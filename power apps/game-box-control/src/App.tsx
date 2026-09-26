@@ -6,6 +6,7 @@ import {
   TOGGLE_DEVICE_FUNCTION_KEY,
 } from "./apiConfig";
 import PrizeManagement from "./PrizeManagement";
+import SmokeTest from "./SmokeTest";
 
 interface DeviceProfile {
   id: string;
@@ -37,7 +38,7 @@ const DEMO_INFO_KEY = "__demo-info__";
  *   device completion and show a simple success popup instead (no
  *   andy_gamewin row created). ON restores today's flow exactly.
  */
-type Screen = "controls" | "prizes";
+type Screen = "controls" | "prizes" | "smoke";
 
 export default function App() {
   const [profiles, setProfiles] = useState<DeviceProfile[]>([]);
@@ -153,6 +154,29 @@ export default function App() {
     );
   }
 
+  if (screen === "smoke") {
+    return (
+      <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem", maxWidth: 720, margin: "0 auto" }}>
+        <button
+          onClick={() => setScreen("controls")}
+          style={{
+            border: "none",
+            background: "none",
+            color: "#2563eb",
+            fontWeight: 600,
+            cursor: "pointer",
+            padding: 0,
+            marginBottom: "1rem",
+          }}
+        >
+          ← Back to controls
+        </button>
+        <h1 style={{ marginBottom: "0.25rem" }}>Smoke Test</h1>
+        <SmokeTest profiles={profiles} />
+      </main>
+    );
+  }
+
   return (
     <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem", maxWidth: 720, margin: "0 auto" }}>
       <h1 style={{ marginBottom: "0.25rem" }}>Game Box Control</h1>
@@ -234,6 +258,41 @@ export default function App() {
           }}
         >
           Manage Prizes
+        </button>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "1rem",
+          padding: "1rem",
+          borderRadius: 8,
+          border: "1px solid #d1d5db",
+          marginBottom: "1.5rem",
+        }}
+      >
+        <div>
+          <div style={{ fontWeight: 600 }}>Prize claim smoke test</div>
+          <div style={{ fontSize: "0.85rem", color: "#555" }}>
+            Create and claim a test win against the new Prize Claim and IoT Game Win tables.
+          </div>
+        </div>
+        <button
+          onClick={() => setScreen("smoke")}
+          style={{
+            padding: "0.6rem 1.2rem",
+            borderRadius: 6,
+            border: "1px solid #2563eb",
+            fontWeight: 600,
+            color: "#2563eb",
+            background: "#fff",
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Open Test
         </button>
       </div>
 

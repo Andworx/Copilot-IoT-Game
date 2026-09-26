@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{0a2441fb-19e5-4659-b438-d71bce44fbaf}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{B40C8FBE-E6EF-47D2-9366-5FA52B20AF2D}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{3B6F2A0F-05A7-4F81-9674-F3A63ED90BB5}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{5146BAEE-5AA0-4724-A6FE-DFB5E98AA0FC}">
+                        <labels>
+                          <label description="Participant Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_participantname" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_participantname" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{69ED2FEB-892B-4A03-A9D7-30F0DAF70561}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{5e810d55-9efa-4ded-8022-279794a651ea}">
+                        <labels>
+                          <label description="Entry Timestamp" languagecode="1033" />
+                        </labels>
+                        <control id="andy_entrytimestamp" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_entrytimestamp" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{59199ea0-a812-40ea-b66d-bcf5cf30c85c}">
+                        <labels>
+                          <label description="Entry Count" languagecode="1033" />
+                        </labels>
+                        <control id="andy_entrycount" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_entrycount" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1e0e90cc-8245-427d-bdc0-3660bf27dfeb}">
+                        <labels>
+                          <label description="Eligibility Status" languagecode="1033" />
+                        </labels>
+                        <control id="andy_eligibilitystatus" classid="{3ef39988-22bb-4f0b-bbbe-64b5a3748aee}" datafieldname="andy_eligibilitystatus" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{2f52da5c-a169-4e55-8dec-e942be7f312a}">
+                        <labels>
+                          <label description="Check-In Code" languagecode="1033" />
+                        </labels>
+                        <control id="andy_checkincode" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_checkincode" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a2aa7250-276b-431b-a08b-9c7b96293b20}">
+                        <labels>
+                          <label description="Check-In Status" languagecode="1033" />
+                        </labels>
+                        <control id="andy_checkinstatus" classid="{3ef39988-22bb-4f0b-bbbe-64b5a3748aee}" datafieldname="andy_checkinstatus" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{430c78d6-4a1a-494e-a789-6f83602d8166}">
+                        <labels>
+                          <label description="Check-In Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_checkintime" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_checkintime" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{583fa908-802c-444b-acec-813e303f392a}">
+                        <labels>
+                          <label description="Check-In Notes" languagecode="1033" />
+                        </labels>
+                        <control id="andy_checkinnotes" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_checkinnotes" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{fa3137c3-94d0-4365-9e39-b1ed4ae36834}">
+                        <labels>
+                          <label description="Shared Information" languagecode="1033" />
+                        </labels>
+                        <control id="andy_sharedinformation" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_sharedinformation" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{6a7150b8-e0aa-4834-b9b2-273a1242ac9e}">
+                        <labels>
+                          <label description="Privacy Acceptance Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_privacyacceptancetime" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_privacyacceptancetime" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{66838f96-62c7-40cb-9fa0-b7ea37626704}">
+                        <labels>
+                          <label description="Privacy Notice Version" languagecode="1033" />
+                        </labels>
+                        <control id="andy_privacynoticeversion" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_privacynoticeversion" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1177e2b3-daa2-4189-928d-d89076c18653}">
+                        <labels>
+                          <label description="Campaign Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_campaignname" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_campaignname" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{212693b8-a9a5-426b-b2e4-adac60daf725}">
+                        <labels>
+                          <label description="Contact" languagecode="1033" />
+                        </labels>
+                        <control id="andy_contact" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_contact" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{c2c93f3b-aa41-471b-8f0f-591f8da997fd}">
+                        <labels>
+                          <label description="Source Identifier" languagecode="1033" />
+                        </labels>
+                        <control id="andy_sourceidentifier" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_sourceidentifier" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{6210f33f-dee4-4309-b160-08dd05107aae}">
+                        <labels>
+                          <label description="Game Win" languagecode="1033" />
+                        </labels>
+                        <control id="andy_gamewin" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_gamewin" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

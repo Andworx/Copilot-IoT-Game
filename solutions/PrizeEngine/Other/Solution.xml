@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26081.172" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26081.172" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26081.00172">
+<ImportExportXml version="9.2.26083.167" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26083.167" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26083.00167">
   <SolutionManifest>
     <UniqueName>andy_PrizeEngine</UniqueName>
     <LocalizedNames>
@@ -80,19 +80,42 @@
       </Addresses>
     </Publisher>
     <RootComponents>
+      <RootComponent type="1" schemaName="andy_contestcampaign" behavior="0" />
+      <RootComponent type="1" schemaName="andy_contestsource" behavior="0" />
+      <RootComponent type="1" schemaName="andy_contestsourcecap" behavior="0" />
+      <RootComponent type="1" schemaName="andy_gamewin" behavior="1" />
+      <RootComponent type="1" schemaName="andy_grandprizeentry" behavior="0" />
+      <RootComponent type="1" schemaName="andy_iottelemetryevent" behavior="0" />
+      <RootComponent type="1" schemaName="andy_prizeclaim" behavior="0" />
       <RootComponent type="1" schemaName="andy_prizes" behavior="0" />
       <RootComponent type="1" schemaName="andy_prizetypes" behavior="0" />
+      <RootComponent type="1" schemaName="contact" behavior="1" />
+      <RootComponent type="1" schemaName="systemuser" behavior="1" />
       <RootComponent type="29" id="{54c7c125-647b-f011-b4cc-7c1e52578ac0}" behavior="0" />
+      <RootComponent type="61" schemaName="andy_contestcampaign_form.js" behavior="0" />
+      <RootComponent type="61" schemaName="andy_contestcampaign_icon" behavior="0" />
+      <RootComponent type="61" schemaName="andy_contestsource_icon" behavior="0" />
+      <RootComponent type="61" schemaName="andy_contestsourcecap_form.js" behavior="0" />
+      <RootComponent type="61" schemaName="andy_contestsourcecap_icon" behavior="0" />
+      <RootComponent type="61" schemaName="andy_gamewin_icon" behavior="0" />
+      <RootComponent type="61" schemaName="andy_grandprizeentry_icon" behavior="0" />
+      <RootComponent type="61" schemaName="andy_iottelemetryevent_icon" behavior="0" />
       <RootComponent type="61" schemaName="andy_prize_icon" behavior="0" />
       <RootComponent type="61" schemaName="andy_prizetype_icon" behavior="0" />
+      <RootComponent type="62" schemaName="andy_PrizeEngineBackend" behavior="0" />
+      <RootComponent type="80" schemaName="andy_PrizeEngineBackend" behavior="0" />
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>
         <Required type="1" schemaName="andy_gamewin" displayName="Game Win" solution="Active" />
+        <Dependent type="1" schemaName="andy_gamewin" displayName="Game Win" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="1" schemaName="andy_sessionprizewin" displayName="Session Prize Win" solution="Active" />
         <Dependent type="1" schemaName="andy_prizes" displayName="Prizes" />
       </MissingDependency>
       <MissingDependency>
-        <Required type="1" schemaName="andy_gamewin" displayName="Game Win" solution="Active" />
+        <Required type="1" schemaName="andy_sessionprizewin" displayName="Session Prize Win" solution="Active" />
         <Dependent type="1" schemaName="andy_prizetypes" displayName="Prize Types" />
       </MissingDependency>
       <MissingDependency>
@@ -100,8 +123,22 @@
         <Dependent type="10" schemaName="andy_prizes_GameWin_andy_gamewin" displayName="andy_prizes_GameWin_andy_gamewin" parentSchemaName="andy_gamewin" parentDisplayName="Game Win" />
       </MissingDependency>
       <MissingDependency>
+        <Required type="2" schemaName="andy_claimtoken" displayName="Claim Token" parentSchemaName="andy_gamewin" parentDisplayName="Game Win" solution="Active" />
+        <Dependent type="10" schemaName="andy_grandprizeentry_GameWin_andy_gamewin" displayName="andy_grandprizeentry_GameWin_andy_gamewin" parentSchemaName="andy_grandprizeentry" parentDisplayName="Grand Prize Entry" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)" />
+        <Dependent type="80" schemaName="andy_PrizeEngineBackend" displayName="Prize Engine Backend" />
+      </MissingDependency>
+      <MissingDependency>
         <Required type="connectionreference" displayName="cr552_commondataserviceforapps_3efd4b3dbb" solution="Active" id.connectionreferencelogicalname="cr552_commondataserviceforapps_3efd4b3dbb" />
         <Dependent type="29" displayName="Update Prize Type" id="{54c7c125-647b-f011-b4cc-7c1e52578ac0}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.19)" id.uniquename="AppChannel">
+          <package appName="PowerAppsAppFramework Package" version="1.0.0.25">PowerAppsAppFramework_Anchor (1.0.0.25)</package>
+        </Required>
+        <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=andy_PrizeEngineBackend,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="andy_PrizeEngineBackend" id.settingdefinitionid.uniquename="AppChannel" />
       </MissingDependency>
     </MissingDependencies>
   </SolutionManifest>

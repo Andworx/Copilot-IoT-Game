@@ -10,6 +10,7 @@ glance what to build against versus what's historical.
 |---|---|
 | [`GAME_MODE_PLAN.md`](GAME_MODE_PLAN.md) | Overall architecture, Dataverse schema, software-defined mode control, win/claim flow, phased build plan. The master design doc — start here. |
 | [`KIOSK_UI_SPEC.md`](KIOSK_UI_SPEC.md) | Visual/interaction spec for every kiosk screen — layouts, device roster content, spin/win screen behavior. |
+| [`SHARED_CONTEST_ENTRY_MODEL.md`](SHARED_CONTEST_ENTRY_MODEL.md) | Shared contest/campaign, Contact identity, source caps, and grand-prize entry design for epic #121 / issue #123. |
 
 `GAME_MODE_PLAN.md`'s own prize-schema section (§5) is superseded by the current live
 schema — see the archive below, specifically `PRIZE_DATA_MODEL_MIGRATION_STATUS.md`, for

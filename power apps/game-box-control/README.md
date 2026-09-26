@@ -18,6 +18,11 @@ Management section that bulk-creates `andy_Prizes` rows (`POST /api/bulk-create-
 app, so staff can stock prizes without leaving this control app. That genpage is still
 there too, as a redundant alternate entry point.
 
+It also includes a Prize Claim smoke-test screen for the shared Prize Claim rollout. The
+screen calls the anonymous `POST /api/create-win` and `POST /api/claim-prize` endpoints,
+defaults the contest source key to `demo`, and shows the raw JSON responses so a staff user
+can verify the new Prize Claim, IoT Game Win, Contact, and Grand Prize Entry path quickly.
+
 ## Why a Code App instead of a Canvas app
 
 Near-zero build time for what's really a 12-tile picker, but the real reason: Power Apps
@@ -61,7 +66,8 @@ power apps/game-box-control/
 ├── .env.example              # copy to .env.local, fill in the function key
 └── src/
     ├── main.tsx
-    ├── App.tsx                # device picker + mode controls, renders PrizeManagement
+    ├── App.tsx                # device picker + mode controls, renders PrizeManagement and SmokeTest
     ├── PrizeManagement.tsx    # bulk-create-prizes UI (Prize Management section)
+    ├── SmokeTest.tsx          # create-win + claim-prize smoke-test UI
     └── apiConfig.ts           # azure/ Functions base URL + function keys
 ```

@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{0f64608c-a7e0-4b54-ad80-2b070147b2d8}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{B13FD3CE-801F-4273-842B-4DA49ED14D46}" IsUserDefined="1">
+          <labels>
+            <label description="" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{C3313575-BDE6-4021-B6B6-D118E823C7EE}">
+                  <labels>
+                    <label description="GENERAL" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{E6F9C97E-E076-480A-8507-6C560CB517AE}" visible="false">
+                        <labels>
+                          <label description="Event Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_eventname" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_eventname" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{9ca0dc63-09fd-434f-848d-9c2cdfa6d278}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Max Entries Per Contact" languagecode="1033" />
+                        </labels>
+                        <control id="andy_maxentriespercontact" classid="{C6D124CA-7EDA-4A60-AEA9-7FB8D318B68F}" datafieldname="andy_maxentriespercontact" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{78d6712e-e50c-49d5-b05c-783c16afad71}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Start Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_starttime" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="andy_starttime" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{2043227a-9459-4cef-a102-db3bc5d06d88}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="End Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_endtime" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="andy_endtime" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{876d14d5-e2aa-43da-acb8-098fed4cd1f1}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Drawing Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_drawingtime" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="andy_drawingtime" disabled="false" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+  </systemform>
+</forms>

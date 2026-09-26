@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{bac27bfb-edb6-40da-9a72-00f9c6df8e97}</savedqueryid>
+    <layoutxml>
+      <grid name="andy_contestsourcecaps" jump="andy_settingname" select="1" icon="1" preview="1">
+        <row name="andy_contestsourcecap" id="andy_contestsourcecapid">
+          <cell name="andy_settingname" width="300" />
+          <cell name="andy_source" width="150" />
+          <cell name="andy_campaignname" width="150" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>2</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_contestsourcecap">
+          <attribute name="andy_contestsourcecapid" />
+          <attribute name="andy_settingname" />
+          <attribute name="andy_source" />
+          <attribute name="andy_campaignname" />
+          <attribute name="createdon" />
+          <order attribute="andy_settingname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Contest Source Cap Associated View" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

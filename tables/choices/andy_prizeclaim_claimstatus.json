@@ -1,0 +1,24 @@
+{
+  "schemaName": "andy_prizeclaim_claimstatus",
+  "displayName": "Prize Claim Status",
+  "description": "Lifecycle status for a player-facing prize claim.",
+  "isGlobal": true,
+  "defaultValue": 435700000,
+  "options": [
+    {
+      "value": 435700000,
+      "label": "Unclaimed",
+      "description": "The win exists but has not been claimed by a player."
+    },
+    {
+      "value": 435700001,
+      "label": "Claimed",
+      "description": "The player completed the claim flow."
+    },
+    {
+      "value": 435700002,
+      "label": "Expired",
+      "description": "The claim token or claim window expired before completion."
+    }
+  ]
+}
