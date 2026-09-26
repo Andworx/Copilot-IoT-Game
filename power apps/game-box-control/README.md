@@ -71,3 +71,18 @@ power apps/game-box-control/
     ├── SmokeTest.tsx          # create-win + claim-prize smoke-test UI
     └── apiConfig.ts           # azure/ Functions base URL + function keys
 ```
+
+## Staff workspace navigation
+
+The persistent left menu has Games, Testing, and Prize control workspaces. On narrow
+screens it becomes a compact navigation row. Games opens a game selector (currently
+Game Box only), with the master Game Mode switch and individual device mode controls.
+The selector represents the existing global kiosk; additional games require their own
+backend targeting before they can be added as selectable options.
+
+Testing and Prize control retain their form state while switching workspaces during
+the session. Each tool loads on its first visit. Refresh state reloads the game box
+status without changing the live kiosk. Existing command endpoints are unchanged.
+
+`src/App.tsx` owns navigation and game controls; `src/App.css` styles the responsive
+workspace shell. Update this README when navigation, supported games, or workflows change.
