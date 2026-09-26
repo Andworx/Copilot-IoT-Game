@@ -3,6 +3,7 @@ import { createGameWin } from "../lib/dataverse";
 
 interface CreateWinRequestBody {
   deviceSlug: string;
+  contestSourceKey?: string;
 }
 
 /**
@@ -31,7 +32,9 @@ export async function createWin(
   }
 
   try {
-    const { claimToken } = await createGameWin(body.deviceSlug);
+    const { claimToken } = await createGameWin(body.deviceSlug, {
+      contestSourceKey: typeof body.contestSourceKey === "string" ? body.contestSourceKey : undefined,
+    });
     return { jsonBody: { claimToken } };
   } catch (error) {
     context.error("create-win failed", error);

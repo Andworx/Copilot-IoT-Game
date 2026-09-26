@@ -123,6 +123,7 @@ Expected changes:
 Validation:
 
 - Azure unit tests cover Prize Claim payloads, new IoT Game Win payloads, and the no-legacy-Game-Win grand-prize entry payload path. Completed locally 2026-09-25.
+- Game Box Control now has a local Prize Claim smoke-test screen that can create a win with a `demo` Contest Source key and immediately claim it for a test contact.
 - Local Function App smoke tests pass for create-win and claim-prize.
 - Existing QR claim flow still works after deployment.
 
