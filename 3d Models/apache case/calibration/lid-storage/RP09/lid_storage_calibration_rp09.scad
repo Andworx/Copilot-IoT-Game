@@ -80,12 +80,10 @@ seam_head_recess_diameter = 6.6;
 seam_nut_diameter = 6.6;
 seam_nut_depth = 2.6;
 
-// Optional thin design-frame plate around the switch garage.  Its large open
-// centre preserves the safety-cover path while the border accepts alternate
-// graphics or future inserts.
+// Optional solid design plate over the left storage area.  The uninterrupted
+// face accepts raised, recessed, painted, or multicolor artwork.
 design_plate_center_x = -87;
 design_plate_size = [85, 196];
-design_plate_opening = [73, 174];
 design_plate_thickness = 1.6;
 design_mount_x = [-112, -62];
 design_mount_y = [-94, 94];
@@ -289,10 +287,7 @@ module seam_pocket_cut(y) {
 module left_design_plate_blank() {
     difference() {
         linear_extrude(design_plate_thickness)
-            difference() {
-                rounded_rect_2d(design_plate_size, 5);
-                rounded_rect_2d(design_plate_opening, 3);
-            }
+            rounded_rect_2d(design_plate_size, 5);
         for (x = design_mount_x, y = design_mount_y)
             translate([x - design_plate_center_x, y, -0.05])
                 cylinder(h = design_plate_thickness + 0.1,

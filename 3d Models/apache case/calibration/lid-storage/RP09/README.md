@@ -76,10 +76,10 @@ Two optional blank parts are also included:
   holes as the branded cover, but no text or logo pockets. Use it as the source
   for future text or graphics.
 - `exports/lid_storage_left_design_plate_blank.stl` is an 85 x 196 x 1.6 mm
-  border plate with a 73 x 174 mm switch opening. Its four M3 holes align with
-  the raised bosses on the left frame. Add designs only to the border; do not
-  reduce the central safety-switch opening until physical closure testing proves
-  the smaller opening safe.
+  solid plate with four M3 holes aligned to the raised bosses on the left frame.
+  Its uninterrupted face is the source for future raised, recessed, painted,
+  or multicolor artwork. Because it closes the former safety-switch opening,
+  complete the closed-lid witness test before leaving it installed in service.
 
 ## Tool-free storage cover
 
