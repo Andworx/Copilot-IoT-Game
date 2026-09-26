@@ -3,6 +3,8 @@
   <IsCustomizable>1</IsCustomizable>
   <IsAutoAssigned>0</IsAutoAssigned>
   <RolePrivileges>
+    <RolePrivilege name="prvAppendandy_ContestSource" level="Global" />
+    <RolePrivilege name="prvAppendandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvAppendandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvAppendandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvAppendandy_GameWin" level="Global" />
@@ -10,6 +12,9 @@
     <RolePrivilege name="prvAppendandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvAppendandy_Prizes" level="Global" />
     <RolePrivilege name="prvAppendandy_PrizeTypes" level="Global" />
+    <RolePrivilege name="prvAppendToandy_ContestCampaign" level="Global" />
+    <RolePrivilege name="prvAppendToandy_ContestSource" level="Global" />
+    <RolePrivilege name="prvAppendToandy_ContestSourceCap" level="Global" />
     <RolePrivilege name="prvAppendToandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvAppendToandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvAppendToandy_GameWin" level="Global" />
@@ -24,6 +29,7 @@
     <RolePrivilege name="prvAssignandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvAssignandy_Prizes" level="Global" />
     <RolePrivilege name="prvAssignandy_PrizeTypes" level="Global" />
+    <RolePrivilege name="prvCreateandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvCreateandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvCreateandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvCreateandy_GameWin" level="Global" />
@@ -40,6 +46,10 @@
     <RolePrivilege name="prvDeleteandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvDeleteandy_Prizes" level="Global" />
     <RolePrivilege name="prvDeleteandy_PrizeTypes" level="Global" />
+    <RolePrivilege name="prvReadandy_ContestCampaign" level="Global" />
+    <RolePrivilege name="prvReadandy_ContestSource" level="Global" />
+    <RolePrivilege name="prvReadandy_ContestSourceCap" level="Global" />
+    <RolePrivilege name="prvReadandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvReadandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvReadandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvReadandy_GameWin" level="Global" />
