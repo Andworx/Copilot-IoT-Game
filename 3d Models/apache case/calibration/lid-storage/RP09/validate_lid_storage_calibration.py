@@ -110,9 +110,9 @@ assert meshes["andworx_field_kit_base.stl"]["bounds_mm"] == [120.0, 60.0, 2.4]
 assert meshes["andworx_field_kit_logo.stl"]["bounds_mm"][2] == 0.9
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][0] <= 190.0
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][1] == 216.0
-# The storage floor is 34 mm behind Z=0.  The existing seam pockets remain
-# 9.8 mm in front of that plane, so the complete carrier spans 43.8 mm in Z.
-assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][2] == 43.8
+# The carrier spans 13 mm behind the frame and 24.2 mm forward through the
+# reinforced snap guides (21 mm cavity + 3.2 mm guide projection).
+assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][2] == 37.2
 assert meshes["lid_storage_frame_L.stl"]["bounds_mm"] == [165.0, 216.0, 9.2]
 assert meshes["lid_storage_cover_base.stl"]["bounds_mm"] == \
        [163.067, 179.4, 2.4]
@@ -130,10 +130,12 @@ report = {
         "between_ribs": [255.0, 183.0],
         "lid_depth": 35.0,
         "measured_clearance_above_old_cover": 14.0,
-        "carrier_depth_into_lid": 34.0,
+        "carrier_depth_behind_frame": 13.0,
+        "carrier_height_in_front_of_frame": 21.0,
+        "total_carrier_depth": 34.0,
         "usable_internal_depth": 31.6,
-        "cover_projection_forward": 2.4,
-        "snap_guide_projection_forward": 3.2,
+        "cover_face_from_frame": 23.4,
+        "snap_guide_extent_from_frame": 24.2,
         "snap_vertical_clearance": 0.25,
         "snap_latch_interference": 0.55,
         "integrated_left_pocket_width": 77.467,
@@ -161,8 +163,8 @@ report = {
         "The cover top edge slips under the retaining rail without shaving or forcing.",
         "Both bottom latches click over the cover and release through the finger notch.",
         "The snap-fit cover remains captured with the lid vertical and inverted.",
-        "The 34 mm carrier well projects toward the lid floor, not toward the controls.",
-        "A clay witness confirms the carrier floor clears the lid by at least 1 mm.",
+        "The carrier projects 13 mm behind and 21 mm in front of the mounting frame.",
+        "A clay witness confirms the 13 mm rear extension clears the lid floor.",
     ],
     "meshes": meshes,
 }
