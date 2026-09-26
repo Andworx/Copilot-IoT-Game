@@ -53,6 +53,19 @@ cover_insert_pilot = 4.0;
 cover_boss_diameter = 9;
 cover_insert_depth = 5.5;
 
+// Tool-free cover retention.  The top edge slips below a fixed rail, the side
+// ribs center the plate, and two independent bottom cantilevers snap over it.
+snap_vertical_clearance = 0.3;
+snap_top_lip_depth = 2.8;
+snap_top_lip_height = 1.6;
+snap_guide_height = cover_thickness + snap_vertical_clearance + 1.0;
+snap_latch_x = [-44, 44];
+snap_latch_width = 10;
+snap_latch_stem = 1.2;
+snap_latch_height = 12;
+snap_latch_interference = 0.55;
+snap_release_diameter = 20;
+
 // Positive left/right seam.  The left tongues slide into enclosed pockets on
 // the right carrier and are locked by M3 screws with captive hex nuts.
 seam_tongue_length = 20;
@@ -196,6 +209,58 @@ module storage_frame_right_2d() {
             translate([boss_pitch[0] / 4, y])
                 square([boss_pitch[0] / 2, rail_width], center = true);
         }
+    }
+}
+
+module cover_top_retainer() {
+    // Vertical back and inward top lip form a ledge over the inserted edge.
+    translate([storage_center_x,
+               cover_size[1] / 2 + 1.0,
+               storage_height + snap_guide_height / 2])
+        cube([cover_size[0] - 18, 1.4, snap_guide_height], center = true);
+    translate([storage_center_x,
+               cover_size[1] / 2 - snap_top_lip_depth / 2 + 0.7,
+               storage_height + cover_thickness +
+               snap_vertical_clearance + snap_top_lip_height / 2])
+        cube([cover_size[0] - 18, snap_top_lip_depth,
+              snap_top_lip_height], center = true);
+}
+
+module cover_side_guides() {
+    for (side = [-1, 1])
+        translate([storage_center_x +
+                   side * (cover_size[0] / 2 + 1.0),
+                   0,
+                   storage_height + snap_guide_height / 2])
+            cube([1.4, cover_size[1] - 34, snap_guide_height], center = true);
+}
+
+module cover_snap_latch(local_x) {
+    outside_y = -storage_outer_size[1] / 2 - 0.8;
+    stem_bottom = storage_height - snap_latch_height + 4;
+
+    // Bottom bridge anchors a thin, otherwise free-standing cantilever.
+    translate([storage_center_x + local_x,
+               -storage_outer_size[1] / 2,
+               stem_bottom + 1])
+        cube([snap_latch_width, 3.2, 2], center = true);
+    translate([storage_center_x + local_x, outside_y,
+               stem_bottom + snap_latch_height / 2])
+        cube([snap_latch_width, snap_latch_stem, snap_latch_height],
+             center = true);
+
+    // Sloped hook cams outward while the cover is pressed into place, then
+    // returns over the cover with 0.3 mm running clearance.
+    hull() {
+        translate([storage_center_x + local_x, outside_y,
+                   storage_height + cover_thickness +
+                   snap_vertical_clearance + 1.3])
+            cube([snap_latch_width, snap_latch_stem, 0.8], center = true);
+        translate([storage_center_x + local_x,
+                   -cover_size[1] / 2 + snap_latch_interference,
+                   storage_height + cover_thickness +
+                   snap_vertical_clearance + 0.4])
+            cube([snap_latch_width, 0.5, 0.8], center = true);
     }
 }
 
@@ -370,6 +435,10 @@ module storage_carrier_right() {
             for (x = cover_fastener_x, y = cover_fastener_y)
                 translate([storage_center_x + x, y, 0])
                     cylinder(h = storage_height, d = cover_boss_diameter);
+
+            cover_top_retainer();
+            cover_side_guides();
+            for (x = snap_latch_x) cover_snap_latch(x);
         }
 
         // Heat-set insert pilots open from the cover side.
@@ -383,6 +452,12 @@ module storage_carrier_right() {
             boss_hole(boss_pitch[0] / 2, y);
         for (y = [-boss_pitch[1] / 2, boss_pitch[1] / 2])
             seam_pocket_cut(y);
+
+        // Matching wall scallop provides access beneath the cover's finger
+        // notch without opening either removable storage insert.
+        translate([storage_center_x, -storage_outer_size[1] / 2,
+                   storage_height - 2.5])
+            cube([snap_release_diameter + 5, 7, 5.2], center = true);
     }
 }
 
@@ -450,6 +525,8 @@ module storage_cover_base() {
             translate([x, y, cover_thickness - 1.5])
                 cylinder(h = 1.55, d = cover_head_diameter);
         }
+        translate([0, -cover_size[1] / 2, -0.05])
+            cylinder(h = cover_thickness + 0.1, d = snap_release_diameter);
         translate([0, 18, cover_thickness - 0.7])
             linear_extrude(0.72)
                 offset(delta = 0.18)
@@ -477,6 +554,8 @@ module storage_cover_blank() {
             translate([x, y, cover_thickness - 1.5])
                 cylinder(h = 1.55, d = cover_head_diameter);
         }
+        translate([0, -cover_size[1] / 2, -0.05])
+            cylinder(h = cover_thickness + 0.1, d = snap_release_diameter);
     }
 }
 
