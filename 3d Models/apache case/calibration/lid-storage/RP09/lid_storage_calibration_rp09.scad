@@ -49,14 +49,14 @@ storage_outer_size = [2 * storage_bay_width + module_gap, module_height - 2];
 storage_center_x = (module_width + module_gap) / 2;
 storage_bay_centers = [0, module_width + module_gap];
 storage_internal_length = storage_outer_size[1] - 2 * storage_wall;
-right_pocket_width = 82;
+right_pocket_width = 85;
 left_pocket_width = storage_outer_size[0] - 3 * storage_wall -
                     right_pocket_width;
 left_pocket_center_local = -storage_outer_size[0] / 2 + storage_wall +
                            left_pocket_width / 2;
 right_pocket_center_local = storage_outer_size[0] / 2 - storage_wall -
                             right_pocket_width / 2;
-right_bottom_length = 120;
+right_bottom_length = 122;
 right_bottom_floor = 1.0;
 right_bottom_clear_depth = storage_height - right_bottom_floor;
 right_bottom_center_y = -storage_internal_length / 2 +
@@ -100,6 +100,23 @@ snap_latch_stem = 2.0;
 snap_latch_height = 13;
 snap_latch_interference = 0.55;
 snap_release_diameter = 20;
+
+// Rigid quarter-turn cover retainers replace the print-sensitive flex latches.
+// Their underside runs over the cover's existing 1.2 mm recessed edge pads,
+// keeping the installed height below the existing side-guide envelope.
+cam_pivot_x = [-44, 44];
+cam_pivot_y = 96;
+cam_boss_diameter = 10;
+cam_insert_pilot = 4.0;
+cam_insert_depth = 5.5;
+cam_tab_thickness = 1.6;
+cam_tab_hub_diameter = 10;
+cam_tab_tip_diameter = 8;
+cam_tab_reach = 7.3;
+cam_tab_hole = 3.4;
+cam_running_clearance = 0.25;
+cam_boss_top = storage_cover_z + cover_thickness -
+               snap_edge_recess_depth + cam_running_clearance;
 
 // Positive left/right seam.  The left tongues slide into enclosed pockets on
 // the right carrier and are locked by M3 screws with captive hex nuts.
@@ -321,6 +338,25 @@ module cover_snap_reliefs() {
                   snap_edge_recess_depth + 0.1], center = true);
 }
 
+module cover_cam_pivot_boss(local_x, local_y) {
+    translate([storage_center_x + local_x, local_y, storage_frame_z])
+        cylinder(h = cam_boss_top - storage_frame_z,
+                 d = cam_boss_diameter);
+}
+
+module cover_cam_tab() {
+    difference() {
+        linear_extrude(cam_tab_thickness)
+            hull() {
+                circle(d = cam_tab_hub_diameter);
+                translate([0, -cam_tab_reach])
+                    circle(d = cam_tab_tip_diameter);
+            }
+        translate([0, 0, -0.05])
+            cylinder(h = cam_tab_thickness + 0.1, d = cam_tab_hole);
+    }
+}
+
 module seam_pocket(y) {
     translate([seam_pocket_length / 2 - 2, y, seam_pocket_height / 2])
         cube([seam_pocket_length, seam_pocket_width, seam_pocket_height],
@@ -481,8 +517,8 @@ module storage_carrier_right() {
                     cube([left_pocket_width + 0.6, storage_wall,
                           storage_height - storage_floor], center = true);
 
-            // The 82 mm right pocket has a 120 mm clear lower compartment;
-            // the remaining 53.8 mm clear length forms the upper tray.
+            // The 85 mm right pocket has a 122 mm clear lower compartment;
+            // the remaining 51.8 mm clear length forms the upper tray.
             translate([storage_center_x + right_pocket_center_local,
                        right_divider_y,
                        storage_back_z + storage_floor +
@@ -511,9 +547,9 @@ module storage_carrier_right() {
                     cylinder(h = storage_height + carrier_frame_overlap,
                              d = cover_boss_diameter);
 
-            cover_top_retainer();
             cover_side_guides();
-            for (x = snap_latch_x) cover_snap_latch(x);
+            for (x = cam_pivot_x, y = [-cam_pivot_y, cam_pivot_y])
+                cover_cam_pivot_boss(x, y);
         }
 
         // Heat-set insert pilots open from the cover side.
@@ -523,7 +559,14 @@ module storage_carrier_right() {
                 cylinder(h = cover_insert_depth + carrier_frame_overlap + 0.05,
                          d = cover_insert_pilot);
 
-        // Locally thin only the 82 x 120 mm lower-right floor to 1.0 mm.
+        // M3 insert pilots for four permanent quarter-turn cam pivots.
+        for (x = cam_pivot_x, y = [-cam_pivot_y, cam_pivot_y])
+            translate([storage_center_x + x, y,
+                       cam_boss_top - cam_insert_depth])
+                cylinder(h = cam_insert_depth + 0.05,
+                         d = cam_insert_pilot);
+
+        // Locally thin only the 85 x 122 mm lower-right floor to 1.0 mm.
         // This yields 33 mm clear internal depth without changing the
         // carrier's external 13 mm rear / 21 mm front envelope.
         translate([storage_center_x + right_pocket_center_local,
@@ -666,6 +709,11 @@ module storage_assembly_preview() {
     color([0.95, 0.92, 0.28])
         translate([storage_center_x, 0,
                    storage_cover_z + cover_thickness + 14]) storage_cover_logo();
+    color([0.9, 0.55, 0.08])
+        for (x = cam_pivot_x, y = [-cam_pivot_y, cam_pivot_y])
+            translate([storage_center_x + x, y,
+                       cam_boss_top + 14])
+                rotate([0, 0, y < 0 ? 180 : 0]) cover_cam_tab();
     color([0.65, 0.68, 0.74])
         translate([design_plate_center_x, 0,
                    frame_thickness + design_mount_boss_height + 6])
@@ -696,6 +744,7 @@ else if (part == "accessory_insert") accessory_insert();
 else if (part == "storage_cover_base") storage_cover_base();
 else if (part == "storage_cover_blank") storage_cover_blank();
 else if (part == "storage_cover_logo") storage_cover_logo();
+else if (part == "cover_cam_tab") cover_cam_tab();
 else if (part == "left_design_plate_blank") left_design_plate_blank();
 else if (part == "storage_assembly_preview") storage_assembly_preview();
 else assert(false, str("Unknown part: ", part));
