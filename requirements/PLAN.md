@@ -18,10 +18,10 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
-| Integration (Azure Functions) | 7 | 4 | 0 | 0 | 11 |
-| Power Apps | 2 | 4 | 0 | 0 | 6 |
+| Integration (Azure Functions) | 7 | 4 | 1 | 0 | 12 |
+| Power Apps | 2 | 6 | 0 | 0 | 8 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 19 | 24 | 7 | 2 | 52 |
+| Totals | 19 | 26 | 8 | 2 | 55 |
 
 ## Dataverse
 
@@ -112,6 +112,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `infra/`: Bicep for the Event Hub namespace/hub/consumer groups, SignalR, and Function App read access; `deploy-infra.yml` (what-if, drift, gated deploy) | Infrastructure as code | ✅ Done | Verified 2026-09-19 through the workflow on `main`: `what-if` showed one Create (`gamefunc`), `deploy` created it, gave the game Function App a managed identity with Event Hubs Data Receiver on the hub only, and merged the three telemetry settings (all existing settings intact); `drift` then passed clean. The IoT Hub route and all Tier 3 resources were untouched. See `docs/CI_CD.md`. |
 | Tier 3 reference snapshots + drift check for IoT Hub, DPS, Function Apps, plans, storage, App Insights | Infrastructure reference | ✅ Done | Verified in CI: the read-only reader identity's `snapshots` job passes against live, and the deploy job's post-check caught the one intended change (the Function App's new identity). |
 | Legacy `func-aw-iot-copilot`: ignore non-panel telemetry (no more junk `andy_iottelemetryevent` rows or bogus help broadcasts) | Azure Function (`Andworx/copilot-iot-service`) | ✅ Done | PR Andworx/copilot-iot-service#205 merged and deployed 2026-09-19. Verified: 86 junk rows in the hour before, one during the rollover, none since; the app logs `Ignoring non-panel telemetry` for each game message. Junk rows already written (about 90 in `orgdec501b8`) are not cleaned up. |
+| `POST /api/grand-prize/check-in` | Azure Function endpoint (`azure/`) | ⬜ TODO | Issue #131 / epic #120 — validate active campaign, Contact, emailed check-in code, current check-in status, and eligibility; mark matching Grand Prize Entry rows checked in with `andy_checkinstatus = Checked In` and `andy_checkintime`; return clear staff-facing statuses for invalid, expired, already-used, invalidated, and ineligible codes. |
 
 ## Power Apps
 
@@ -123,6 +124,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Bulk Add Prizes — genpage in Game Backend to bulk-create `andy_Prizes` rows from a Prize Type + quantity | Generative page (`power apps/bulk-add-prizes/bulk-add-prizes.tsx`) | ✅ Done | Deployed live via `pac model genpage upload` (page-id `2b55fe56-e580-40df-9ac6-b7a10ee8517f`), added to the app sitemap and to the `CopilotIoTGame` solution; user confirmed working in the browser (2026-09-09) |
 | Game Box Control — master "Game Mode" switch + per-tile enable/disable toggle | Power Apps Code App (`power apps/game-box-control`) | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09) — calls the new `toggle-device`/`set-game-mode` endpoints; disabled tiles are visually distinct and non-selectable for manual mode-setting too. Built clean (`npm run build`); not yet published as a governed Power App (`pac code push`), same as the base device picker below |
 | Game Box Control — Prize Management section, bulk-creates `andy_Prizes` rows via new `/api/bulk-create-prizes` + `/api/prize-types` endpoints | Power Apps Code App (`power apps/game-box-control`, `PrizeManagement.tsx`) | ⬜ Verify | Navigation refresh (2026-09-26): persistent Games, Testing, and Prize control menu; Game Box selector and grouped controls implemented, pending live verification. Brings the Bulk Add Prizes genpage's capability into Game Box Control so staff don't have to leave it; the genpage itself (row above) is left running as a redundant alternate entry point, untouched. Prize Claim smoke-test screen now exercises `create-win`/`claim-prize` with a configurable contest source key defaulting to `demo`. Needs live verification and `pac code push` after merge. |
+| Game Box Control — Grand Prize Check-in workspace | Power Apps Code App (`power apps/game-box-control`, `GrandPrizeCheckIn.tsx`) | ⬜ Verify | Issue #131 / epic #120 — staff can type or scan an emailed check-in code and submit it to the planned `POST /api/grand-prize/check-in` Function. The client normalizes entry, keeps PrizeEngine writes server-side, and renders success, already checked in, invalid, expired, invalidated, and ineligible outcomes. UI build passes with the planned endpoint contract; real validation remains pending the Azure Function endpoint and live Code App deployment. |
+| Game Box Control — Grand Prize Drawing workspace and weighted wheel shell | Power Apps Code App (`power apps/game-box-control`, `GrandPrizeDrawing.tsx`) | ⬜ Verify | Issue #130 / epic #120 — staff-operated grand-prize workspace added with a weighted canvas wheel, checked-in lineup loader targeting `GET /api/grand-prize/drawing-slices`, and final draw action targeting `POST /api/grand-prize/draw`. Presentation mode is now read-only: run/preview controls are hidden, the display connects to the existing `gamebox` SignalR hub, and it listens for the planned `grandPrizeDrawn` broadcast so an operator device can trigger the draw from a separate staff session. UI build passes with preview data; real draw remains pending the Azure Function endpoints, `GET /api/grand-prize/drawing-state` recovery endpoint, SignalR broadcast, and PrizeEngine draw-result audit storage. |
 
 ## Testing
 

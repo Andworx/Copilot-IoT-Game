@@ -5,6 +5,8 @@ import {
   SET_GAME_MODE_FUNCTION_KEY,
   TOGGLE_DEVICE_FUNCTION_KEY,
 } from "./apiConfig";
+import GrandPrizeCheckIn from "./GrandPrizeCheckIn";
+import GrandPrizeDrawing from "./GrandPrizeDrawing";
 import PrizeManagement from "./PrizeManagement";
 import SmokeTest from "./SmokeTest";
 import "./App.css";
@@ -39,7 +41,7 @@ const DEMO_INFO_KEY = "__demo-info__";
  *   device completion and show a simple success popup instead (no
  *   andy_gamewin row created). ON restores today's flow exactly.
  */
-type Screen = "controls" | "prizes" | "smoke";
+type Screen = "controls" | "prizes" | "smoke" | "checkIn" | "drawing";
 
 export default function App() {
   const [profiles, setProfiles] = useState<DeviceProfile[]>([]);
@@ -52,6 +54,7 @@ export default function App() {
   const [gameModeBusy, setGameModeBusy] = useState(false);
   const [visited, setVisited] = useState<Set<Screen>>(new Set(["controls"]));
   const [screen, setScreen] = useState<Screen>("controls");
+  const [presentationMode, setPresentationMode] = useState(false);
 
   const loadState = useCallback(async () => {
     setLoading(true);
@@ -137,19 +140,24 @@ export default function App() {
   function navigate(next: Screen) {
     setVisited((previous) => new Set(previous).add(next));
     setScreen(next);
+    if (next !== "drawing") setPresentationMode(false);
   }
 
+  const hideSidebar = screen === "drawing" && presentationMode;
+
   return (
-    <div className="app-shell">
+    <div className={hideSidebar ? "app-shell presentation-mode" : "app-shell"}>
       <a className="skip-link" href="#workspace">Skip to workspace</a>
-      <aside className="sidebar">
-        <div className="brand"><span className="brand-mark" aria-hidden="true">G</span><div>Game Control<span>Copilot IoT Game</span></div></div>
+      <aside className="sidebar" hidden={hideSidebar}>
+        <div className="brand"><span className="brand-mark" aria-hidden="true">G</span><div>Game Control</div></div>
         <p className="nav-label">WORKSPACE</p>
         <nav aria-label="Main navigation">
           {([
             ["controls", "Games", "Select a game and its controls", "01"],
             ["smoke", "Testing", "Run the prize claim smoke test", "02"],
             ["prizes", "Prize control", "View inventory and add prizes", "03"],
+            ["checkIn", "Check in", "Validate final drawing codes", "04"],
+            ["drawing", "Grand prize", "Run the final drawing wheel", "05"],
           ] as const).map(([id, label, description, number]) => (
             <button key={id} className="nav-item" aria-current={screen === id ? "page" : undefined} onClick={() => navigate(id)}>
               <span className="nav-number" aria-hidden="true">{number}</span><span>{label}<small>{description}</small></span>
@@ -159,10 +167,21 @@ export default function App() {
         <div className="sidebar-footer">Staff workspace<span>Manage the experience, all in one place.</span></div>
       </aside>
       <main id="workspace" tabIndex={-1}>
+        {screen === "drawing" && (
+          <button
+            type="button"
+            className={presentationMode ? "presentation-toggle presentation-toggle-compact" : "presentation-toggle"}
+            aria-label={presentationMode ? "Show menu" : "Hide menu"}
+            title={presentationMode ? "Show menu" : "Hide menu"}
+            onClick={() => setPresentationMode((current) => !current)}
+          >
+            {presentationMode ? "⚙" : "Hide menu"}
+          </button>
+        )}
         <header className="page-header">
-          <p className="eyebrow">OPERATIONS / {screen === "controls" ? "GAMES" : screen === "smoke" ? "TESTING" : "PRIZES"}</p>
-          <h1>{screen === "controls" ? "Games" : screen === "smoke" ? "Testing" : "Prize control"}</h1>
-          <p>{screen === "controls" ? "Choose a game, then manage its individual parts." : screen === "smoke" ? "Walk through the prize journey and inspect the results." : "Keep your prize inventory ready for the next player."}</p>
+          <p className="eyebrow">OPERATIONS / {screen === "controls" ? "GAMES" : screen === "smoke" ? "TESTING" : screen === "prizes" ? "PRIZES" : screen === "checkIn" ? "CHECK IN" : "GRAND PRIZE"}</p>
+          <h1>{screen === "controls" ? "Games" : screen === "smoke" ? "Testing" : screen === "prizes" ? "Prize control" : screen === "checkIn" ? "Check in" : "Grand prize"}</h1>
+          <p>{screen === "controls" ? "Choose a game, then manage its individual parts." : screen === "smoke" ? "Walk through the prize journey and inspect the results." : screen === "prizes" ? "Keep your prize inventory ready for the next player." : screen === "checkIn" ? "Validate emailed final-drawing codes as contestants arrive." : "Watch live registration counts, run the server-side draw, and reveal the committed winner."}</p>
         </header>
         <section hidden={screen !== "controls"} aria-label="Game controls">
           <div className="game-selector">
@@ -264,6 +283,12 @@ export default function App() {
         </section>
         <section className="tool-panel" hidden={screen !== "prizes"} aria-label="Prize management">
           {visited.has("prizes") && <PrizeManagement />}
+        </section>
+        <section className="tool-panel check-in-panel" hidden={screen !== "checkIn"} aria-label="Grand prize check-in">
+          {visited.has("checkIn") && <GrandPrizeCheckIn />}
+        </section>
+        <section className="tool-panel drawing-panel" hidden={screen !== "drawing"} aria-label="Grand prize drawing">
+          {visited.has("drawing") && <GrandPrizeDrawing presentationMode={presentationMode} />}
         </section>
       </main>
     </div>
