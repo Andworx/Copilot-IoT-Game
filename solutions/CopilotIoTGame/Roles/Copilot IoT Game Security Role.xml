@@ -4,10 +4,9 @@
   <IsAutoAssigned>0</IsAutoAssigned>
   <RolePrivileges>
     <RolePrivilege name="prvAppendandy_ContestSource" level="Global" />
-    <RolePrivilege name="prvAppendandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvAppendandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvAppendandy_GameBoxState" level="Global" />
-    <RolePrivilege name="prvAppendandy_GameWin" level="Global" />
+    <RolePrivilege name="prvAppendandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvAppendandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvAppendandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvAppendandy_Prizes" level="Global" />
@@ -17,22 +16,19 @@
     <RolePrivilege name="prvAppendToandy_ContestSourceCap" level="Global" />
     <RolePrivilege name="prvAppendToandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvAppendToandy_GameBoxState" level="Global" />
-    <RolePrivilege name="prvAppendToandy_GameWin" level="Global" />
     <RolePrivilege name="prvAppendToandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvAppendToandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvAppendToandy_Prizes" level="Global" />
     <RolePrivilege name="prvAppendToandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvAssignandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvAssignandy_GameBoxState" level="Global" />
-    <RolePrivilege name="prvAssignandy_GameWin" level="Global" />
     <RolePrivilege name="prvAssignandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvAssignandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvAssignandy_Prizes" level="Global" />
     <RolePrivilege name="prvAssignandy_PrizeTypes" level="Global" />
-    <RolePrivilege name="prvCreateandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvCreateandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvCreateandy_GameBoxState" level="Global" />
-    <RolePrivilege name="prvCreateandy_GameWin" level="Global" />
+    <RolePrivilege name="prvCreateandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvCreateandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvCreateandy_IoTTelemetryEvent" level="Global" />
     <RolePrivilege name="prvCreateandy_prizeclaim" level="Global" />
@@ -41,7 +37,6 @@
     <RolePrivilege name="prvCreateSharePointData" level="Global" />
     <RolePrivilege name="prvDeleteandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvDeleteandy_GameBoxState" level="Global" />
-    <RolePrivilege name="prvDeleteandy_GameWin" level="Global" />
     <RolePrivilege name="prvDeleteandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvDeleteandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvDeleteandy_Prizes" level="Global" />
@@ -49,10 +44,9 @@
     <RolePrivilege name="prvReadandy_ContestCampaign" level="Global" />
     <RolePrivilege name="prvReadandy_ContestSource" level="Global" />
     <RolePrivilege name="prvReadandy_ContestSourceCap" level="Global" />
-    <RolePrivilege name="prvReadandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvReadandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvReadandy_GameBoxState" level="Global" />
-    <RolePrivilege name="prvReadandy_GameWin" level="Global" />
+    <RolePrivilege name="prvReadandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvReadandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvReadandy_IoTTelemetryEvent" level="Global" />
     <RolePrivilege name="prvReadandy_prizeclaim" level="Global" />
@@ -67,14 +61,12 @@
     <RolePrivilege name="prvReadSharePointDocument" level="Global" />
     <RolePrivilege name="prvShareandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvShareandy_GameBoxState" level="Global" />
-    <RolePrivilege name="prvShareandy_GameWin" level="Global" />
     <RolePrivilege name="prvShareandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvShareandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvShareandy_Prizes" level="Global" />
     <RolePrivilege name="prvShareandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvWriteandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvWriteandy_GameBoxState" level="Global" />
-    <RolePrivilege name="prvWriteandy_GameWin" level="Global" />
     <RolePrivilege name="prvWriteandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvWriteandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvWriteandy_Prizes" level="Global" />

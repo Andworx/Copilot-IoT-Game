@@ -12,7 +12,6 @@
   <AppModuleComponents>
     <AppModuleComponent type="1" schemaName="andy_deviceprofile" />
     <AppModuleComponent type="1" schemaName="andy_gameboxstate" />
-    <AppModuleComponent type="1" schemaName="andy_gamewin" />
     <AppModuleComponent type="1" schemaName="andy_iotgamewin" />
     <AppModuleComponent type="1" schemaName="andy_prizes" />
     <AppModuleComponent type="1" schemaName="andy_prizetypes" />
@@ -26,7 +25,7 @@
     <LocalizedName description="Copilot IoT Game Backend" languagecode="1033" />
   </LocalizedNames>
   <Descriptions>
-    <Description description="Streamline the management of device profiles, prize catalog/inventory, and game wins to support IoT game backend operations. Enable business users to efficiently oversee and maintain essential backend data for connected gaming environments." languagecode="1033" />
+    <Description description="Streamline the management of device profiles, prize catalog/inventory, and IoT game wins to support IoT game backend operations. Enable business users to efficiently oversee and maintain essential backend data for connected gaming environments." languagecode="1033" />
   </Descriptions>
   <appsettings>
     <appsetting settingdefinitionid.uniquename="AppChannel">
