@@ -3,20 +3,13 @@
   <EntityRelationship Name="andy_andy_deviceprofile_Device_Profile_andy_iotgamewin" />
   <EntityRelationship Name="andy_andy_prizeclaim_Prize_Claim_andy_iotgamewin" />
   <EntityRelationship Name="andy_gameboxstate_andy_activedeviceprofile_andy_deviceprofile" />
-  <EntityRelationship Name="andy_gamewin_deviceprofile" />
-  <EntityRelationship Name="andy_gamewin_PrizeInstance_andy_prizes" />
-  <EntityRelationship Name="andy_gamewin_PrizeType_andy_prizetypes" />
   <EntityRelationship Name="business_unit_andy_deviceprofile" />
   <EntityRelationship Name="business_unit_andy_gameboxstate" />
-  <EntityRelationship Name="business_unit_andy_gamewin" />
   <EntityRelationship Name="business_unit_andy_iotgamewin" />
-  <EntityRelationship Name="contact_andy_gamewin" />
   <EntityRelationship Name="lk_andy_deviceprofile_createdby" />
   <EntityRelationship Name="lk_andy_deviceprofile_modifiedby" />
   <EntityRelationship Name="lk_andy_gameboxstate_createdby" />
   <EntityRelationship Name="lk_andy_gameboxstate_modifiedby" />
-  <EntityRelationship Name="lk_andy_gamewin_createdby" />
-  <EntityRelationship Name="lk_andy_gamewin_modifiedby" />
   <EntityRelationship Name="lk_andy_iotgamewin_createdby" />
   <EntityRelationship Name="lk_andy_iotgamewin_modifiedby" />
   <EntityRelationship Name="lk_andy_iottelemetryevent_createdby" />
@@ -24,14 +17,11 @@
   <EntityRelationship Name="organization_andy_iottelemetryevent" />
   <EntityRelationship Name="owner_andy_deviceprofile" />
   <EntityRelationship Name="owner_andy_gameboxstate" />
-  <EntityRelationship Name="owner_andy_gamewin" />
   <EntityRelationship Name="owner_andy_iotgamewin" />
   <EntityRelationship Name="team_andy_deviceprofile" />
   <EntityRelationship Name="team_andy_gameboxstate" />
-  <EntityRelationship Name="team_andy_gamewin" />
   <EntityRelationship Name="team_andy_iotgamewin" />
   <EntityRelationship Name="user_andy_deviceprofile" />
   <EntityRelationship Name="user_andy_gameboxstate" />
-  <EntityRelationship Name="user_andy_gamewin" />
   <EntityRelationship Name="user_andy_iotgamewin" />
 </EntityRelationships>
