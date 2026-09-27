@@ -33,6 +33,7 @@ $parts = @{
     'storage_cover_base' = 'lid_storage_cover_base.stl'
     'storage_cover_blank' = 'lid_storage_cover_blank.stl'
     'storage_cover_logo' = 'lid_storage_cover_logo.stl'
+    'cover_cam_tab' = 'lid_storage_cover_cam_tab.stl'
     'left_design_plate_blank' = 'lid_storage_left_design_plate_blank.stl'
 }
 

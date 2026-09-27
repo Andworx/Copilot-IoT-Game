@@ -78,6 +78,7 @@ expected = {
     "lid_storage_cover_base.stl",
     "lid_storage_cover_blank.stl",
     "lid_storage_cover_logo.stl",
+    "lid_storage_cover_cam_tab.stl",
     "lid_storage_left_design_plate_blank.stl",
 }
 actual = {path.name for path in EXPORTS.glob("*.stl")}
@@ -111,7 +112,7 @@ assert meshes["andworx_field_kit_logo.stl"]["bounds_mm"][2] == 0.9
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][0] <= 190.0
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][1] == 216.0
 # The carrier spans 13 mm behind the frame and 24.2 mm forward through the
-# reinforced snap guides (21 mm cavity + 3.2 mm guide projection).
+# reinforced side guides (21 mm cavity + 3.2 mm guide projection).
 assert meshes["lid_storage_carrier_R.stl"]["bounds_mm"][2] == 37.2
 assert meshes["lid_storage_frame_L.stl"]["bounds_mm"] == [165.0, 216.0, 9.2]
 assert meshes["lid_storage_cover_base.stl"]["bounds_mm"] == \
@@ -119,6 +120,8 @@ assert meshes["lid_storage_cover_base.stl"]["bounds_mm"] == \
 assert meshes["lid_storage_cover_blank.stl"]["bounds_mm"] == \
        [163.067, 179.4, 2.4]
 assert meshes["lid_storage_cover_logo.stl"]["bounds_mm"][2] == 0.9
+assert meshes["lid_storage_cover_cam_tab.stl"]["bounds_mm"] == \
+       [10.0, 16.3, 1.6]
 assert meshes["lid_storage_left_design_plate_blank.stl"]["bounds_mm"] == \
        [85.0, 196.0, 1.6]
 
@@ -137,13 +140,18 @@ report = {
         "bottom_right_internal_depth": 33.0,
         "bottom_right_floor_thickness": 1.0,
         "cover_face_from_frame": 23.4,
-        "snap_guide_extent_from_frame": 24.2,
-        "snap_vertical_clearance": 0.25,
-        "snap_latch_interference": 0.55,
-        "integrated_left_pocket_width": 75.467,
-        "integrated_right_pocket_width": 82.0,
-        "right_bottom_compartment_length": 120.0,
-        "right_upper_tray_length": 53.8,
+        "side_guide_extent_from_frame": 24.2,
+        "cam_tab_extent_from_frame": 24.05,
+        "cam_running_clearance": 0.25,
+        "cam_pivot_y": 96.0,
+        "integrated_left_pocket_width": 72.467,
+        "integrated_right_pocket_width": 85.0,
+        "right_bottom_compartment_length": 122.0,
+        "right_upper_tray_length": 51.8,
+        "cover_retention": "four M3 quarter-turn printed cams",
+        "cam_tab_size": [10.0, 16.3, 1.6],
+        "cam_locked_overlap": 5.0,
+        "cam_open_edge_clearance": 1.3,
         "seam_tongue_engagement": 20.0,
         "seam_pocket_height": 9.8,
         "left_design_plate": [85.0, 196.0, 1.6],
@@ -158,13 +166,13 @@ report = {
         "The lid closes without a rigid tile or frame touching any control.",
         "The final switch garage preserves at least 3-5 mm clearance.",
         "All four integrated cable cells retain their coils without pinching.",
-        "The lower-right pocket measures 82 x 120 x 33 mm internally.",
+        "The lower-right pocket measures 85 x 122 x 33 mm internally.",
         "The adapter and keys remain captured with the lid vertical and inverted.",
         "Both left tongues fully enter the right pockets and accept M3 bolts without forcing.",
         "Captive M3 nuts remain seated and no bolt head protrudes against the lid floor.",
-        "The cover top edge slips under the retaining rail without shaving or forcing.",
-        "Both bottom latches click over the cover and release through the finger notch.",
-        "The snap-fit cover remains captured with the lid vertical and inverted.",
+        "The cover drops between the side guides without bending or forcing.",
+        "All four quarter-turn cams rotate freely between open and retained positions.",
+        "The cam-retained cover remains captured with the lid vertical and inverted.",
         "The carrier projects 13 mm behind and 21 mm in front of the mounting frame.",
         "A clay witness confirms the 13 mm rear extension clears the lid floor.",
     ],

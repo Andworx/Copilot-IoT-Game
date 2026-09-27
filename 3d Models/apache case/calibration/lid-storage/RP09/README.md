@@ -65,11 +65,14 @@ After the two fit-frame halves align, print:
    total carrier well. The original 21 mm cavity remains in front of the frame,
    and an additional 13 mm extends behind the frame into the lid. All
    compartments are printed directly into it: the left storage bay has four
-   cable cells, while the 82 mm-wide right bay has a 120 mm lower compartment
-   and a 53.8 mm upper tray. The lower compartment has 33 mm clear depth.
-3. `exports/lid_storage_cover_base.stl` — the common snap-fit cover.
+   cable cells, while the 85 mm-wide right bay has a 122 mm lower compartment
+   and a 51.8 mm upper tray. The lower compartment has 33 mm clear depth and
+   nominally clears the 120 x 83 mm GL.iNet Beryl AX footprint by 1 mm per side.
+3. `exports/lid_storage_cover_base.stl` — the common drop-in cover.
 4. `exports/lid_storage_cover_logo.stl` — the contrasting Andworx/Field Kit
    inlay.
+5. Four copies of `exports/lid_storage_cover_cam_tab.stl` — quarter-turn M3
+   cover retainers.
 
 The former cable and accessory insert STLs are obsolete. Their compartments
 are now integrated into `lid_storage_carrier_R.stl` and must not be printed
@@ -88,20 +91,23 @@ Two optional blank parts are also included:
 
 ## Tool-free storage cover
 
-Both the branded and blank storage covers use the same recessed-edge snap-fit
-outline. Insert the thinned top edge beneath the fixed retaining rail, keep the
-plate between the two reinforced side guides, and press the two recessed lower
-pads until both bottom cantilevers click over the cover. A 20 mm finger notch
-and matching carrier-wall scallop provide room to lift the lower edge during
-removal. The top and side roots are 3.2 mm thick and overlap the carrier wall;
-do not print an older cover without the matching edge recesses.
+The print-sensitive flex latches and fixed top retaining rail have been removed.
+Both branded and blank covers now drop straight between the two reinforced side
+guides. Four rigid printed cam tabs rotate over the existing recessed top and
+bottom edge pads, so normal access requires no bending and no screw removal.
+
+Install one M3 heat-set insert in each of the four new pivot bosses outside the
+cover edge. Retain each cam with an M3 x 6 mm button-head screw; tighten only
+until the cam remains flat but still rotates by hand. A thin M3 nylon washer is
+optional. Turn all four cam arms outward to remove the cover, then turn them
+inward over the recessed pads to lock it. The 20 mm finger notch remains for
+lifting the cover.
 
 The six original M3 cover holes and heat-set-insert bosses remain available as
-optional backup fasteners, but are not required for normal access. Test the
-snap action before loading the carrier. The two narrow latch stems are intended
-to flex only far enough for the 0.55 mm hooks to pass the cover; do not bend them
-outward by hand. PETG is preferred for repeated cycling, although a well-tuned
-PLA or PLA+ print should work for the initial fit test.
+backup fasteners. The cams reach only 24.05 mm forward of the mounting frame,
+remaining inside the existing 24.2 mm side-guide envelope. Confirm every cam
+clears the cover in its open position and overlaps the recessed pad when locked
+before testing the carrier vertically.
 
 ## Left/right seam hardware
 
@@ -119,10 +125,10 @@ bending the long frame rails.
 The mounting frame crosses the carrier depth. The carrier floor is 13 mm behind
 the frame, toward the moulded lid, while the cavity continues 21 mm in front of
 the frame to the removable cover. The standard 2.4 mm floor provides 31.6 mm
-clear internal depth. Only the 82 x 120 mm lower-right compartment is locally
+clear internal depth. Only the 85 x 122 mm lower-right compartment is locally
 thinned to a 1.0 mm floor, providing 33 mm clear depth without increasing the
 external carrier envelope. The cover face is 23.4 mm forward of the frame and
-the reinforced snap guides reach 24.2 mm. Perform a clay or tape witness test
+the reinforced side guides reach 24.2 mm. Perform a clay or tape witness test
 to confirm the new 13 mm rear extension clears the lid before latching the
 case. The cover retains six M3 clearance holes over 4.0 mm heat-set-insert
 pilots as optional backup fastening points.
@@ -140,7 +146,7 @@ the open lid in the same orientation as the supplied photograph, they are:
 
 - left: a permanently open safety-switch garage;
 - centre: four printed-in flat-coil cable cells for the 6-inch leads; and
-- right: an integrated 82 mm-wide bay with a 120 x 33 mm lower compartment and
+- right: an integrated 85 mm-wide bay with a 122 x 33 mm lower compartment and
   an upper tray.
 
 The two storage bays can share one removable cover. Its visible face becomes
