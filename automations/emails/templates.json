@@ -1,1 +1,33 @@
-[]
+[
+	{
+		"name": "gameengine - Grand Prize Check-In Code",
+		"subject": "Your grand-prize check-in code: {{CheckInCode}}",
+		"bodyFile": "gameengine - Grand Prize Check-In Code.html",
+		"description": "Sent after a player scans the claim QR, shares contact info, and receives a Grand Prize Entry.",
+		"templateTargetEntity": "contact",
+		"placeholders": [
+			"{{FirstName}}",
+			"{{CheckInCode}}",
+			"{{DrawingTime}}",
+			"{{EventName}}",
+			"{{CheckInLocation}}",
+			"{{PreferenceUrl}}"
+		],
+		"version": "1.0"
+	},
+	{
+		"name": "gameengine - Grand Prize Booth Reminder",
+		"subject": "Reminder: come to the booth for {{EventName}}",
+		"bodyFile": "gameengine - Grand Prize Booth Reminder.html",
+		"description": "Follow-up reminder for checked-in-code recipients before the grand-prize drawing time.",
+		"templateTargetEntity": "contact",
+		"placeholders": [
+			"{{FirstName}}",
+			"{{CheckInCode}}",
+			"{{DrawingTime}}",
+			"{{EventName}}",
+			"{{CheckInLocation}}"
+		],
+		"version": "1.0"
+	}
+]

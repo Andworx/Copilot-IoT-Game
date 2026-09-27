@@ -17,6 +17,11 @@ isn't actually built yet, so this lives here instead, in this repo.
 | `/api/kiosk-state` | GET | anonymous | Current active device, for a freshly-loaded page |
 | `/api/set-mode` | POST | function key | Sets the active device, broadcasts `deviceChanged` |
 | `/api/directline-token` | GET | anonymous | Exchanges the server-side `DIRECTLINE_SECRET` for a short-lived Direct Line token (503 until the secret is set) |
+| `/api/claim-prize` | POST | anonymous | Validates a QR claim token, claims the instant prize, creates/reuses Contact, creates the Grand Prize Entry, and generates/reuses the campaign check-in code when contact info is shared |
+| `/api/grand-prize/check-in` | POST | function key | Validates an emailed check-in code, marks eligible PrizeEngine Grand Prize Entry rows checked in, and returns a staff-facing status |
+| `/api/grand-prize/drawing-slices` | GET | function key | Returns the active campaign, registered/checked-in counts, and weighted checked-in wheel slices for the staff display |
+| `/api/grand-prize/drawing-state` | GET | function key | Returns the latest committed drawing state/result so a presentation screen can recover after reload or a missed SignalR event |
+| `/api/grand-prize/draw` | POST | function key | Atomically selects one checked-in winner, writes the PrizeEngine result/audit record, and broadcasts `grandPrizeDrawn` |
 | `iot-telemetry` | Event Hub trigger | — | Panel Pi telemetry → SignalR `SendTelemetryUpdate` / `TriggerAgentHelp` (gamebox hub) + an `andy_iottelemetryevent` row |
 
 `/api/claim-prize` also performs the Contact and grand-prize entry flow for epic #121:
@@ -31,6 +36,116 @@ Deploy order matters: ship the Dataverse solution push that adds the Prize Claim
 IoT Game Win, and Grand Prize Entry relationships before this Function version is deployed,
 because claims with contact info bind `andy_Contact@odata.bind` on Prize Claim and create
 `andy_grandprizeentries` rows linked back through `andy_PrizeClaim@odata.bind`.
+
+## Grand prize check-in code email pipeline
+
+Issue #134 starts at the public player claim path, not as a separate staff action. After a
+player wins, scans the QR code, and shares contact info, `POST /api/claim-prize` should:
+
+1. Create or reuse the Contact by normalized email.
+2. Resolve the active Contest Campaign from the Prize Claim.
+3. Reuse any existing check-in code for that Contact/campaign, or generate a unique code
+  using the campaign's `andy_checkincodeprefix`.
+4. Create the Grand Prize Entry with `andy_checkincode` and `andy_checkinstatus = Not Checked In`.
+5. Create and send a Dataverse Email activity regarding the Grand Prize Entry. The Email
+   activity uses the `regardingobjectid_andy_grandprizeentry@odata.bind` navigation property,
+   so the sent message appears on the Grand Prize Entry timeline.
+6. Create a reminder Email activity regarding the same Grand Prize Entry, using campaign
+  `andy_drawingtime` minus campaign `andy_reminder_lead_minutes` as the delayed send time.
+7. Return the Grand Prize Entry result to the claim page/test UI, including `checkInCode`
+  for test preview only.
+
+Campaign columns used by activity-based email delivery:
+
+| Campaign column | Purpose |
+|---|---|
+| `andy_check_in_location` | Booth/check-in location shown in the code and reminder emails. Defaults to `the booth` when blank. |
+| `andy_reminder_lead_minutes` | Minutes before `andy_drawingtime` to schedule the reminder Email activity. Defaults to `30` when blank. |
+| `andy_preference_url` | Optional preference/removal URL included in the first code email. |
+
+Required app setting for activity-based email delivery:
+
+| Setting | Purpose |
+|---|---|
+| `GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID` | Dataverse systemuser GUID for the sender mailbox used in Email activity parties. If omitted, the claim still succeeds and returns `emailActivity.status = not_configured`. |
+
+The imported PrizeEngine solution must keep activities enabled for `andy_grandprizeentry`.
+The fresh 2026-09-27 unpack confirms `HasRelatedActivities=True`, and live Dataverse
+schema confirms Email `regardingobjectid` supports `andy_grandprizeentry`.
+
+The Game Box Control Code App does not expose a normal operator command for generating or
+sending codes. Its Testing workspace can show a sample of the email after the simulated
+QR/info claim path creates a Grand Prize Entry.
+
+## Grand prize check-in pipeline
+
+Issue #131 keeps final drawing check-in inside the staff-only Game Box Control Code App.
+The client submits one normalized code to `POST /api/grand-prize/check-in` and never writes
+PrizeEngine Dataverse rows directly. The Function should:
+
+1. Normalize and validate the submitted check-in code.
+2. Resolve the active campaign and matching Grand Prize Entry/Contact records in
+  PrizeEngine Dataverse.
+3. Reject missing, expired, invalidated, already-used, inactive-campaign, or ineligible
+  codes with a clear status/message for the Code App.
+4. Mark every matching eligible Grand Prize Entry for that code/contact/campaign checked in
+  by setting `andy_checkinstatus = Checked In` and `andy_checkintime = utcNow`.
+5. Return the staff-facing confirmation payload:
+
+```json
+{
+  "status": "checked_in",
+  "participantName": "<display name>",
+  "participantCode": "<check-in code>",
+  "checkedInEntryCount": 3,
+  "totalEntryCount": 3,
+  "checkedInAt": "2026-09-27T19:00:00.000Z",
+  "campaignName": "<campaign>"
+}
+```
+
+The Code App also handles `already_checked_in`, `invalid`, `expired`, `invalidated`, and
+`ineligible` responses so staff get a clear instruction without seeing the grand-prize
+wheel or direct Dataverse data.
+
+## Grand prize drawing pipeline
+
+The grand-prize production flow uses the same Serverless Azure SignalR Service and
+`gamebox` hub as kiosk mode selection. The display device does not talk directly to the
+operator device:
+
+1. The presentation screen opens Game Box Control in Grand prize presentation mode. It has
+   no run buttons, loads counts/slices from `GET /api/grand-prize/drawing-slices`, and
+   connects to SignalR through `POST /api/negotiate`.
+2. The operator device stays in normal Grand prize mode and calls `POST /api/grand-prize/draw`.
+3. The Function validates that a draw has not already been committed for the active
+   campaign, performs the weighted checked-in selection, writes the draw result/audit row
+   in PrizeEngine Dataverse, and emits this SignalR message:
+
+```json
+{
+  "target": "grandPrizeDrawn",
+  "arguments": [
+    {
+      "drawResultId": "<guid>",
+      "winnerContactId": "<contact-guid>",
+      "winnerName": "<display name>",
+      "winnerCode": "<check-in or draw code>",
+      "winningEntryCount": 3,
+      "eligibleContactCount": 100
+    }
+  ]
+}
+```
+
+4. The presentation screen receives `grandPrizeDrawn`, spins to the matching loaded slice,
+   and shows the winner reveal. If the screen reloads or misses the event, it should recover
+   from `GET /api/grand-prize/drawing-state` and the saved PrizeEngine result rather than
+   rerunning the draw.
+
+`POST /api/grand-prize/draw` must stay server-authoritative: it should enforce one committed
+draw per campaign, reject an empty checked-in lineup, cap entries according to campaign
+configuration, and write enough audit data to prove which eligible entries were considered.
 
 `set-mode`'s function key is what stands in for "only the Power App can call this" right
 now — the Power App's custom connector holds the key. `GAME_MODE_PLAN.md` §4a describes
@@ -75,6 +190,9 @@ is stored. Run that workflow (`deploy`) before this change ships, or the trigger
 | `IOT_EVENTHUB_NAME` | `iot-telemetry` | your hub |
 | `IOT_EVENTHUB_CONSUMER_GROUP` | `gamefunc` (dedicated to this app; never `funcapp` or `$Default`) | a group of your own |
 | `DIRECTLINE_SECRET` | the Copilot Studio agent's secret, set by hand once the agent is ready. Until then `/api/directline-token` returns 503 and the kiosk shows the static steps | optional |
+
+No new SignalR setting is required for the grand-prize display path; it reuses
+`AzureSignalRConnectionString` and the `gamebox` hub.
 
 ### The `andy_iottelemetryevent` table
 

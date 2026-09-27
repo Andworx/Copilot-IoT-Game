@@ -27,3 +27,11 @@ export const SET_GAME_MODE_FUNCTION_KEY =
 /** bulk-create-prizes's function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
 export const BULK_CREATE_PRIZES_FUNCTION_KEY =
   (import.meta.env.VITE_BULK_CREATE_PRIZES_FUNCTION_KEY as string | undefined) ?? "";
+
+/** Grand-prize drawing function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
+export const GRAND_PRIZE_DRAW_FUNCTION_KEY =
+  (import.meta.env.VITE_GRAND_PRIZE_DRAW_FUNCTION_KEY as string | undefined) ?? "";
+
+/** Grand-prize check-in function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
+export const GRAND_PRIZE_CHECK_IN_FUNCTION_KEY =
+  (import.meta.env.VITE_GRAND_PRIZE_CHECK_IN_FUNCTION_KEY as string | undefined) ?? "";

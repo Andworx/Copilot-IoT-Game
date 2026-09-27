@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@microsoft/power-apps": "^1.2.5",
+    "@microsoft/signalr": "^8.0.29",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
