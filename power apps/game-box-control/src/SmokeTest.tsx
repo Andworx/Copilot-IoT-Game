@@ -24,10 +24,19 @@ interface CreateWinResponse {
 interface GrandPrizeEntryResult {
   status: "created" | "capped" | "skipped" | "error";
   entryId?: string;
+  checkInCode?: string;
   currentEntries?: number;
   maxEntriesPerContact?: number;
   reason?: string;
   message?: string;
+}
+
+interface CheckInEmailPreview {
+  to: string;
+  firstName: string;
+  checkInCode: string;
+  drawingTime: string;
+  eventName: string;
 }
 
 interface ClaimPrizeResponse {
@@ -57,6 +66,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
   const [step, setStep] = useState<SmokeStep>("ready");
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [lastResponse, setLastResponse] = useState<string | null>(null);
+  const [emailPreview, setEmailPreview] = useState<CheckInEmailPreview | null>(null);
 
   async function createWinRequest(sourceKey = contestSourceKey): Promise<CreateWinResponse> {
     const trimmedDeviceSlug = deviceSlug.trim();
@@ -116,6 +126,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
     setBusy("create");
     setMessage(null);
     setLastResponse(null);
+    setEmailPreview(null);
     try {
       const body = await createWinRequest();
       setLastResponse(JSON.stringify(body, null, 2));
@@ -152,6 +163,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
     setBusy("claim");
     setMessage(null);
     setLastResponse(null);
+    setEmailPreview(null);
     try {
       const body = await claimPrizeRequest({
         token: trimmedToken,
@@ -162,6 +174,15 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
       setLastResponse(JSON.stringify(body, null, 2));
       setStep("claimed");
       setMessage({ kind: "success", text: `Spin completed: ${body.prizeName ?? "prize"}. ${formatGrandPrizeEntry(body.grandPrizeEntry)}.` });
+      if (shouldShareInfo && body.grandPrizeEntry?.status === "created") {
+        setEmailPreview({
+          to: contestantEmail,
+          firstName: contestantName.trim().split(/\s+/)[0] || "there",
+          checkInCode: body.grandPrizeEntry.checkInCode ?? "GP-DEMO-2401",
+          drawingTime: "Final drawing time from the active campaign",
+          eventName: "Copilot IoT Game Grand Prize Drawing",
+        });
+      }
     } catch (err) {
       setMessage({ kind: "error", text: err instanceof Error ? err.message : "Failed to claim prize." });
     } finally {
@@ -328,6 +349,8 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
         Status: {step === "ready" ? "Ready" : step === "won" ? "Game won; QR ready" : step === "scanned" ? "QR scanned; ready to spin" : "Claim completed"}
       </div>
 
+      {emailPreview && <GrandPrizeEmailPreview preview={emailPreview} />}
+
       {lastResponse && (
         <pre
           style={{
@@ -344,5 +367,37 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
         </pre>
       )}
     </section>
+  );
+}
+
+function GrandPrizeEmailPreview({ preview }: { preview: CheckInEmailPreview }) {
+  return (
+    <aside
+      aria-label="Sample grand prize check-in email"
+      style={{
+        marginTop: "1rem",
+        border: "1px solid #bfdbfe",
+        borderRadius: 8,
+        background: "#eff6ff",
+        padding: "1rem",
+      }}
+    >
+      <p style={{ margin: "0 0 0.45rem", color: "#1d4ed8", fontSize: "0.75rem", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase" }}>
+        Sample check-in email
+      </p>
+      <p style={{ margin: "0 0 0.6rem", color: "#475569", fontSize: "0.85rem" }}>
+        This is a local preview of the email the server-side claim flow sends after a player scans the QR code and shares contact info.
+      </p>
+      <div style={{ border: "1px solid #dbeafe", borderRadius: 6, background: "#fff", padding: "0.85rem" }}>
+        <p style={{ margin: "0 0 0.35rem", color: "#64748b", fontSize: "0.8rem" }}>To: {preview.to}</p>
+        <p style={{ margin: "0 0 0.75rem", fontWeight: 700 }}>Your grand-prize check-in code</p>
+        <p style={{ margin: "0 0 0.75rem" }}>Hi {preview.firstName},</p>
+        <p style={{ margin: "0 0 0.75rem" }}>
+          Thanks for playing. You are entered for the {preview.eventName}. You must be present in person for the final drawing.
+        </p>
+        <p style={{ margin: "0 0 0.75rem" }}>Drawing time: {preview.drawingTime}</p>
+        <p style={{ margin: "0", fontSize: "1.6rem", fontWeight: 800, letterSpacing: ".08em", color: "#0f172a" }}>{preview.checkInCode}</p>
+      </div>
+    </aside>
   );
 }

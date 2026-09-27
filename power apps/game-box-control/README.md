@@ -46,6 +46,10 @@ It also includes a Prize Claim smoke-test screen for the shared Prize Claim roll
 screen calls the anonymous `POST /api/create-win` and `POST /api/claim-prize` endpoints,
 defaults the contest source key to `demo`, and shows the raw JSON responses so a staff user
 can verify the new Prize Claim, IoT Game Win, Contact, and Grand Prize Entry path quickly.
+For issue #134, this screen also shows a sample of the grand-prize check-in email after
+the QR/info path creates a Grand Prize Entry. Code generation and email delivery are not
+operator actions in this app; they belong to the server-side claim flow that runs after a
+player scans the QR code and shares contact info.
 
 ## Why a Code App instead of a Canvas app
 
@@ -100,7 +104,7 @@ power apps/game-box-control/
     ├── GrandPrizeCheckIn.tsx  # staff check-in form for emailed grand-prize codes
     ├── GrandPrizeDrawing.tsx  # weighted wheel, operator controls, SignalR display listener for issue #130
     ├── PrizeManagement.tsx    # bulk-create-prizes UI (Prize Management section)
-    ├── SmokeTest.tsx          # create-win + claim-prize smoke-test UI
+    ├── SmokeTest.tsx          # create-win + claim-prize smoke-test UI, including #134 email preview
     └── apiConfig.ts           # azure/ Functions base URL + function keys
 ```
 

@@ -8,6 +8,7 @@
     "DATAVERSE_TENANT_ID": "<entra-tenant-guid>",
     "DATAVERSE_CLIENT_ID": "<app-registration-client-id>",
     "DATAVERSE_CLIENT_SECRET": "<app-registration-client-secret>",
+    "GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID": "<system-user-guid-with-approved-mailbox>",
 
     "AzureSignalRConnectionString": "<azure-signalr-service-connection-string>",
 

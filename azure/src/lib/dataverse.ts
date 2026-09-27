@@ -2,6 +2,7 @@ import { randomInt } from "node:crypto";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 
 const DATAVERSE_URL = (process.env.DATAVERSE_URL ?? "").replace(/\/$/, "");
+const GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID = process.env.GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID ?? "";
 
 let msalClient: ConfidentialClientApplication | null = null;
 let cachedToken: { value: string; expiresAt: number } | null = null;
@@ -318,6 +319,7 @@ const GRAND_PRIZE_ENTRY_CAMPAIGN_NAV = "andy_CampaignName"; // on andy_grandpriz
 const GRAND_PRIZE_ENTRY_CONTACT_NAV = "andy_Contact"; // on andy_grandprizeentry, -> contact
 const GRAND_PRIZE_ENTRY_PRIZE_CLAIM_NAV = "andy_PrizeClaim"; // on andy_grandprizeentry, -> andy_prizeclaim
 const GRAND_PRIZE_ENTRY_SOURCE_CAP_NAV = "andy_SourceIdentifier"; // on andy_grandprizeentry, -> andy_contestsourcecap
+const GRAND_PRIZE_CHECK_IN_STATUS_NOT_CHECKED_IN = 100000000;
 const PRIZES_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_Prizes, -> andy_PrizeTypes
 const IOT_CONTEST_SOURCE_IDENTIFIER = "iot";
 
@@ -654,6 +656,10 @@ function parseDataverseIdFromEntityUrl(entityUrl: string | null): string | null 
 interface ActiveContestCampaign {
   id: string;
   eventName: string | null;
+  drawingTime: string | null;
+  checkInLocation: string | null;
+  preferenceUrl: string | null;
+  reminderLeadMinutes: number | null;
   maxEntriesPerContact: number | null;
   checkInCodePrefix: string | null;
 }
@@ -665,12 +671,16 @@ interface ContestSource {
 
 async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | null> {
   const response = await dataverseFetch(
-    `${CONTEST_CAMPAIGNS_SET}?$select=andy_contestcampaignid,andy_eventname,andy_maxentriespercontact,andy_checkincodeprefix&$filter=statecode eq 0&$orderby=createdon desc&$top=1`
+    `${CONTEST_CAMPAIGNS_SET}?$select=andy_contestcampaignid,andy_eventname,andy_drawingtime,andy_check_in_location,andy_preference_url,andy_reminder_lead_minutes,andy_maxentriespercontact,andy_checkincodeprefix&$filter=statecode eq 0&$orderby=createdon desc&$top=1`
   );
   const body = (await response.json()) as {
     value: Array<{
       andy_contestcampaignid: string;
       andy_eventname?: string | null;
+      andy_drawingtime?: string | null;
+      andy_check_in_location?: string | null;
+      andy_preference_url?: string | null;
+      andy_reminder_lead_minutes?: number | null;
       andy_maxentriespercontact?: number | null;
       andy_checkincodeprefix?: string | null;
     }>;
@@ -680,6 +690,10 @@ async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | nul
     ? {
         id: campaign.andy_contestcampaignid,
         eventName: campaign.andy_eventname ?? null,
+        drawingTime: campaign.andy_drawingtime ?? null,
+        checkInLocation: campaign.andy_check_in_location ?? null,
+        preferenceUrl: campaign.andy_preference_url ?? null,
+        reminderLeadMinutes: campaign.andy_reminder_lead_minutes ?? null,
         maxEntriesPerContact: campaign.andy_maxentriespercontact ?? null,
         checkInCodePrefix: campaign.andy_checkincodeprefix ?? null,
       }
@@ -688,18 +702,26 @@ async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | nul
 
 async function fetchContestCampaignById(campaignId: string): Promise<ActiveContestCampaign | null> {
   const response = await dataverseFetch(
-    `${CONTEST_CAMPAIGNS_SET}(${campaignId})?$select=andy_contestcampaignid,andy_eventname,andy_maxentriespercontact,andy_checkincodeprefix`
+    `${CONTEST_CAMPAIGNS_SET}(${campaignId})?$select=andy_contestcampaignid,andy_eventname,andy_drawingtime,andy_check_in_location,andy_preference_url,andy_reminder_lead_minutes,andy_maxentriespercontact,andy_checkincodeprefix`
   );
   if (response.status === 404) return null;
   const campaign = (await response.json()) as {
     andy_contestcampaignid: string;
     andy_eventname?: string | null;
+    andy_drawingtime?: string | null;
+    andy_check_in_location?: string | null;
+    andy_preference_url?: string | null;
+    andy_reminder_lead_minutes?: number | null;
     andy_maxentriespercontact?: number | null;
     andy_checkincodeprefix?: string | null;
   };
   return {
     id: campaign.andy_contestcampaignid,
     eventName: campaign.andy_eventname ?? null,
+    drawingTime: campaign.andy_drawingtime ?? null,
+    checkInLocation: campaign.andy_check_in_location ?? null,
+    preferenceUrl: campaign.andy_preference_url ?? null,
+    reminderLeadMinutes: campaign.andy_reminder_lead_minutes ?? null,
     maxEntriesPerContact: campaign.andy_maxentriespercontact ?? null,
     checkInCodePrefix: campaign.andy_checkincodeprefix ?? null,
   };
@@ -729,14 +751,21 @@ async function fetchContestSourceCap(campaignId: string, contestSourceId: string
   return body.value[0]?.andy_contestsourcecapid ?? null;
 }
 
-async function countGrandPrizeEntriesForContact(campaignId: string, contactId: string, top: number): Promise<number> {
+async function fetchGrandPrizeEntriesForContact(
+  campaignId: string,
+  contactId: string,
+  top: number
+): Promise<{ count: number; checkInCode: string | null }> {
   const response = await dataverseFetch(
-    `${GRAND_PRIZE_ENTRIES_SET}?$select=andy_grandprizeentryid` +
+    `${GRAND_PRIZE_ENTRIES_SET}?$select=andy_grandprizeentryid,andy_checkincode` +
       `&$filter=statecode eq 0 and _andy_campaignname_value eq ${campaignId} and _andy_contact_value eq ${contactId}` +
       `&$top=${top}`
   );
-  const body = (await response.json()) as { value: Array<{ andy_grandprizeentryid: string }> };
-  return body.value.length;
+  const body = (await response.json()) as { value: Array<{ andy_grandprizeentryid: string; andy_checkincode?: string | null }> };
+  return {
+    count: body.value.length,
+    checkInCode: body.value.find((entry) => entry.andy_checkincode?.trim())?.andy_checkincode?.trim() ?? null,
+  };
 }
 
 export function buildGrandPrizeEntryPayload(input: {
@@ -756,6 +785,7 @@ export function buildGrandPrizeEntryPayload(input: {
     andy_participantname: name,
     andy_entrytimestamp: timestamp,
     andy_privacyacceptancetime: timestamp,
+    andy_checkinstatus: GRAND_PRIZE_CHECK_IN_STATUS_NOT_CHECKED_IN,
     ...(input.checkInCode ? { andy_checkincode: input.checkInCode } : {}),
     [`${GRAND_PRIZE_ENTRY_CAMPAIGN_NAV}@odata.bind`]: `/${CONTEST_CAMPAIGNS_SET}(${input.campaignId})`,
     [`${GRAND_PRIZE_ENTRY_CONTACT_NAV}@odata.bind`]: `/contacts(${input.contactId})`,
@@ -771,6 +801,141 @@ function generateCheckInCode(prefix: string | null): string {
   return `${normalizedPrefix}-${randomInt(0, 1_000_000).toString().padStart(6, "0")}`;
 }
 
+async function checkInCodeExists(campaignId: string, checkInCode: string): Promise<boolean> {
+  const response = await dataverseFetch(
+    `${GRAND_PRIZE_ENTRIES_SET}?$select=andy_grandprizeentryid` +
+      `&$filter=statecode eq 0 and _andy_campaignname_value eq ${campaignId}` +
+      ` and andy_checkincode eq '${escapeODataString(checkInCode)}'&$top=1`
+  );
+  const body = (await response.json()) as { value: Array<{ andy_grandprizeentryid: string }> };
+  return body.value.length > 0;
+}
+
+async function generateUniqueCheckInCode(campaignId: string, prefix: string | null): Promise<string> {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const checkInCode = generateCheckInCode(prefix);
+    if (!(await checkInCodeExists(campaignId, checkInCode))) return checkInCode;
+  }
+  throw new Error("Unable to generate a unique grand-prize check-in code");
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function firstName(contestant: ContestantInfo): string {
+  return normalizeContestantName(contestant.name)?.split(/\s+/)[0] ?? "there";
+}
+
+function formatDrawingTime(drawingTime: string | null): string {
+  return drawingTime ? new Date(drawingTime).toLocaleString("en-US", { timeZone: "America/New_York" }) : "the announced final drawing time";
+}
+
+function campaignCheckInLocation(campaign: ActiveContestCampaign): string {
+  return campaign.checkInLocation?.trim() || "the booth";
+}
+
+function campaignPreferenceUrl(campaign: ActiveContestCampaign): string {
+  return campaign.preferenceUrl?.trim() ?? "";
+}
+
+function campaignReminderLeadMinutes(campaign: ActiveContestCampaign): number {
+  return typeof campaign.reminderLeadMinutes === "number" && Number.isFinite(campaign.reminderLeadMinutes)
+    ? campaign.reminderLeadMinutes
+    : 30;
+}
+
+function buildGrandPrizeCheckInEmail(input: {
+  contestant: ContestantInfo;
+  campaign: ActiveContestCampaign;
+  checkInCode: string;
+}): { subject: string; html: string } {
+  const eventName = input.campaign.eventName ?? "Copilot IoT Game Grand Prize Drawing";
+  const drawingTime = formatDrawingTime(input.campaign.drawingTime);
+  const checkInLocation = campaignCheckInLocation(input.campaign);
+  const preferenceUrl = campaignPreferenceUrl(input.campaign);
+  const preferenceLine = preferenceUrl
+    ? `<p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#53657a;">If you no longer want to participate or receive event messages, update your preferences here: <a href="${escapeHtml(preferenceUrl)}">${escapeHtml(preferenceUrl)}</a>.</p>`
+    : "";
+  return {
+    subject: `Your grand-prize check-in code: ${input.checkInCode}`,
+    html: `<!doctype html><html lang="en"><body style="margin:0;background:#f3f6fa;color:#172033;font-family:Segoe UI,Arial,sans-serif;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fa;padding:24px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dbe5ef;border-radius:8px;overflow:hidden;"><tr><td style="background:#11253b;color:#ffffff;padding:24px 28px;"><p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7cdec8;">Grand prize drawing</p><h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:700;">Your check-in code is ready</h1></td></tr><tr><td style="padding:28px;"><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstName(input.contestant))},</p><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Thanks for playing. You are entered for the ${escapeHtml(eventName)} grand-prize drawing.</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>You must be present in person to win.</strong> Please bring this code to staff check-in at ${escapeHtml(checkInLocation)} before the drawing begins.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;"><tr><td style="padding:20px;text-align:center;"><p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1d4ed8;">Check-in code</p><p style="margin:0;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#0f172a;">${escapeHtml(input.checkInCode)}</p></td></tr></table><p style="margin:0 0 8px;font-size:16px;line-height:1.6;"><strong>Drawing time:</strong> ${escapeHtml(drawingTime)}</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>Check-in location:</strong> ${escapeHtml(checkInLocation)}</p>${preferenceLine}<p style="margin:0;font-size:16px;line-height:1.6;">Good luck,<br>Copilot IoT Game Team</p></td></tr></table></td></tr></table></body></html>`,
+  };
+}
+
+function buildGrandPrizeReminderEmail(input: {
+  contestant: ContestantInfo;
+  campaign: ActiveContestCampaign;
+  checkInCode: string;
+}): { subject: string; html: string; delayedSendTime?: string } {
+  const eventName = input.campaign.eventName ?? "Copilot IoT Game Grand Prize Drawing";
+  const drawingTime = formatDrawingTime(input.campaign.drawingTime);
+  const drawingDate = input.campaign.drawingTime ? new Date(input.campaign.drawingTime) : null;
+  const reminderLead = campaignReminderLeadMinutes(input.campaign);
+  const checkInLocation = campaignCheckInLocation(input.campaign);
+  const delayedSendTime = drawingDate ? new Date(drawingDate.getTime() - reminderLead * 60_000).toISOString() : undefined;
+
+  return {
+    subject: `Reminder: ${eventName} drawing at ${drawingTime}`,
+    delayedSendTime,
+    html: `<!doctype html><html lang="en"><body style="margin:0;background:#f3f6fa;color:#172033;font-family:Segoe UI,Arial,sans-serif;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fa;padding:24px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dbe5ef;border-radius:8px;overflow:hidden;"><tr><td style="background:#11253b;color:#ffffff;padding:24px 28px;"><p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7cdec8;">Grand prize reminder</p><h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:700;">Please come to the booth</h1></td></tr><tr><td style="padding:28px;"><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstName(input.contestant))},</p><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">The ${escapeHtml(eventName)} drawing is coming up at ${escapeHtml(drawingTime)}.</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>You must be present in person to win.</strong> Please come to ${escapeHtml(checkInLocation)} and check in with this code:</p><p style="margin:0 0 20px;font-size:30px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#0f172a;">${escapeHtml(input.checkInCode)}</p><p style="margin:0;font-size:16px;line-height:1.6;">Good luck,<br>Copilot IoT Game Team</p></td></tr></table></td></tr></table></body></html>`,
+  };
+}
+
+async function createAndSendGrandPrizeEmailActivity(input: {
+  contactId: string;
+  grandPrizeEntryId: string;
+  contestant: ContestantInfo;
+  campaign: ActiveContestCampaign;
+  checkInCode: string;
+  kind?: "check_in_code" | "reminder";
+}): Promise<{ status: "sent" | "scheduled" | "not_configured" | "error"; emailActivityId?: string; delayedSendTime?: string; message?: string }> {
+  if (!GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID.trim()) {
+    return { status: "not_configured", message: "GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID is not configured" };
+  }
+
+  const email: { subject: string; html: string; delayedSendTime?: string } =
+    input.kind === "reminder" ? buildGrandPrizeReminderEmail(input) : buildGrandPrizeCheckInEmail(input);
+
+  try {
+    const response = await dataverseFetch("emails", {
+      method: "POST",
+      body: JSON.stringify({
+        subject: email.subject,
+        description: email.html,
+        directioncode: true,
+        ...(email.delayedSendTime ? { delayedemailsendtime: email.delayedSendTime } : {}),
+        [`regardingobjectid_andy_grandprizeentry@odata.bind`]: `/${GRAND_PRIZE_ENTRIES_SET}(${input.grandPrizeEntryId})`,
+        email_activity_parties: [
+          {
+            participationtypemask: 1,
+            "partyid_systemuser@odata.bind": `/systemusers(${GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID})`,
+          },
+          {
+            participationtypemask: 2,
+            "partyid_contact@odata.bind": `/contacts(${input.contactId})`,
+          },
+        ],
+      }),
+    });
+    const emailActivityId = parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId")) ?? undefined;
+    if (emailActivityId) {
+      await dataverseFetch(`emails(${emailActivityId})/Microsoft.Dynamics.CRM.SendEmail`, {
+        method: "POST",
+        body: JSON.stringify({ IssueSend: true, TrackingToken: "" }),
+      });
+    }
+    return { status: email.delayedSendTime ? "scheduled" : "sent", emailActivityId, delayedSendTime: email.delayedSendTime };
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "Failed to create or send email activity" };
+  }
+}
+
 async function createGrandPrizeEntryForClaim(
   contactId: string,
   contestant: ContestantInfo,
@@ -780,10 +945,10 @@ async function createGrandPrizeEntryForClaim(
   if (!campaign) return { status: "skipped", reason: "no_active_campaign" };
 
   const maxEntriesPerContact = campaign.maxEntriesPerContact;
+  const existingEntries = await fetchGrandPrizeEntriesForContact(campaign.id, contactId, maxEntriesPerContact && maxEntriesPerContact > 0 ? maxEntriesPerContact : 5000);
   if (maxEntriesPerContact && maxEntriesPerContact > 0) {
-    const currentEntries = await countGrandPrizeEntriesForContact(campaign.id, contactId, maxEntriesPerContact);
-    if (currentEntries >= maxEntriesPerContact) {
-      return { status: "capped", currentEntries, maxEntriesPerContact };
+    if (existingEntries.count >= maxEntriesPerContact) {
+      return { status: "capped", currentEntries: existingEntries.count, maxEntriesPerContact, checkInCode: existingEntries.checkInCode ?? undefined };
     }
   }
 
@@ -791,6 +956,7 @@ async function createGrandPrizeEntryForClaim(
     normalizeContestSourceKey(input.contestSourceKey ?? undefined)
   );
   const sourceCapId = await fetchContestSourceCap(campaign.id, contestSource?.id ?? null);
+  const checkInCode = existingEntries.checkInCode ?? await generateUniqueCheckInCode(campaign.id, campaign.checkInCodePrefix);
   const response = await dataverseFetch(GRAND_PRIZE_ENTRIES_SET, {
     method: "POST",
     body: JSON.stringify(
@@ -800,20 +966,50 @@ async function createGrandPrizeEntryForClaim(
         prizeClaimId: input.prizeClaimId,
         contestant,
         sourceCapId,
-        checkInCode: generateCheckInCode(campaign.checkInCodePrefix),
+        checkInCode,
       })
     ),
   });
+  const entryId = parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId")) ?? undefined;
+  const emailActivity = entryId
+    ? await createAndSendGrandPrizeEmailActivity({
+        contactId,
+        grandPrizeEntryId: entryId,
+        contestant,
+        campaign,
+        checkInCode,
+      })
+    : { status: "error" as const, message: "Grand Prize Entry id was not returned" };
+  const reminderActivity = entryId && campaign.drawingTime
+    ? await createAndSendGrandPrizeEmailActivity({
+        contactId,
+        grandPrizeEntryId: entryId,
+        contestant,
+        campaign,
+        checkInCode,
+        kind: "reminder",
+      })
+    : { status: "not_configured" as const, message: "Campaign drawing time is not configured" };
   return {
     status: "created",
-    entryId: parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId")) ?? undefined,
+    entryId,
+    checkInCode,
+    emailActivity,
+    reminderActivity,
     maxEntriesPerContact: maxEntriesPerContact ?? undefined,
   };
 }
 
 export type GrandPrizeEntryResult =
-  | { status: "created"; entryId?: string; maxEntriesPerContact?: number }
-  | { status: "capped"; currentEntries: number; maxEntriesPerContact: number }
+  | {
+      status: "created";
+      entryId?: string;
+      checkInCode: string;
+      emailActivity: { status: "sent" | "scheduled" | "not_configured" | "error"; emailActivityId?: string; delayedSendTime?: string; message?: string };
+      reminderActivity: { status: "sent" | "scheduled" | "not_configured" | "error"; emailActivityId?: string; delayedSendTime?: string; message?: string };
+      maxEntriesPerContact?: number;
+    }
+  | { status: "capped"; currentEntries: number; maxEntriesPerContact: number; checkInCode?: string }
   | { status: "skipped"; reason: "no_contact_info" | "no_active_campaign" }
   | { status: "error"; message: string };
 

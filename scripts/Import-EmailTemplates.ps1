@@ -77,8 +77,9 @@ function Import-EmailTemplates {
             if (-not $template.name) {
                 throw "Template entry is missing 'name'."
             }
-            if ($template.name -notlike 'YOUR_EMAIL_TEMPLATE_PREFIX*') {
-                throw "Template '$($template.name)' is invalid. Managed template names must start with YOUR_EMAIL_TEMPLATE_PREFIX."
+            $requiredPrefix = 'YOUR_EMAIL_TEMPLATE_PREFIX'
+            if ($requiredPrefix -ne 'YOUR_EMAIL_TEMPLATE_PREFIX' -and $template.name -notlike "$requiredPrefix*") {
+                throw "Template '$($template.name)' is invalid. Managed template names must start with $requiredPrefix."
             }
             if (-not $template.subject) {
                 throw "Template '$($template.name)' is missing 'subject'."

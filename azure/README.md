@@ -17,6 +17,7 @@ isn't actually built yet, so this lives here instead, in this repo.
 | `/api/kiosk-state` | GET | anonymous | Current active device, for a freshly-loaded page |
 | `/api/set-mode` | POST | function key | Sets the active device, broadcasts `deviceChanged` |
 | `/api/directline-token` | GET | anonymous | Exchanges the server-side `DIRECTLINE_SECRET` for a short-lived Direct Line token (503 until the secret is set) |
+| `/api/claim-prize` | POST | anonymous | Validates a QR claim token, claims the instant prize, creates/reuses Contact, creates the Grand Prize Entry, and generates/reuses the campaign check-in code when contact info is shared |
 | `/api/grand-prize/check-in` | POST | function key | Validates an emailed check-in code, marks eligible PrizeEngine Grand Prize Entry rows checked in, and returns a staff-facing status |
 | `/api/grand-prize/drawing-slices` | GET | function key | Returns the active campaign, registered/checked-in counts, and weighted checked-in wheel slices for the staff display |
 | `/api/grand-prize/drawing-state` | GET | function key | Returns the latest committed drawing state/result so a presentation screen can recover after reload or a missed SignalR event |
@@ -35,6 +36,46 @@ Deploy order matters: ship the Dataverse solution push that adds the Prize Claim
 IoT Game Win, and Grand Prize Entry relationships before this Function version is deployed,
 because claims with contact info bind `andy_Contact@odata.bind` on Prize Claim and create
 `andy_grandprizeentries` rows linked back through `andy_PrizeClaim@odata.bind`.
+
+## Grand prize check-in code email pipeline
+
+Issue #134 starts at the public player claim path, not as a separate staff action. After a
+player wins, scans the QR code, and shares contact info, `POST /api/claim-prize` should:
+
+1. Create or reuse the Contact by normalized email.
+2. Resolve the active Contest Campaign from the Prize Claim.
+3. Reuse any existing check-in code for that Contact/campaign, or generate a unique code
+  using the campaign's `andy_checkincodeprefix`.
+4. Create the Grand Prize Entry with `andy_checkincode` and `andy_checkinstatus = Not Checked In`.
+5. Create and send a Dataverse Email activity regarding the Grand Prize Entry. The Email
+   activity uses the `regardingobjectid_andy_grandprizeentry@odata.bind` navigation property,
+   so the sent message appears on the Grand Prize Entry timeline.
+6. Create a reminder Email activity regarding the same Grand Prize Entry, using campaign
+  `andy_drawingtime` minus campaign `andy_reminder_lead_minutes` as the delayed send time.
+7. Return the Grand Prize Entry result to the claim page/test UI, including `checkInCode`
+  for test preview only.
+
+Campaign columns used by activity-based email delivery:
+
+| Campaign column | Purpose |
+|---|---|
+| `andy_check_in_location` | Booth/check-in location shown in the code and reminder emails. Defaults to `the booth` when blank. |
+| `andy_reminder_lead_minutes` | Minutes before `andy_drawingtime` to schedule the reminder Email activity. Defaults to `30` when blank. |
+| `andy_preference_url` | Optional preference/removal URL included in the first code email. |
+
+Required app setting for activity-based email delivery:
+
+| Setting | Purpose |
+|---|---|
+| `GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID` | Dataverse systemuser GUID for the sender mailbox used in Email activity parties. If omitted, the claim still succeeds and returns `emailActivity.status = not_configured`. |
+
+The imported PrizeEngine solution must keep activities enabled for `andy_grandprizeentry`.
+The fresh 2026-09-27 unpack confirms `HasRelatedActivities=True`, and live Dataverse
+schema confirms Email `regardingobjectid` supports `andy_grandprizeentry`.
+
+The Game Box Control Code App does not expose a normal operator command for generating or
+sending codes. Its Testing workspace can show a sample of the email after the simulated
+QR/info claim path creates a Grand Prize Entry.
 
 ## Grand prize check-in pipeline
 

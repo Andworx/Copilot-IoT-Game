@@ -91,6 +91,7 @@ describe("buildGrandPrizeEntryPayload", () => {
         andy_participantname: "Grace Hopper",
         andy_entrytimestamp: "2026-09-24T12:00:00.000Z",
         andy_privacyacceptancetime: "2026-09-24T12:00:00.000Z",
+        andy_checkinstatus: 100000000,
         andy_checkincode: "DEMO-123456",
         "andy_CampaignName@odata.bind": "/andy_contestcampaigns(11111111-1111-1111-1111-111111111111)",
         "andy_Contact@odata.bind": "/contacts(22222222-2222-2222-2222-222222222222)",
@@ -112,6 +113,7 @@ describe("buildGrandPrizeEntryPayload", () => {
         andy_participantname: "player@example.com",
         andy_entrytimestamp: "2026-09-25T15:30:00.000Z",
         andy_privacyacceptancetime: "2026-09-25T15:30:00.000Z",
+        andy_checkinstatus: 100000000,
         "andy_CampaignName@odata.bind": "/andy_contestcampaigns(11111111-1111-1111-1111-111111111111)",
         "andy_Contact@odata.bind": "/contacts(22222222-2222-2222-2222-222222222222)",
       }

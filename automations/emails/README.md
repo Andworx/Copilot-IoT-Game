@@ -10,6 +10,15 @@ This folder contains managed email template definitions for `YOUR_PROJECT_NAME`.
 | `*.html` | HTML body files referenced from `templates.json` |
 | `example/` | Starter example — copy and adapt for your first template |
 
+## Managed Templates
+
+| Template | Purpose |
+|---|---|
+| `gameengine - Grand Prize Check-In Code` | Sent from the server-side QR claim flow after a player shares contact info and receives a Grand Prize Entry. Includes the check-in code, drawing time, event name, check-in location, and in-person attendance language. |
+| `gameengine - Grand Prize Booth Reminder` | Follow-up reminder for code recipients before the campaign drawing time. Includes the same code and booth location so contestants know where to be present in person. |
+
+For the grand-prize templates, the Function reads event-specific values from the active Contest Campaign: `andy_check_in_location`, `andy_reminder_lead_minutes`, and `andy_preference_url`.
+
 ## Naming Convention
 
 All managed template names must start with **`YOUR_EMAIL_TEMPLATE_PREFIX`** followed by a space, hyphen, space, and a descriptive name:

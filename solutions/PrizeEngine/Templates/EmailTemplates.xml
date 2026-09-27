@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmailTemplates xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <emailtemplate>
+    <IsCustomizable>1</IsCustomizable>
+    <templateid>{70b65f51-beba-f111-aaaf-3833c5e7f0a0}</templateid>
+    <subject>&lt;?xml version="1.0" ?&gt;&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;&lt;xsl:output method="text" indent="no"/&gt;&lt;xsl:template match="/data"&gt;&lt;![CDATA[Reminder: come to the booth for {{EventName}}]]&gt;&lt;/xsl:template&gt;&lt;/xsl:stylesheet&gt;</subject>
+    <subjectpresentationxml>&lt;template&gt;&lt;text&gt;&lt;![CDATA[Reminder: come to the booth for {{EventName}}]]&gt;&lt;/text&gt;&lt;/template&gt;</subjectpresentationxml>
+    <templatetypecode>2</templatetypecode>
+    <body>&lt;?xml version="1.0" ?&gt;&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;&lt;xsl:output method="text" indent="no"/&gt;&lt;xsl:template match="/data"&gt;&lt;![CDATA[&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;title&gt;Grand-prize booth reminder&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body style="margin:0;background:#f3f6fa;color:#172033;font-family:Segoe UI,Arial,sans-serif;"&gt;
+    &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fa;padding:24px 12px;"&gt;
+      &lt;tr&gt;
+        &lt;td align="center"&gt;
+          &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dbe5ef;border-radius:8px;overflow:hidden;"&gt;
+            &lt;tr&gt;
+              &lt;td style="background:#11253b;color:#ffffff;padding:24px 28px;"&gt;
+                &lt;p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7cdec8;"&gt;Grand prize reminder&lt;/p&gt;
+                &lt;h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:700;"&gt;Please come to the booth&lt;/h1&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;td style="padding:28px;"&gt;
+                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Hi {{FirstName}},&lt;/p&gt;
+                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;The {{EventName}} drawing is coming up at {{DrawingTime}}.&lt;/p&gt;
+                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;You must be present in person to win.&lt;/strong&gt; Please come to {{CheckInLocation}} and check in with this code:&lt;/p&gt;
+                &lt;p style="margin:0 0 20px;font-size:30px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#0f172a;"&gt;{{CheckInCode}}&lt;/p&gt;
+                &lt;p style="margin:0;font-size:16px;line-height:1.6;"&gt;Good luck,&lt;br&gt;YOUR_PROJECT_NAME Team&lt;/p&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;/table&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;]]&gt;&lt;/xsl:template&gt;&lt;/xsl:stylesheet&gt;</body>
+    <title>gameengine - Grand Prize Booth Reminder</title>
+    <description>Follow-up reminder for checked-in-code recipients before the grand-prize drawing time. Placeholder tokens: {{FirstName}}, {{CheckInCode}}, {{DrawingTime}}, {{EventName}}, {{CheckInLocation}} Version: 1.0</description>
+    <presentationxml>&lt;template&gt;&lt;html&gt;&lt;![CDATA[&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;title&gt;Grand-prize booth reminder&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body style="margin:0;background:#f3f6fa;color:#172033;font-family:Segoe UI,Arial,sans-serif;"&gt;
+    &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fa;padding:24px 12px;"&gt;
+      &lt;tr&gt;
+        &lt;td align="center"&gt;
+          &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dbe5ef;border-radius:8px;overflow:hidden;"&gt;
+            &lt;tr&gt;
+              &lt;td style="background:#11253b;color:#ffffff;padding:24px 28px;"&gt;
+                &lt;p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7cdec8;"&gt;Grand prize reminder&lt;/p&gt;
+                &lt;h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:700;"&gt;Please come to the booth&lt;/h1&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;td style="padding:28px;"&gt;
+                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Hi {{FirstName}},&lt;/p&gt;
+                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;The {{EventName}} drawing is coming up at {{DrawingTime}}.&lt;/p&gt;
+                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;You must be present in person to win.&lt;/strong&gt; Please come to {{CheckInLocation}} and check in with this code:&lt;/p&gt;
+                &lt;p style="margin:0 0 20px;font-size:30px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#0f172a;"&gt;{{CheckInCode}}&lt;/p&gt;
+                &lt;p style="margin:0;font-size:16px;line-height:1.6;"&gt;Good luck,&lt;br&gt;YOUR_PROJECT_NAME Team&lt;/p&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;/table&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;]]&gt;&lt;/html&gt;&lt;/template&gt;</presentationxml>
+    <languagecode>1033</languagecode>
+    <generationtypecode>0</generationtypecode>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  </emailtemplate>
+  <emailtemplate>
+    <IsCustomizable>1</IsCustomizable>
+    <templateid>{6db65f51-beba-f111-aaaf-3833c5e7f0a0}</templateid>
+    <subject>&lt;?xml version="1.0" ?&gt;&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;&lt;xsl:output method="text" indent="no"/&gt;&lt;xsl:template match="/data"&gt;&lt;![CDATA[Your grand-prize check-in code: {{CheckInCode}}]]&gt;&lt;/xsl:template&gt;&lt;/xsl:stylesheet&gt;</subject>
+    <subjectpresentationxml>&lt;template&gt;&lt;text&gt;&lt;![CDATA[Your grand-prize check-in code: {{CheckInCode}}]]&gt;&lt;/text&gt;&lt;/template&gt;</subjectpresentationxml>
+    <templatetypecode>2</templatetypecode>
+    <body>&lt;?xml version="1.0" ?&gt;&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;&lt;xsl:output method="text" indent="no"/&gt;&lt;xsl:template match="/data"&gt;&lt;![CDATA[&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;title&gt;Your grand-prize check-in code&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body style="margin:0;background:#f3f6fa;color:#172033;font-family:Segoe UI,Arial,sans-serif;"&gt;
+    &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fa;padding:24px 12px;"&gt;
+      &lt;tr&gt;
+        &lt;td align="center"&gt;
+          &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dbe5ef;border-radius:8px;overflow:hidden;"&gt;
+            &lt;tr&gt;
+              &lt;td style="background:#11253b;color:#ffffff;padding:24px 28px;"&gt;
+                &lt;p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7cdec8;"&gt;Grand prize drawing&lt;/p&gt;
+                &lt;h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:700;"&gt;Your check-in code is ready&lt;/h1&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;td style="padding:28px;"&gt;
+                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Hi {{FirstName}},&lt;/p&gt;
+                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Thanks for playing. You are entered for the {{EventName}} grand-prize drawing.&lt;/p&gt;
+                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;You must be present in person to win.&lt;/strong&gt; Please bring this code to the staff check-in desk before the drawing begins.&lt;/p&gt;
+                &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;"&gt;
+                  &lt;tr&gt;
+                    &lt;td style="padding:20px;text-align:center;"&gt;
+                      &lt;p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1d4ed8;"&gt;Check-in code&lt;/p&gt;
+                      &lt;p style="margin:0;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#0f172a;"&gt;{{CheckInCode}}&lt;/p&gt;
+                    &lt;/td&gt;
+                  &lt;/tr&gt;
+                &lt;/table&gt;
+                &lt;p style="margin:0 0 8px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;Drawing time:&lt;/strong&gt; {{DrawingTime}}&lt;/p&gt;
+                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;Check-in location:&lt;/strong&gt; {{CheckInLocation}}&lt;/p&gt;
+                &lt;p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#53657a;"&gt;If you no longer want to participate or receive event messages, update your preferences here: {{PreferenceUrl}}&lt;/p&gt;
+                &lt;p style="margin:0;font-size:16px;line-height:1.6;"&gt;Good luck,&lt;br&gt;YOUR_PROJECT_NAME Team&lt;/p&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;/table&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;]]&gt;&lt;/xsl:template&gt;&lt;/xsl:stylesheet&gt;</body>
+    <title>gameengine - Grand Prize Check-In Code</title>
+    <description>Sent after a player scans the claim QR, shares contact info, and receives a Grand Prize Entry. Placeholder tokens: {{FirstName}}, {{CheckInCode}}, {{DrawingTime}}, {{EventName}}, {{CheckInLocation}}, {{PreferenceUrl}} Version: 1.0</description>
+    <presentationxml>&lt;template&gt;&lt;html&gt;&lt;![CDATA[&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;title&gt;Your grand-prize check-in code&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body style="margin:0;background:#f3f6fa;color:#172033;font-family:Segoe UI,Arial,sans-serif;"&gt;
+    &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fa;padding:24px 12px;"&gt;
+      &lt;tr&gt;
+        &lt;td align="center"&gt;
+          &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dbe5ef;border-radius:8px;overflow:hidden;"&gt;
+            &lt;tr&gt;
+              &lt;td style="background:#11253b;color:#ffffff;padding:24px 28px;"&gt;
+                &lt;p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7cdec8;"&gt;Grand prize drawing&lt;/p&gt;
+                &lt;h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:700;"&gt;Your check-in code is ready&lt;/h1&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;td style="padding:28px;"&gt;
+                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Hi {{FirstName}},&lt;/p&gt;
+                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Thanks for playing. You are entered for the {{EventName}} grand-prize drawing.&lt;/p&gt;
+                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;You must be present in person to win.&lt;/strong&gt; Please bring this code to the staff check-in desk before the drawing begins.&lt;/p&gt;
+                &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;"&gt;
+                  &lt;tr&gt;
+                    &lt;td style="padding:20px;text-align:center;"&gt;
+                      &lt;p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1d4ed8;"&gt;Check-in code&lt;/p&gt;
+                      &lt;p style="margin:0;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#0f172a;"&gt;{{CheckInCode}}&lt;/p&gt;
+                    &lt;/td&gt;
+                  &lt;/tr&gt;
+                &lt;/table&gt;
+                &lt;p style="margin:0 0 8px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;Drawing time:&lt;/strong&gt; {{DrawingTime}}&lt;/p&gt;
+                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;Check-in location:&lt;/strong&gt; {{CheckInLocation}}&lt;/p&gt;
+                &lt;p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#53657a;"&gt;If you no longer want to participate or receive event messages, update your preferences here: {{PreferenceUrl}}&lt;/p&gt;
+                &lt;p style="margin:0;font-size:16px;line-height:1.6;"&gt;Good luck,&lt;br&gt;YOUR_PROJECT_NAME Team&lt;/p&gt;
+              &lt;/td&gt;
+            &lt;/tr&gt;
+          &lt;/table&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/table&gt;
+  &lt;/body&gt;
+&lt;/html&gt;]]&gt;&lt;/html&gt;&lt;/template&gt;</presentationxml>
+    <languagecode>1033</languagecode>
+    <generationtypecode>0</generationtypecode>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  </emailtemplate>
+</EmailTemplates>
