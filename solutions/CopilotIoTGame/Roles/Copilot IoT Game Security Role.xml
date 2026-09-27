@@ -16,6 +16,7 @@
     <RolePrivilege name="prvAppendToandy_ContestSourceCap" level="Global" />
     <RolePrivilege name="prvAppendToandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvAppendToandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvAppendToandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvAppendToandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvAppendToandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvAppendToandy_Prizes" level="Global" />
@@ -59,6 +60,7 @@
     <RolePrivilege name="prvReadSdkMessageProcessingStepImage" level="Global" />
     <RolePrivilege name="prvReadSharePointData" level="Global" />
     <RolePrivilege name="prvReadSharePointDocument" level="Global" />
+    <RolePrivilege name="prvSendAsUser" level="Local" />
     <RolePrivilege name="prvShareandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvShareandy_GameBoxState" level="Global" />
     <RolePrivilege name="prvShareandy_iotgamewin" level="Global" />
