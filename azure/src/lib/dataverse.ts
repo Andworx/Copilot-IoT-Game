@@ -690,11 +690,29 @@ export interface GrandPrizeDrawingLineup {
   slices: GrandPrizeDrawingSlice[];
 }
 
+export interface GrandPrizeCheckInResult {
+  status: "checked_in" | "already_checked_in" | "invalid" | "invalidated";
+  message?: string;
+  participantName?: string;
+  participantCode?: string;
+  checkedInEntryCount?: number;
+  totalEntryCount?: number;
+  checkedInAt?: string;
+  campaignName?: string;
+}
+
 interface GrandPrizeEntryForDrawing {
   andy_grandprizeentryid: string;
   andy_participantname?: string | null;
   andy_checkincode?: string | null;
   _andy_contact_value?: string | null;
+}
+
+interface GrandPrizeEntryForCheckIn {
+  andy_grandprizeentryid: string;
+  andy_participantname?: string | null;
+  andy_checkincode?: string | null;
+  andy_checkinstatus?: number | null;
 }
 
 const GRAND_PRIZE_DRAWING_COLORS = ["#1f8a70", "#f2a541", "#3f6fb5", "#c4515c", "#7b61a8", "#2f9ca0", "#d96b3b", "#5c83c6"];
@@ -786,6 +804,60 @@ export async function listGrandPrizeDrawingLineup(): Promise<GrandPrizeDrawingLi
     checkedInContactCount: slices.length,
     checkedInEntryCount: checkedInBody.value.length,
     slices,
+  };
+}
+
+export async function checkInGrandPrizeEntry(checkInCode: string): Promise<GrandPrizeCheckInResult> {
+  const normalizedCode = checkInCode.trim().replace(/\s+/g, "").toUpperCase();
+  if (!normalizedCode) return { status: "invalid", message: "checkInCode is required" };
+
+  const campaign = await fetchActiveContestCampaign();
+  if (!campaign) return { status: "invalid", message: "No active grand-prize campaign was found" };
+
+  const response = await dataverseFetch(
+    `${GRAND_PRIZE_ENTRIES_SET}?$select=andy_grandprizeentryid,andy_participantname,andy_checkincode,andy_checkinstatus` +
+      `&$filter=statecode eq 0 and _andy_campaignname_value eq ${campaign.id}` +
+      ` and andy_checkincode eq '${escapeODataString(normalizedCode)}'&$top=5000`
+  );
+  const body = (await response.json()) as { value: GrandPrizeEntryForCheckIn[] };
+  if (body.value.length === 0) {
+    return { status: "invalid", participantCode: normalizedCode, campaignName: campaign.eventName ?? "Grand Prize Drawing" };
+  }
+
+  if (body.value.every((entry) => entry.andy_checkinstatus === 100000002)) {
+    return {
+      status: "invalidated",
+      participantName: body.value[0]?.andy_participantname ?? undefined,
+      participantCode: normalizedCode,
+      totalEntryCount: body.value.length,
+      checkedInEntryCount: 0,
+      campaignName: campaign.eventName ?? "Grand Prize Drawing",
+    };
+  }
+
+  const now = new Date().toISOString();
+  const entriesToCheckIn = body.value.filter(
+    (entry) => entry.andy_checkinstatus !== GRAND_PRIZE_CHECK_IN_STATUS_CHECKED_IN && entry.andy_checkinstatus !== 100000002
+  );
+  for (const entry of entriesToCheckIn) {
+    await dataverseFetch(`${GRAND_PRIZE_ENTRIES_SET}(${entry.andy_grandprizeentryid})`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        andy_checkinstatus: GRAND_PRIZE_CHECK_IN_STATUS_CHECKED_IN,
+        andy_checkintime: now,
+      }),
+    });
+  }
+
+  const checkedInEntryCount = body.value.length - body.value.filter((entry) => entry.andy_checkinstatus === 100000002).length;
+  return {
+    status: entriesToCheckIn.length > 0 ? "checked_in" : "already_checked_in",
+    participantName: body.value[0]?.andy_participantname ?? undefined,
+    participantCode: normalizedCode,
+    checkedInEntryCount,
+    totalEntryCount: body.value.length,
+    checkedInAt: now,
+    campaignName: campaign.eventName ?? "Grand Prize Drawing",
   };
 }
 
