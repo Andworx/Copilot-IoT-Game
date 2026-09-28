@@ -21,8 +21,8 @@ export function ControlSetupDialog({ device, onClose }: { device: DeviceProfile;
         {switches.map(c => <tr key={c.key} data-pin={c.physicalPin}><th>{c.physicalPin}</th><td>{c.label.replace(/^.*? - /, "")}</td><td><strong>{c.target ? "ON" : "OFF"}</strong></td></tr>)}
       </tbody></table></section>
       <section aria-label="Required cable connections"><h3>Cables</h3><ul>{cableActions(device.requiredCables).map(action => <li key={action}>{action}</li>)}</ul>
-        <ul>{sockets.map(c => <li key={c.key} data-pin={c.physicalPin}><strong>{c.physicalPin}</strong>: {c.target ? "Connected" : "Leave open"}</li>)}</ul>
-        <p>Match both cable numbers and sockets. Quad ends fit S1, triple ends fit S4, and dual ends fit S2/S3. Unknown or extra cables prevent restoration.</p>
+        <ul>{sockets.map(c => <li key={c.key} data-pin={c.physicalPin}><strong>{c.physicalPin.replace(/^S([1-4])$/, "LAN $1")}</strong>: {c.target ? "Connected" : "Leave open"}</li>)}</ul>
+        <p>Use standard straight-through RJ-45 patch cables. Match the socket pairs; cable identity does not matter. Extra cables prevent restoration.</p>
       </section>
     </div>
   </dialog>;

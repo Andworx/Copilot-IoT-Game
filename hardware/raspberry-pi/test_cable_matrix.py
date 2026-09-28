@@ -39,6 +39,10 @@ def plug(cable, a_socket, b_socket):
     }
 
 
+def link(a_socket, b_socket):
+    return plug(1, a_socket, b_socket)
+
+
 def matrix_for(wires):
     backend = FakeBackend(config.SOCKET_NODES, wires)
     return cm.CableMatrix(backend=backend, sleep=lambda _s: None)
@@ -53,54 +57,44 @@ class SignatureTableTests(unittest.TestCase):
         _table, ambiguous = cm.build_signature_table()
         self.assertEqual(ambiguous, set())
 
-    def test_all_cables_are_recognisable(self):
+    def test_standard_patch_cable_is_recognisable(self):
         table, _ = cm.build_signature_table()
-        self.assertEqual({c for c, _ in table.values()}, set(cm.CABLES))
+        self.assertEqual({c for c, _ in table.values()}, {1})
 
 
 class DecodeTests(unittest.TestCase):
-    def test_every_cable_in_every_visible_placement(self):
-        nodes = {(s, p) for s, pins in config.SOCKET_NODES.items() for p in pins}
+    def test_every_socket_pair_is_a_visible_patch_link(self):
         checked = 0
-        for cable in cm.CABLES:
-            for a_socket in config.SOCKET_NODES:
-                for b_socket in config.SOCKET_NODES:
-                    if a_socket == b_socket or [cm.SOCKET_TYPES[a_socket], cm.SOCKET_TYPES[b_socket]] != cm.CABLES[cable]["ends"]:
-                        continue
-                    wires = plug(cable, a_socket, b_socket)
-                    if not all(n in nodes for w in wires for n in w):
-                        continue
-                    m = matrix_for(wires)
-                    cables, plugged = m.decode(m.scan_bridges())
-                    self.assertEqual(
-                        cables,
-                        [{"cable": cable, "sockets": sorted((a_socket, b_socket))}],
-                        (cable, a_socket, b_socket),
-                    )
-                    self.assertEqual(sum(plugged.values()), 2)
-                    checked += 1
-        self.assertEqual(checked, 9)
+        sockets = list(config.SOCKET_NODES)
+        for index, a_socket in enumerate(sockets):
+            for b_socket in sockets[index + 1:]:
+                m = matrix_for(link(a_socket, b_socket))
+                cables, plugged = m.decode(m.scan_bridges())
+                self.assertEqual(cables, [{"cable": 1, "sockets": sorted((a_socket, b_socket))}])
+                self.assertEqual(sum(plugged.values()), 2)
+                checked += 1
+        self.assertEqual(checked, 6)
 
-    def test_cable_one_in_s4_is_partial_and_unknown(self):
-        m = matrix_for(plug(1, "S4", "S2"))
+    def test_self_short_is_unknown(self):
+        m = matrix_for({frozenset((("S3", 4), ("S3", 4)))})
         cables, plugged = m.decode(m.scan_bridges())
-        self.assertEqual(cables, [{"cable": None, "sockets": ["S2", "S4"]}])
-        self.assertTrue(plugged["S4"])
+        self.assertEqual(cables, [])
+        self.assertFalse(any(plugged.values()))
 
     def test_two_cables_at_once(self):
-        m = matrix_for(plug(1, "S1", "S2") | plug(2, "S4", "S3"))
+        m = matrix_for(link("S1", "S2") | link("S4", "S3"))
         cables, plugged = m.decode(m.scan_bridges())
         self.assertEqual(
             sorted(cables, key=lambda c: c["cable"]),
-            [{"cable": 1, "sockets": ["S1", "S2"]}, {"cable": 2, "sockets": ["S3", "S4"]}],
+            [{"cable": 1, "sockets": ["S1", "S2"]}, {"cable": 1, "sockets": ["S3", "S4"]}],
         )
         self.assertTrue(all(plugged.values()))
 
-    def test_partial_wire_reports_unknown_cable(self):
-        m = matrix_for(set(list(plug(4, "S1", "S2"))[:1]))
+    def test_unlisted_contact_reports_no_link(self):
+        m = matrix_for({frozenset((("S1", 1), ("S2", 1)))})
         cables, plugged = m.decode(m.scan_bridges())
-        self.assertEqual(cables, [{"cable": None, "sockets": ["S1", "S2"]}])
-        self.assertTrue(plugged["S1"] and plugged["S2"])
+        self.assertEqual(cables, [])
+        self.assertFalse(any(plugged.values()))
 
     def test_empty_panel(self):
         m = matrix_for(set())
@@ -113,12 +107,12 @@ class DebounceTests(unittest.TestCase):
     def test_change_needs_confirm_scans(self):
         m = matrix_for(set())
         self.assertFalse(any(m.read()[1].values()))
-        m._backend.wires |= plug(4, "S1", "S2")
+        m._backend.wires |= link("S1", "S2")
         _, plugged = m.read()
         self.assertFalse(plugged["S2"])          # first sighting: not accepted yet
         cables, plugged = m.read()
         self.assertTrue(plugged["S2"])
-        self.assertEqual(cables, [{"cable": 4, "sockets": ["S1", "S2"]}])
+        self.assertEqual(cables, [{"cable": 1, "sockets": ["S1", "S2"]}])
 
 
 class LogicMapTests(unittest.TestCase):

@@ -19,7 +19,7 @@ const pendingSnapshots = [];
 const errors = [];
 page.on("pageerror", error => errors.push(error.message));
 const send = (target, payload) => socket.send(JSON.stringify({ type: 1, target, arguments: [payload] }) + "\x1e");
-const reading = (slug, controls = map(slug).faultStartingState) => send("SendTelemetryUpdate", { data: { deviceSlug: slug, controls, cables: map(slug).requiredCables, cableSchema: "panel-cable-build/v1", win: map(slug).restoreSequence.every(c => controls[c.key] === c.target) }, deviceId: "fixture" });
+const reading = (slug, controls = map(slug).faultStartingState) => send("SendTelemetryUpdate", { data: { deviceSlug: slug, controls, cables: map(slug).requiredCables, cableSchema: "panel-rj45-links/v1", win: map(slug).restoreSequence.every(c => controls[c.key] === c.target) }, deviceId: "fixture" });
 await page.route("**/api/**", async route => {
   const path = new URL(route.request().url()).pathname;
   if (path.endsWith("/negotiate")) negotiationAttempts++;

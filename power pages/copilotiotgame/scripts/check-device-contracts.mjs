@@ -107,13 +107,12 @@ for (const slug of DEVICE_ORDER) {
   const device = DEVICE_PROFILES[slug];
   const target = Object.fromEntries(device.restoreSequence.map(c => [c.key, c.target]));
   assert.equal(device.checkWin(target), false, `${slug}: no cable telemetry`);
-  for (const other of DEVICE_ORDER) {
-    assert.equal(device.checkWin(target, CABLE_RECIPES[other]), slug === other, `${slug}: accepts ${other} cables`);
-  }
+  assert.equal(device.checkWin(target, device.requiredCables), true, `${slug}: rejects its required RJ-45 links`);
   const reversed = device.requiredCables.map(c => ({ cable: c.cable, sockets: [...c.sockets].reverse() })).reverse();
   assert.equal(device.checkWin(target, reversed), true);
   assert.equal(device.checkWin(target, device.requiredCables.map(c => ({ ...c, cable: null }))), false);
+  assert.equal(device.checkWin(target, device.requiredCables.map(c => ({ ...c, cable: 1 }))), true);
   assert.equal(device.checkWin(target, [...device.requiredCables, device.requiredCables[0]]), false);
 }
 assert.equal(cablesMatch(CABLE_RECIPES.thermostat, [{ cable: 1, sockets: ["S1", "S1"] }]), false);
-console.log("Exact cable recipes verified across all 144 mode pairs, missing/unknown/extra cables, and reversed ends.");
+console.log("RJ-45 socket-pair recipes verified for missing/unknown/extra links and reversed ends.");

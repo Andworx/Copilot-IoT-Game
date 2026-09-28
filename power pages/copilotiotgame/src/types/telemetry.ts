@@ -5,7 +5,7 @@
  * deviceProfiles.ts (e.g. "power", "socket_s1"), so it can be used directly as DeviceState.
  */
 export interface PanelCable {
-  /** Cable number from the build list, or null for something unrecognised. */
+  /** Generic RJ-45 patch cable marker, or null for something unrecognised. */
   cable: number | null;
   sockets: string[];
 }

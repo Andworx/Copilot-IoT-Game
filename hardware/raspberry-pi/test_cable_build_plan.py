@@ -1,109 +1,56 @@
-"""Verify proposed builds against connector stock and wired socket contacts.
-
-This tests the new design, not the legacy runtime decoder catalogue.
-Only like connector types mate; no quad-to-dual/triple adapters are assumed.
-"""
+"""Verify the RJ-45 single-conductor cable plan."""
 import itertools
 import json
-from collections import Counter
 from pathlib import Path
 import unittest
 
 PLAN = json.loads(Path(__file__).with_name("cable-build-plan.json").read_text())
 
 
-def placements(cable):
-    for pair in itertools.permutations(PLAN["socketTypes"], 2):
-        if [PLAN["socketTypes"][s] for s in pair] != cable["ends"]:
-            continue
-        visible = frozenset(
-            frozenset(((pair[0], a), (pair[1], b)))
-            for a, b in cable["wires"]
-            if a in PLAN["socketContacts"][pair[0]] and b in PLAN["socketContacts"][pair[1]]
-        )
-        yield pair, visible, len(visible) == len(cable["wires"])
-
-
 def recipe(items):
-    return frozenset((item["id"], tuple(sorted(item["sockets"]))) for item in items)
+    return frozenset(tuple(sorted(item["sockets"])) for item in items)
 
 
 class CableBuildPlanTests(unittest.TestCase):
-    def test_exact_spare_inventory_and_existing_cable_preserved(self):
-        needed = Counter(end for c in PLAN["cables"] if not c["built"] for end in c["ends"])
-        self.assertEqual(dict(needed), PLAN["spareConnectors"])
-        c1 = PLAN["cables"][0]
-        self.assertEqual((c1["id"], c1["built"], c1["ends"], c1["wires"]),
-                         (1, True, ["quad", "dual"], [[3, 1], [4, 2]]))
+    def test_rj45_socket_inventory(self):
+        self.assertEqual(PLAN["schema"], "panel-rj45-links/v1")
+        self.assertEqual(set(PLAN["socketTypes"].values()), {"rj45"})
+        self.assertEqual(PLAN["socketContacts"], {"S1": [4], "S2": [4], "S3": [4], "S4": [4]})
 
-    def test_every_build_has_valid_distinct_contacts(self):
-        for cable in PLAN["cables"]:
-            self.assertEqual(len(cable["wires"]), 2)
-            for side, kind in enumerate(cable["ends"]):
-                pins = [wire[side] for wire in cable["wires"]]
-                self.assertEqual(len(set(pins)), 2)
-                contact_count = {"dual": 2, "triple": 3, "quad": 4}[kind]
-                self.assertTrue(all(1 <= p <= contact_count for p in pins))
-            self.assertTrue(any(full for _, _, full in placements(cable)))
+    def test_standard_patch_cable_definition(self):
+        self.assertEqual(len(PLAN["cables"]), 1)
+        cable = PLAN["cables"][0]
+        self.assertEqual(cable["id"], 1)
+        self.assertEqual(cable["ends"], ["rj45", "rj45"])
+        self.assertEqual(cable["wires"], [[4, 4]])
 
-    def test_full_signatures_unique_and_partial_wires_never_match(self):
-        known = {}
-        partial = []
-        for cable in PLAN["cables"]:
-            for pair, signature, full in placements(cable):
-                if full:
-                    identity = (cable["id"], tuple(sorted(pair)))
-                    self.assertIn(known.get(signature), (None, identity))
-                    known[signature] = identity
-                    partial.extend(signature - {wire} for wire in signature)
-                else:
-                    partial.append(signature)
-        self.assertEqual(len(known), 8)
-        self.assertTrue(all(signature not in known for signature in partial))
+    def test_every_socket_pair_has_a_unique_signature(self):
+        signatures = {}
+        sockets = list(PLAN["socketTypes"])
+        for a_socket, b_socket in itertools.combinations(sockets, 2):
+            signature = frozenset((a_socket, 4, b_socket, 4))
+            self.assertNotIn(signature, signatures)
+            signatures[signature] = tuple(sorted((a_socket, b_socket)))
+        self.assertEqual(len(signatures), 6)
 
-    def test_expected_placements(self):
-        expected = {1: {("S1", "S2"), ("S1", "S3")},
-                    2: {("S2", "S4"), ("S3", "S4")},
-                    3: {("S1", "S4")}, 4: {("S1", "S2"), ("S1", "S3")},
-                    5: {("S2", "S3")}}
-        for cable in PLAN["cables"]:
-            self.assertEqual({tuple(sorted(pair)) for pair, _, full in placements(cable) if full}, expected[cable["id"]])
-
-    def test_single_and_two_cable_arrangements_remain_distinguishable(self):
-        candidates = {}
-        for cable in PLAN["cables"]:
-            for pair, signature, full in placements(cable):
-                if full:
-                    candidates[(cable["id"], tuple(sorted(pair)))] = signature
-        observed = {}
-        for count in (1, 2):
-            for arrangement in itertools.combinations(candidates, count):
-                ids = [item[0] for item in arrangement]
-                sockets = [s for item in arrangement for s in item[1]]
-                if len(set(ids)) != count or len(set(sockets)) != 2 * count:
-                    continue
-                signature = frozenset().union(*(candidates[item] for item in arrangement))
-                self.assertNotIn(signature, observed)
-                observed[signature] = frozenset(arrangement)
-        required = {recipe(m["cables"]) for m in PLAN["modeUseCases"]}
-        self.assertTrue(required.issubset(set(observed.values())))
-
-    def test_all_modes_have_unique_physically_buildable_recipes(self):
+    def test_all_modes_use_buildable_non_overlapping_links(self):
         modes = PLAN["modeUseCases"]
         actual_modes = {json.loads(p.read_text())["slug"] for p in Path(__file__).with_name("logic_maps").glob("*.json")
                         if json.loads(p.read_text()).get("isGameDevice", True)}
         self.assertEqual({m["mode"] for m in modes}, actual_modes)
-        self.assertEqual(len({recipe(m["cables"]) for m in modes}), len(modes))
-        builds = {c["id"]: c for c in PLAN["cables"]}
         for mode in modes:
-            occupied, used = set(), set()
+            occupied = set()
             for item in mode["cables"]:
-                self.assertNotIn(item["id"], used)
-                used.add(item["id"])
+                self.assertEqual(item["id"], 1)
+                self.assertEqual(len(item["sockets"]), 2)
+                self.assertTrue(set(item["sockets"]).issubset(PLAN["socketTypes"]))
                 self.assertFalse(occupied.intersection(item["sockets"]))
                 occupied.update(item["sockets"])
-                self.assertTrue(any(set(pair) == set(item["sockets"]) and full
-                                    for pair, _, full in placements(builds[item["id"]])))
+
+    def test_recipe_set_matches_current_design_capacity(self):
+        recipes = {recipe(m["cables"]) for m in PLAN["modeUseCases"]}
+        self.assertLessEqual(len(recipes), 9)
+        self.assertTrue(all(1 <= len(item) <= 2 for item in recipes))
 
 
 if __name__ == "__main__":

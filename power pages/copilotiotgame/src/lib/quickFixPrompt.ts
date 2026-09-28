@@ -4,11 +4,12 @@ import { restoreActionsFrom } from "../data/deviceProfiles";
 
 const stateWord = (on: boolean, isSocket: boolean) => (isSocket ? (on ? "CONNECTED" : "OPEN") : on ? "ON" : "OFF");
 const isSocketPin = (pin: string) => /^S[1-4]$/.test(pin);
+const socketLabel = (socket: string) => socket.replace(/^S([1-4])$/, "LAN $1");
 
 function describeCables(cables: PanelCable[] | undefined): string {
   if (!cables || cables.length === 0) return "No cables detected.";
   return cables
-    .map((c) => `${c.cable === null ? "an unrecognised cable" : `Cable ${c.cable}`} between ${c.sockets.join(" and ")}`)
+    .map((c) => `${c.cable === null ? "an unrecognised link" : "RJ-45 patch cable"} between ${c.sockets.map(socketLabel).join(" and ")}`)
     .join("; ");
 }
 
@@ -44,7 +45,7 @@ export function buildQuickFixPrompt(
     `CURRENT_STATE:\n` +
     `${controls}\n` +
     `CABLES: ${describeCables(cables)} A socket reads CONNECTED only while both ends of a cable are plugged in, ` +
-    `so sockets connect and disconnect in pairs. Cable side placement matters: Side A and Side B must go into the named S1-S4 sockets. Cable identity matters; unknown, missing or extra cables prevent restoration.\n` +
+    `so sockets connect and disconnect in pairs. Cable identity does not matter; the required LAN 1-LAN 4 socket pairs matter, and extra cables prevent restoration.\n` +
     `ACTIONS_TO_RETURN:\n${actions}\n` +
     `What must the player change to restore this device? ` +
     `Reply with ONLY the numbered ACTIONS_TO_RETURN list. ` +

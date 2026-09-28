@@ -2,8 +2,8 @@
 
 Status: #102's lamp engine is now wired into the controller with a distinct
 per-mode LED script and a boot self-test animation; not yet live-verified on
-hardware. #112 (cable integration) is unaffected by this update. Neither
-issue is closed.
+hardware. The original #112/#142 custom connector plan was superseded by the
+RJ-45 patch-link redesign after physical socket faults. Neither issue is closed.
 
 ## Findings
 
@@ -21,7 +21,7 @@ cables no longer satisfy the win condition.
 pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
 
 | Mode | Switch target | Connected sockets |
-|---|---|---|
+| --- | --- | --- |
 | coldchain-sensor | 110100 | S1, S2 |
 | drone-ground-control | 111101 | S1, S4 |
 | elevator | 111001 | S1, S2 |
@@ -37,9 +37,9 @@ pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
 
 ## First implementation
 
-- #112/#142: README and wiring diagram reflect S4 moved from the broken quad socket
-   to a triple socket: contact 2 to GPIO3 and contact 3 to GPIO7; S1/S2/S3 unchanged.
-   Record Cable 1 and Cable 3 as already built, with Cables 2/4/5 remaining.
+- #112/#142 first pass: README and wiring diagram reflected S4 moved from the broken
+   custom socket to a replacement socket, with a cable catalog. This has been
+   superseded by the RJ-45 patch-link design in [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md).
 - #102: `lamp_patterns.py` adds restricted boolean condition evaluation,
   steady/slow-blink/fast-blink intent, common all-solid restored behavior, and
   GPIO driving that does not restart background blinking every scan.
@@ -50,11 +50,11 @@ pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
 
 ## Remaining implementation and verification
 
-1. Inventory and S4 wiring confirmed by owner. Five-cable design and twelve
-   distinct recipes are in [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md); automated
-   design tests pass. New cables still need building and live continuity checks.
-2. Implemented: five-cable decoder, S4 mapping, exact Pi/kiosk recipes, explicit
-   setup/help, schema gate and updated manuals. Verify after coordinated rollout.
+1. RJ-45 redesign documented in [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md): LAN 1-LAN 4
+   are passive RJ-45 jacks, each using pin 4 only. Standard straight-through
+   patch cables create socket-pair links; cable identity no longer matters.
+2. Implemented: RJ-45 link decoder, exact Pi/kiosk socket-pair recipes,
+   explicit setup/help, schema gate and updated manuals. Verify after coordinated rollout.
 3. ✅ Authored a distinct per-mode LED story with semantic labels and
    conditions in every playable `logic_maps/<slug>.json` (LED1 power/LED4 win
    stay universal; LED2/LED3 use each mode's own switches, with `blink`/
