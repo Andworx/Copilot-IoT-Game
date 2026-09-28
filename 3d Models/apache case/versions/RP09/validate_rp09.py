@@ -188,7 +188,7 @@ for item in rp08_stls:
 
 report = {
     "revision": "RP09",
-    "status": "PASS - screen cover, screen seat, and LED retainer require physical fit approval",
+    "status": "PASS - screen parts and M4 keystone require physical fit approval",
     "exports": sorted(actual),
     "calibration_exports": sorted(coupon_actual),
     "text_geometry": text_geometry,
@@ -204,6 +204,14 @@ report = {
         "mounting_hole_centers_x_mm": [-38.0, 38.0],
         "mounting_screw": "M3 x 4 mm pan/button head, thread-forming into printed pilot",
     },
+    "m4_keystone_candidate": {
+        "title": "M4 ETHERNET",
+        "cutout_mm": [14.9, 19.4],
+        "local_clip_wall_mm": 1.6,
+        "rear_relief_mm": [19.0, 23.5, 1.6],
+        "labels": ["LAN1", "LAN2", "LAN3", "LAN4"],
+        "physical_coupon_status": "PENDING",
+    },
     "rp08_release_stls_verified": len(rp08_stls),
     "meshes": meshes,
 }
@@ -213,10 +221,8 @@ print(json.dumps({
     "validated_meshes": len(meshes),
     "rp08_release_stls_verified": len(rp08_stls),
     "print_next": [
-        "panel_L.stl",
-        "panel_R.stl",
-        "screen_face_base.stl",
-        "screen_face_text.stl",
-        "screen_led_retainer.stl",
+        "calibration/m4-keystone/RP09/exports/m4_keystone_fit_coupon.stl",
+        "activity_face_base.stl",
+        "activity_face_text.stl",
     ],
 }, indent=2))

@@ -4,8 +4,9 @@ RP09 changes the four removable faceplates and the two fixed panel halves. The
 screen cover is extended to the fixed panel's rear edge and its upper mounting
 holes use the panel's existing rear screw locations. The fixed panel now has an
 integrated drop-in screen seat so the display cannot fall through its carrier
-opening. LED positions, the lower screen mounting holes, component holes,
-shell, and trays remain unchanged.
+opening. M4 is changed from four circular cable sockets to four standard RJ-45
+keystone positions. LED positions, the lower screen mounting holes, the other
+three faceplates, shell, and trays remain unchanged.
 
 The four M1 status LEDs now insert from the rear and are captured by one
 removable printed retaining bar. The former integral split collars are removed.
@@ -36,8 +37,8 @@ Each face has two supported workflows:
   at Z = 3.20 mm.
 
 The titles use Liberation Sans Bold at 5.4 mm (6.2 mm on the screen face), up
-from the prior thin 4 mm recessed lettering. `FRONT` and the M4 socket labels
-are also bold, color-capable geometry.
+from the prior thin 4 mm recessed lettering. `FRONT` and the M4 LAN labels are
+also bold, color-capable geometry.
 
 ## Files after coupon approval
 
@@ -53,6 +54,26 @@ are also bold, color-capable geometry.
 
 RP08 remains the current immutable release until the coupon and at least one
 production face pass physical print review.
+
+## M4 Ethernet keystone candidate
+
+M4 retains its proven 90 x 74 x 3.2 mm envelope, four corner fasteners, port
+centers, and `FRONT` orientation. The four 15.6 mm circular cable-socket holes
+are replaced by 14.90 x 19.40 mm rectangular keystone openings labeled
+`LAN1` through `LAN4`, and the title becomes `M4 ETHERNET`.
+
+Each port has a 19.0 x 23.5 x 1.6 mm rear relief. This preserves the full plate
+thickness at the visible face and mounting perimeter while leaving a 1.6 mm
+local wall for the keystone retention clips. The nominal interface is based on
+CommScope's KJ-series recommended 14.79 x 19.31 mm cutout and 1.6 mm panel
+thickness; printed clearance remains a physical-fit variable.
+
+Before printing M4, print
+`../../calibration/m4-keystone/RP09/exports/m4_keystone_fit_coupon.stl` and test
+the exact keystone. The coupon provides 14.70 x 19.20, 14.90 x 19.40, and
+15.10 x 19.60 mm openings with the same local clip wall. RP09's current M4
+candidate uses the middle opening and remains pending until that physical test
+is recorded.
 
 ## Screen-cover alignment correction
 

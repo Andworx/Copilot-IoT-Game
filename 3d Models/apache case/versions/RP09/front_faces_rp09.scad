@@ -2,6 +2,7 @@
 // Units: millimetres. Export base and text at the same origin, import them
 // together as parts of one object, and assign different filaments.
 include <../../analysis/airflow/airflow_params.scad>
+include <m4_keystone_params.scad>
 use <../../apache_2800_chassis.scad>
 
 part = "layout";
@@ -76,7 +77,7 @@ module title_2d(kind) {
     label = kind == "screen" ? "M1 DISPLAY / STATUS" :
             kind == "safety" ? "M2 SAFETY" :
             kind == "switch" ? "M3 KEY / ROCKER" :
-                               "M4 CABLE MATCH";
+                               "M4 ETHERNET";
     h = kind == "screen" ? screen_module_size[1] :
         kind == "safety" ? rotary_module_size[1] :
         kind == "switch" ? switch_module_size[1] : utility_module_size[1];
@@ -97,11 +98,11 @@ module orientation_2d(kind) {
 }
 
 module activity_labels_2d() {
-    for (i = [0 : activity_socket_count - 1])
+    for (i = [0 : len(face_activity_positions) - 1])
         translate([face_activity_positions[i][0],
                    face_activity_positions[i][1] +
                        (face_activity_positions[i][1] > 0 ? -13 : 13)])
-            text(str("S", i + 1), size = socket_label_size,
+            text(str("LAN", i + 1), size = socket_label_size,
                  font = font_bold, halign = "center", valign = "center");
 }
 
@@ -243,12 +244,26 @@ module switch_core() {
     }
 }
 
+module keystone_cutout(p) {
+    translate([p[0] - keystone_cutout_size[0] / 2,
+               p[1] - keystone_cutout_size[1] / 2, -eps])
+        cube([keystone_cutout_size[0], keystone_cutout_size[1],
+              module_plate_thickness + 2 * eps]);
+
+    // Standard keystone jacks specify a 1.6 mm mounting panel.  Recess only
+    // the rear of the M4 face so its proven 3.2 mm exterior stays unchanged
+    // while the spring clips engage a manufacturer-compatible local wall.
+    translate([p[0] - keystone_rear_relief_size[0] / 2,
+               p[1] - keystone_rear_relief_size[1] / 2, -eps])
+        cube([keystone_rear_relief_size[0], keystone_rear_relief_size[1],
+              keystone_rear_relief_depth + eps]);
+}
+
 module activity_core() {
     difference() {
         plain_plate(utility_module_size);
         for (p = face_activity_positions)
-            vertical_hole(p[0], p[1], 0, module_plate_thickness,
-                          activity_socket_hole_diameter);
+            keystone_cutout(p);
         bottom_id("RP09", 0, -30);
     }
 }
@@ -334,6 +349,14 @@ module preview_layout() {
 assert(text_pocket_depth >= 0.6, "Text pocket too shallow for robust color separation");
 assert(text_proud >= 0.3, "Text relief too low to remain visually distinct");
 assert(text_xy_clearance >= 0.10, "Text insert requires slicer-safe XY clearance");
+assert(abs(keystone_local_wall_thickness - 1.6) < eps,
+       "Keystone clip wall must remain at the manufacturer-recommended 1.6 mm");
+assert(keystone_rear_relief_depth > 0 &&
+       keystone_rear_relief_depth < module_plate_thickness,
+       "Keystone rear relief must leave a positive front wall");
+assert(face_activity_positions[1][0] - face_activity_positions[0][0] -
+       keystone_rear_relief_size[0] >= 20,
+       "M4 keystone rear reliefs crowd each other");
 assert(screen_led_positions[0][1] - led_flange_pocket_d / 2 -
        screen_opening_size[1] / 2 >= 4.7 - eps,
        "Screen LEDs crowd display opening");
@@ -364,6 +387,7 @@ else if (part == "switch_face_layer_swap") face_layer_swap("switch");
 else if (part == "activity_face_base") face_base("activity");
 else if (part == "activity_face_text") text_insert("activity");
 else if (part == "activity_face_layer_swap") face_layer_swap("activity");
+else if (part == "activity_face_preview") multicolor_preview("activity");
 else if (part == "text_coupon_base") coupon_base();
 else if (part == "text_coupon_text") coupon_text();
 else if (part == "text_coupon_layer_swap") coupon_layer_swap();
