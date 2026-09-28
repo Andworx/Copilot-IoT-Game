@@ -23,8 +23,15 @@ describe("normalizeContestantEmail", () => {
 describe("buildContactCreatePayload", () => {
   it("creates a minimal Contact payload only when sharing is enabled and email is present", () => {
     assert.deepEqual(
-      buildContactCreatePayload({ name: "  Ada Lovelace ", email: " ADA@Example.com ", sharedInfo: true }),
-      { emailaddress1: "ada@example.com", fullname: "Ada Lovelace" }
+      buildContactCreatePayload({ firstName: " Ada ", lastName: " Lovelace ", email: " ADA@Example.com ", sharedInfo: true }),
+      { emailaddress1: "ada@example.com", firstname: "Ada", lastname: "Lovelace", fullname: "Ada Lovelace" }
+    );
+  });
+
+  it("falls back to the legacy single name when first and last name are absent", () => {
+    assert.deepEqual(
+      buildContactCreatePayload({ name: "  Grace Hopper ", email: " GRACE@example.com ", sharedInfo: true }),
+      { emailaddress1: "grace@example.com", fullname: "Grace Hopper" }
     );
   });
 
@@ -85,7 +92,7 @@ describe("buildGrandPrizeEntryPayload", () => {
         prizeClaimId: "33333333-3333-3333-3333-333333333333",
         sourceCapId: "44444444-4444-4444-4444-444444444444",
         checkInCode: "DEMO-123456",
-        contestant: { name: "  Grace Hopper ", email: " GRACE@example.com ", sharedInfo: true },
+        contestant: { firstName: " Grace ", lastName: " Hopper ", email: " GRACE@example.com ", sharedInfo: true },
         now: new Date("2026-09-24T12:00:00.000Z"),
       }),
       {

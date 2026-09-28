@@ -86,6 +86,10 @@ h3 { font-size: 17px; margin: 26px 0 8px; }
 .check-in-card h2 { color: #10233a; }
 .check-in-form { display: grid; gap: 10px; margin-top: 22px; }
 .check-in-form label { font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #52677f; text-transform: uppercase; }
+.check-in-scanner { display: grid; gap: 12px; margin-bottom: 4px; }
+.check-in-video { width: min(100%, 520px); aspect-ratio: 16 / 10; border: 1px solid #b8c6d6; border-radius: 10px; background: #10233a; object-fit: cover; }
+.check-in-scanner-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.check-in-scanner-actions p { margin: 0; color: #52677f; font-size: 13px; line-height: 1.5; }
 .check-in-entry-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; }
 .check-in-entry-row input { min-height: 54px; border: 1px solid #b8c6d6; border-radius: 9px; padding: 12px 14px; color: #10233a; font-size: clamp(20px, 3vw, 34px); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .check-in-entry-row .primary-action { min-height: 54px; }
