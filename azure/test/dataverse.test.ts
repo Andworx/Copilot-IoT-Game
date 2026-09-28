@@ -7,6 +7,7 @@ import {
   buildIotGameWinCreatePayload,
   buildPrizeClaimCreatePayload,
   normalizeContestantEmail,
+  selectGrandPrizeWinningSlice,
 } from "../src/lib/dataverse";
 
 describe("normalizeContestantEmail", () => {
@@ -169,5 +170,24 @@ describe("buildGrandPrizeDrawingSlices", () => {
         },
       ]
     );
+  });
+});
+
+describe("selectGrandPrizeWinningSlice", () => {
+  const slices = [
+    { contactId: "a", displayName: "Ada", entryCount: 2, color: "#1f8a70", code: "DEMO-111111" },
+    { contactId: "b", displayName: "Grace", entryCount: 1, color: "#f2a541", code: "DEMO-222222" },
+  ];
+
+  it("selects a slice by weighted entry position", () => {
+    assert.equal(selectGrandPrizeWinningSlice(slices, 0)?.contactId, "a");
+    assert.equal(selectGrandPrizeWinningSlice(slices, 1)?.contactId, "a");
+    assert.equal(selectGrandPrizeWinningSlice(slices, 2)?.contactId, "b");
+  });
+
+  it("rejects out-of-range or empty selections", () => {
+    assert.equal(selectGrandPrizeWinningSlice(slices, -1), null);
+    assert.equal(selectGrandPrizeWinningSlice(slices, 3), null);
+    assert.equal(selectGrandPrizeWinningSlice([], 0), null);
   });
 });
