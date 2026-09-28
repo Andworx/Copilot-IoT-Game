@@ -1,28 +1,38 @@
-﻿<?xml version="1.0" ?><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"><xsl:output method="text" indent="no"/><xsl:template match="/data"><![CDATA[<!doctype html>
+<?xml version="1.0" ?><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"><xsl:output method="text" indent="no"/><xsl:template match="/data"><![CDATA[<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Grand-prize booth reminder</title>
   </head>
-  <body style="margin:0;background:#f3f6fa;color:#172033;font-family:Segoe UI,Arial,sans-serif;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fa;padding:24px 12px;">
+  <body style="margin:0;background:#f4f7fb;color:#172033;font-family:Segoe UI,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:28px 12px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dbe5ef;border-radius:8px;overflow:hidden;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#ffffff;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;">
             <tr>
-              <td style="background:#11253b;color:#ffffff;padding:24px 28px;">
-                <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7cdec8;">Grand prize reminder</p>
-                <h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:700;">Please come to the booth</h1>
+              <td style="background:#2a3380;color:#ffffff;padding:24px 28px;border-bottom:4px solid #f59e0b;">
+                <p style="margin:0 0 8px;font-size:28px;line-height:1;font-weight:800;letter-spacing:0;color:#ffffff;">andworx</p>
+                <p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f8d36b;">Copilot IoT Game</p>
+                <h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:800;">Please come to the booth</h1>
               </td>
             </tr>
             <tr>
               <td style="padding:28px;">
                 <p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hi {{FirstName}},</p>
                 <p style="margin:0 0 16px;font-size:16px;line-height:1.6;">The {{EventName}} drawing is coming up at {{DrawingTime}}.</p>
-                <p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>You must be present in person to win.</strong> Please come to {{CheckInLocation}} and check in with this code:</p>
-                <p style="margin:0 0 20px;font-size:30px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#0f172a;">{{CheckInCode}}</p>
-                <p style="margin:0;font-size:16px;line-height:1.6;">Good luck,<br>YOUR_PROJECT_NAME Team</p>
+                <p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>You must be present in person to win.</strong> Bring this QR code or the text code to staff check-in at {{CheckInLocation}} before the drawing begins.</p>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #b7d8ff;border-radius:10px;background:#eef6ff;">
+                  <tr>
+                    <td style="padding:22px;text-align:center;">
+                      <p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2a3380;">Check-in code</p>
+                      <p style="margin:0 0 18px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#172033;">{{CheckInCode}}</p>
+                      <img src="{{CheckInQrDataUrl}}" width="220" height="220" alt="QR code for {{CheckInCode}}" style="display:block;margin:0 auto 12px;border:10px solid #ffffff;border-radius:8px;background:#ffffff;">
+                      <p style="margin:0;font-size:13px;line-height:1.5;color:#52657a;">Staff can scan this QR in the Game Box Control check-in screen.</p>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0;font-size:16px;line-height:1.6;">Good luck,<br>Andworx Copilot IoT Game Team</p>
               </td>
             </tr>
           </table>

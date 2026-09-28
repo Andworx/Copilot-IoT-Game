@@ -14,7 +14,7 @@
 			"{{CheckInQrDataUrl}}",
 			"{{PreferenceUrl}}"
 		],
-		"version": "1.1"
+		"version": "1.2"
 	},
 	{
 		"name": "gameengine - Grand Prize Booth Reminder",
@@ -27,8 +27,9 @@
 			"{{CheckInCode}}",
 			"{{DrawingTime}}",
 			"{{EventName}}",
-			"{{CheckInLocation}}"
+			"{{CheckInLocation}}",
+			"{{CheckInQrDataUrl}}"
 		],
-		"version": "1.0"
+		"version": "1.2"
 	}
 ]

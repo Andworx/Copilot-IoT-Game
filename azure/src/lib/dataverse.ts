@@ -1013,7 +1013,7 @@ async function createCheckInQrDataUrl(checkInCode: string): Promise<string> {
     margin: 2,
     width: 220,
     color: {
-      dark: "#172033",
+      dark: "#2a3380",
       light: "#ffffff",
     },
   });
@@ -1037,24 +1037,6 @@ function campaignReminderLeadMinutes(campaign: ActiveContestCampaign): number {
     : 30;
 }
 
-function buildGrandPrizeCheckInEmail(input: {
-  contestant: ContestantInfo;
-  campaign: ActiveContestCampaign;
-  checkInCode: string;
-}): { subject: string; html: string } {
-  const eventName = input.campaign.eventName ?? "Copilot IoT Game Grand Prize Drawing";
-  const drawingTime = formatDrawingTime(input.campaign.drawingTime);
-  const checkInLocation = campaignCheckInLocation(input.campaign);
-  const preferenceUrl = campaignPreferenceUrl(input.campaign);
-  const preferenceLine = preferenceUrl
-    ? `<p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#53657a;">If you no longer want to participate or receive event messages, update your preferences here: <a href="${escapeHtml(preferenceUrl)}">${escapeHtml(preferenceUrl)}</a>.</p>`
-    : "";
-  return {
-    subject: `Your grand-prize check-in code: ${input.checkInCode}`,
-    html: `<!doctype html><html lang="en"><body style="margin:0;background:#f3f6fa;color:#172033;font-family:Segoe UI,Arial,sans-serif;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fa;padding:24px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dbe5ef;border-radius:8px;overflow:hidden;"><tr><td style="background:#11253b;color:#ffffff;padding:24px 28px;"><p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7cdec8;">Grand prize drawing</p><h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:700;">Your check-in code is ready</h1></td></tr><tr><td style="padding:28px;"><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstName(input.contestant))},</p><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Thanks for playing. You are entered for the ${escapeHtml(eventName)} grand-prize drawing.</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>You must be present in person to win.</strong> Please bring this code to staff check-in at ${escapeHtml(checkInLocation)} before the drawing begins.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;"><tr><td style="padding:20px;text-align:center;"><p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1d4ed8;">Check-in code</p><p style="margin:0;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#0f172a;">${escapeHtml(input.checkInCode)}</p></td></tr></table><p style="margin:0 0 8px;font-size:16px;line-height:1.6;"><strong>Drawing time:</strong> ${escapeHtml(drawingTime)}</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>Check-in location:</strong> ${escapeHtml(checkInLocation)}</p>${preferenceLine}<p style="margin:0;font-size:16px;line-height:1.6;">Good luck,<br>Copilot IoT Game Team</p></td></tr></table></td></tr></table></body></html>`,
-  };
-}
-
 async function buildBrandedGrandPrizeCheckInEmail(input: {
   contestant: ContestantInfo;
   campaign: ActiveContestCampaign;
@@ -1071,26 +1053,27 @@ async function buildBrandedGrandPrizeCheckInEmail(input: {
 
   return {
     subject: `Your grand-prize check-in code: ${input.checkInCode}`,
-    html: `<!doctype html><html lang="en"><body style="margin:0;background:#f4f7fb;color:#172033;font-family:Segoe UI,Arial,sans-serif;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#ffffff;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;"><tr><td style="background:#182338;color:#ffffff;padding:24px 28px;border-bottom:4px solid #2374e1;"><p style="margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#76d7ea;">ANDWORX • Copilot IoT Game</p><h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:800;">Your check-in code is ready</h1></td></tr><tr><td style="padding:28px;"><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstName(input.contestant))},</p><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Thanks for playing. You are entered for the ${escapeHtml(eventName)} grand-prize drawing.</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>You must be present in person to win.</strong> Bring this QR code or the text code to staff check-in at ${escapeHtml(checkInLocation)} before the drawing begins.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #b7d8ff;border-radius:10px;background:#eef6ff;"><tr><td style="padding:22px;text-align:center;"><p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2374e1;">Check-in code</p><p style="margin:0 0 18px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#172033;">${escapeHtml(input.checkInCode)}</p><img src="${checkInQrDataUrl}" width="220" height="220" alt="QR code for ${escapeHtml(input.checkInCode)}" style="display:block;margin:0 auto 12px;border:10px solid #ffffff;border-radius:8px;background:#ffffff;"><p style="margin:0;font-size:13px;line-height:1.5;color:#52657a;">Staff can scan this QR in the Game Box Control check-in screen.</p></td></tr></table><p style="margin:0 0 8px;font-size:16px;line-height:1.6;"><strong>Drawing time:</strong> ${escapeHtml(drawingTime)}</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>Check-in location:</strong> ${escapeHtml(checkInLocation)}</p>${preferenceLine}<p style="margin:0;font-size:16px;line-height:1.6;">Good luck,<br>Andworx Copilot IoT Game Team</p></td></tr></table></td></tr></table></body></html>`,
+    html: `<!doctype html><html lang="en"><body style="margin:0;background:#f4f7fb;color:#172033;font-family:Segoe UI,Arial,sans-serif;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#ffffff;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;"><tr><td style="background:#2a3380;color:#ffffff;padding:24px 28px;border-bottom:4px solid #f59e0b;"><p style="margin:0 0 8px;font-size:28px;line-height:1;font-weight:800;letter-spacing:0;color:#ffffff;">andworx</p><p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f8d36b;">Copilot IoT Game</p><h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:800;">Your check-in code is ready</h1></td></tr><tr><td style="padding:28px;"><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstName(input.contestant))},</p><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Thanks for playing. You are entered for the ${escapeHtml(eventName)} grand-prize drawing.</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>You must be present in person to win.</strong> Bring this QR code or the text code to staff check-in at ${escapeHtml(checkInLocation)} before the drawing begins.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #b7d8ff;border-radius:10px;background:#eef6ff;"><tr><td style="padding:22px;text-align:center;"><p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2a3380;">Check-in code</p><p style="margin:0 0 18px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#172033;">${escapeHtml(input.checkInCode)}</p><img src="${checkInQrDataUrl}" width="220" height="220" alt="QR code for ${escapeHtml(input.checkInCode)}" style="display:block;margin:0 auto 12px;border:10px solid #ffffff;border-radius:8px;background:#ffffff;"><p style="margin:0;font-size:13px;line-height:1.5;color:#52657a;">Staff can scan this QR in the Game Box Control check-in screen.</p></td></tr></table><p style="margin:0 0 8px;font-size:16px;line-height:1.6;"><strong>Drawing time:</strong> ${escapeHtml(drawingTime)}</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>Check-in location:</strong> ${escapeHtml(checkInLocation)}</p>${preferenceLine}<p style="margin:0;font-size:16px;line-height:1.6;">Good luck,<br>Andworx Copilot IoT Game Team</p></td></tr></table></td></tr></table></body></html>`,
   };
 }
 
-function buildGrandPrizeReminderEmail(input: {
+async function buildBrandedGrandPrizeReminderEmail(input: {
   contestant: ContestantInfo;
   campaign: ActiveContestCampaign;
   checkInCode: string;
-}): { subject: string; html: string; delayedSendTime?: string } {
+}): Promise<{ subject: string; html: string; delayedSendTime?: string }> {
   const eventName = input.campaign.eventName ?? "Copilot IoT Game Grand Prize Drawing";
   const drawingTime = formatDrawingTime(input.campaign.drawingTime);
   const drawingDate = input.campaign.drawingTime ? new Date(input.campaign.drawingTime) : null;
   const reminderLead = campaignReminderLeadMinutes(input.campaign);
   const checkInLocation = campaignCheckInLocation(input.campaign);
   const delayedSendTime = drawingDate ? new Date(drawingDate.getTime() - reminderLead * 60_000).toISOString() : undefined;
+  const checkInQrDataUrl = await createCheckInQrDataUrl(input.checkInCode);
 
   return {
     subject: `Reminder: ${eventName} drawing at ${drawingTime}`,
     delayedSendTime,
-    html: `<!doctype html><html lang="en"><body style="margin:0;background:#f3f6fa;color:#172033;font-family:Segoe UI,Arial,sans-serif;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f3f6fa;padding:24px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border:1px solid #dbe5ef;border-radius:8px;overflow:hidden;"><tr><td style="background:#11253b;color:#ffffff;padding:24px 28px;"><p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7cdec8;">Grand prize reminder</p><h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:700;">Please come to the booth</h1></td></tr><tr><td style="padding:28px;"><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstName(input.contestant))},</p><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">The ${escapeHtml(eventName)} drawing is coming up at ${escapeHtml(drawingTime)}.</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>You must be present in person to win.</strong> Please come to ${escapeHtml(checkInLocation)} and check in with this code:</p><p style="margin:0 0 20px;font-size:30px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#0f172a;">${escapeHtml(input.checkInCode)}</p><p style="margin:0;font-size:16px;line-height:1.6;">Good luck,<br>Copilot IoT Game Team</p></td></tr></table></td></tr></table></body></html>`,
+    html: `<!doctype html><html lang="en"><body style="margin:0;background:#f4f7fb;color:#172033;font-family:Segoe UI,Arial,sans-serif;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:28px 12px;"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#ffffff;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;"><tr><td style="background:#2a3380;color:#ffffff;padding:24px 28px;border-bottom:4px solid #f59e0b;"><p style="margin:0 0 8px;font-size:28px;line-height:1;font-weight:800;letter-spacing:0;color:#ffffff;">andworx</p><p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f8d36b;">Copilot IoT Game</p><h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:800;">Please come to the booth</h1></td></tr><tr><td style="padding:28px;"><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">Hi ${escapeHtml(firstName(input.contestant))},</p><p style="margin:0 0 16px;font-size:16px;line-height:1.6;">The ${escapeHtml(eventName)} drawing is coming up at ${escapeHtml(drawingTime)}.</p><p style="margin:0 0 18px;font-size:16px;line-height:1.6;"><strong>You must be present in person to win.</strong> Bring this QR code or the text code to staff check-in at ${escapeHtml(checkInLocation)} before the drawing begins.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #b7d8ff;border-radius:10px;background:#eef6ff;"><tr><td style="padding:22px;text-align:center;"><p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2a3380;">Check-in code</p><p style="margin:0 0 18px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#172033;">${escapeHtml(input.checkInCode)}</p><img src="${checkInQrDataUrl}" width="220" height="220" alt="QR code for ${escapeHtml(input.checkInCode)}" style="display:block;margin:0 auto 12px;border:10px solid #ffffff;border-radius:8px;background:#ffffff;"><p style="margin:0;font-size:13px;line-height:1.5;color:#52657a;">Staff can scan this QR in the Game Box Control check-in screen.</p></td></tr></table><p style="margin:0;font-size:16px;line-height:1.6;">Good luck,<br>Andworx Copilot IoT Game Team</p></td></tr></table></td></tr></table></body></html>`,
   };
 }
 
@@ -1108,7 +1091,7 @@ async function createAndSendGrandPrizeEmailActivity(input: {
 
   try {
     const email: { subject: string; html: string; delayedSendTime?: string } =
-      input.kind === "reminder" ? buildGrandPrizeReminderEmail(input) : await buildBrandedGrandPrizeCheckInEmail(input);
+      input.kind === "reminder" ? await buildBrandedGrandPrizeReminderEmail(input) : await buildBrandedGrandPrizeCheckInEmail(input);
 
     const response = await dataverseFetch("emails", {
       method: "POST",
