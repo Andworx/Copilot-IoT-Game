@@ -320,6 +320,7 @@ const GRAND_PRIZE_ENTRY_CONTACT_NAV = "andy_Contact"; // on andy_grandprizeentry
 const GRAND_PRIZE_ENTRY_PRIZE_CLAIM_NAV = "andy_PrizeClaim"; // on andy_grandprizeentry, -> andy_prizeclaim
 const GRAND_PRIZE_ENTRY_SOURCE_CAP_NAV = "andy_SourceIdentifier"; // on andy_grandprizeentry, -> andy_contestsourcecap
 const GRAND_PRIZE_CHECK_IN_STATUS_NOT_CHECKED_IN = 100000000;
+const GRAND_PRIZE_CHECK_IN_STATUS_CHECKED_IN = 100000001;
 const PRIZES_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_Prizes, -> andy_PrizeTypes
 const IOT_CONTEST_SOURCE_IDENTIFIER = "iot";
 
@@ -669,6 +670,58 @@ interface ContestSource {
   sourceKey: string;
 }
 
+export interface GrandPrizeDrawingSlice {
+  contactId: string;
+  displayName: string;
+  entryCount: number;
+  color: string;
+  code?: string;
+}
+
+export interface GrandPrizeDrawingLineup {
+  campaign: {
+    id: string;
+    name: string;
+    drawingTime: string | null;
+  };
+  registeredContactCount: number;
+  checkedInContactCount: number;
+  checkedInEntryCount: number;
+  slices: GrandPrizeDrawingSlice[];
+}
+
+interface GrandPrizeEntryForDrawing {
+  andy_grandprizeentryid: string;
+  andy_participantname?: string | null;
+  andy_checkincode?: string | null;
+  _andy_contact_value?: string | null;
+}
+
+const GRAND_PRIZE_DRAWING_COLORS = ["#1f8a70", "#f2a541", "#3f6fb5", "#c4515c", "#7b61a8", "#2f9ca0", "#d96b3b", "#5c83c6"];
+
+export function buildGrandPrizeDrawingSlices(entries: GrandPrizeEntryForDrawing[]): GrandPrizeDrawingSlice[] {
+  const byContact = new Map<string, GrandPrizeDrawingSlice>();
+  for (const entry of entries) {
+    const contactId = entry._andy_contact_value ?? entry.andy_grandprizeentryid;
+    const existing = byContact.get(contactId);
+    if (existing) {
+      existing.entryCount += 1;
+      if (!existing.code && entry.andy_checkincode?.trim()) existing.code = entry.andy_checkincode.trim();
+      continue;
+    }
+
+    byContact.set(contactId, {
+      contactId,
+      displayName: entry.andy_participantname?.trim() || "Grand Prize Guest",
+      entryCount: 1,
+      color: GRAND_PRIZE_DRAWING_COLORS[byContact.size % GRAND_PRIZE_DRAWING_COLORS.length],
+      ...(entry.andy_checkincode?.trim() ? { code: entry.andy_checkincode.trim() } : {}),
+    });
+  }
+
+  return Array.from(byContact.values());
+}
+
 async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | null> {
   const response = await dataverseFetch(
     `${CONTEST_CAMPAIGNS_SET}?$select=andy_contestcampaignid,andy_eventname,andy_drawingtime,andy_check_in_location,andy_preference_url,andy_reminder_lead_minutes,andy_maxentriespercontact,andy_checkincodeprefix&$filter=statecode eq 0&$orderby=createdon desc&$top=1`
@@ -698,6 +751,42 @@ async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | nul
         checkInCodePrefix: campaign.andy_checkincodeprefix ?? null,
       }
     : null;
+}
+
+export async function listGrandPrizeDrawingLineup(): Promise<GrandPrizeDrawingLineup | null> {
+  const campaign = await fetchActiveContestCampaign();
+  if (!campaign) return null;
+
+  const registeredResponse = await dataverseFetch(
+    `${GRAND_PRIZE_ENTRIES_SET}?$select=andy_grandprizeentryid,_andy_contact_value` +
+      `&$filter=statecode eq 0 and _andy_campaignname_value eq ${campaign.id}&$top=5000`
+  );
+  const registeredBody = (await registeredResponse.json()) as {
+    value: Array<{ andy_grandprizeentryid: string; _andy_contact_value?: string | null }>;
+  };
+
+  const checkedInResponse = await dataverseFetch(
+    `${GRAND_PRIZE_ENTRIES_SET}?$select=andy_grandprizeentryid,andy_participantname,andy_checkincode,_andy_contact_value` +
+      `&$filter=statecode eq 0 and _andy_campaignname_value eq ${campaign.id}` +
+      ` and andy_checkinstatus eq ${GRAND_PRIZE_CHECK_IN_STATUS_CHECKED_IN}&$top=5000`
+  );
+  const checkedInBody = (await checkedInResponse.json()) as { value: GrandPrizeEntryForDrawing[] };
+  const registeredContacts = new Set(
+    registeredBody.value.map((entry) => entry._andy_contact_value ?? entry.andy_grandprizeentryid)
+  );
+  const slices = buildGrandPrizeDrawingSlices(checkedInBody.value);
+
+  return {
+    campaign: {
+      id: campaign.id,
+      name: campaign.eventName ?? "Grand Prize Drawing",
+      drawingTime: campaign.drawingTime,
+    },
+    registeredContactCount: registeredContacts.size,
+    checkedInContactCount: slices.length,
+    checkedInEntryCount: checkedInBody.value.length,
+    slices,
+  };
 }
 
 async function fetchContestCampaignById(campaignId: string): Promise<ActiveContestCampaign | null> {
