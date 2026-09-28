@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  buildGrandPrizeDrawingSlices,
   buildContactCreatePayload,
   buildGrandPrizeEntryPayload,
   buildIotGameWinCreatePayload,
@@ -117,6 +118,49 @@ describe("buildGrandPrizeEntryPayload", () => {
         "andy_CampaignName@odata.bind": "/andy_contestcampaigns(11111111-1111-1111-1111-111111111111)",
         "andy_Contact@odata.bind": "/contacts(22222222-2222-2222-2222-222222222222)",
       }
+    );
+  });
+});
+
+describe("buildGrandPrizeDrawingSlices", () => {
+  it("groups checked-in Grand Prize Entries by contact for weighted drawing slices", () => {
+    assert.deepEqual(
+      buildGrandPrizeDrawingSlices([
+        {
+          andy_grandprizeentryid: "11111111-1111-1111-1111-111111111111",
+          _andy_contact_value: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          andy_participantname: "Ada Lovelace",
+          andy_checkincode: "DEMO-111111",
+        },
+        {
+          andy_grandprizeentryid: "22222222-2222-2222-2222-222222222222",
+          _andy_contact_value: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          andy_participantname: "Ada Lovelace",
+          andy_checkincode: "DEMO-111111",
+        },
+        {
+          andy_grandprizeentryid: "33333333-3333-3333-3333-333333333333",
+          _andy_contact_value: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          andy_participantname: " Grace Hopper ",
+          andy_checkincode: " DEMO-222222 ",
+        },
+      ]),
+      [
+        {
+          contactId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          displayName: "Ada Lovelace",
+          entryCount: 2,
+          color: "#1f8a70",
+          code: "DEMO-111111",
+        },
+        {
+          contactId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          displayName: "Grace Hopper",
+          entryCount: 1,
+          color: "#f2a541",
+          code: "DEMO-222222",
+        },
+      ]
     );
   });
 });
