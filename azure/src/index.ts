@@ -4,6 +4,7 @@ import "./functions/setMode";
 import "./functions/deviceProfiles";
 import "./functions/createWin";
 import "./functions/claimPrize";
+import "./functions/grandPrizeCheckIn";
 import "./functions/grandPrizeDrawingSlices";
 import "./functions/prizes";
 import "./functions/toggleDevice";
