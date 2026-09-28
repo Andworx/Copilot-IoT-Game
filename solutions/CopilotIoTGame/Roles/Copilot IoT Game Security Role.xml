@@ -69,6 +69,7 @@
     <RolePrivilege name="prvShareandy_PrizeTypes" level="Global" />
     <RolePrivilege name="prvWriteandy_DeviceProfile" level="Global" />
     <RolePrivilege name="prvWriteandy_GameBoxState" level="Global" />
+    <RolePrivilege name="prvWriteandy_GrandPrizeEntry" level="Global" />
     <RolePrivilege name="prvWriteandy_iotgamewin" level="Global" />
     <RolePrivilege name="prvWriteandy_prizeclaim" level="Global" />
     <RolePrivilege name="prvWriteandy_Prizes" level="Global" />
