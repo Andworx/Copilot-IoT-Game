@@ -704,6 +704,25 @@ export interface GrandPrizeDrawingLineup {
   slices: GrandPrizeDrawingSlice[];
 }
 
+export interface GrandPrizeDrawResult {
+  drawResultId: string;
+  campaignId: string;
+  campaignName: string;
+  winnerContactId: string;
+  winnerName: string;
+  winnerCode?: string;
+  entryCode?: string;
+  registrationCode?: string;
+  checkInCode?: string;
+  winningEntryCount: number;
+  eligibleContactCount: number;
+  eligibleEntryCount: number;
+}
+
+export interface GrandPrizeDrawingState {
+  result: GrandPrizeDrawResult | null;
+}
+
 export interface GrandPrizeCheckInResult {
   status: "checked_in" | "already_checked_in" | "invalid" | "invalidated";
   message?: string;
@@ -730,6 +749,7 @@ interface GrandPrizeEntryForCheckIn {
 }
 
 const GRAND_PRIZE_DRAWING_COLORS = ["#1f8a70", "#f2a541", "#3f6fb5", "#c4515c", "#7b61a8", "#2f9ca0", "#d96b3b", "#5c83c6"];
+let latestGrandPrizeDraw: { campaignId: string; result: GrandPrizeDrawResult } | null = null;
 
 export function buildGrandPrizeDrawingSlices(entries: GrandPrizeEntryForDrawing[]): GrandPrizeDrawingSlice[] {
   const byContact = new Map<string, GrandPrizeDrawingSlice>();
@@ -752,6 +772,23 @@ export function buildGrandPrizeDrawingSlices(entries: GrandPrizeEntryForDrawing[
   }
 
   return Array.from(byContact.values());
+}
+
+export function selectGrandPrizeWinningSlice(slices: GrandPrizeDrawingSlice[], winningEntryIndex: number): GrandPrizeDrawingSlice | null {
+  const total = totalEntriesForDrawing(slices);
+  if (total <= 0 || winningEntryIndex < 0 || winningEntryIndex >= total) return null;
+
+  let cursor = 0;
+  for (const slice of slices) {
+    cursor += Math.max(0, slice.entryCount);
+    if (winningEntryIndex < cursor) return slice;
+  }
+
+  return null;
+}
+
+function totalEntriesForDrawing(slices: GrandPrizeDrawingSlice[]): number {
+  return slices.reduce((total, slice) => total + Math.max(0, slice.entryCount), 0);
 }
 
 async function fetchActiveContestCampaign(): Promise<ActiveContestCampaign | null> {
@@ -819,6 +856,45 @@ export async function listGrandPrizeDrawingLineup(): Promise<GrandPrizeDrawingLi
     checkedInEntryCount: checkedInBody.value.length,
     slices,
   };
+}
+
+export async function getGrandPrizeDrawingState(): Promise<GrandPrizeDrawingState> {
+  const campaign = await fetchActiveContestCampaign();
+  if (!campaign || latestGrandPrizeDraw?.campaignId !== campaign.id) return { result: null };
+
+  return { result: latestGrandPrizeDraw.result };
+}
+
+export async function runGrandPrizeDraw(): Promise<GrandPrizeDrawResult> {
+  const lineup = await listGrandPrizeDrawingLineup();
+  if (!lineup) throw new Error("no_active_campaign");
+
+  if (latestGrandPrizeDraw?.campaignId === lineup.campaign.id) {
+    return latestGrandPrizeDraw.result;
+  }
+
+  const eligibleEntryCount = totalEntriesForDrawing(lineup.slices);
+  if (lineup.slices.length === 0 || eligibleEntryCount <= 0) {
+    throw new Error("no_checked_in_entries");
+  }
+
+  const winner = selectGrandPrizeWinningSlice(lineup.slices, randomInt(eligibleEntryCount));
+  if (!winner) throw new Error("winner_selection_failed");
+
+  const result: GrandPrizeDrawResult = {
+    drawResultId: crypto.randomUUID(),
+    campaignId: lineup.campaign.id,
+    campaignName: lineup.campaign.name,
+    winnerContactId: winner.contactId,
+    winnerName: winner.displayName,
+    ...(winner.code ? { winnerCode: winner.code, checkInCode: winner.code } : {}),
+    winningEntryCount: winner.entryCount,
+    eligibleContactCount: lineup.checkedInContactCount,
+    eligibleEntryCount,
+  };
+
+  latestGrandPrizeDraw = { campaignId: lineup.campaign.id, result };
+  return result;
 }
 
 export async function checkInGrandPrizeEntry(checkInCode: string): Promise<GrandPrizeCheckInResult> {

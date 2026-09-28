@@ -5,6 +5,8 @@ import "./functions/deviceProfiles";
 import "./functions/createWin";
 import "./functions/claimPrize";
 import "./functions/grandPrizeCheckIn";
+import "./functions/grandPrizeDraw";
+import "./functions/grandPrizeDrawingState";
 import "./functions/grandPrizeDrawingSlices";
 import "./functions/prizes";
 import "./functions/toggleDevice";
