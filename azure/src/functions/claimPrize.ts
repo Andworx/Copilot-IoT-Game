@@ -3,6 +3,8 @@ import { claimGameWin, ClaimError } from "../lib/dataverse";
 
 interface ClaimPrizeRequestBody {
   claimToken: string;
+  contestantFirstName?: string;
+  contestantLastName?: string;
   contestantName?: string;
   contestantEmail?: string;
   sharedInfo?: boolean;
@@ -42,6 +44,8 @@ export async function claimPrize(
 
   try {
     const result = await claimGameWin(body.claimToken, {
+      firstName: typeof body.contestantFirstName === "string" ? body.contestantFirstName : undefined,
+      lastName: typeof body.contestantLastName === "string" ? body.contestantLastName : undefined,
       name: typeof body.contestantName === "string" ? body.contestantName : undefined,
       email: typeof body.contestantEmail === "string" ? body.contestantEmail : undefined,
       sharedInfo: !!body.sharedInfo,

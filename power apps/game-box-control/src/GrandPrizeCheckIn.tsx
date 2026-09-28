@@ -1,5 +1,16 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { FormEvent } from "react";
 import { API_BASE_URL, GRAND_PRIZE_CHECK_IN_FUNCTION_KEY } from "./apiConfig";
+
+type BarcodeDetectorResult = { rawValue?: string };
+type BarcodeDetectorInstance = { detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]> };
+type BarcodeDetectorConstructor = new (options?: { formats?: string[] }) => BarcodeDetectorInstance;
+
+declare global {
+  interface Window {
+    BarcodeDetector?: BarcodeDetectorConstructor;
+  }
+}
 
 interface CheckInResponse {
   status: "checked_in" | "already_checked_in" | "invalid" | "expired" | "invalidated" | "ineligible";
@@ -27,14 +38,20 @@ function normalizeCode(value: string) {
 }
 
 export default function GrandPrizeCheckIn() {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const scanTimerRef = useRef<number | null>(null);
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [scannerActive, setScannerActive] = useState(false);
+  const [scannerMessage, setScannerMessage] = useState<string | null>(null);
   const [result, setResult] = useState<CheckInResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function submitCheckIn(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const checkInCode = normalizeCode(code);
+  useEffect(() => () => stopScanner(), []);
+
+  async function performCheckIn(checkInCode: string) {
+    if (submitting) return;
     if (!checkInCode) {
       setError("Enter or scan a check-in code.");
       setResult(null);
@@ -74,6 +91,70 @@ export default function GrandPrizeCheckIn() {
     }
   }
 
+  async function submitCheckIn(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await performCheckIn(normalizeCode(code));
+  }
+
+  function stopScanner() {
+    if (scanTimerRef.current) {
+      window.clearTimeout(scanTimerRef.current);
+      scanTimerRef.current = null;
+    }
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setScannerActive(false);
+  }
+
+  async function startScanner() {
+    setError(null);
+    setResult(null);
+    if (!window.BarcodeDetector) {
+      setScannerMessage("This browser cannot scan QR codes. Type the code from the email instead.");
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setScannerMessage("Camera access is not available in this browser. Type the code from the email instead.");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+      streamRef.current = stream;
+      setScannerActive(true);
+      setScannerMessage("Point the camera at the QR code in the email.");
+
+      const video = videoRef.current;
+      if (!video) return;
+      video.srcObject = stream;
+      await video.play();
+
+      const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+      const scan = async () => {
+        if (!streamRef.current || !videoRef.current) return;
+        try {
+          const [barcode] = await detector.detect(videoRef.current);
+          const scannedCode = normalizeCode(barcode?.rawValue ?? "");
+          if (scannedCode) {
+            setCode(scannedCode);
+            setScannerMessage(`Scanned ${scannedCode}. Checking in...`);
+            stopScanner();
+            await performCheckIn(scannedCode);
+            return;
+          }
+        } catch (err) {
+          setScannerMessage(err instanceof Error ? err.message : "Unable to read the QR code. Try typing it instead.");
+        }
+        scanTimerRef.current = window.setTimeout(scan, 250);
+      };
+      scanTimerRef.current = window.setTimeout(scan, 250);
+    } catch (err) {
+      stopScanner();
+      setScannerMessage(err instanceof Error ? err.message : "Camera access was blocked. Type the code from the email instead.");
+    }
+  }
+
   const isSuccess = result?.status === "checked_in" || result?.status === "already_checked_in";
 
   return (
@@ -89,6 +170,15 @@ export default function GrandPrizeCheckIn() {
 
         <form className="check-in-form" onSubmit={submitCheckIn}>
           <label htmlFor="check-in-code">Check-in code</label>
+          <div className="check-in-scanner">
+            <video ref={videoRef} className="check-in-video" muted playsInline hidden={!scannerActive} />
+            <div className="check-in-scanner-actions">
+              <button type="button" className="secondary-action" onClick={scannerActive ? stopScanner : startScanner} disabled={submitting}>
+                {scannerActive ? "Stop camera" : "Scan QR"}
+              </button>
+              {scannerMessage && <p>{scannerMessage}</p>}
+            </div>
+          </div>
           <div className="check-in-entry-row">
             <input
               id="check-in-code"

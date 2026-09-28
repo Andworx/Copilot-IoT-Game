@@ -22,7 +22,8 @@ function App() {
   const [step, setStep] = useState<Step>(token ? "share" : "error");
   const [errorMessage, setErrorMessage] = useState("No claim token found in the link -- scan the QR on the kiosk win screen.");
   const [wheelPrizes, setWheelPrizes] = useState<Prize[]>([]);
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [claiming, setClaiming] = useState(false);
   const [claimResult, setClaimResult] = useState<ClaimResult | null>(null);
@@ -39,13 +40,16 @@ function App() {
   async function handleContinue(sharedInfo: boolean) {
     if (claiming) return;
     setClaiming(true);
+    const fullName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ");
     try {
       const res = await fetch(`${API_BASE_URL}/api/claim-prize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           claimToken: token,
-          contestantName: sharedInfo && name ? name : undefined,
+          contestantFirstName: sharedInfo && firstName ? firstName : undefined,
+          contestantLastName: sharedInfo && lastName ? lastName : undefined,
+          contestantName: sharedInfo && fullName ? fullName : undefined,
           contestantEmail: sharedInfo && email ? email : undefined,
           sharedInfo,
         }),
@@ -95,9 +99,15 @@ function App() {
               Sharing your name is optional and never affects your spin — skip it and you
               play exactly the same.
             </p>
-            <div className="field">
-              <label htmlFor="nameInput">Name (optional)</label>
-              <input id="nameInput" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Jordan R." />
+            <div className="name-fields">
+              <div className="field">
+                <label htmlFor="firstNameInput">First name (optional)</label>
+                <input id="firstNameInput" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="e.g. Jordan" />
+              </div>
+              <div className="field">
+                <label htmlFor="lastNameInput">Last name (optional)</label>
+                <input id="lastNameInput" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="e.g. Rivera" />
+              </div>
             </div>
             <div className="field">
               <label htmlFor="emailInput">Email (optional)</label>

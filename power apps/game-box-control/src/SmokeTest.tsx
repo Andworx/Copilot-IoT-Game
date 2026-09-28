@@ -60,7 +60,8 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
   const [deviceSlug, setDeviceSlug] = useState(profiles[0]?.deviceSlug ?? "demo");
   const [contestSourceKey, setContestSourceKey] = useState("demo");
   const [claimToken, setClaimToken] = useState("");
-  const [contestantName, setContestantName] = useState("Demo Player");
+  const [contestantFirstName, setContestantFirstName] = useState("Demo");
+  const [contestantLastName, setContestantLastName] = useState("Player");
   const [contestantEmail, setContestantEmail] = useState("demo@example.com");
   const [busy, setBusy] = useState<BusyState>(null);
   const [step, setStep] = useState<SmokeStep>("ready");
@@ -88,16 +89,20 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
 
   async function claimPrizeRequest(input: {
     token: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     shouldShareInfo: boolean;
   }): Promise<ClaimPrizeResponse> {
+    const fullName = [input.firstName.trim(), input.lastName.trim()].filter(Boolean).join(" ");
     const res = await fetch(`${API_BASE_URL}/api/claim-prize`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         claimToken: input.token,
-        contestantName: input.name,
+        contestantFirstName: input.firstName,
+        contestantLastName: input.lastName,
+        contestantName: fullName || undefined,
         contestantEmail: input.email,
         sharedInfo: input.shouldShareInfo,
       }),
@@ -167,7 +172,8 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
     try {
       const body = await claimPrizeRequest({
         token: trimmedToken,
-        name: shouldShareInfo ? contestantName : "",
+        firstName: shouldShareInfo ? contestantFirstName : "",
+        lastName: shouldShareInfo ? contestantLastName : "",
         email: shouldShareInfo ? contestantEmail : "",
         shouldShareInfo,
       });
@@ -177,7 +183,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
       if (shouldShareInfo && body.grandPrizeEntry?.status === "created") {
         setEmailPreview({
           to: contestantEmail,
-          firstName: contestantName.trim().split(/\s+/)[0] || "there",
+          firstName: contestantFirstName.trim() || "there",
           checkInCode: body.grandPrizeEntry.checkInCode ?? "GP-DEMO-2401",
           drawingTime: "Final drawing time from the active campaign",
           eventName: "Copilot IoT Game Grand Prize Drawing",
@@ -274,10 +280,19 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
           </label>
 
           <label style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-            <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Contestant name</span>
+            <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>First name</span>
             <input
-              value={contestantName}
-              onChange={(e) => setContestantName(e.target.value)}
+              value={contestantFirstName}
+              onChange={(e) => setContestantFirstName(e.target.value)}
+              style={{ padding: "0.5rem", borderRadius: 6, border: "1px solid #d1d5db" }}
+            />
+          </label>
+
+          <label style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+            <span style={{ fontSize: "0.85rem", fontWeight: 600 }}>Last name</span>
+            <input
+              value={contestantLastName}
+              onChange={(e) => setContestantLastName(e.target.value)}
               style={{ padding: "0.5rem", borderRadius: 6, border: "1px solid #d1d5db" }}
             />
           </label>
