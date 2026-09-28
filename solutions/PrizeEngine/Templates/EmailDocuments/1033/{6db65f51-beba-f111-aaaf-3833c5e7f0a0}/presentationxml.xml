@@ -11,8 +11,9 @@
         <td align="center">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#ffffff;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;">
             <tr>
-              <td style="background:#182338;color:#ffffff;padding:24px 28px;border-bottom:4px solid #2374e1;">
-                <p style="margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#76d7ea;">ANDWORX - Copilot IoT Game</p>
+              <td style="background:#2a3380;color:#ffffff;padding:24px 28px;border-bottom:4px solid #f59e0b;">
+                <p style="margin:0 0 8px;font-size:28px;line-height:1;font-weight:800;letter-spacing:0;color:#ffffff;">andworx</p>
+                <p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f8d36b;">Copilot IoT Game</p>
                 <h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:800;">Your check-in code is ready</h1>
               </td>
             </tr>
@@ -24,7 +25,7 @@
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #b7d8ff;border-radius:10px;background:#eef6ff;">
                   <tr>
                     <td style="padding:22px;text-align:center;">
-                      <p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2374e1;">Check-in code</p>
+                      <p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2a3380;">Check-in code</p>
                       <p style="margin:0 0 18px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#172033;">{{CheckInCode}}</p>
                       <img src="{{CheckInQrDataUrl}}" width="220" height="220" alt="QR code for {{CheckInCode}}" style="display:block;margin:0 auto 12px;border:10px solid #ffffff;border-radius:8px;background:#ffffff;">
                       <p style="margin:0;font-size:13px;line-height:1.5;color:#52657a;">Staff can scan this QR in the Game Box Control check-in screen.</p>
