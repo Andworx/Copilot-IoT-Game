@@ -139,11 +139,9 @@ export interface DeviceProfileSummary {
   winText: string | null;
 }
 
-/** Lists all andy_deviceprofile rows, for the control app's device picker. */
-export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
-  const response = await dataverseFetch(
-    "andy_deviceprofiles?$select=andy_deviceprofileid,andy_name,andy_deviceslug,andy_isenabled,andy_wintext&$orderby=andy_name"
-  );
+async function queryDeviceProfiles(includeWinText: boolean): Promise<DeviceProfileSummary[]> {
+  const select = "andy_deviceprofileid,andy_name,andy_deviceslug,andy_isenabled" + (includeWinText ? ",andy_wintext" : "");
+  const response = await dataverseFetch(`andy_deviceprofiles?$select=${select}&$orderby=andy_name`);
   const body = (await response.json()) as {
     value: Array<{
       andy_deviceprofileid: string;
@@ -161,6 +159,18 @@ export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
     isEnabled: row.andy_isenabled !== false,
     winText: row.andy_wintext?.trim() || null,
   }));
+}
+
+/** Lists all andy_deviceprofile rows, for the control app's device picker. */
+export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
+  try {
+    return await queryDeviceProfiles(true);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("andy_wintext")) {
+      return queryDeviceProfiles(false);
+    }
+    throw error;
+  }
 }
 
 /** Sets or clears andy_gameboxstate's active device lookup. Pass null to return to demo/info. */
