@@ -89,6 +89,11 @@ Two optional blank parts are also included:
   or multicolor artwork. Because it closes the former safety-switch opening,
   complete the closed-lid witness test before leaving it installed in service.
 
+The `artwork/` folder contains a dimension-matched Microsoft cloud architecture
+SVG for this plate. It uses current source vectors for IoT Hub, Event Hubs,
+Azure Functions, SignalR, Dataverse, Power Pages, Power Apps, and Copilot Studio
+and includes a hidden alignment layer for the four plate screws.
+
 ## Tool-free storage cover
 
 The print-sensitive flex latches and fixed top retaining rail have been removed.
