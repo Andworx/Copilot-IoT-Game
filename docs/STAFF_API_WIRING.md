@@ -1,8 +1,7 @@
 # Staff API and network wiring
 
 Recorded 2026-09-29. This separates operator-reported network checks, read-only
-Azure verification, prepared code and work still awaiting release. No staff
-Function deployment or authentication cutover has occurred yet.
+Azure verification, prepared code and work still awaiting release. The staff backend is deployed and the connector read test returned HTTP 200. The hosted Code App cutover remains pending.
 
 ## Selected request paths
 
@@ -39,12 +38,12 @@ SignalR. No APIM gateway is being provisioned.
 | IoT Game Staff API client ID | `00754488-3e99-4b4f-b55d-66cf161182d7` |
 | API identifier URI | `api://00754488-3e99-4b4f-b55d-66cf161182d7` |
 | Delegated scope | `Staff.Access`; definition verified read-only |
-| App role | `Game.Operator`, Users/Groups; definition verified, actual operator assignment still Verify |
+| App role | `Game.Operator`, Users/Groups; definition verified, operator access now confirmed by owner-reported GetKioskState HTTP 200 |
 | Token version | `api.requestedAccessTokenVersion=2`, verified |
 | IoT Game Staff Connector client ID | `5645dd87-3e8f-437b-a1d8-70ed447ad24b` |
 | Connector API permission | Staff.Access registration verified; administrator consent reported granted by owner |
-| Connector redirect URI and secret | Pending creation of Power Platform connector; exact redirect must come from that connector |
-| Per-user connection and PAC binding | Pending; no fabricated binding or browser-key fallback |
+| Connector redirect URI and secret | Created; exact current redirect recorded below; secret remains only in Power Platform |
+| Per-user connection and PAC binding | Working connection supplied by owner; real PAC-generated binding prepared in the follow-up PR |
 
 The API validates RS256 signature, tenant v2 issuer, audience (API client GUID),
 expiry, token version, operator identity, delegated scope, role and `azp` client.
@@ -97,11 +96,11 @@ Existing production GitHub identity client ID:
 `82570a78-246e-4e23-a433-ff3667c3fcb8`; object ID:
 `8904a13a-0f97-47de-854e-c7649b5d7fe6`.
 Read-only inspection found Website Contributor on the existing game app only.
-That cannot create the staff app, plan or storage or join the integration subnet.
+That original grant could not create the staff resources. The owner subsequently ran the bootstrap successfully; the release has now provisioned them.
 
 An IAM administrator must review `infra/roles/staff-provisioner.json` and run the
-one-time bootstrap before the first release. This is not run by CI, and it has
-not been executed during this implementation:
+one-time bootstrap before the first release. This is not run by CI; it has
+now been run successfully by the owner (commands retained for reproducibility):
 
 ```powershell
 az account set --subscription 2e291b4a-5f03-4dcd-bb56-09643c729adc
@@ -133,8 +132,7 @@ the provisioning script to stop. Do not silently substitute Owner/Contributor.
 Read-only Azure what-if on 2026-09-29 passed: **5 create, 43 ignore**, consisting
 only of the staff app, plan, storage account, blob service and package container.
 No existing resources were predicted to change. This is not a completed deployment.
-IAM bootstrap, runtime startup, authenticated connector calls and on/off-VPN
-staff validation remain pending. Keep tracking items Verify until live acceptance.
+IAM bootstrap and runtime startup subsequently passed; owner reported authenticated GetKioskState HTTP 200. Hosted Code App and on/off-VPN staff validation remain pending. Keep tracking items Verify until live acceptance.
 
 ## Existing manually built network
 
@@ -172,3 +170,17 @@ References: [setup runbook](STAFF_API_SETUP.md), [CI/CD](CI_CD.md),
 [network decision](CONTROL_API_NETWORK_PLAN.md),
 [Microsoft Flex infrastructure guidance](https://learn.microsoft.com/en-us/azure/azure-functions/functions-infrastructure-as-code),
 [companion network PR](https://github.com/Andworx/copilot-iot-service/pull/207).
+
+## Connector binding follow-up
+
+- Bootstrap release: commit `6110fffa7a994990b0a51c861c24b4395547577f`, [successful run](https://github.com/Andworx/Copilot-IoT-Game/actions/runs/36629295635). Staff hostname `func-aw-azcom-iot-staff.azurewebsites.net`; unauthenticated 401 probe passed. Existing apps were skipped as intended.
+- IAM bootstrap: owner reported successful grant to the production deployment identity.
+- Current connector: **IoT Game Staff API Connector**. The earlier connector was recreated; use the IDs below.
+- Environment: `dd045fe3-6b47-e5bd-87e6-680b3cfd3a09`.
+- Connector API ID: `shared_iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9`.
+- Working connection ID: `f72491e31ed54c7ebe8a5c1ffe3a6310` (owner's setup/test connection; each operator still authenticates individually).
+- Current registered redirect URI: `https://global.consent.azure-apim.net/redirect/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9`.
+- AADSTS700016 was resolved by correcting connector application identifiers and recreating the connector. A subsequent API 403 occurred while the API enterprise application had no role assignments; the owner subsequently reported HTTP 200 after the role-assignment instructions.
+- PAC 2.11.2 generated the actual schemas, service/model files and connection reference in `power apps/game-box-control`; all 14 operation IDs are present. Existing Code App ID `36533fcf-1ad1-4891-9e27-82cc3d2f794a` is preserved.
+- Adapter call shape matches the generated service: operation name/table name, POST body under `parameters.body`, and result data returned by the SDK. No browser token, secret or direct-fetch fallback is added.
+- Keep `STAFF_API_CUTOVER_READY=false` until the generated binding is reviewed and the hosted development flow has been checked. A connector-editor 200 proves API access, not the complete hosted Code App flow. Then enable the flag for the coordinated main release and perform the runbook's live acceptance checks.
