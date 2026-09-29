@@ -140,14 +140,14 @@ export interface DeviceProfileSummary {
 }
 
 async function queryDeviceProfiles(includeWinText: boolean): Promise<DeviceProfileSummary[]> {
-  const select = "andy_deviceprofileid,andy_name,andy_deviceslug,andy_isenabled" + (includeWinText ? ",andy_wintext" : "");
+  const select = "andy_deviceprofileid,andy_name,andy_deviceslug,statecode" + (includeWinText ? ",andy_wintext" : "");
   const response = await dataverseFetch(`andy_deviceprofiles?$select=${select}&$orderby=andy_name`);
   const body = (await response.json()) as {
     value: Array<{
       andy_deviceprofileid: string;
       andy_name: string;
       andy_deviceslug: string;
-      andy_isenabled: boolean | null;
+      statecode: number;
       andy_wintext?: string | null;
     }>;
   };
@@ -155,8 +155,8 @@ async function queryDeviceProfiles(includeWinText: boolean): Promise<DeviceProfi
     id: row.andy_deviceprofileid,
     name: row.andy_name,
     deviceSlug: row.andy_deviceslug,
-    // Same null-safe treatment as gameModeEnabled above.
-    isEnabled: row.andy_isenabled !== false,
+    // Built-in Status: only Active (0) profiles are enabled.
+    isEnabled: row.statecode === 0,
     winText: row.andy_wintext?.trim() || null,
   }));
 }
@@ -194,12 +194,13 @@ export async function setActiveDeviceProfile(
   }
 }
 
-/** Flips andy_isenabled on one device profile. Staff use this from Game Box Control to
+/** Activates/deactivates one device profile using built-in Status. Staff use this from Game Box Control to
  * hide a mode from manual selection and exclude it from pickRandomEnabledMode. */
 export async function setDeviceProfileEnabled(deviceProfileId: string, isEnabled: boolean): Promise<void> {
   await dataverseFetch(`andy_deviceprofiles(${deviceProfileId})`, {
     method: "PATCH",
-    body: JSON.stringify({ andy_isenabled: isEnabled }),
+    // State/status pairs come from the exported Device Profile solution.
+    body: JSON.stringify({ statecode: isEnabled ? 0 : 1, statuscode: isEnabled ? 1 : 2 }),
   });
 }
 
