@@ -32,7 +32,7 @@ on:
         required: true
         default: what-if
         type: choice
-        options: [what-if, drift, deploy]
+        options: [what-if, drift, deploy, network-what-if]
   schedule:
     - cron: '0 13 * * 1'   # weekly drift check, Mondays
 
@@ -57,6 +57,8 @@ jobs:
       - name: Compile and lint
         run: |
           az bicep build --file infra/main.bicep --stdout > /dev/null
+          az bicep build --file infra/network/main.bicep --stdout > /dev/null
+          python3 infra/network/check-baseline.py
           az bicep build-params --file infra/main.prod.bicepparam --stdout > /dev/null
           lint="$(az bicep lint --file infra/main.bicep 2>&1)"
           echo "$lint"
@@ -183,3 +185,23 @@ jobs:
       - name: Reference resources still match their snapshots
         shell: pwsh
         run: ./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check
+
+  network-what-if:
+    name: Network baseline preview (no changes)
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'network-what-if' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: infra-deploy
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Validate and preview captured network
+        shell: pwsh
+        run: ./infra/network/Preview-Network.ps1
