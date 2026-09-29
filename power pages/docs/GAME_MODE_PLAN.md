@@ -10,7 +10,7 @@ Status: **All open questions resolved** — see "Decisions" (§0). §9 now track
 | Dial hardware *(superseded)* | Originally: a 12-position rotary switch read by the panel Pi, signal split to the kiosk/screen Pi (§4, original). **Changed 2026-09-08** after panel Pi hardware bring-up: the rotary switch's CD74HC4067 mux proved unreliable (confirmed defective on real hardware — every other wiring/power/logic path checked out via multimeter before landing on the chip itself) and a shaft-mounted dial is a physical failure point in a booth setting. Mode selection is now software-defined — see §4a. Switches/LEDs/connectors on the panel Pi are unaffected; only *device selection* moved off the dial |
 | Contestant identity | Optional at claim time. Player may share name/email; if they skip it, the spin/prize is unaffected — sharing is opt-in only, never a gate or a penalty |
 | Prize inventory | Finite stock per prize — `andy_prize.andy_remaining` decrements atomically on claim, depleted prizes drop out of the wheel (§5, §7 updated below) |
-| Kiosk reset | Auto-resets to attract/idle **10 seconds** after the win/QR screen is shown. If the dial is turned mid-session (before a win), that's an immediate reset too — it's a whole new device, no partial session carries over (§4, §7) |
+| Kiosk reset | Clears the win/QR overlay **10 seconds** after it is shown, then leaves the kiosk on the same mode so players can review the completed scenario. If staff select a different mode mid-session, that navigation is still an immediate reset — no partial session carries over (§4, §7) |
 | Dial layout *(corrected)* | **12-position** rotary switch, not 6 — position 1 is a demo/info page (not a real game device), positions 2–12 are 11 actual troubleshooting devices (§5, §6, §11) |
 | Spin page hosting | Either works — same site as another page, or a separate site. Default to same site (simpler, reuses Dataverse/API access) unless a reason to split comes up later |
 | Panel logic per device | **Different per device** — each of the 11 devices needs its own LED/switch logic, not a shared `logic_map.json` (§4 updated below) |
@@ -250,8 +250,7 @@ placeholder.
 | `andy_name` | String | Display name, e.g. "Smart Lock", or "Demo / Info" for the non-game row |
 | `andy_deviceslug` | String | URL slug, matches `/kiosk/<slug>` page and telemetry `deviceSlug` |
 | `andy_isgamedevice` | Yes/No | `No` for the demo/info row — tells the win-detection and Copilot-agent wiring to skip this page entirely |
-| `andy_introcopy` | Multiline text | Optional — intro/troubleshooting copy if not hardcoded in the page |
-| `andy_copilottopic` | String | Which Copilot Studio topic/context this page should invoke (null for the demo page) |
+| `andy_wintext` | Multiline text | Optional — per-mode completion message shown on the kiosk win/success overlay; code falls back to `deviceProfiles.ts` when blank |
 
 No `andy_isactive` — Dataverse's built-in Status/Status Reason already covers retiring a
 row without deleting it. No `andy_dialposition` either — it only ever mapped a physical
@@ -404,10 +403,11 @@ today — `npm run build` then `pac pages upload-code-site` — no new `pac page
    - Returns the prize to the page, which then runs the spin animation and lands on the
      returned result (so the *visual* spin is theater — the prize was already decided
      server-side, which is what prevents replay/double-claim).
-6. Kiosk resets to attract/idle **10 seconds** after showing the QR/win screen. If the dial
-   is turned again before that — whether during troubleshooting or during the win/QR
-   screen — the resulting page navigation (§4) itself is the reset: no partial session or
-   pending win state carries into the newly-selected device.
+6. Kiosk clears the QR/win overlay **10 seconds** after showing it, then stays on the
+  same mode so players can review what they restored. If staff select a different mode
+  before that — whether during troubleshooting or during the win/QR screen — the
+  resulting page navigation (§4) itself is the reset: no partial session or pending win
+  state carries into the newly-selected device.
 
 Routing the claim through a server-side endpoint instead of exposing `andy_gamewin` to
 anonymous Web API writes is the one non-negotiable security point here — an unguessable
@@ -427,8 +427,8 @@ atomic.
   switch/LED state (`buildQuickFixPrompt`-equivalent per device, using that device's
   target state from §11 instead of the current dashboard's "all 4 LEDs on") and displays
   **only** the numbered-list response — no persistent chat, no free-form Q&A.
-  `deviceProfiles.ts` (§6) supplies each device's `andy_copilottopic` so the same component
-  can point at a different topic per device without new component code.
+  The active device slug is included in the prompt, so the same component can handle
+  different device modes without per-device topic metadata.
 - The existing **IoT Panel Troubleshooting Agent** becomes device-aware: either (a) one
   agent with topics parametrized by a `deviceSlug` variable passed in from the prompt, or
   (b) one topic per device type inside the same agent. Prefer (a) unless the
