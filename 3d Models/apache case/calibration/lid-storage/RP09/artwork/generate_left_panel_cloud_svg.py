@@ -194,14 +194,46 @@ def build_svg(logo_root: Path, output: Path) -> None:
     ET.ElementTree(root).write(output, encoding="utf-8", xml_declaration=True)
 
 
+def build_print_mask(source: Path, output: Path) -> None:
+    """Create a geometry-only, single-colour SVG for OpenSCAD import."""
+    root = ET.parse(source).getroot()
+    keep = {"defs", "flow", "approved-logos"}
+    for child in list(root):
+        local_name = child.tag.rsplit("}", 1)[-1]
+        if local_name in {"title", "desc", "metadata"}:
+            root.remove(child)
+        elif local_name == "g" and child.get("id") not in keep:
+            root.remove(child)
+
+    for node in root.iter():
+        fill = node.get("fill")
+        if fill and fill != "none":
+            node.set("fill", "#000000")
+        stroke = node.get("stroke")
+        if stroke and stroke != "none":
+            node.set("stroke", "#000000")
+        if node.tag == svg_tag("stop"):
+            node.set("stop-color", "#000000")
+
+    root.set("aria-label", "RP09 left plate printable cloud geometry")
+    ET.indent(root, space="  ")
+    ET.ElementTree(root).write(output, encoding="utf-8", xml_declaration=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--logo-root", type=Path, required=True)
     parser.add_argument("--output", type=Path,
                         default=Path(__file__).with_name("left_panel_iot_cloud_overlay.svg"))
+    parser.add_argument(
+        "--print-mask", type=Path,
+        default=Path(__file__).with_name("left_panel_iot_cloud_print_mask.svg"),
+    )
     args = parser.parse_args()
     build_svg(args.logo_root, args.output)
+    build_print_mask(args.output, args.print_mask)
     print(args.output.resolve())
+    print(args.print_mask.resolve())
 
 
 if __name__ == "__main__":

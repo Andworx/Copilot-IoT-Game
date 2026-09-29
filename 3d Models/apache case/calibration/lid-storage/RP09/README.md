@@ -94,6 +94,21 @@ SVG for this plate. It uses current source vectors for IoT Hub, Event Hubs,
 Azure Functions, SignalR, Dataverse, Power Pages, Power Apps, and Copilot Studio
 and includes a hidden alignment layer for the four plate screws.
 
+Three printable cloud-architecture options accompany the SVG:
+
+- `lid_storage_left_design_plate_cloud_base.stl` is the 1.6 mm structural
+  plate.
+- `lid_storage_left_design_plate_cloud_artwork.stl` is the matching 0.4 mm
+  raised artwork. Load it as a second part in the same slicer object, preserve
+  its coordinates, and assign a contrasting filament.
+
+For a single-extruder color change, load the base and artwork as parts of one
+object and schedule the filament change at Z = 1.6 mm. The artwork occupies
+only the final 0.4 mm.
+
+The blank plate remains available for custom art. All cloud variants preserve
+the same 85 x 196 mm outline and four mounting holes.
+
 ## Tool-free storage cover
 
 The print-sensitive flex latches and fixed top retaining rail have been removed.
