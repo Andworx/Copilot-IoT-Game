@@ -189,3 +189,13 @@ References: [setup runbook](STAFF_API_SETUP.md), [CI/CD](CI_CD.md),
 Release [36639623856](https://github.com/Andworx/Copilot-IoT-Game/actions/runs/36639623856) failed with InvalidTemplate/circular dependency before code deployment. The bootstrap succeeded, but reading the existing staff settings inside the same template that writes the staff site introduced a self-dependency on subsequent releases. This was a template defect, not a connector-role failure.
 
 The entry template now reads previous settings and passes them as a secure object parameter into `infra/modules/staff-resources.bicep`. Unrelated settings are preserved without returning credentials to the runner. The release script runs ARM validation with output suppressed before the resource-ID-only what-if; a failed validation stops deployment. No additional IAM or networking grant is required for this fix. Hosted Code App acceptance and cutover remain pending until the owner's result is unambiguous.
+
+## Device-profile read correction
+
+After production cutover, connector selection succeeded but GetDeviceProfiles
+returned 500. Application Insights showed Dataverse rejecting the removed
+`andy_isenabled` column. The owner confirmed built-in Status replaces it; the
+exported Device Profile solution defines Active state 0/reason 1 and Inactive
+state 1/reason 2. Backend reads/toggles now use those definitions while preserving
+the `isEnabled` API contract. This is a backend/schema alignment fix; do not recreate
+the deleted column. Deployment and live connector/app acceptance remain Verify.

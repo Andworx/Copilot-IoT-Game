@@ -9,7 +9,7 @@ interface ToggleDeviceRequestBody {
 
 /**
  * POST /api/toggle-device -- called by Game Box Control's per-tile enable/disable
- * switch (GAME_MODE_PLAN.md follow-up). Flips andy_deviceprofile.andy_isenabled. A
+ * switch (GAME_MODE_PLAN.md follow-up). Sets Device Profile Status to Active/Inactive. A
  * disabled device is hidden from staff's manual picker in the control app and skipped
  * by pick-random-mode, but the row and its data stay intact for later re-enabling.
  *

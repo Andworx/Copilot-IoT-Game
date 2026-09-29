@@ -293,3 +293,13 @@ azure/
     │   └── telemetry.ts             # pure payload → SignalR/Dataverse mapping (unit-tested)
     └── ../test/telemetry.test.ts    # node:test; run with `npm test`
 ```
+
+## Device Profile availability
+
+Device Profile uses built-in Status, not the removed `andy_isenabled` column.
+`statecode=0` (Active) maps to API `isEnabled=true`; inactive/unknown states map to
+false. The list includes inactive rows so staff can reactivate them. Toggle writes
+both fields using the solution's pairs: Active `(statecode=0,statuscode=1)` and
+Inactive `(statecode=1,statuscode=2)`. Random mode selection continues to use
+`isEnabled`, excluding inactive profiles. `andy_isgamedevice` remains a separate
+classification flag. No new column or connector schema change is required.
