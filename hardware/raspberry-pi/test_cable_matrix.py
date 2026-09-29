@@ -33,10 +33,11 @@ class FakeBackend:
 
 
 def plug(cable, a_socket, b_socket):
-    return {
-        frozenset(((a_socket, a), (b_socket, b)))
-        for a, b in cm.CABLES[cable]["wires"]
-    }
+    table, _ = cm.build_signature_table({a_socket: config.SOCKET_NODES[a_socket], b_socket: config.SOCKET_NODES[b_socket]})
+    for signature, (cable_id, sockets) in table.items():
+        if cable_id == cable and set(sockets) == {a_socket, b_socket}:
+            return set(signature)
+    return set()
 
 
 def link(a_socket, b_socket):
@@ -76,7 +77,7 @@ class DecodeTests(unittest.TestCase):
         self.assertEqual(checked, 6)
 
     def test_self_short_is_unknown(self):
-        m = matrix_for({frozenset((("S3", 4), ("S3", 4)))})
+        m = matrix_for({frozenset((("S3", 1), ("S3", 1)))})
         cables, plugged = m.decode(m.scan_bridges())
         self.assertEqual(cables, [])
         self.assertFalse(any(plugged.values()))
@@ -91,7 +92,7 @@ class DecodeTests(unittest.TestCase):
         self.assertTrue(all(plugged.values()))
 
     def test_unlisted_contact_reports_no_link(self):
-        m = matrix_for({frozenset((("S1", 1), ("S2", 1)))})
+        m = matrix_for({frozenset((("S1", 4), ("S2", 4)))})
         cables, plugged = m.decode(m.scan_bridges())
         self.assertEqual(cables, [])
         self.assertFalse(any(plugged.values()))

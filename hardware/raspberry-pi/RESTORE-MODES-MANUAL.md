@@ -50,12 +50,12 @@ cables prevent a win.
 
 | Link | Expected raw bridge | Where it plugs |
 |---|---|---|
-| LAN 1-LAN 2 | S1 pin 4 - S2 pin 4 | Any RJ-45 patch cable between LAN 1 and LAN 2 |
-| LAN 1-LAN 3 | S1 pin 4 - S3 pin 4 | Any RJ-45 patch cable between LAN 1 and LAN 3 |
-| LAN 1-LAN 4 | S1 pin 4 - S4 pin 4 | Any RJ-45 patch cable between LAN 1 and LAN 4 |
-| LAN 2-LAN 3 | S2 pin 4 - S3 pin 4 | Any RJ-45 patch cable between LAN 2 and LAN 3 |
-| LAN 2-LAN 4 | S2 pin 4 - S4 pin 4 | Any RJ-45 patch cable between LAN 2 and LAN 4 |
-| LAN 3-LAN 4 | S3 pin 4 - S4 pin 4 | Any RJ-45 patch cable between LAN 3 and LAN 4 |
+| LAN 1-LAN 2 | S1 pin 1 - S2 pin 1 | Any RJ-45 patch cable between LAN 1 and LAN 2 |
+| LAN 1-LAN 3 | S1 pin 1 - S3 pin 1 | Any RJ-45 patch cable between LAN 1 and LAN 3 |
+| LAN 1-LAN 4 | S1 pin 1 - S4 pin 2 | Any RJ-45 patch cable between LAN 1 and LAN 4 |
+| LAN 2-LAN 3 | S2 pin 1 - S3 pin 1 | Any RJ-45 patch cable between LAN 2 and LAN 3 |
+| LAN 2-LAN 4 | S2 pin 1 - S4 pin 2 | Any RJ-45 patch cable between LAN 2 and LAN 4 |
+| LAN 3-LAN 4 | S3 pin 1 - S4 pin 2 | Any RJ-45 patch cable between LAN 3 and LAN 4 |
 
 ## Before each run
 

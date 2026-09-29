@@ -281,7 +281,7 @@ for line in SOURCE.splitlines():
 page('cables','Demo cable build reference','REFERENCE / DEMO PREPARATION',
     'For preparing the demo cable bundle. Any standard straight-through RJ-45 patch cable can connect any two ports. The panel detects socket pairs, not cable identity.',
     tb(cables,[65,259,180]),h('Plug types'),
-    'Each panel port is a passive RJ-45 jack. Wire only RJ-45 pin 4. Leave pins 1-3 and 5-8 plus any shield, drain, or shell open. Use straight-through patch cables only.',
+    'Each panel port is a passive RJ-45 jack. Wire only the listed active contact. Leave all other pins plus any shield, drain, or shell open. Use straight-through patch cables only.',
     h('Where it plugs'),
     'The last column records which sockets a cable works in. It does not establish which socket states a mode requires. Use the active chapter for restoration targets.',
     h('Panel harness reference'),

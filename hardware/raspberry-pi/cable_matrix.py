@@ -1,7 +1,7 @@
 """RJ-45 cable-matrix scanner and decoder for the four panel sockets.
 
-Each RJ-45 panel jack wires only pin 4 to a GPIO. A standard straight-through
-RJ-45 patch cable bridges pin 4 between two ports; nothing is tied to GND. To
+Each RJ-45 panel jack wires one active contact to a GPIO. A standard straight-through
+RJ-45 patch cable bridges the active contacts between two ports; nothing is tied to GND. To
 find the bridges the scanner idles every node as an input with a pull-up,
 drives one node low at a time, and reads the rest: any other node that follows
 it low is wired to it through a cable. Only one node is ever driven, and only
@@ -25,11 +25,22 @@ SCAN_SETTLE_S = 0.0002   # let a driven-low node pull its bridged partners down
 CONFIRM_SCANS = 2        # identical consecutive scans needed to accept a change
 
 
+def _resolve_pin(socket, pin, nodes):
+    if pin != "active":
+        return pin
+    contacts = [contact for node_socket, contact in nodes if node_socket == socket]
+    return contacts[0] if len(contacts) == 1 else None
+
+
 def _signature(a_socket, b_socket, a_to_b, nodes):
     """Bridged node pairs a cable produces in one placement, or None if any
     wire lands on a contact that is not wired to a GPIO."""
     bridges = set()
     for a_pin, b_pin in a_to_b:
+        a_pin = _resolve_pin(a_socket, a_pin, nodes)
+        b_pin = _resolve_pin(b_socket, b_pin, nodes)
+        if a_pin is None or b_pin is None:
+            return None
         a_node = (a_socket, a_pin)
         b_node = (b_socket, b_pin)
         if a_node not in nodes or b_node not in nodes:

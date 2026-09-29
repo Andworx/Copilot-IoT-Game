@@ -51,7 +51,7 @@ pre-integration baseline; current cable targets are in CABLE-BUILD-PLAN.md.
 ## Remaining implementation and verification
 
 1. RJ-45 redesign documented in [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md): LAN 1-LAN 4
-   are passive RJ-45 jacks, each using pin 4 only. Standard straight-through
+   are passive RJ-45 jacks, each using one active contact only. Standard straight-through
    patch cables create socket-pair links; cable identity no longer matters.
 2. Implemented: RJ-45 link decoder, exact Pi/kiosk socket-pair recipes,
    explicit setup/help, schema gate and updated manuals. Verify after coordinated rollout.

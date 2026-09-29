@@ -15,20 +15,20 @@ class CableBuildPlanTests(unittest.TestCase):
     def test_rj45_socket_inventory(self):
         self.assertEqual(PLAN["schema"], "panel-rj45-links/v1")
         self.assertEqual(set(PLAN["socketTypes"].values()), {"rj45"})
-        self.assertEqual(PLAN["socketContacts"], {"S1": [4], "S2": [4], "S3": [4], "S4": [4]})
+        self.assertEqual(PLAN["socketContacts"], {"S1": [1], "S2": [1], "S3": [1], "S4": [2]})
 
     def test_standard_patch_cable_definition(self):
         self.assertEqual(len(PLAN["cables"]), 1)
         cable = PLAN["cables"][0]
         self.assertEqual(cable["id"], 1)
         self.assertEqual(cable["ends"], ["rj45", "rj45"])
-        self.assertEqual(cable["wires"], [[4, 4]])
+        self.assertEqual(cable["wires"], [["active", "active"]])
 
     def test_every_socket_pair_has_a_unique_signature(self):
         signatures = {}
         sockets = list(PLAN["socketTypes"])
         for a_socket, b_socket in itertools.combinations(sockets, 2):
-            signature = frozenset((a_socket, 4, b_socket, 4))
+            signature = frozenset((a_socket, PLAN["socketContacts"][a_socket][0], b_socket, PLAN["socketContacts"][b_socket][0]))
             self.assertNotIn(signature, signatures)
             signatures[signature] = tuple(sorted((a_socket, b_socket)))
         self.assertEqual(len(signatures), 6)
