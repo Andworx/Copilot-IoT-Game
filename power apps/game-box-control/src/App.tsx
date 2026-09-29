@@ -1,10 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-  API_BASE_URL,
-  SET_MODE_FUNCTION_KEY,
-  SET_GAME_MODE_FUNCTION_KEY,
-  TOGGLE_DEVICE_FUNCTION_KEY,
-} from "./apiConfig";
+import { staffRequest } from "./apiConfig";
 import GrandPrizeCheckIn from "./GrandPrizeCheckIn";
 import GrandPrizeDrawing from "./GrandPrizeDrawing";
 import PrizeManagement from "./PrizeManagement";
@@ -61,8 +56,8 @@ export default function App() {
     setError(null);
     try {
       const [profilesRes, stateRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/device-profiles`),
-        fetch(`${API_BASE_URL}/api/kiosk-state`),
+        staffRequest("/api/device-profiles"),
+        staffRequest("/api/kiosk-state"),
       ]);
       if (!profilesRes.ok || !stateRes.ok) throw new Error("Failed to load current state");
       const profilesBody = (await profilesRes.json()) as { profiles: DeviceProfile[] };
@@ -85,9 +80,9 @@ export default function App() {
     setSettingKey(deviceSlug ?? DEMO_INFO_KEY);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/set-mode`, {
+      const res = await staffRequest("/api/set-mode", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-functions-key": SET_MODE_FUNCTION_KEY },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deviceProfileId, deviceSlug, deviceName }),
       });
       if (!res.ok) throw new Error(`set-mode failed: ${res.status}`);
@@ -104,9 +99,9 @@ export default function App() {
     setError(null);
     const nextEnabled = !profile.isEnabled;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/toggle-device`, {
+      const res = await staffRequest("/api/toggle-device", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-functions-key": TOGGLE_DEVICE_FUNCTION_KEY },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deviceProfileId: profile.id, isEnabled: nextEnabled }),
       });
       if (!res.ok) throw new Error(`toggle-device failed: ${res.status}`);
@@ -123,9 +118,9 @@ export default function App() {
     setError(null);
     const next = !gameModeEnabled;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/set-game-mode`, {
+      const res = await staffRequest("/api/set-game-mode", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-functions-key": SET_GAME_MODE_FUNCTION_KEY },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ gameModeEnabled: next }),
       });
       if (!res.ok) throw new Error(`set-game-mode failed: ${res.status}`);

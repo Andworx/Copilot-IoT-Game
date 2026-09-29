@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { API_BASE_URL } from "./apiConfig";
+import { staffRequest } from "./apiConfig";
 
 interface DeviceProfile {
   id: string;
@@ -72,7 +72,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
   async function createWinRequest(sourceKey = contestSourceKey): Promise<CreateWinResponse> {
     const trimmedDeviceSlug = deviceSlug.trim();
     const trimmedSourceKey = sourceKey.trim();
-    const res = await fetch(`${API_BASE_URL}/api/create-win`, {
+    const res = await staffRequest("/api/create-win", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -95,7 +95,7 @@ export default function SmokeTest({ profiles }: SmokeTestProps) {
     shouldShareInfo: boolean;
   }): Promise<ClaimPrizeResponse> {
     const fullName = [input.firstName.trim(), input.lastName.trim()].filter(Boolean).join(" ");
-    const res = await fetch(`${API_BASE_URL}/api/claim-prize`, {
+    const res = await staffRequest("/api/claim-prize", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -1,4 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { checkInGrandPrizeEntry } from "../lib/dataverse";
 
 interface GrandPrizeCheckInRequestBody {
@@ -33,7 +34,7 @@ export async function grandPrizeCheckIn(
   }
 }
 
-app.http("grand-prize-check-in", {
+registerHttp("grand-prize-check-in", {
   route: "grand-prize/check-in",
   methods: ["POST"],
   authLevel: "anonymous",

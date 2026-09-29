@@ -60,8 +60,6 @@ jobs:
           test -f dist/index.html
       - name: Build Power Apps Code App
         working-directory: power apps/game-box-control
-        env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
         run: |
           npm ci
           npm run build
@@ -99,21 +97,19 @@ jobs:
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_FUNCTIONAPP_NAME: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
+      AZURE_STAFF_FUNCTIONAPP_NAME: ${{ vars.AZURE_STAFF_FUNCTIONAPP_NAME }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
       POWER_PLATFORM_ENVIRONMENT_URL: ${{ vars.POWER_PLATFORM_ENVIRONMENT_URL }}
       POWER_PLATFORM_TENANT_ID: ${{ vars.POWER_PLATFORM_TENANT_ID }}
       POWER_PLATFORM_CLIENT_ID: ${{ vars.POWER_PLATFORM_CLIENT_ID }}
       POWER_PLATFORM_SOLUTION_NAME: ${{ vars.POWER_PLATFORM_SOLUTION_NAME || 'CopilotIoTGame' }}
       POWER_PAGES_WEBSITE_ID: ${{ vars.POWER_PAGES_WEBSITE_ID || '4938f099-b8dd-485f-a5c2-3c4ad4b7e02a' }}
       POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}
-      VITE_SET_MODE_FUNCTION_KEY: ${{ secrets.CODE_APP_SET_MODE_FUNCTION_KEY }}
-      VITE_TOGGLE_DEVICE_FUNCTION_KEY: ${{ secrets.CODE_APP_TOGGLE_DEVICE_FUNCTION_KEY }}
-      VITE_SET_GAME_MODE_FUNCTION_KEY: ${{ secrets.CODE_APP_SET_GAME_MODE_FUNCTION_KEY }}
-      VITE_BULK_CREATE_PRIZES_FUNCTION_KEY: ${{ secrets.CODE_APP_BULK_CREATE_PRIZES_FUNCTION_KEY }}
     steps:
       - name: Validate deployment configuration
         shell: pwsh
         run: |
-          $required = @('AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_SUBSCRIPTION_ID', 'AZURE_FUNCTIONAPP_NAME', 'POWER_PLATFORM_ENVIRONMENT_URL', 'POWER_PLATFORM_TENANT_ID', 'POWER_PLATFORM_CLIENT_ID', 'POWER_PLATFORM_CLIENT_SECRET', 'POWER_PLATFORM_SOLUTION_NAME', 'VITE_SET_MODE_FUNCTION_KEY', 'VITE_TOGGLE_DEVICE_FUNCTION_KEY', 'VITE_SET_GAME_MODE_FUNCTION_KEY', 'VITE_BULK_CREATE_PRIZES_FUNCTION_KEY')
+          $required = @('AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_SUBSCRIPTION_ID', 'AZURE_FUNCTIONAPP_NAME', 'POWER_PLATFORM_ENVIRONMENT_URL', 'POWER_PLATFORM_TENANT_ID', 'POWER_PLATFORM_CLIENT_ID', 'POWER_PLATFORM_CLIENT_SECRET', 'POWER_PLATFORM_SOLUTION_NAME', 'AZURE_STAFF_FUNCTIONAPP_NAME', 'AZURE_RESOURCE_GROUP')
           foreach ($name in $required) {
             if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
               throw "Missing GitHub deployment setting: $name. See docs/CI_CD.md."
@@ -138,6 +134,36 @@ jobs:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Validate staff connector binding
+        shell: pwsh
+        working-directory: power apps/game-box-control
+        run: |
+          node scripts/verify-staff-binding.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Staff connector setup is incomplete; refusing cutover.' }
+      - name: Validate API separation settings
+        shell: pwsh
+        run: |
+          if ($env:AZURE_FUNCTIONAPP_NAME -eq $env:AZURE_STAFF_FUNCTIONAPP_NAME) { throw 'Staff and public API apps must be different.' }
+          foreach ($target in @(@{ Name=$env:AZURE_FUNCTIONAPP_NAME; Surface='public' }, @{ Name=$env:AZURE_STAFF_FUNCTIONAPP_NAME; Surface='staff' })) {
+            $raw = az functionapp config appsettings list --resource-group "$env:AZURE_RESOURCE_GROUP" --name $target.Name --query "[?name=='API_SURFACE' || name=='STAFF_AUTH_TENANT_ID' || name=='STAFF_AUTH_AUDIENCE' || name=='STAFF_AUTH_CLIENT_ID']" -o json
+            if ($LASTEXITCODE -ne 0) { throw 'Could not read required non-secret API configuration.' }
+            $settings = @{}
+            ($raw | ConvertFrom-Json) | ForEach-Object { $settings[$_.name] = $_.value }
+            if ($settings['API_SURFACE'] -ne $target.Surface) { throw "Incorrect API_SURFACE on $($target.Name)." }
+            if ($target.Surface -eq 'staff') {
+              foreach ($key in @('STAFF_AUTH_TENANT_ID', 'STAFF_AUTH_AUDIENCE', 'STAFF_AUTH_CLIENT_ID')) {
+                $parsedId = [guid]::Empty
+                if (-not [guid]::TryParse($settings[$key], [ref]$parsedId)) { throw "Missing or invalid $key on staff API." }
+              }
+            }
+          }
+      - name: Deploy staff Function App
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ vars.AZURE_STAFF_FUNCTIONAPP_NAME }}
+          package: function-artifact/function-app.zip
+          sku: flexconsumption
+          remote-build: false
       - name: Deploy Function App
         uses: Azure/functions-action@v1
         with:
@@ -157,8 +183,6 @@ jobs:
       - name: Build Power Apps Code App for deployment
         shell: pwsh
         working-directory: power apps/game-box-control
-        env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME }}.azurewebsites.net
         run: |
           npm ci
           npm run build

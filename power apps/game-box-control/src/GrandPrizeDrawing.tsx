@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import * as signalR from "@microsoft/signalr";
-import { API_BASE_URL, GRAND_PRIZE_DRAW_FUNCTION_KEY } from "./apiConfig";
+import { staffRequest } from "./apiConfig";
 
 interface DrawingSlice {
   contactId: string;
@@ -158,53 +157,7 @@ export default function GrandPrizeDrawing({ presentationMode = false }: GrandPri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawing, spinning, result]);
 
-  useEffect(() => {
-    if (!presentationMode) return;
 
-    let disposed = false;
-    let retryTimer: ReturnType<typeof setTimeout> | undefined;
-    let failures = 0;
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${API_BASE_URL}/api`, { withCredentials: false })
-      .withAutomaticReconnect({
-        nextRetryDelayInMilliseconds: ({ previousRetryCount }) => [0, 2000, 10000, 30000][Math.min(previousRetryCount, 3)],
-      })
-      .build();
-
-    const applyDrawResult = (data: DrawResult) => {
-      if (disposed) return;
-      setMessage(null);
-      setResult(data);
-      setRevealOpen(false);
-      animateToWinner(data.winnerContactId);
-    };
-
-    async function start() {
-      if (disposed || connection.state !== signalR.HubConnectionState.Disconnected) return;
-      try {
-        await connection.start();
-        failures = 0;
-      } catch {
-        if (!disposed) {
-          const delay = Math.min(30000, 5000 * 2 ** Math.min(failures++, 3));
-          retryTimer = window.setTimeout(() => { void start(); }, delay);
-        }
-      }
-    }
-
-    connection.on("grandPrizeDrawn", applyDrawResult);
-    connection.onclose(() => { if (!disposed) void start(); });
-    void start();
-
-    return () => {
-      disposed = true;
-      window.clearTimeout(retryTimer);
-      connection.off("grandPrizeDrawn", applyDrawResult);
-      void connection.stop().catch(() => {});
-    };
-    // Rebind if the lineup changes so the reveal animates against the latest wheel slices.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presentationMode, slices]);
 
   useEffect(() => {
     if (!presentationMode) return;
@@ -224,8 +177,7 @@ export default function GrandPrizeDrawing({ presentationMode = false }: GrandPri
       setRevealOpen(false);
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/grand-prize/drawing-slices`, {
-        headers: GRAND_PRIZE_DRAW_FUNCTION_KEY ? { "x-functions-key": GRAND_PRIZE_DRAW_FUNCTION_KEY } : undefined,
+      const response = await staffRequest("/api/grand-prize/drawing-slices", {
       });
       if (!response.ok) throw new Error(`drawing-slices failed: ${response.status}`);
       const data = (await response.json()) as DrawingLineupResponse;
@@ -245,8 +197,7 @@ export default function GrandPrizeDrawing({ presentationMode = false }: GrandPri
 
   async function loadDrawingState() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/grand-prize/drawing-state`, {
-        headers: GRAND_PRIZE_DRAW_FUNCTION_KEY ? { "x-functions-key": GRAND_PRIZE_DRAW_FUNCTION_KEY } : undefined,
+      const response = await staffRequest("/api/grand-prize/drawing-state", {
       });
       if (!response.ok) return;
       const data = (await response.json()) as DrawingStateResponse;
@@ -257,7 +208,7 @@ export default function GrandPrizeDrawing({ presentationMode = false }: GrandPri
         animateToWinner(data.result.winnerContactId);
       }
     } catch {
-      // SignalR remains the primary production path; polling is only recovery.
+      // Retry on the next authenticated poll; never fall back to the public API.
     }
   }
 
@@ -267,11 +218,10 @@ export default function GrandPrizeDrawing({ presentationMode = false }: GrandPri
     setResult(null);
     setRevealOpen(false);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/grand-prize/draw`, {
+      const response = await staffRequest("/api/grand-prize/draw", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(GRAND_PRIZE_DRAW_FUNCTION_KEY ? { "x-functions-key": GRAND_PRIZE_DRAW_FUNCTION_KEY } : {}),
         },
         body: JSON.stringify({}),
       });

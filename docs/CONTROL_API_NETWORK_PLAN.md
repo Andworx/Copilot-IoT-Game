@@ -1,6 +1,6 @@
 # Browser control API and private IoT network
 
-Status: design and diagnostic tooling, 2026-09-29. No authentication cutover,
+Status: staff API/connector implementation in progress, 2026-09-29. No live authentication cutover,
 public-access restriction, or gateway deployment is included in this change.
 Network ownership remains in the [network plan](https://github.com/Andworx/copilot-iot-service/pull/207).
 Track authentication implementation and live acceptance in [issue #177](https://github.com/Andworx/Copilot-IoT-Game/issues/177).
@@ -22,9 +22,7 @@ pin a changing public service IP in a hosts file.
 
 Preferred cost-conscious design: a public HTTPS control API with Entra token
 validation and staff authorization, with private outbound access to IoT services.
-This avoids a new API Management resource. Confirmation of the gateway versus
-direct API option remains pending; do not interpret this document as an approved
-cloud purchase or implemented authentication.
+Selected by the owner: separate staff Function App with per-user Entra OAuth custom connector; preserve public Power Pages prize operations. No APIM deployment. See [STAFF_API_SETUP.md](STAFF_API_SETUP.md).
 
 Alternative: a public API Management endpoint validates Entra tokens and calls
 the private Function through a VNet. This must prevent direct backend bypass and
@@ -81,6 +79,8 @@ maintained token-validation library and test key rotation. Log correlation IDs
 and outcomes, not tokens, Function keys or participant data.
 
 ## DNS and rollout
+
+The selected connector executes Azure calls from Power Platform, not from the Code App browser. No router DNS change is needed for staff calls. Keep existing private DNS intact. The direct-browser alternatives below are historical contingency guidance, not the selected implementation. Staff presentation uses authenticated polling instead of direct private SignalR. Follow the current setup runbook for the actual rollout.
 
 1. Capture current router rules and Azure settings before changes. Keep the VPN
    resolver host route and the IoT Hub, Event Hub, SignalR and storage private DNS

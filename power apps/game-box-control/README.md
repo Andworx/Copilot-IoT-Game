@@ -33,17 +33,10 @@ Function. Until those Functions are deployed, the screen shows clearly labeled p
 counts so the visual wheel can be reviewed without exposing participant names or writing
 draw results.
 
-The production drawing flow is built for two devices: an operator device and a display
-device. Normal operator mode keeps the `Run final draw` and `Preview animation` controls
-available to staff. Presentation mode hides those controls entirely and connects to the
-existing Azure SignalR `gamebox` hub through `POST /api/negotiate`; when the Function
-broadcasts `grandPrizeDrawn`, the display spins to the committed winner and opens the
-winner reveal. The display still refreshes the eligible lineup/counts from
-`GET /api/grand-prize/drawing-slices`, so reloads and missed SignalR messages recover from
-server state instead of relying on browser-to-browser communication.
+The staff presentation screen polls authenticated drawing state every five seconds through the Power Apps connector. It never connects directly to the private SignalR endpoint. Kiosk mode updates still use SignalR.
 
 It also includes a Prize Claim smoke-test screen for the shared Prize Claim rollout. The
-screen calls the anonymous `POST /api/create-win` and `POST /api/claim-prize` endpoints,
+screen calls authenticated staff copies of the `POST /api/create-win` and `POST /api/claim-prize` endpoints,
 defaults the contest source key to `demo`, and shows the raw JSON responses so a staff user
 can verify the new Prize Claim, IoT Game Win, Contact, and Grand Prize Entry path quickly.
 For issue #134, this screen also shows a sample of the grand-prize check-in email after
@@ -59,53 +52,42 @@ account to even open it, no PIN system to build or manage, and it's genuine per-
 rather than a shared secret. `DemoGearMenu.tsx` in `copilotiotgame` stays a dev-only
 shortcut, never the production control surface.
 
+## Authentication and setup
+
+All staff operations use the Entra-authenticated custom connector described in
+[STAFF_API_SETUP.md](../../docs/STAFF_API_SETUP.md). The backend requires a valid
+access token, Staff.Access scope, Game.Operator role and the configured connector
+client. Power Apps sharing alone does not grant API access. Each operator creates
+their own OAuth connection; no Function keys are embedded in this app.
+
 ## Local development
 
-```powershell
-npm install
-cp .env.example .env.local   # fill in VITE_SET_MODE_FUNCTION_KEY (az functionapp function keys list --function-name set-mode)
-npm run dev
-```
-
-Runs on port 5174 (5173 is `copilotiotgame`'s, so both can run side by side). Needs
-`http://localhost:5174` in the Function App's CORS allowed origins
-(`az functionapp cors add` — already added for this dev port).
-
-For grand-prize display testing, open the Grand prize workspace and click **Hide menu**.
-That switches the app into presentation mode: the side menu collapses to the gear button,
-operator controls disappear from the display, and the screen listens for the
-`grandPrizeDrawn` SignalR event. Click the gear to return to operator mode and access the
-manual draw/preview controls.
-
-## Known simplification
-
-`set-mode`'s function key ends up in this app's built client bundle (env vars only keep it
-out of source control, not out of shipped JS). Accepted for now because the app itself is
-gated behind Entra ID sign-in once it's a real Code App — the people who can even open it
-are already authorized. The real fix (validating an Entra ID token on the Function side
-instead of a function key) is tracked in `azure/README.md`, not done yet.
+Run `npm ci` and `npm run dev`, then use the Power Apps development host with the
+configured connector. Bare Vite cannot supply the hosted connector context.
+Run `node scripts/verify-staff-binding.mjs` before deploying. Missing bindings
+produce a setup error; there is no direct-fetch or anonymous fallback.
 
 ## Deploying as a Power Apps Code App
 
-This folder is a plain Vite/React/TS app on purpose — `pac code init` and `pac code push`
-add whatever Power Platform-specific config/auth wrapping is needed on top, so there's
-nothing Power-Platform-specific to hand-write here. Exact commands: `PAC_COMMANDS.md` at
-the repo root.
+Use `.github/workflows/deploy-apps.yml`; staff API, public API, Code App and Code
+Site deploy in that order. Preserve the existing app ID and generated connection
+metadata. Never reinitialize the Code App to add a connector. See the setup runbook
+for manual Azure/Power Platform prerequisites and coordinated cutover tests.
 
 ## Structure
 
 ```
 power apps/game-box-control/
 ├── index.html, vite.config.ts, tsconfig.json, package.json
-├── .env.example              # copy to .env.local, fill in the function key
+├── .env.example              # no frontend secrets
 └── src/
     ├── main.tsx
     ├── App.tsx                # workspace navigation + game controls, renders tools
     ├── GrandPrizeCheckIn.tsx  # staff check-in form for emailed grand-prize codes
-    ├── GrandPrizeDrawing.tsx  # weighted wheel, operator controls, SignalR display listener for issue #130
+    ├── GrandPrizeDrawing.tsx  # weighted wheel, operator controls, authenticated presentation polling
     ├── PrizeManagement.tsx    # bulk-create-prizes UI (Prize Management section)
     ├── SmokeTest.tsx          # create-win + claim-prize smoke-test UI, including #134 email preview
-    └── apiConfig.ts           # azure/ Functions base URL + function keys
+    └── apiConfig.ts           # authenticated connector adapter
 ```
 
 ## Staff workspace navigation

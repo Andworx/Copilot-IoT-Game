@@ -205,4 +205,4 @@ Verify: all mode instruments use domain labels/current state, with no physical i
 | Item | Type | Status | Notes |
 |---|---|---|---|
 | Private-network browser API boundary and diagnostics | Design/tooling | ⬜ Verify | [Control API network plan](../docs/CONTROL_API_NETWORK_PLAN.md); manual networking reported working, hosted Code App still needs API/DNS cutover validation. |
-| Entra staff authorization and client credential removal | Security | ⬜ TODO | Choose direct public API versus gateway; validate token acquisition, enforce API audience/issuer/permissions, remove bundled keys, preserve kiosk and public claims, test before cutover. |
+| Entra staff authorization and client credential removal | Security | ⬜ TODO | Selected separate staff API + per-user Entra connector. Token validation, route separation and client migration implemented on feature branch; manual Azure/connector setup, generated bindings and live cutover still pending. See docs/STAFF_API_SETUP.md and #177. |

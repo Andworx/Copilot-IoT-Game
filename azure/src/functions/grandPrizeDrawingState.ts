@@ -1,4 +1,5 @@
-import { app, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getGrandPrizeDrawingState } from "../lib/dataverse";
 
 /**
@@ -17,9 +18,9 @@ export async function grandPrizeDrawingState(
   }
 }
 
-app.http("grand-prize-drawing-state", {
+registerHttp("grand-prize-drawing-state", {
   route: "grand-prize/drawing-state",
   methods: ["GET"],
-  authLevel: "function",
+  authLevel: "anonymous",
   handler: grandPrizeDrawingState,
 });

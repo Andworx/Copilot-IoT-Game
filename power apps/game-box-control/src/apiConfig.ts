@@ -1,37 +1,59 @@
-/**
- * Base URL of the azure/ Functions backend. Not a secret -- overridable via
- * VITE_API_BASE_URL for local dev, defaults to the deployed Function App.
- */
-export const API_BASE_URL =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
-  "https://func-aw-azcom-iot-game.azurewebsites.net";
+import { getClient } from "@microsoft/power-apps/data";
 
-/**
- * set-mode's function key. This DOES end up in the built client bundle --
- * env vars only keep it out of source control, not out of shipped JS. Fine
- * as a stopgap since this app is itself gated behind Entra ID sign-in (the
- * whole reason it's a Code App and not embedded in the public kiosk SPA),
- * but the real fix is validating an Entra ID token on the Function side
- * instead of a function key -- tracked in azure/README.md, not done yet.
- */
-export const SET_MODE_FUNCTION_KEY = (import.meta.env.VITE_SET_MODE_FUNCTION_KEY as string | undefined) ?? "";
+/** Operation IDs must match the staff custom connector's OpenAPI definition. */
+export const staffOperations: Record<string, string> = {
+  "GET /api/device-profiles": "GetDeviceProfiles",
+  "GET /api/kiosk-state": "GetKioskState",
+  "POST /api/set-mode": "SetMode",
+  "POST /api/toggle-device": "ToggleDevice",
+  "POST /api/set-game-mode": "SetGameMode",
+  "GET /api/prize-types": "GetPrizeTypes",
+  "GET /api/prize-count": "GetPrizeCount",
+  "POST /api/bulk-create-prizes": "BulkCreatePrizes",
+  "POST /api/grand-prize/check-in": "GrandPrizeCheckIn",
+  "GET /api/grand-prize/drawing-slices": "GetDrawingSlices",
+  "GET /api/grand-prize/drawing-state": "GetDrawingState",
+  "POST /api/grand-prize/draw": "DrawGrandPrize",
+  "POST /api/create-win": "CreateTestWin",
+  "POST /api/claim-prize": "ClaimTestPrize",
+};
 
-/** toggle-device's function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
-export const TOGGLE_DEVICE_FUNCTION_KEY =
-  (import.meta.env.VITE_TOGGLE_DEVICE_FUNCTION_KEY as string | undefined) ?? "";
+type Sources = Parameters<typeof getClient>[0];
+// PAC generates this metadata when the real OAuth connector is added. PR builds
+// can run without bindings; deployment preflight must reject missing bindings.
+// There is deliberately no direct-fetch or Function-key fallback.
+const generated = import.meta.glob<{ dataSourcesInfo: Sources }>(
+  "../.power/schemas/appschemas/dataSourcesInfo.ts", { eager: true },
+);
+let binding: { client: ReturnType<typeof getClient>; tableName: string } | undefined;
 
-/** set-game-mode's function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
-export const SET_GAME_MODE_FUNCTION_KEY =
-  (import.meta.env.VITE_SET_GAME_MODE_FUNCTION_KEY as string | undefined) ?? "";
+function staffBinding() {
+  if (binding) return binding;
+  const sources = Object.values(generated)[0]?.dataSourcesInfo;
+  const candidates = Object.entries(sources ?? {}).filter(([, source]) =>
+    Object.values(staffOperations).every(operation => operation in source.apis),
+  );
+  if (!sources || candidates.length !== 1) {
+    throw new Error("The staff connection is not configured. Ask the app administrator to finish setup.");
+  }
+  binding = { client: getClient(sources), tableName: candidates[0][0] };
+  return binding;
+}
 
-/** bulk-create-prizes's function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
-export const BULK_CREATE_PRIZES_FUNCTION_KEY =
-  (import.meta.env.VITE_BULK_CREATE_PRIZES_FUNCTION_KEY as string | undefined) ?? "";
-
-/** Grand-prize drawing function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
-export const GRAND_PRIZE_DRAW_FUNCTION_KEY =
-  (import.meta.env.VITE_GRAND_PRIZE_DRAW_FUNCTION_KEY as string | undefined) ?? "";
-
-/** Grand-prize check-in function key. Same posture/caveat as SET_MODE_FUNCTION_KEY above. */
-export const GRAND_PRIZE_CHECK_IN_FUNCTION_KEY =
-  (import.meta.env.VITE_GRAND_PRIZE_CHECK_IN_FUNCTION_KEY as string | undefined) ?? "";
+/** OAuth tokens are handled by the Power Apps connection, never shipped in JS. */
+export async function staffRequest(path: string, init: RequestInit = {}): Promise<Response> {
+  const operationName = staffOperations[`${init.method ?? "GET"} ${path}`];
+  if (!operationName) throw new Error("Unsupported staff operation.");
+  const { client, tableName } = staffBinding();
+  const result = await client.executeAsync<{ body?: unknown }, unknown>({
+    connectorOperation: {
+      tableName, operationName,
+      parameters: init.body ? { body: JSON.parse(String(init.body)) } : {},
+    },
+  });
+  if (!result.success) {
+    // Connector errors can contain URLs or participant data; do not echo them.
+    throw new Error("The staff request failed. Check your connection and operator access, then try again.");
+  }
+  return new Response(JSON.stringify(result.data ?? null), { headers: { "Content-Type": "application/json" } });
+}

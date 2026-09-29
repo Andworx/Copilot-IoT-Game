@@ -41,8 +41,8 @@ credential and branch gates, not separate deployment targets.
    all apps and retain deployment artifacts for 14 days. Documentation-only
    pushes do not deploy.
 3. `Deploy production apps` uses the `production` environment, checks required
-   settings, authenticates, deploys the Function App, rebuilds and pushes the
-   Game Box Control Code App with protected production function-key secrets, then
+   settings, authenticates, deploys the staff Function App then the public Function App, rebuilds and pushes the
+   Game Box Control Code App with its OAuth connector binding, then
    uploads the Code Site. The Function ZIP contains only host/package metadata,
    compiled code, and production dependencies.
 4. Validate the live kiosk and backend, then update related plan items from Verify
@@ -80,16 +80,7 @@ user with permissions to upload the site and push the Code App; the backend's
 runtime identity, which only accesses game tables, is not sufficient. Rotate
 this secret when needed.
 
-Create these additional `production` **environment secrets** for the deployed
-Game Box Control bundle. They are Vite inputs and are intentionally client-side
-stopgap values until the Function App validates Entra ID tokens directly:
-
-| Secret | Purpose |
-|---|---|
-| `CODE_APP_SET_MODE_FUNCTION_KEY` | Function key for `POST /api/set-mode` |
-| `CODE_APP_TOGGLE_DEVICE_FUNCTION_KEY` | Function key for `POST /api/toggle-device` |
-| `CODE_APP_SET_GAME_MODE_FUNCTION_KEY` | Function key for `POST /api/set-game-mode` |
-| `CODE_APP_BULK_CREATE_PRIZES_FUNCTION_KEY` | Function key for `POST /api/bulk-create-prizes` |
+The Code App now uses a per-user OAuth custom connector. No Function-key secrets are injected into its build. Set `AZURE_STAFF_FUNCTIONAPP_NAME` and `AZURE_RESOURCE_GROUP` repository variables, grant the deployment identity Website Contributor on the new staff app, and complete [STAFF_API_SETUP.md](STAFF_API_SETUP.md) before merging this cutover. Deployment preflight requires connector metadata and the correct API_SURFACE/authentication settings. Remove legacy CODE_APP_*_FUNCTION_KEY secrets and rotate previously exposed keys after acceptance.
 
 The workflow authenticates PAC with `--url` instead of `--environment` for the
 service-principal profile. `--environment` causes PAC to query the Business
@@ -122,10 +113,7 @@ provision resources or publish `local.settings.json`. The deploy job uses the
 prebuilt zip package with `sku: flexconsumption` and `remote-build: false`; do
 not add the legacy `SCM_DO_BUILD_DURING_DEPLOYMENT` app setting to the Flex
 Consumption app. Configure CORS for the public Power Pages and Code App origins.
-The frontends' `VITE_API_BASE_URL` is derived from the Function App name at
-build time and is not secret. The Code App function-key values are stored as
-GitHub environment secrets only to keep them out of source control; they still
-become client-visible after the Vite build and remain a temporary stopgap.
+Power Pages keeps its existing `VITE_API_BASE_URL`. The Code App uses the connector, with no direct Azure URL or client-bundled credentials.
 
 The Power Platform environment must have the intended Game Box Control Code App
 initialized with `power.config.json`; the workflow runs `pac code push

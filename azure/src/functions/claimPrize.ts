@@ -1,4 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { claimGameWin, ClaimError } from "../lib/dataverse";
 
 interface ClaimPrizeRequestBody {
@@ -63,7 +64,7 @@ export async function claimPrize(
   }
 }
 
-app.http("claim-prize", {
+registerHttp("claim-prize", {
   route: "claim-prize",
   methods: ["POST"],
   authLevel: "anonymous",
