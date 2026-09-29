@@ -1,8 +1,9 @@
 # Restore staff controls with a separate authenticated API
 
-Status: implementation in progress; no production cutover yet. Operator requested
-manual Portal setup. Track [#177](https://github.com/Andworx/Copilot-IoT-Game/issues/177).
-Do not merge/deploy until the prerequisites below are complete. The existing app
+Status: implementation in progress; no production cutover yet. Entra and connector
+setup remains guided in the Portal; the owner requested automatic Function provisioning
+on the next main release. Track [#177](https://github.com/Andworx/Copilot-IoT-Game/issues/177).
+See [wiring and recorded progress](STAFF_API_WIRING.md). The existing app
 continues serving Power Pages and kiosk operations; the new app serves staff only.
 Both run the same package with different `API_SURFACE` settings.
 
@@ -34,10 +35,12 @@ Record its expiry and a rotation reminder privately.
 
 ## 3. Separate staff Function App
 
-In the existing Azure resource group create a new Linux Node 22 **Flex Consumption**
-Function App (proposed name `func-aw-azcom-iot-staff`, subject to availability).
-Use the existing region and a dedicated storage account. No always-ready instances
-are required for this demo. This adds consumption/storage cost, not an APIM fee.
+Do not create this app manually. `deploy-apps.yml` runs
+`infra/scripts/Deploy-StaffApi.ps1 -Mode Deploy` to preview and provision
+`infra/staff-api.bicep` using `infra/staff-api.prod.json`. This creates Linux Node 22
+**Flex Consumption** app `func-aw-azcom-iot-staff`, its FC1 plan and dedicated
+`stawazcomiotstafffn` storage (names subject to availability). No always-ready
+instances are configured. This adds consumption/storage cost, not an APIM fee.
 Record the actual hostname returned by Azure, which may include a unique suffix;
 do not assume it is `<name>.azurewebsites.net`.
 
@@ -48,13 +51,13 @@ SignalR. Preserve existing VNet DNS links and router forwarding rules. The Code
 App calls the connector service, so its browser no longer resolves the staff
 Function or connects directly to private SignalR.
 
-Configure only required runtime settings, using the same approved Dataverse
-application permissions as the existing backend initially. Copy secrets privately
-through the Portal; do not export them into the repo. See `azure/src/lib/dataverse.ts`
-for the current required Dataverse setting names, including PrizeEngine settings.
-Retain its own AzureWebJobsStorage/deployment storage configuration. Set the
-SignalR connection setting needed for staff mode-change broadcasts. Do not copy
-Event Hub consumer settings: the staff app must not run the telemetry trigger.
+ARM reads an explicit allowlist of Dataverse, SignalR and monitoring settings from
+the existing game app; no manual secret copying is needed. Values are not printed
+or written to runner files. The new app uses its own key-based host/deployment
+storage, matching the existing Flex deployment model. Its system identity is not
+currently used for Dataverse or storage authentication. Event Hub and Direct Line
+settings are excluded, and only the public API surface registers telemetry.
+See the wiring document for the exact allowlist and permissions.
 
 | Setting | Existing game app | New staff app |
 |---|---|---|
@@ -81,7 +84,7 @@ Save, copy its redirect URI into the connector registration, and finish security
 configuration with the secret kept only in Power Platform.
 
 Create your own OAuth connection and consent. Test `GetKioskState` after the staff
-package has been deployed in step 5; the empty Function App cannot serve it yet. Share the
+bootstrap release in step 5. Share the
 connector and Code App with intended staff; each operator uses their own identity
 and assigned API role. Check DLP/connector policies if the environment blocks it.
 Do not select an on-premises data gateway.
@@ -103,17 +106,25 @@ layout, update the adapter based on actual generated output rather than guessing
 
 ## 5. CI/CD cutover
 
-Use `.github/workflows/deploy-apps.yml` only. Set repository variables
-`AZURE_STAFF_FUNCTIONAPP_NAME` and `AZURE_RESOURCE_GROUP`. Assign the existing
-GitHub deployment identity Website Contributor on the new staff app only.
-Preserve its existing game app scope and OIDC configuration.
+Use `.github/workflows/deploy-apps.yml` only. Before its first release, an IAM
+administrator must grant the existing GitHub identity the reviewed provisioning
+role; see [the one-time command and its scope](STAFF_API_WIRING.md#deployment-access).
+The identity cannot grant itself that permission. Preserve its OIDC configuration.
 
-The workflow validates real connector bindings and API surface settings before
-deploying. It deploys the staff app first, then the existing public app, then the
-Code App and Power Pages. Staff-only routes are absent from the public app after
-the new package is deployed. Do not merge this change until configuration and
-bindings are ready: this is a coordinated release, not an automatic fallback to
-old browser keys. Remove the old `CODE_APP_*_FUNCTION_KEY` GitHub secrets and
+1. Leave `STAFF_API_CUTOVER_READY` unset or `false`. Merge through a PR. The next
+   main release previews/provisions the staff resources, deploys staff code and
+   requires an unauthenticated request to return 401. It does not release the
+   existing game app, Code App or Power Pages while this bootstrap flag is false.
+2. Use the actual hostname in the job summary to finish the connector, operator
+   role assignment, per-user connection and generated PAC binding. Commit the
+   non-secret generated binding through a PR and validate it locally.
+3. Set repository variable `STAFF_API_CUTOVER_READY=true` only when ready for the
+   coordinated cutover. The next main release requires the real connector binding,
+   deploys staff first, sets `API_SURFACE=public` on the existing game app, deploys
+   that app, then the Code App and Power Pages. Subsequent releases retain this order.
+
+Staff-only routes are absent from the public app after cutover. Remove the old
+`CODE_APP_*_FUNCTION_KEY` GitHub secrets and
 rotate exposed keys after successful cutover and any other callers are migrated.
 
 ## 6. Acceptance and rollback
@@ -132,7 +143,7 @@ rotate exposed keys after successful cutover and any other callers are migrated.
 - Check the actual deployed artifact and pipeline run; a passing build is not live
   acceptance. Keep plan entries Verify until these results are captured.
 
-If setup is incomplete, do not deploy. If a cutover fails, prefer fixing connector
+If connector setup is incomplete, keep cutover disabled. If a cutover fails, prefer fixing connector
 or identity configuration while preserving the authorization boundary. A rollback
 to the old package reintroduces legacy staff routes and exposed browser keys;
 that requires an explicit decision, not an automatic fallback. Keep public prize

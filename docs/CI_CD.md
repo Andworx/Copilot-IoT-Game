@@ -7,7 +7,7 @@ Two workflows release this repo:
   `CopilotIoTGame`). It deploys automatically when a relevant change merges to `main`.
 - `.github/workflows/deploy-infra.yml` manages the Azure resources in `infra/` (Event Hub,
   SignalR, and the Function App's access to the hub). It only runs on request, and every
-  Azure-touching job is manual, read-only, or scheduled drift detection.
+  Azure-touching job is manual, read-only, or scheduled drift detection. The separate staff app template is the owner-authorized exception: the application workflow provisions it automatically; see [staff wiring](STAFF_API_WIRING.md).
 
 Other site folders, Dataverse solutions, flows, and the Pi firmware are outside both workflows.
 
@@ -41,9 +41,9 @@ credential and branch gates, not separate deployment targets.
    all apps and retain deployment artifacts for 14 days. Documentation-only
    pushes do not deploy.
 3. `Deploy production apps` uses the `production` environment, checks required
-   settings, authenticates, deploys the staff Function App then the public Function App, rebuilds and pushes the
+   settings, authenticates, previews/provisions and deploys the staff Function App. With `STAFF_API_CUTOVER_READY=true`, it then deploys the public Function App, rebuilds and pushes the
    Game Box Control Code App with its OAuth connector binding, then
-   uploads the Code Site. The Function ZIP contains only host/package metadata,
+   uploads the Code Site. With the flag unset/false, only the staff backend is released; existing app releases are held while connector setup finishes. The Function ZIP contains only host/package metadata,
    compiled code, and production dependencies.
 4. Validate the live kiosk and backend, then update related plan items from Verify
    to Done. A successful upload alone does not prove the application works.
@@ -80,7 +80,7 @@ user with permissions to upload the site and push the Code App; the backend's
 runtime identity, which only accesses game tables, is not sufficient. Rotate
 this secret when needed.
 
-The Code App now uses a per-user OAuth custom connector. No Function-key secrets are injected into its build. Set `AZURE_STAFF_FUNCTIONAPP_NAME` and `AZURE_RESOURCE_GROUP` repository variables, grant the deployment identity Website Contributor on the new staff app, and complete [STAFF_API_SETUP.md](STAFF_API_SETUP.md) before merging this cutover. Deployment preflight requires connector metadata and the correct API_SURFACE/authentication settings. Remove legacy CODE_APP_*_FUNCTION_KEY secrets and rotate previously exposed keys after acceptance.
+The Code App uses a per-user OAuth custom connector; no Function keys are injected into its build. Staff resource names and Entra IDs come from `infra/staff-api.prod.json`. An IAM administrator must first run the reviewed [deployment access bootstrap](STAFF_API_WIRING.md#deployment-access); the existing deployment identity cannot provision these resources yet. Leave repository variable `STAFF_API_CUTOVER_READY` unset/false for the staff-only bootstrap release. Complete [STAFF_API_SETUP.md](STAFF_API_SETUP.md), commit the actual connector binding, then set the flag true for coordinated cutover. The workflow requires an unauthenticated staff request to return 401 before advancing. Remove legacy CODE_APP_*_FUNCTION_KEY secrets and rotate previously exposed keys after acceptance.
 
 The workflow authenticates PAC with `--url` instead of `--environment` for the
 service-principal profile. `--environment` causes PAC to query the Business
@@ -219,7 +219,7 @@ write access to it. See [`infra/README.md`](../infra/README.md) for why.
 | Manual, `action = drift`, and every Monday 13:00 UTC | `validate`, then two jobs: `drift` (`what-if` must show no Create/Modify/Delete; changes nothing) and `snapshots` (each snapshot in `infra/reference/` must match live) | `drift`: `infra-deploy`; `snapshots`: `infra-readonly` |
 | Manual, `action = deploy`, from `main` only | `validate`, then `deploy`: assign the game Function App a managed identity, deploy `main.bicep` (incremental), merge the telemetry settings, re-check snapshots | `infra-deploy` (`main` only) |
 
-Nothing deploys automatically. Merging an infra change does not change Azure until someone runs
+This shared-infrastructure workflow never deploys automatically. The staff-only template is released separately by deploy-apps.yml. Merging other infra changes does not change Azure until someone runs
 `deploy`.
 
 ### GitHub environments, Azure identities, and permissions

@@ -22,7 +22,7 @@ pin a changing public service IP in a hosts file.
 
 Preferred cost-conscious design: a public HTTPS control API with Entra token
 validation and staff authorization, with private outbound access to IoT services.
-Selected by the owner: separate staff Function App with per-user Entra OAuth custom connector; preserve public Power Pages prize operations. No APIM deployment. See [STAFF_API_SETUP.md](STAFF_API_SETUP.md).
+Selected by the owner: separate staff Function App with per-user Entra OAuth custom connector; preserve public Power Pages prize operations. No APIM deployment. See [STAFF_API_SETUP.md](STAFF_API_SETUP.md) and [recorded wiring/status](STAFF_API_WIRING.md). The owner requested staff Function provisioning through the next main app release; Entra/connector setup remains guided. Bootstrap releases hold existing apps until the connector cutover flag is enabled.
 
 Alternative: a public API Management endpoint validates Entra tokens and calls
 the private Function through a VNet. This must prevent direct backend bypass and

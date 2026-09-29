@@ -10,6 +10,10 @@ panel Pi ─► IoT Hub ─► route ─► Event Hub ─► game Function App �
                                 iot-telemetry  iot-game
 ```
 
+## Staff API release exception
+
+The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They create only the staff app, plan and dedicated storage and join the existing integration subnet. They do not replay `main.bicep` or adopt the manually built network. The historical reference-only rows below describe the two existing apps, not this new third app. See [wiring, IAM bootstrap and release stages](../docs/STAFF_API_WIRING.md).
+
 ## What is managed how
 
 | Tier | Resources | How | Why |

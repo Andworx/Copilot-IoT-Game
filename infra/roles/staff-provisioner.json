@@ -1,0 +1,30 @@
+{
+  "Name": "Copilot IoT Staff Provisioner",
+  "Description": "Provision staff Flex app, plan and storage through the production workflow. Resource-group scoped; no IoT Hub, DPS, Event Hubs or SignalR writes, no IAM writes.",
+  "IsCustom": true,
+  "Actions": [
+    "Microsoft.Resources/subscriptions/resourceGroups/read",
+    "Microsoft.Resources/resources/read",
+    "Microsoft.Resources/deployments/*",
+    "Microsoft.Web/sites/*",
+    "Microsoft.Web/serverfarms/read",
+    "Microsoft.Web/serverfarms/write",
+    "Microsoft.Web/serverfarms/join/action",
+    "Microsoft.Storage/storageAccounts/read",
+    "Microsoft.Storage/storageAccounts/write",
+    "Microsoft.Storage/storageAccounts/listKeys/action",
+    "Microsoft.Storage/storageAccounts/blobServices/read",
+    "Microsoft.Storage/storageAccounts/blobServices/write",
+    "Microsoft.Storage/storageAccounts/blobServices/containers/read",
+    "Microsoft.Storage/storageAccounts/blobServices/containers/write",
+    "Microsoft.Network/virtualNetworks/subnets/read",
+    "Microsoft.Network/virtualNetworks/subnets/join/action"
+  ],
+  "NotActions": [
+    "Microsoft.Web/sites/delete",
+    "Microsoft.Web/sites/slots/delete"
+  ],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": []
+}
