@@ -11,108 +11,27 @@ param apiClientId string
 param connectorClientId string
 param staffExists bool = false
 
-var apiVersion = '2024-04-01'
-var ownerTags = { application: 'CopilotIoTGame', component: 'staff-api', managedBy: 'deploy-apps' }
-// Evaluated within ARM, never exported to a runner file, command argument or output.
-var sourceSettings = list(resourceId('Microsoft.Web/sites/config', sourceFunctionAppName, 'appsettings'), apiVersion).properties
+// Read before entering the deployment that writes this site. Reading and writing
+// the same site in one template creates a circular dependency on repeat releases.
 var previousSettings = staffExists
-  ? list(resourceId('Microsoft.Web/sites/config', functionAppName, 'appsettings'), apiVersion).properties
+  ? list(resourceId('Microsoft.Web/sites/config', functionAppName, 'appsettings'), '2024-04-01').properties
   : {}
-var runtimeNames = [
-  'DATAVERSE_URL'
-  'DATAVERSE_TENANT_ID'
-  'DATAVERSE_CLIENT_ID'
-  'DATAVERSE_CLIENT_SECRET'
-  'AzureSignalRConnectionString'
-  'GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID'
-  'APPLICATIONINSIGHTS_CONNECTION_STRING'
-]
-var inheritedSettings = toObject(filter(runtimeNames, name => contains(sourceSettings, name)), name => name, name => sourceSettings[name])
 
-resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
-  name: storageAccountName
-  location: location
-  tags: ownerTags
-  kind: 'StorageV2'
-  sku: { name: 'Standard_LRS' }
-  properties: {
-    supportsHttpsTrafficOnly: true
-    minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: false
-    // Matches the existing Flex deployment model; never exposed to the frontend.
-    allowSharedKeyAccess: true
-    publicNetworkAccess: 'Enabled'
-  }
-}
-resource blobs 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
-  parent: storage
-  name: 'default'
-}
-resource packageContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
-  parent: blobs
-  name: 'staff-function-package'
-  properties: { publicAccess: 'None' }
-}
-resource plan 'Microsoft.Web/serverfarms@2024-04-01' = {
-  name: '${functionAppName}-plan'
-  location: location
-  tags: ownerTags
-  kind: 'functionapp'
-  sku: { name: 'FC1', tier: 'FlexConsumption' }
-  properties: { reserved: true }
-}
-
-var storageConnection = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};AccountKey=${storage.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
-var managedSettings = {
-  AzureWebJobsStorage: storageConnection
-  DEPLOYMENT_STORAGE_CONNECTION_STRING: storageConnection
-  API_SURFACE: 'staff'
-  STAFF_AUTH_TENANT_ID: tenantId
-  STAFF_AUTH_AUDIENCE: apiClientId
-  STAFF_AUTH_CLIENT_ID: connectorClientId
-}
-
-resource staff 'Microsoft.Web/sites@2024-04-01' = {
-  name: functionAppName
-  location: location
-  tags: ownerTags
-  kind: 'functionapp,linux'
-  identity: { type: 'SystemAssigned' }
-  properties: {
-    serverFarmId: plan.id
-    httpsOnly: true
-    publicNetworkAccess: 'Enabled'
-    virtualNetworkSubnetId: integrationSubnetId
-    functionAppConfig: {
-      runtime: { name: 'node', version: '22' }
-      deployment: {
-        storage: {
-          type: 'blobContainer'
-          value: '${storage.properties.primaryEndpoints.blob}${packageContainer.name}'
-          authentication: {
-            type: 'StorageAccountConnectionString'
-            storageAccountConnectionStringName: 'DEPLOYMENT_STORAGE_CONNECTION_STRING'
-          }
-        }
-      }
-      scaleAndConcurrency: {
-        instanceMemoryMB: 2048
-        maximumInstanceCount: 40
-        alwaysReady: []
-      }
-    }
-    siteConfig: {
-      minTlsVersion: '1.2'
-      ftpsState: 'Disabled'
-      appSettings: map(items(union(previousSettings, inheritedSettings, managedSettings)), setting => {
-        name: setting.key
-        value: string(setting.value)
-      })
-    }
+module resources 'modules/staff-resources.bicep' = {
+  name: '${deployment().name}-resources'
+  params: {
+    location: location
+    functionAppName: functionAppName
+    sourceFunctionAppName: sourceFunctionAppName
+    storageAccountName: storageAccountName
+    integrationSubnetId: integrationSubnetId
+    tenantId: tenantId
+    apiClientId: apiClientId
+    connectorClientId: connectorClientId
+    previousSettings: previousSettings
   }
 }
 
-// Only non-secret outputs. Never output app settings or a storage connection string.
-output functionAppName string = staff.name
-output hostName string = staff.properties.defaultHostName
-output functionAppId string = staff.id
+output functionAppName string = resources.outputs.functionAppName
+output hostName string = resources.outputs.hostName
+output functionAppId string = resources.outputs.functionAppId

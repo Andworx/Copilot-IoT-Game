@@ -12,6 +12,7 @@ on:
       - '!power pages/copilotiotgame/.powerpages-site/**'
       - '.github/workflows/deploy-apps.yml'
       - 'infra/staff-api.bicep'
+      - 'infra/modules/staff-resources.bicep'
       - 'infra/staff-api.prod.json'
       - 'infra/scripts/Deploy-StaffApi.ps1'
   workflow_dispatch:

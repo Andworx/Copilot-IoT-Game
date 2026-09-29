@@ -20,13 +20,14 @@ function az {
             if ($staffTestState.scenario -eq 'collision') { $resources += @{type='Microsoft.Web/sites';name=$config.functionAppName;tags=@{}} }
             ConvertTo-Json -InputObject $resources -Depth 4
         }
+        'deployment group validate*' { if ($staffTestState.scenario -eq 'validation-fails') { $global:LASTEXITCODE = 1 } }
         'deployment group what-if*' { if ($staffTestState.scenario -eq 'preview-fails') { $global:LASTEXITCODE = 1 } }
         'deployment group create*' { }
         'deployment group show*' { 'staff.example.invalid' }
         default { throw "Unexpected Azure call: $command" }
     }
 }
-foreach ($case in @('preview', 'deploy', 'wrong-tenant', 'wrong-subnet', 'collision', 'preview-fails')) {
+foreach ($case in @('preview', 'deploy', 'wrong-tenant', 'wrong-subnet', 'collision', 'validation-fails', 'preview-fails')) {
     $staffTestState.scenario = $case
     $staffTestState.calls.Clear()
     $failed = $false
