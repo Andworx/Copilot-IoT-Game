@@ -184,3 +184,8 @@ References: [setup runbook](STAFF_API_SETUP.md), [CI/CD](CI_CD.md),
 - PAC 2.11.2 generated the actual schemas, service/model files and connection reference in `power apps/game-box-control`; all 14 operation IDs are present. Existing Code App ID `36533fcf-1ad1-4891-9e27-82cc3d2f794a` is preserved.
 - Adapter call shape matches the generated service: operation name/table name, POST body under `parameters.body`, and result data returned by the SDK. No browser token, secret or direct-fetch fallback is added.
 - Keep `STAFF_API_CUTOVER_READY=false` until the generated binding is reviewed and the hosted development flow has been checked. A connector-editor 200 proves API access, not the complete hosted Code App flow. Then enable the flag for the coordinated main release and perform the runbook's live acceptance checks.
+## Repeat-deployment correction
+
+Release [36639623856](https://github.com/Andworx/Copilot-IoT-Game/actions/runs/36639623856) failed with InvalidTemplate/circular dependency before code deployment. The bootstrap succeeded, but reading the existing staff settings inside the same template that writes the staff site introduced a self-dependency on subsequent releases. This was a template defect, not a connector-role failure.
+
+The entry template now reads previous settings and passes them as a secure object parameter into `infra/modules/staff-resources.bicep`. Unrelated settings are preserved without returning credentials to the runner. The release script runs ARM validation with output suppressed before the resource-ID-only what-if; a failed validation stops deployment. No additional IAM or networking grant is required for this fix. Hosted Code App acceptance and cutover remain pending until the owner's result is unambiguous.

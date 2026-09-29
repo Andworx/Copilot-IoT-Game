@@ -9,7 +9,7 @@
 .PARAMETER ConfigPath
     Non-secret staff deployment JSON file.
 .PARAMETER Mode
-    Preview (default) only runs what-if. Deploy previews then applies incrementally.
+    Preview (default) validates and runs what-if. Deploy then applies incrementally.
 .EXAMPLE
     ./infra/scripts/Deploy-StaffApi.ps1 -Mode Preview
 #>
@@ -52,6 +52,10 @@ $parameters = @(
     "staffExists=$($staffExists.ToString().ToLowerInvariant())"
 )
 $template = Join-Path $PSScriptRoot '../staff-api.bicep'
+# What-if alone missed the repeat-deployment circular dependency. Suppress the
+# validation response because resolved app settings can contain credentials.
+az deployment group validate --resource-group $config.resourceGroup --name staff-api --template-file $template --parameters @parameters --only-show-errors --output none
+if ($LASTEXITCODE -ne 0) { throw 'Staff template validation failed; no deployment attempted.' }
 Write-Host '[Infra] Previewing only the staff app, plan and dedicated storage.'
 az deployment group what-if --resource-group $config.resourceGroup --name staff-api --template-file $template --parameters @parameters --result-format ResourceIdOnly --no-prompt --only-show-errors
 if ($LASTEXITCODE -ne 0) { throw 'Staff what-if failed; no deployment attempted.' }
