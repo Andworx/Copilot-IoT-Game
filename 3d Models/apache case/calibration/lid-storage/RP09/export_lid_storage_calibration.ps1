@@ -35,6 +35,8 @@ $parts = @{
     'storage_cover_logo' = 'lid_storage_cover_logo.stl'
     'cover_cam_tab' = 'lid_storage_cover_cam_tab.stl'
     'left_design_plate_blank' = 'lid_storage_left_design_plate_blank.stl'
+    'left_design_plate_cloud_base' = 'lid_storage_left_design_plate_cloud_base.stl'
+    'left_design_plate_cloud_artwork' = 'lid_storage_left_design_plate_cloud_artwork.stl'
 }
 
 foreach ($entry in $parts.GetEnumerator()) {
@@ -44,7 +46,9 @@ foreach ($entry in $parts.GetEnumerator()) {
         Tee-Object -FilePath $log
     if ($LASTEXITCODE -ne 0) { throw "OpenSCAD failed for $($entry.Key)" }
     $logText = Get-Content -LiteralPath $log -Raw
-    if ($logText -match 'WARNING|ERROR' -or $logText -notmatch 'Simple:\s+yes') {
+    $requiresSingleSimpleBody = $entry.Key -ne 'left_design_plate_cloud_artwork'
+    if ($logText -match 'WARNING|ERROR' -or
+        ($requiresSingleSimpleBody -and $logText -notmatch 'Simple:\s+yes')) {
         throw "OpenSCAD manifold check failed for $($entry.Key)"
     }
     Copy-Item -LiteralPath $tempStl -Destination (Join-Path $exports $entry.Value) -Force
@@ -61,6 +65,12 @@ $assemblyPreview = Join-Path $exports 'lid_storage_printable_assembly.png'
     --camera='0,-330,320,58,0,0,560' -D 'part="storage_assembly_preview"' `
     -o $assemblyPreview $source
 if ($LASTEXITCODE -ne 0) { throw 'Lid-storage assembly preview render failed' }
+
+$cloudPreview = Join-Path $exports 'lid_storage_left_design_plate_cloud.png'
+& $openscad --imgsize=900,1800 --viewall --autocenter --projection=p `
+    --camera='0,0,260,0,0,0,0' -D 'part="left_design_plate_cloud_preview"' `
+    -o $cloudPreview $source
+if ($LASTEXITCODE -ne 0) { throw 'Left cloud design-plate preview render failed' }
 
 & $python (Join-Path $root 'validate_lid_storage_calibration.py')
 if ($LASTEXITCODE -ne 0) { throw 'Lid-storage calibration validation failed' }

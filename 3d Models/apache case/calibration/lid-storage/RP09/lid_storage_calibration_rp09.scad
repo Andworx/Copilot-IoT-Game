@@ -142,6 +142,7 @@ design_mount_y = [-94, 94];
 design_mount_boss_diameter = 9;
 design_mount_boss_height = 6;
 design_mount_pilot = 4.0;
+cloud_artwork_height = 0.4;
 
 font_bold = "Liberation Sans:style=Bold";
 
@@ -388,6 +389,49 @@ module left_design_plate_blank() {
                 cylinder(h = design_plate_thickness + 0.1,
                          d = cover_hole_diameter);
     }
+}
+
+module cloud_label(value, svg_position, size) {
+    translate([svg_position[0] - design_plate_size[0] / 2,
+               design_plate_size[1] / 2 - svg_position[1]])
+        text(value, size = size, font = font_bold,
+             halign = "center", valign = "baseline");
+}
+
+module left_cloud_artwork_2d() {
+    union() {
+        import("artwork/left_panel_iot_cloud_print_mask.svg", center = true);
+        cloud_label("COPILOT IoT GAME", [42.5, 11.5], 5.2);
+        cloud_label("CONNECTED CLOUD DEMO", [42.5, 17], 2.2);
+        cloud_label("IoT HUB", [61, 31], 2.2);
+        cloud_label("EVENT HUBS", [61, 57], 2.2);
+        cloud_label("AZURE FUNCTIONS", [61, 84], 2.0);
+        cloud_label("SIGNALR", [8, 112], 1.8);
+        cloud_label("DATAVERSE", [77, 112], 1.8);
+        cloud_label("POWER PAGES", [14.5, 166], 1.6);
+        cloud_label("POWER APPS", [42.5, 166], 1.6);
+        cloud_label("COPILOT", [70.5, 165], 1.6);
+        cloud_label("STUDIO", [70.5, 168], 1.6);
+        cloud_label("REAL-TIME  LOW-CODE  AI", [42.5, 176], 2.1);
+        cloud_label("ANDWORX FIELD KIT", [42.5, 185], 3.1);
+    }
+}
+
+module left_design_plate_cloud_base() {
+    left_design_plate_blank();
+}
+
+module left_design_plate_cloud_artwork() {
+    render(convexity = 10)
+        translate([0, 0, design_plate_thickness])
+            linear_extrude(cloud_artwork_height)
+                offset(delta = 0.01)
+                    left_cloud_artwork_2d();
+}
+
+module left_design_plate_cloud_preview() {
+    color([0.05, 0.10, 0.24]) left_design_plate_cloud_base();
+    color([0.96, 0.67, 0.08]) left_design_plate_cloud_artwork();
 }
 
 module rib_envelope_reference() {
@@ -746,5 +790,8 @@ else if (part == "storage_cover_blank") storage_cover_blank();
 else if (part == "storage_cover_logo") storage_cover_logo();
 else if (part == "cover_cam_tab") cover_cam_tab();
 else if (part == "left_design_plate_blank") left_design_plate_blank();
+else if (part == "left_design_plate_cloud_base") left_design_plate_cloud_base();
+else if (part == "left_design_plate_cloud_artwork") left_design_plate_cloud_artwork();
+else if (part == "left_design_plate_cloud_preview") left_design_plate_cloud_preview();
 else if (part == "storage_assembly_preview") storage_assembly_preview();
 else assert(false, str("Unknown part: ", part));

@@ -9,6 +9,10 @@ the printable artwork avoids those locations.
 `left_panel_iot_cloud_preview.png` shows the transparent artwork over a dark
 panel for inspection only. The dark background is not present in the SVG.
 
+`left_panel_iot_cloud_print_mask.svg` is the generated single-colour geometry
+mask used by OpenSCAD for the raised printable artwork STL. It uses the same
+eight approved logo vectors and should not be edited by hand.
+
 The layout reflects the repository's deployed IoT path rather than presenting a
 generic logo grid:
 

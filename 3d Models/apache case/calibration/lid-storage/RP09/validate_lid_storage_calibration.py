@@ -80,6 +80,8 @@ expected = {
     "lid_storage_cover_logo.stl",
     "lid_storage_cover_cam_tab.stl",
     "lid_storage_left_design_plate_blank.stl",
+    "lid_storage_left_design_plate_cloud_base.stl",
+    "lid_storage_left_design_plate_cloud_artwork.stl",
 }
 actual = {path.name for path in EXPORTS.glob("*.stl")}
 assert actual == expected, (sorted(expected - actual), sorted(actual - expected))
@@ -87,7 +89,8 @@ assert actual == expected, (sorted(expected - actual), sorted(actual - expected)
 meshes = {name: validate_mesh(EXPORTS / name) for name in sorted(actual)}
 for name, result in meshes.items():
     if result["connected_bodies"] != 1 and name not in {
-            "andworx_field_kit_logo.stl", "lid_storage_cover_logo.stl"}:
+            "andworx_field_kit_logo.stl", "lid_storage_cover_logo.stl",
+            "lid_storage_left_design_plate_cloud_artwork.stl"}:
         print(json.dumps({"disconnected_mesh": name,
                           "component_bounds": result["component_bounds"]},
                          indent=2))
@@ -95,7 +98,8 @@ for name, result in meshes.items():
     assert result["winding_consistent"], (name, "winding")
     assert result["fits_256mm_bed"], (name, result["bounds_mm"])
     if name not in {"andworx_field_kit_logo.stl",
-                    "lid_storage_cover_logo.stl"}:
+                    "lid_storage_cover_logo.stl",
+                    "lid_storage_left_design_plate_cloud_artwork.stl"}:
         assert result["connected_bodies"] == 1, (name, "not one body")
 
 for name in ("lid_fit_frame_L.stl", "lid_fit_frame_R.stl"):
@@ -124,6 +128,10 @@ assert meshes["lid_storage_cover_cam_tab.stl"]["bounds_mm"] == \
        [10.0, 16.3, 1.6]
 assert meshes["lid_storage_left_design_plate_blank.stl"]["bounds_mm"] == \
        [85.0, 196.0, 1.6]
+assert meshes["lid_storage_left_design_plate_cloud_base.stl"]["bounds_mm"] == \
+       [85.0, 196.0, 1.6]
+assert meshes["lid_storage_left_design_plate_cloud_artwork.stl"]["bounds_mm"][2] == \
+       0.4
 
 report = {
     "revision": "RP09 calibration only",
@@ -155,6 +163,7 @@ report = {
         "seam_tongue_engagement": 20.0,
         "seam_pocket_height": 9.8,
         "left_design_plate": [85.0, 196.0, 1.6],
+        "cloud_artwork_height": 0.4,
         "adapter_length": 45.0,
         "key_length": 34.0,
         "cable_length": 152.4,
