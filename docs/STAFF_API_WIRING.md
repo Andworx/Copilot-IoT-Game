@@ -166,6 +166,12 @@ DPS and legacy `func-aw-iot-copilot`/`stfuncawiotcopilot` were not migrated.
 Storage queue/table/file private endpoints and off-VPN isolation remain unverified.
 The new staff template does not adopt or replay this manually built network.
 
+Read-only inventory on 2026-09-29 captured the network separately in
+[`infra/network`](../infra/network/README.md). The live gateway is Generation2
+with BGP enabled, and the private endpoint subnet is named `private-endpoint`
+(singular). This baseline preserves those settings. Its GitHub action previews
+only; network adoption and service lockdown remain pending.
+
 References: [setup runbook](STAFF_API_SETUP.md), [CI/CD](CI_CD.md),
 [network decision](CONTROL_API_NETWORK_PLAN.md),
 [Microsoft Flex infrastructure guidance](https://learn.microsoft.com/en-us/azure/azure-functions/functions-infrastructure-as-code),

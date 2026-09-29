@@ -132,3 +132,11 @@ has nothing to read.
 - The Function Apps' **application settings** (names only; values are never recorded): see
   `docs/CI_CD.md` and `azure/README.md`. `DIRECTLINE_SECRET` and the Dataverse secret are set
   by hand.
+
+## Captured network baseline
+
+The manually built VNet, VPN, DNS and private endpoints are now recorded separately
+in [infra/network](network/README.md). The Infrastructure workflow has a
+`network-what-if` action; this is preview-only and never runs the older service
+main.bicep. Actual live gateway settings (Generation2, BGP on) and the singular
+`private-endpoint` subnet name supersede earlier planning notes.

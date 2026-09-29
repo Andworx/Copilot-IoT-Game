@@ -400,3 +400,12 @@ recovery/bootstrap work.
 Do not substitute classic `upload-paportal` / `pac pages upload` actions or GitHub
 Pages actions: this repository deploys a Power Pages Code Site and a Power Apps
 Code App.
+
+### Network baseline preview
+
+Use Infrastructure > Run workflow > main > `network-what-if` for the captured
+[network baseline](../infra/network/README.md). PRs compile it without credentials.
+The main-only preview uses the existing infra-deploy identity with ProviderNoRbac;
+it does not require network write grants and does not apply resources. This action
+is separate from the existing service what-if/deploy; no network apply action or
+public-access lockdown is introduced at this stage.

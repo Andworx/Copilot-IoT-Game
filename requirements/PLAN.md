@@ -204,5 +204,5 @@ Verify: all mode instruments use domain labels/current state, with no physical i
 
 | Item | Type | Status | Notes |
 |---|---|---|---|
-| Private-network browser API boundary and diagnostics | Design/tooling | ⬜ Verify | [Control API network plan](../docs/CONTROL_API_NETWORK_PLAN.md); manual networking reported working, hosted Code App still needs API/DNS cutover validation. |
+| Private-network browser API boundary and diagnostics | Design/tooling | ⬜ Verify | Owner confirmed hosted Code App and game controls working after staff connector/status-column fixes. [Network baseline](../infra/network/README.md) captures the live network for preview; adoption, Event Hub lockdown and off-VPN isolation remain pending. |
 | Entra staff authorization and client credential removal | Security | ⬜ TODO | Selected separate staff API + per-user Entra connector. Token validation, route separation and client migration implemented on feature branch; Entra registrations and consent recorded; automated staff provisioning added to app CI. IAM bootstrap, connector setup, generated bindings and live cutover remain pending. See docs/STAFF_API_WIRING.md. See docs/STAFF_API_SETUP.md and #177. |
