@@ -38,3 +38,6 @@ foreach ($case in @('preview', 'deploy', 'wrong-tenant', 'wrong-subnet', 'collis
     if ($writes.Count -ne [int]($case -eq 'deploy')) { throw "Unexpected deployment attempt: $case" }
     Write-Host "PASS $case"
 }
+# The final case intentionally mocks a native exit code of 1. Do not leak that
+# expected failure into GitHub's PowerShell step wrapper after assertions pass.
+$global:LASTEXITCODE = 0
