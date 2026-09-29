@@ -1,0 +1,665 @@
+{
+  "name": "shared_iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9",
+  "id": "/providers/Microsoft.PowerApps/apis/shared_iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9",
+  "type": "Microsoft.PowerApps/apis",
+  "properties": {
+    "displayName": "IoT Game Staff API Connector",
+    "iconUri": "https://defaulticons.powerapps.com/defaulticons/api-dedicated.png",
+    "iconBrandColor": "#007ee5",
+    "contact": {},
+    "license": {},
+    "apiEnvironment": "Shared",
+    "isCustomApi": true,
+    "blobUrisAreProxied": false,
+    "connectionParameters": {
+      "token": {
+        "type": "oauthSetting",
+        "oAuthSettings": {
+          "identityProvider": "aad",
+          "clientId": "5645dd87-3e8f-437b-a1d8-70ed447ad24b",
+          "scopes": [
+            "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access"
+          ],
+          "redirectMode": "GlobalPerConnector",
+          "redirectUrl": "https://global.consent.azure-apim.net/redirect/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9",
+          "properties": {
+            "IsFirstParty": "False",
+            "AzureActiveDirectoryResourceId": "api://00754488-3e99-4b4f-b55d-66cf161182d7",
+            "IsOnbehalfofLoginSupported": true
+          },
+          "customParameters": {
+            "LoginUri": {
+              "value": "https://login.microsoftonline.com"
+            },
+            "TenantId": {
+              "value": "7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8"
+            },
+            "ResourceUri": {
+              "value": "api://00754488-3e99-4b4f-b55d-66cf161182d7"
+            },
+            "EnableOnbehalfOfLogin": {
+              "value": "false"
+            }
+          }
+        },
+        "uiDefinition": {
+          "displayName": "OAuth Connection",
+          "description": "OAuth Connection",
+          "constraints": {
+            "required": "true",
+            "hidden": "false"
+          }
+        }
+      },
+      "token:TenantId": {
+        "type": "string",
+        "metadata": {
+          "sourceType": "AzureActiveDirectoryTenant"
+        },
+        "uiDefinition": {
+          "constraints": {
+            "required": "false",
+            "hidden": "true"
+          }
+        }
+      }
+    },
+    "swagger": {
+      "swagger": "2.0",
+      "info": {
+        "title": "IoT Game Staff API",
+        "description": "Entra-authenticated staff operations. Configure the actual staff Function hostname and OAuth connection before use.",
+        "version": "1.0"
+      },
+      "host": "dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatform.com",
+      "basePath": "/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9/connections/",
+      "schemes": [
+        "https"
+      ],
+      "consumes": [
+        "application/json"
+      ],
+      "produces": [
+        "application/json"
+      ],
+      "paths": {
+        "/{connectionId}/device-profiles": {
+          "get": {
+            "operationId": "GetDeviceProfiles",
+            "summary": "GetDeviceProfiles",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/kiosk-state": {
+          "get": {
+            "operationId": "GetKioskState",
+            "summary": "GetKioskState",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/set-mode": {
+          "post": {
+            "operationId": "SetMode",
+            "summary": "SetMode",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/toggle-device": {
+          "post": {
+            "operationId": "ToggleDevice",
+            "summary": "ToggleDevice",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/set-game-mode": {
+          "post": {
+            "operationId": "SetGameMode",
+            "summary": "SetGameMode",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/prize-types": {
+          "get": {
+            "operationId": "GetPrizeTypes",
+            "summary": "GetPrizeTypes",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/prize-count": {
+          "get": {
+            "operationId": "GetPrizeCount",
+            "summary": "GetPrizeCount",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/bulk-create-prizes": {
+          "post": {
+            "operationId": "BulkCreatePrizes",
+            "summary": "BulkCreatePrizes",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/grand-prize/check-in": {
+          "post": {
+            "operationId": "GrandPrizeCheckIn",
+            "summary": "GrandPrizeCheckIn",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/grand-prize/drawing-slices": {
+          "get": {
+            "operationId": "GetDrawingSlices",
+            "summary": "GetDrawingSlices",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/grand-prize/drawing-state": {
+          "get": {
+            "operationId": "GetDrawingState",
+            "summary": "GetDrawingState",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/grand-prize/draw": {
+          "post": {
+            "operationId": "DrawGrandPrize",
+            "summary": "DrawGrandPrize",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/create-win": {
+          "post": {
+            "operationId": "CreateTestWin",
+            "summary": "CreateTestWin",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/claim-prize": {
+          "post": {
+            "operationId": "ClaimTestPrize",
+            "summary": "ClaimTestPrize",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        }
+      },
+      "definitions": {},
+      "parameters": {},
+      "responses": {},
+      "security": [
+        {
+          "entra": [
+            "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access"
+          ]
+        }
+      ],
+      "tags": [],
+      "securityDefinitions": {
+        "entra": {
+          "type": "oauth2",
+          "flow": "accessCode",
+          "tokenUrl": "https://login.windows.net/common/oauth2/authorize",
+          "scopes": {
+            "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access": "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access"
+          },
+          "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize"
+        }
+      }
+    },
+    "runtimeUrls": [
+      "https://dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatform.com/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9/connections/"
+    ],
+    "primaryRuntimeUrl": "https://dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatform.com/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9/connections/",
+    "doNotUseApiHubNetRuntimeUrl": "https://dd045fe3-6b47-e5bd-87e6-680b3cfd3a09.06.custom.usa002.azure-apihub.net/apim/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9",
+    "metadata": {
+      "source": "powerapps-user-defined",
+      "brandColor": "#007ee5",
+      "contact": {},
+      "license": {},
+      "publisherUrl": null,
+      "serviceUrl": null,
+      "documentationUrl": null,
+      "environmentName": "dd045fe3-6b47-e5bd-87e6-680b3cfd3a09",
+      "xrmConnectorId": null,
+      "almMode": "Environment",
+      "parameters": {},
+      "useNewApimVersion": "True",
+      "createdBy": "{\"id\":\"7fbf89d2-add9-4f92-b782-88e2d0dd7c15\",\"displayName\":\"Ed Williams Labs\",\"email\":\"ed.williams.labs@andworxlabs.com\",\"type\":\"User\",\"userType\":\"NotSpecified\",\"tenantId\":\"7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8\",\"userPrincipalName\":\"ed.williams.labs@andworxlabs.com\"}",
+      "modifiedBy": "{\"id\":\"7fbf89d2-add9-4f92-b782-88e2d0dd7c15\",\"displayName\":\"Ed Williams Labs\",\"email\":\"ed.williams.labs@andworxlabs.com\",\"type\":\"User\",\"userType\":\"NotSpecified\",\"tenantId\":\"7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8\",\"userPrincipalName\":\"ed.williams.labs@andworxlabs.com\"}",
+      "allowSharing": false
+    },
+    "capabilities": [],
+    "description": "Entra-authenticated staff operations. Configure the actual staff Function hostname and OAuth connection before use.",
+    "apiDefinitions": {
+      "originalSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9.json_original?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-09-29T02%3A23%3A52Z&ske=2026-09-30T02%3A23%3A52Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-09-29T22%3A31%3A48Z&sr=b&sp=r&sig=e5CmDMFsa%2B9vOc3bvQ91OxCfvNXpBqxleyCW1hSsqxo%3D",
+      "modifiedSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9.json?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-09-29T02%3A23%3A52Z&ske=2026-09-30T02%3A23%3A52Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-09-29T22%3A31%3A48Z&sr=b&sp=r&sig=hJUHRaY4IAj5Tqpzcgh%2BVJWdkLE3ZZslV%2FGRAi%2F7k2Y%3D"
+    },
+    "policyTemplateInstances": [],
+    "backendService": {
+      "serviceUrl": "https://func-aw-azcom-iot-staff.azurewebsites.net/api"
+    },
+    "createdBy": {
+      "id": "7fbf89d2-add9-4f92-b782-88e2d0dd7c15",
+      "displayName": "Ed Williams Labs",
+      "email": "ed.williams.labs@andworxlabs.com",
+      "type": "User",
+      "userType": "NotSpecified",
+      "tenantId": "7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8",
+      "userPrincipalName": "ed.williams.labs@andworxlabs.com"
+    },
+    "modifiedBy": {
+      "id": "7fbf89d2-add9-4f92-b782-88e2d0dd7c15",
+      "displayName": "Ed Williams Labs",
+      "email": "ed.williams.labs@andworxlabs.com",
+      "type": "User",
+      "userType": "NotSpecified",
+      "tenantId": "7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8",
+      "userPrincipalName": "ed.williams.labs@andworxlabs.com"
+    },
+    "createdTime": "2026-09-29T21:31:09.2300848Z",
+    "changedTime": "2026-09-29T21:31:09.2300848Z",
+    "environment": {
+      "id": "/providers/Microsoft.PowerApps/environments/dd045fe3-6b47-e5bd-87e6-680b3cfd3a09",
+      "name": "dd045fe3-6b47-e5bd-87e6-680b3cfd3a09"
+    },
+    "tier": "Standard",
+    "publisher": "Ed Williams Labs",
+    "almMode": "Environment",
+    "parameters": {},
+    "rateLimit": 0,
+    "apiVersion": "None"
+  }
+}

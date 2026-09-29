@@ -1,6 +1,6 @@
 # Restore staff controls with a separate authenticated API
 
-Status: implementation in progress; no production cutover yet. Entra and connector
+Status: staff backend deployed; owner confirmed connector GetKioskState HTTP 200. Real PAC binding generated in the follow-up PR; hosted Code App cutover still pending. Entra and connector
 setup remains guided in the Portal; the owner requested automatic Function provisioning
 on the next main release. Track [#177](https://github.com/Andworx/Copilot-IoT-Game/issues/177).
 See [wiring and recorded progress](STAFF_API_WIRING.md). The existing app
