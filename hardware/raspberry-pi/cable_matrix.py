@@ -1,14 +1,14 @@
-"""Cable-matrix scanner and decoder for the four panel sockets.
+"""RJ-45 cable-matrix scanner and decoder for the four panel sockets.
 
-Every wired socket contact (config.SOCKET_NODES) has its own GPIO. Cables only
-bridge contacts to each other, nothing is tied to GND. To find the bridges the
-scanner idles every node as an input with a pull-up, drives one node low at a
-time, and reads the rest: any other node that follows it low is wired to it
-through a cable. Only one node is ever driven, and only low, so a mis-plugged
-cable cannot short two outputs together.
+Each RJ-45 panel jack wires only pin 4 to a GPIO. A standard straight-through
+RJ-45 patch cable bridges pin 4 between two ports; nothing is tied to GND. To
+find the bridges the scanner idles every node as an input with a pull-up,
+drives one node low at a time, and reads the rest: any other node that follows
+it low is wired to it through a cable. Only one node is ever driven, and only
+low, so a mis-plugged cable cannot short two outputs together.
 
-Cable identity comes from the five-cable build plan. Only mechanically matching
-ends are considered. Both wires must be visible to identify a cable.
+Cable identity is intentionally generic: any standard patch cable is reported as
+catalog cable 1, and the socket pair is the meaningful part of the recipe.
 """
 import json
 import time
@@ -39,7 +39,7 @@ def _signature(a_socket, b_socket, a_to_b, nodes):
 
 
 def build_signature_table(socket_nodes=None):
-    """Map each fully visible signature to the (cable, socket pair) that makes it.
+    """Map each fully visible signature to the (generic cable, socket pair) that makes it.
 
     Returns (table, ambiguous). `ambiguous` holds signatures two different
     cables would both produce; they are left out of the table.
@@ -125,8 +125,8 @@ class CableMatrix:
     def decode(self, bridges):
         """Turn bridges into ([{"cable", "sockets"}], {socket: plugged}).
 
-        "cable" is None when the bridges match no catalogued cable (a wire
-        missing from the cable, or a cable not in CABLES).
+        "cable" is None when the bridges match no catalogued link. In the
+        RJ-45 design, a recognised link reports cable 1 for any patch cable.
         """
         by_pair = {}
         for bridge in bridges:

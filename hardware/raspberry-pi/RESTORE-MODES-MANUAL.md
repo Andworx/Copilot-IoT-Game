@@ -19,10 +19,10 @@ Use this guide to restore each playable mode on the physical Pi panel. The Power
 | SW4 | Switch 4 | Turn on or off as requested |
 | SW5 | Keyed switch 1 | Turn on or off as requested |
 | SW6 | Keyed switch 2 | Turn on or off as requested |
-| S1 | S1 | Connect a cable or disconnect as requested |
-| S2 | S2 | Connect a cable or disconnect as requested |
-| S3 | S3 | Connect a cable or disconnect as requested |
-| S4 | S4 | Connect a cable or disconnect as requested |
+| S1 | LAN 1 | Connect a cable or disconnect as requested |
+| S2 | LAN 2 | Connect a cable or disconnect as requested |
+| S3 | LAN 3 | Connect a cable or disconnect as requested |
+| S4 | LAN 4 | Connect a cable or disconnect as requested |
 
 ## LED guide
 
@@ -44,16 +44,18 @@ generic step counter.
 
 ## Demo cable build reference
 
-Five cables total, including the already-built Cable 1 and Cable 3. Cable numbers and socket
-pairs must both match the selected mode. Unknown or extra cables prevent a win.
+Use standard straight-through RJ-45 patch cables. Cable identity does not matter;
+the selected mode only cares which S1-S4 socket pairs are connected. Extra
+cables prevent a win.
 
-| Cable | Pinout | Where it plugs |
+| Link | Expected raw bridge | Where it plugs |
 |---|---|---|
-| Cable 1 | Side A Quad Pin 3 - Side B Dual Pin 1<br>Side A Quad Pin 4 - Side B Dual Pin 2 | Side A in S1; Side B in S2/S3 |
-| Cable 2 | Side A Triple Pin 2 - Side B Dual Pin 1<br>Side A Triple Pin 3 - Side B Dual Pin 2 | Side A in S4; Side B in S2/S3 |
-| Cable 3 | Side A Quad Pin 2 - Side B Triple Pin 2<br>Side A Quad Pin 3 - Side B Triple Pin 3 | Side A in S1; Side B in S4 |
-| Cable 4 | Side A Quad Pin 1 - Side B Dual Pin 1<br>Side A Quad Pin 2 - Side B Dual Pin 2 | Side A in S1; Side B in S2/S3 |
-| Cable 5 | Side A Dual Pin 1 - Side B Dual Pin 1<br>Side A Dual Pin 2 - Side B Dual Pin 2 | S2 to S3, reversible |
+| LAN 1-LAN 2 | S1 pin 4 - S2 pin 4 | Any RJ-45 patch cable between LAN 1 and LAN 2 |
+| LAN 1-LAN 3 | S1 pin 4 - S3 pin 4 | Any RJ-45 patch cable between LAN 1 and LAN 3 |
+| LAN 1-LAN 4 | S1 pin 4 - S4 pin 4 | Any RJ-45 patch cable between LAN 1 and LAN 4 |
+| LAN 2-LAN 3 | S2 pin 4 - S3 pin 4 | Any RJ-45 patch cable between LAN 2 and LAN 3 |
+| LAN 2-LAN 4 | S2 pin 4 - S4 pin 4 | Any RJ-45 patch cable between LAN 2 and LAN 4 |
+| LAN 3-LAN 4 | S3 pin 4 - S4 pin 4 | Any RJ-45 patch cable between LAN 3 and LAN 4 |
 
 ## Before each run
 
@@ -73,7 +75,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S2
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 2
 8. Remove all other cables
 
 **Success check:** Smart Thermostat restored.
@@ -88,8 +90,8 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 on
-7. Connect Cable 3 Side A (quad) to S1 and Side B (triple) to S4
-8. Connect Cable 5 between S2 and S3 (reversible; either side can go into either socket)
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 4
+8. Connect an RJ-45 patch cable between LAN 2 and LAN 3
 9. Remove all other cables
 
 **Success check:** Smart Lock & Security Panel restored.
@@ -104,7 +106,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 off
-7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S3
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 3
 8. Remove all other cables
 
 **Success check:** Cold-Chain Warehouse Sensor restored.
@@ -119,8 +121,8 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 4 Side A (quad) to S1 and Side B (dual) to S2
-8. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S3
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 2
+8. Connect an RJ-45 patch cable between LAN 4 and LAN 3
 9. Remove all other cables
 
 **Success check:** Water Pump Station Controller restored.
@@ -135,7 +137,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S2
+7. Connect an RJ-45 patch cable between LAN 4 and LAN 2
 8. Remove all other cables
 
 **Success check:** Tactical Field Radio restored.
@@ -150,8 +152,8 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S2
-8. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S3
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 2
+8. Connect an RJ-45 patch cable between LAN 4 and LAN 3
 9. Remove all other cables
 
 **Success check:** Smart EV Charger restored.
@@ -166,7 +168,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 4 Side A (quad) to S1 and Side B (dual) to S2
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 2
 8. Remove all other cables
 
 **Success check:** Elevator Control Panel restored.
@@ -181,8 +183,8 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S3
-8. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S2
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+8. Connect an RJ-45 patch cable between LAN 4 and LAN 2
 9. Remove all other cables
 
 **Success check:** Traffic Signal Controller restored.
@@ -197,7 +199,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 off
-7. Connect Cable 4 Side A (quad) to S1 and Side B (dual) to S3
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 3
 8. Remove all other cables
 
 **Success check:** Hospital Patient Monitor restored.
@@ -212,7 +214,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 5 between S2 and S3 (reversible; either side can go into either socket)
+7. Connect an RJ-45 patch cable between LAN 2 and LAN 3
 8. Remove all other cables
 
 **Success check:** Retail Payment Kiosk restored.
@@ -227,7 +229,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 on
 5. Turn Keyed switch 1 off
 6. Turn Keyed switch 2 on
-7. Connect Cable 3 Side A (quad) to S1 and Side B (triple) to S4
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 4
 8. Remove all other cables
 
 **Success check:** Drone Ground Control restored.
@@ -242,7 +244,7 @@ pairs must both match the selected mode. Unknown or extra cables prevent a win.
 4. Turn Switch 4 off
 5. Turn Keyed switch 1 on
 6. Turn Keyed switch 2 on
-7. Connect Cable 2 Side A (triple) to S4 and Side B (dual) to S3
+7. Connect an RJ-45 patch cable between LAN 4 and LAN 3
 8. Remove all other cables
 
 **Success check:** Industrial Robot Arm restored.

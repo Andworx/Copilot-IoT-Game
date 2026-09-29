@@ -20,7 +20,7 @@ try {
     page.on("pageerror", error => errors.push(error.message));
     const send = (name, value) => socket.send(JSON.stringify({ type: 1, target: name, arguments: [value] }) + "\x1e");
     const telemetry = (slug, controls, overrides = {}) => send("SendTelemetryUpdate", { data: {
-      deviceSlug: slug, controls, cables: map(slug).requiredCables, cableSchema: "panel-cable-build/v1",
+      deviceSlug: slug, controls, cables: map(slug).requiredCables, cableSchema: "panel-rj45-links/v1",
       win: map(slug).restoreSequence.every(c => controls[c.key] === c.target), ...overrides,
     }, deviceId: "fixture-panel" });
     // Intercept both HTTP and WebSocket traffic: no production services are contacted.

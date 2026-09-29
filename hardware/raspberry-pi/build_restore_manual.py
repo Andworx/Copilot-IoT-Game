@@ -15,8 +15,6 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE.parents[1] / 'output' / 'pdf' / 'RESTORE-MODES-MANUAL.pdf'
 SOURCE = (HERE / 'RESTORE-MODES-MANUAL.md').read_text(encoding='utf-8')
 BUILD_PLAN = json.loads((HERE / 'cable-build-plan.json').read_text(encoding='utf-8'))
-CABLES = {c['id']: c for c in BUILD_PLAN['cables']}
-SOCKET_TYPES = BUILD_PLAN['socketTypes']
 INK = colors.HexColor('#202932')
 GRAY = colors.HexColor('#eef0f2')
 styles = {
@@ -48,10 +46,13 @@ def table(rows, widths, row_height=None):
 def is_socket_pin(pin):
     return re.match(r'^S[1-4]$', pin) is not None
 
+def socket_label(pin):
+    return re.sub(r'^S([1-4])$', r'LAN \1', pin)
+
 def control_name(control):
     pin = control['physicalPin']
     if is_socket_pin(pin):
-        return pin
+        return socket_label(pin)
     if pin == 'SW5':
         return 'Keyed switch 1'
     if pin == 'SW6':
@@ -62,21 +63,8 @@ def switch_action(control):
     return f"Turn {control_name(control)} {'on' if control['target'] else 'off'}"
 
 def cable_action(required_cable):
-    cable = CABLES[required_cable['cable']]
-    sockets = required_cable['sockets']
-    if cable['ends'][0] == cable['ends'][1]:
-        return f"Connect Cable {cable['id']} between {sockets[0]} and {sockets[1]} (reversible; either side can go into either socket)"
-
-    side_sockets = []
-    unused = list(sockets)
-    for end_type in cable['ends']:
-        match = next(socket for socket in unused if SOCKET_TYPES[socket] == end_type)
-        side_sockets.append(match)
-        unused.remove(match)
-    return (
-        f"Connect Cable {cable['id']} Side A ({cable['ends'][0]}) to {side_sockets[0]} "
-        f"and Side B ({cable['ends'][1]}) to {side_sockets[1]}"
-    )
+    sockets = [socket_label(socket) for socket in required_cable['sockets']]
+    return f"Connect an RJ-45 patch cable between {sockets[0]} and {sockets[1]}"
 
 def restore_actions(sequence, required_cables):
     actions = []
@@ -287,13 +275,13 @@ for group, controls in [('sw1',['SW1','SW2','SW3']),('sw2',['SW4','SW5','SW6']),
         'An entry such as "3 / 12" means step 3 on page 12. It is not a switch position or target value. The referenced instruction supplies the required state and mode-specific meaning.',
         h('Use during a recheck'),
         'Use the index when a named control needs inspection after the full procedure. It does not replace mode confirmation or the acceptance check. After adjusting, preserve earlier correct settings and inspect LED4.')
-cables=[['Cable','Pinout','Where it plugs']]
+cables=[['Link','Expected raw bridge','Where it plugs']]
 for line in SOURCE.splitlines():
-    if re.match(r'^\| Cable \d',line): cables.append([v.strip() for v in line.strip('|').split('|')])
+    if re.match(r'^\| S[1-4]-S[1-4]',line): cables.append([v.strip() for v in line.strip('|').split('|')])
 page('cables','Demo cable build reference','REFERENCE / DEMO PREPARATION',
-    'For preparing the demo cable bundle. Each cable has a different wiring pattern, so the panel can tell the cables apart. This is not a mode selection table.',
+    'For preparing the demo cable bundle. Any standard straight-through RJ-45 patch cable can connect any two ports. The panel detects socket pairs, not cable identity.',
     tb(cables,[65,259,180]),h('Plug types'),
-    'Cable 1 and Cable 3 are already built. Side A is quad on C1/C3/C4, triple on C2, and dual on C5. Side B is dual on C1/C2/C4/C5 and triple on C3. Use molded contact numbers; label both ends. S4 is the triple socket and wires only contacts 2 and 3.',
+    'Each panel port is a passive RJ-45 jack. Wire only RJ-45 pin 4. Leave pins 1-3 and 5-8 plus any shield, drain, or shell open. Use straight-through patch cables only.',
     h('Where it plugs'),
     'The last column records which sockets a cable works in. It does not establish which socket states a mode requires. Use the active chapter for restoration targets.',
     h('Panel harness reference'),

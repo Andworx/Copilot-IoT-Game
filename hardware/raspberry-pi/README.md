@@ -22,10 +22,10 @@ order:
 - `SW1-SW2` — safety switches.
 - `SW3-SW4` — toggle switches.
 - `SW5-SW6` — keyed switches.
-- `S1-S4` — panel-side cable sockets: `S1` is a quad (4-pin) socket, `S4` is a
-  triple (3-pin) socket, and `S2-S3` are double (2-pin) sockets. S4 wires only
-  contacts 2 and 3. A socket reads as connected when a cable is
-  plugged into it (see "Cable matrix" below).
+- `S1-S4` — panel-side RJ-45 cable ports labeled **LAN 1** through **LAN 4**
+  on the physical panel. Each port wires only RJ-45 pin 4 to the Pi. A socket
+  reads as connected when a standard straight-through RJ-45 patch cable bridges
+  it to another socket (see "RJ-45 cable matrix" below).
 
 The selected mode determines which real-world meaning each control has. The
 same restore sequence is represented in the Power Pages `deviceProfiles.ts` data
@@ -69,20 +69,16 @@ App-selected mode rather than to any physical selector.
 | 2 | Toggle switches | SW3-SW4 |
 | 2 | Keyed switches | SW5-SW6 |
 | 4 | Single-color LEDs (5mm) + 330Ω resistors | LED1 blue, LED2 yellow, LED3 orange, LED4 green; one resistor each, LED cathode/resistor to GND |
-| 1 | Quad (4-pin) panel-mount jack/receptacle | S1: contacts 1-4 |
-| 1 | Triple (3-pin) panel-mount jack/receptacle | S4: contacts 2 and 3 only |
-| 2 | Double (2-pin) panel-mount jacks/receptacles | S2, S3: contacts 1-2 wired |
-| 1 quad + 1 triple + 4 dual | Available cable connectors for remaining cables | Cable 1 and Cable 3 are already built |
-| 1 | Confirmed built cable: quad to dual | Quad 3 to dual 1; quad 4 to dual 2 |
-| 1 | Confirmed built cable: quad to triple | Quad 2 to triple 2; quad 3 to triple 3 |
+| 4 | RJ-45 panel-mount jacks or keystones | Label as LAN 1-LAN 4; only RJ-45 pin 4 is wired |
+| 2+ | Standard straight-through RJ-45 patch cables | Any patch cable can connect any two S1-S4 ports |
 | — | Hookup wire, breadboard/perfboard, pull-up not needed (internal pull-ups used throughout) | |
 
 ## GPIO pinout (BCM numbering)
 
 All inputs use the Pi's **internal pull-up**. Each switch wires its signal pin
-to a GPIO and its return to GND. The cable sockets are different: each wired
-socket contact goes to its own GPIO and **nothing on a socket goes to GND**;
-cables are detected by which contacts they bridge (see "Cable matrix").
+to a GPIO and its return to GND. The cable sockets are different: each RJ-45
+port wires only pin 4 to a GPIO and **nothing on a socket goes to GND**; cables
+are detected by which two ports they bridge (see "RJ-45 cable matrix").
 No external resistors are needed except the LED current-limiting resistors.
 
 | Function | Signal | BCM GPIO | Physical pin |
@@ -97,24 +93,18 @@ No external resistors are needed except the LED current-limiting resistors.
 | LED 2 (Yellow) | LED2 | GPIO27 | 13 |
 | LED 3 (Orange) | LED3 | GPIO22 | 15 |
 | LED 4 (Green) | LED4 | GPIO23 | 16 |
-| S1 pin 1 | S1P1 | GPIO4 | 7 |
-| S1 pin 2 | S1P2 | GPIO18 | 12 |
-| S1 pin 3 | S1P3 | GPIO24 | 18 |
-| S1 pin 4 | S1P4 | GPIO16 | 36 |
-| S2 pin 1 | S2P1 | GPIO25 | 22 |
-| S2 pin 2 | S2P2 | GPIO20 | 38 |
-| S3 pin 1 | S3P1 | GPIO2 | 3 |
-| S3 pin 2 | S3P2 | GPIO12 | 32 |
-| S4 pin 2 | S4P2 | GPIO3 | 5 |
-| S4 pin 3 | S4P3 | GPIO7 | 26 |
+| LAN 1 / S1 RJ-45 pin 4 | S1P4 | GPIO4 | 7 |
+| LAN 2 / S2 RJ-45 pin 4 | S2P4 | GPIO25 | 22 |
+| LAN 3 / S3 RJ-45 pin 4 | S3P4 | GPIO2 | 3 |
+| LAN 4 / S4 RJ-45 pin 4 | S4P4 | GPIO3 | 5 |
 
-**20 of the Pi's 26 usable GPIO pins used, 6 spare** (GPIO8, 9, 10, 11, 14, 15 —
+**14 of the Pi's 26 usable GPIO pins used, 12 spare** (GPIO7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 20, 24 —
 the SPI0 and UART pins, which this project has found unreliable as pulled-up
-inputs; see `pulled_input.py`). GPIO0/1 (ID_SD/ID_SC, reserved for HAT EEPROM)
-are not used. GPIO2/3 have board-level I2C pull-ups, which is fine here since
-the cable scan only ever drives them low. GPIO7 has only been proven as an
-output on this project, so bench-test S4 pin 3 first. All pin assignments live
-in `config.py` — change them there, not in `panel_controller.py`.
+inputs; see `pulled_input.py`, though GPIO7/12/16/18/20/24 are no longer needed
+for the RJ-45 ports). GPIO0/1 (ID_SD/ID_SC, reserved for HAT EEPROM) are not
+used. GPIO2/3 have board-level I2C pull-ups, which is fine here since the cable
+scan only ever drives them low. All pin assignments live in `config.py` — change
+them there, not in `panel_controller.py`.
 
 ## Wiring diagram
 
@@ -137,67 +127,64 @@ switch harness, LED harness, cable socket matrix, and common ground rail.
    GPIO22 ──[330Ω]──▶│── GND   (LED3 orange)
    GPIO23 ──[330Ω]──▶│── GND   (LED4 green)
 
-   S1 (quad)                        S2 (double)
-   GPIO4  ────[S1 pin 1]            GPIO25 ────[S2 pin 1]
-   GPIO18 ────[S1 pin 2]            GPIO20 ────[S2 pin 2]
-   GPIO24 ────[S1 pin 3]
-   GPIO16 ────[S1 pin 4]            S3 (double)
-                                    GPIO2  ────[S3 pin 1]
-  S4 (triple)                    GPIO12 ────[S3 pin 2]
-  GPIO3  ────[S4 pin 2]
-  GPIO7  ────[S4 pin 3]
-        (direct GPIO wiring, no series resistors; no socket contact goes to
-         GND; cables bridge contacts to each other)
+  LAN 1 / S1 RJ-45 port            LAN 2 / S2 RJ-45 port
+  GPIO4  ────[RJ-45 pin 4]         GPIO25 ────[RJ-45 pin 4]
+
+  LAN 3 / S3 RJ-45 port            LAN 4 / S4 RJ-45 port
+  GPIO2  ────[RJ-45 pin 4]         GPIO3  ────[RJ-45 pin 4]
+
+      (direct GPIO wiring, no series resistors; no RJ-45 contact goes to
+      GND; standard straight-through patch cables bridge pin 4 port-to-port)
 ```
 
-### Cable matrix
+### RJ-45 cable matrix
 
-The four sockets S1-S4 detect **which cable is plugged in and where**, not just
-whether something is plugged in. Every wired socket contact has its own GPIO and
-nothing on a socket goes to GND. A cable only bridges contacts to each other.
+The four sockets S1-S4 detect **which ports are connected**. Cable identity no
+longer matters: any standard straight-through RJ-45 patch cable is accepted. Each
+panel jack wires only RJ-45 pin 4 to the Pi, and nothing on a socket goes to GND.
 
 | Socket | Connector | Wired contacts | Notes |
 |---|---|---|---|
-| S1 | Quad (4-pin) | pins 1, 2, 3, 4 | Unchanged; the only socket with all four contacts wired. |
-| S2 | Double (2-pin) | pins 1, 2 | The contacts a 2-pin side A plug lands on. |
-| S3 | Double (2-pin) | pins 1, 2 | Same. |
-| S4 | Triple (3-pin) | pins 2, 3 | Contact 2 to GPIO3; contact 3 to GPIO7. Contact 1 unwired. |
+| LAN 1 / S1 | RJ-45 | pin 4 only | Pin 4 to GPIO4 / physical pin 7. |
+| LAN 2 / S2 | RJ-45 | pin 4 only | Pin 4 to GPIO25 / physical pin 22. |
+| LAN 3 / S3 | RJ-45 | pin 4 only | Pin 4 to GPIO2 / physical pin 3. |
+| LAN 4 / S4 | RJ-45 | pin 4 only | Pin 4 to GPIO3 / physical pin 5. |
 
 The GPIO for each contact is in the pinout table above and in
 `config.SOCKET_NODES`. Leave unlisted contacts open.
 
-**How it is read** (`cable_matrix.py`): every node idles as an input with a
-pull-up. The scan drives one node low, reads the other nine, and repeats for
-each node. A node that follows it low is wired to it through a cable. Only one
-node is driven at a time, and only low, so a wrongly-plugged cable cannot short
-two outputs together. A change is accepted after two identical scans in a row.
-Bridges are grouped by socket pair and matched against the cable build list.
-Two cables at once decode independently.
+**How it is read** (`cable_matrix.py`): every RJ-45 pin 4 node idles as an
+input with a pull-up. The scan drives one node low, reads the other three, and
+repeats for each node. A node that follows it low is wired to it through a
+patch cable. Only one node is driven at a time, and only low, so a wrongly
+plugged cable cannot short two outputs together. A change is accepted after two
+identical scans in a row. Bridges are grouped by socket pair. Two patch cables
+at once decode independently when they do not share a socket.
 
-**What the controller reports:** `S1`-`S4` are true when a cable with at least
-one visible wire is plugged into that socket, used for presence indicators. Winning also requires the exact cable recipe. The telemetry payload also carries
-`cables: [{"cable": 1, "sockets": ["S1", "S2"]}]`. `cable` is `null` for
-something the build list does not recognise, such as a cable with a broken wire.
-A plug that lands only on unwired contacts (for example a side B plug using pin
-3 in S2) reads as unplugged.
+**What the controller reports:** `S1`-`S4` are true when that port is connected
+to another port, used for presence indicators. Winning also requires the exact
+socket-pair recipe and no extra links. The telemetry payload carries
+`cables: [{"cable": 1, "sockets": ["S1", "S2"]}]`, where `cable: 1` means a
+generic RJ-45 patch cable. `cable` is `null` for something the build list does
+not recognise.
 
-### Confirmed five-cable build plan (#112/#142)
+### RJ-45 patch-link plan
 
-Cable 1 and Cable 3 are already built. S4 moves from the broken quad socket to a
-triple socket using contacts 2/3. Build one triple-to-dual cable, one quad-to-dual
-cable, and one dual-to-dual cable from the remaining stock.
+Use passive RJ-45 panel jacks or keystones, not Ethernet modules with magnetics
+or LEDs. Use standard straight-through patch cables, not crossover cables. Only
+RJ-45 pin 4 is used on each port; all other RJ-45 pins and any shield/drain tabs
+must remain disconnected from the Pi and from ground.
 
 See [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md) for the exact pinouts, valid
-placements, twelve proposed mode use cases, and continuity checks. The wiring
-diagram now includes a **Cable Build Plan** page with each wire drawn.
-`cable-build-plan.json` is the tested design source.
+placements, twelve mode use cases, and continuity checks. The wiring diagram now
+includes the RJ-45 port wiring. `cable-build-plan.json` is the tested design source.
 
-The decoder reads the five builds from `cable-build-plan.json`. `config.py` maps
-S4 contacts 2/3 to GPIO3/7. Each mode's `requiredCables` must match exactly before
-its switch/socket expression can win. The page independently checks the recipe,
-fresh telemetry, `cableSchema: "panel-cable-build/v1"`, and the Pi's win flag.
-Setup and Help Fix name each cable and its socket pair. Unknown/extra cables
-prevent a win even if socket-presence indicators look correct.
+The decoder reads the generic RJ-45 patch link from `cable-build-plan.json`.
+Each mode's `requiredCables` socket pairs must match exactly before its
+switch/socket expression can win. The page independently checks the recipe,
+fresh telemetry, `cableSchema: "panel-rj45-links/v1"`, and the Pi's win flag.
+Setup and Help Fix name each required LAN port pair. Extra cables prevent a win
+even if socket-presence indicators look correct.
 
 Deploy the page through CI before activating the new firmware. Old firmware
 cannot win on the new page; this temporary mismatch fails closed. Restart the Pi
@@ -219,9 +206,9 @@ service after deploying the reviewed firmware, then verify the physical cables.
   `lgpio` calls apply the same request correctly. Re-test against a plain
   `gpiozero.DigitalInputDevice`/`Button` before ever reverting this —
   if a future gpiozero release fixes the bug, this workaround can go.
-- **`cable_matrix.py`** — scans the 10 socket contacts (drive one low, read the
-  rest), debounces, and decodes the bridges into per-socket presence and cable
-  numbers. Its `CABLES` table loads the five-cable JSON build list. Tested off-Pi with
+- **`cable_matrix.py`** — scans the 4 RJ-45 port contacts (drive one low, read
+  the rest), debounces, and decodes the bridges into per-socket presence and
+  socket-pair links. Its `CABLES` table loads the generic RJ-45 patch-link JSON. Tested off-Pi with
   `python -m unittest test_cable_matrix` (fake GPIO backend, no `lgpio`).
 - **`telemetry.py`** — a background-threaded Azure IoT Hub publisher (queued,
   non-blocking) so a slow/dropped network connection never stalls GPIO

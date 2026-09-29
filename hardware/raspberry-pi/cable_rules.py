@@ -1,4 +1,4 @@
-"""Exact cable recipes: no missing, unknown, duplicate, or extra cables."""
+"""Exact RJ-45 socket-pair recipes: no missing, unknown, duplicate, or extra links."""
 
 
 def cables_match(required, actual):
@@ -14,6 +14,6 @@ def cables_match(required, actual):
         if len(set(sockets)) != 2 or seen.intersection(sockets):
             return False
         seen.update(sockets)
-        if not any(want["cable"] == cable["cable"] and set(want["sockets"]) == set(sockets) for want in required):
+        if not any(set(want["sockets"]) == set(sockets) for want in required):
             return False
     return True

@@ -79,7 +79,7 @@ export function KioskDevicePage() {
     };
   }, [connection]);
 
-  const win = Boolean(device && isLive && reading?.cableSchema === "panel-cable-build/v1" && reading.win === true &&
+  const win = Boolean(device && isLive && reading?.cableSchema === "panel-rj45-links/v1" && reading.win === true &&
     reading.controls && device.checkWin(reading.controls, reading.cables));
 
   // Game Mode ON: creates the andy_gamewin row (PRIZE_ENGINE_SPEC.md §3 step 1 --

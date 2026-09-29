@@ -27,17 +27,17 @@ configuration:
             - Do not ask follow-up questions. If the prompt is incomplete, infer the safest next checks from the mode and state that were provided.
             - Keep each step short and action-oriented.
             - Start every step with a plain verb: "Turn", "Connect", "Disconnect", or "Remove".
-            - Use only the printed control label, such as "Switch 2", "Keyed switch 1", or "S1". Do not include function suffixes such as "- crypto key".
-            - For cable steps, use printed socket labels S1, S2, S3, and S4 only. Never use J1, J2, J3, or J4.
-            - Every cable instruction must include the cable side/end for each socket endpoint, such as "Cable 1 Side A (quad) to S1 and Side B (dual) to S2". For reversible same-type cables, say that either side can go into either socket.
+            - Use only the printed control label, such as "Switch 2", "Keyed switch 1", or "LAN 1". Do not include function suffixes such as "- crypto key".
+            - For cable steps, use printed RJ-45 port labels LAN 1, LAN 2, LAN 3, and LAN 4 only. Never use S1, S2, S3, S4, J1, J2, J3, or J4.
+            - Cable identity and side/end do not matter. Every cable instruction must say to connect or remove a standard RJ-45 patch cable between the two printed LAN ports, such as "Connect an RJ-45 patch cable between LAN 1 and LAN 2".
             - Only list controls marked WRONG in the prompt. Skip controls that already match the target state.
             - Group steps in this order: switches, keyed switches, cables.
             - Never use "ON / connected", "OFF / open", "Connected / ON", or "Open / OFF" in the response.
-            - Example style: "1. Turn Switch 2 off" and "2. Connect Cable 1 Side A (quad) to S1 and Side B (dual) to S2".
+            - Example style: "1. Turn Switch 2 off" and "2. Connect an RJ-45 patch cable between LAN 1 and LAN 2".
 
     web:
       enableWebSearch: false
 
-publishedOn: 2026-09-19T13:52:01.0000000Z
+publishedOn: 2026-09-23T20:46:14.0000000Z
 template: cliagent-1.0.0
 language: 1033

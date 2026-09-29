@@ -1,18 +1,8 @@
 import type { DeviceProfile, DeviceState, RestoreStep, CableRequirement } from "../types/game";
 import { evaluateLamps, lampDefs, type LampRule } from "../lib/lampLogic";
 
-type SocketType = "quad" | "triple" | "dual";
-
-const SOCKET_TYPES: Record<string, SocketType> = { S1: "quad", S2: "dual", S3: "dual", S4: "triple" };
-const CABLE_SPECS: Record<number, readonly [SocketType, SocketType]> = {
-  1: ["quad", "dual"],
-  2: ["triple", "dual"],
-  3: ["quad", "triple"],
-  4: ["quad", "dual"],
-  5: ["dual", "dual"],
-};
-
 const isSocketPin = (pin: string) => /^S[1-4]$/.test(pin);
+const socketLabel = (socket: string) => socket.replace(/^S([1-4])$/, "LAN $1");
 
 /**
  * Ported from the validated HTML/JS prototype (see KIOSK_UI_SPEC.md and the "Restore &
@@ -344,28 +334,14 @@ export function cablesMatch(required: readonly CableRequirement[], actual?: read
     if (!Number.isInteger(cable.cable) || cable.sockets.length !== 2 || new Set(cable.sockets).size !== 2) return false;
     if (cable.sockets.some(socket => seen.has(socket))) return false;
     cable.sockets.forEach(socket => seen.add(socket));
-    if (!required.some(want => want.cable === cable.cable && want.sockets.every(socket => cable.sockets.includes(socket)))) return false;
+    if (!required.some(want => want.sockets.every(socket => cable.sockets.includes(socket)))) return false;
   }
   return true;
 }
 
 export function cableActions(required: readonly CableRequirement[]) {
   return [
-    ...required.map((cable) => {
-      const spec = cable.cable === null ? undefined : CABLE_SPECS[cable.cable];
-      if (!spec) return `Connect ${cable.cable === null ? "unrecognised cable" : `Cable ${cable.cable}`} to ${cable.sockets.join(" and ")}`;
-      if (spec[0] === spec[1]) {
-        return `Connect Cable ${cable.cable} between ${cable.sockets[0]} and ${cable.sockets[1]} (reversible; either side can go into either socket)`;
-      }
-      const unused = [...cable.sockets];
-      const sideSockets = spec.map((endType) => {
-        const index = unused.findIndex((socket) => SOCKET_TYPES[socket] === endType);
-        if (index < 0) return undefined;
-        return unused.splice(index, 1)[0];
-      });
-      if (!sideSockets[0] || !sideSockets[1]) return `Connect Cable ${cable.cable} to ${cable.sockets.join(" and ")}`;
-      return `Connect Cable ${cable.cable} Side A (${spec[0]}) to ${sideSockets[0]} and Side B (${spec[1]}) to ${sideSockets[1]}`;
-    }),
+    ...required.map((cable) => `Connect an RJ-45 patch cable between ${socketLabel(cable.sockets[0])} and ${socketLabel(cable.sockets[1])}`),
     "Remove all other cables",
   ];
 }

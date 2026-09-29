@@ -213,7 +213,7 @@ class PanelController:
                         "rawSwitches": raw_switches,
                         "rawConnectors": raw_connectors,
                         "cables": cables,
-                        "cableSchema": "panel-cable-build/v1",
+                        "cableSchema": "panel-rj45-links/v1",
                         "lamps": {
                             lamp_state["key"]: lamp_state["active"]
                             for lamp_state in lamp_states.values()

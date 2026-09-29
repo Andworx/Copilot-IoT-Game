@@ -5,7 +5,7 @@
  */
 
 export interface PanelCable {
-  /** Cable number from hardware/raspberry-pi/cable_matrix.py CABLES, or null if unrecognised. */
+  /** Generic RJ-45 patch cable marker, or null if unrecognised. */
   cable: number | null;
   sockets: string[];
 }

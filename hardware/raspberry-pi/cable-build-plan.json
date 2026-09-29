@@ -1,28 +1,24 @@
 {
-  "schema": "panel-cable-build/v1",
-  "status": "design-verified; S4 triple replacement pending physical install",
-  "spareConnectors": {"quad": 1, "triple": 1, "dual": 4},
-  "socketTypes": {"S1": "quad", "S2": "dual", "S3": "dual", "S4": "triple"},
-  "socketContacts": {"S1": [1, 2, 3, 4], "S2": [1, 2], "S3": [1, 2], "S4": [2, 3]},
+  "schema": "panel-rj45-links/v1",
+  "status": "RJ-45 single-conductor redesign; pending physical install",
+  "spareConnectors": {"rj45PanelJack": 4, "standardPatchCable": 2},
+  "socketTypes": {"S1": "rj45", "S2": "rj45", "S3": "rj45", "S4": "rj45"},
+  "socketContacts": {"S1": [4], "S2": [4], "S3": [4], "S4": [4]},
   "cables": [
-    {"id": 1, "built": true, "ends": ["quad", "dual"], "wires": [[3, 1], [4, 2]], "role": "Primary sensor/service link"},
-    {"id": 2, "built": false, "ends": ["triple", "dual"], "wires": [[2, 1], [3, 2]], "role": "Remote communications/control link"},
-    {"id": 3, "built": true, "ends": ["quad", "triple"], "wires": [[2, 2], [3, 3]], "role": "Crossed station-to-station interlock"},
-    {"id": 4, "built": false, "ends": ["quad", "dual"], "wires": [[1, 1], [2, 2]], "role": "Local data/feedback link"},
-    {"id": 5, "built": false, "ends": ["dual", "dual"], "wires": [[1, 1], [2, 2]], "role": "Local peripheral jumper"}
+    {"id": 1, "built": true, "ends": ["rj45", "rj45"], "wires": [[4, 4]], "role": "Standard straight-through RJ-45 patch cable; cable identity is not significant"}
   ],
   "modeUseCases": [
     {"mode": "thermostat", "story": "Reconnect the room sensor to the controller.", "cables": [{"id": 1, "sockets": ["S1", "S2"]}]},
     {"mode": "coldchain-sensor", "story": "Connect the refrigerated cargo probe rather than the room sensor port.", "cables": [{"id": 1, "sockets": ["S1", "S3"]}]},
-    {"mode": "elevator", "story": "Restore local landing-position feedback.", "cables": [{"id": 4, "sockets": ["S1", "S2"]}]},
-    {"mode": "patient-monitor", "story": "Restore the patient data lead to its acquisition port.", "cables": [{"id": 4, "sockets": ["S1", "S3"]}]},
-    {"mode": "drone-ground-control", "story": "Cross-connect the ground station and flight-link interlock.", "cables": [{"id": 3, "sockets": ["S1", "S4"]}]},
-    {"mode": "ev-charger", "story": "Connect both the vehicle pilot and remote authorization links.", "cables": [{"id": 1, "sockets": ["S1", "S2"]}, {"id": 2, "sockets": ["S4", "S3"]}]},
-    {"mode": "field-radio", "story": "Restore the remote radio control link.", "cables": [{"id": 2, "sockets": ["S4", "S2"]}]},
-    {"mode": "industrial-robot-arm", "story": "Reconnect the remote teach-pendant interlock.", "cables": [{"id": 2, "sockets": ["S4", "S3"]}]},
-    {"mode": "retail-kiosk", "story": "Route the payment communications link through the local controller.", "cables": [{"id": 5, "sockets": ["S2", "S3"]}]},
-    {"mode": "smart-lock", "story": "Reconnect the credential-reader communications link.", "cables": [{"id": 3, "sockets": ["S1", "S4"]}, {"id": 5, "sockets": ["S2", "S3"]}]},
-    {"mode": "traffic-signal", "story": "Restore both the detector loop and the remote coordination link.", "cables": [{"id": 1, "sockets": ["S1", "S3"]}, {"id": 2, "sockets": ["S4", "S2"]}]},
-    {"mode": "water-pump", "story": "Restore local pressure feedback and remote pump permission together.", "cables": [{"id": 4, "sockets": ["S1", "S2"]}, {"id": 2, "sockets": ["S4", "S3"]}]}
+    {"mode": "elevator", "story": "Restore local landing-position feedback.", "cables": [{"id": 1, "sockets": ["S1", "S2"]}]},
+    {"mode": "patient-monitor", "story": "Restore the patient data lead to its acquisition port.", "cables": [{"id": 1, "sockets": ["S1", "S3"]}]},
+    {"mode": "drone-ground-control", "story": "Cross-connect the ground station and flight-link interlock.", "cables": [{"id": 1, "sockets": ["S1", "S4"]}]},
+    {"mode": "ev-charger", "story": "Connect both the vehicle pilot and remote authorization links.", "cables": [{"id": 1, "sockets": ["S1", "S2"]}, {"id": 1, "sockets": ["S4", "S3"]}]},
+    {"mode": "field-radio", "story": "Restore the remote radio control link.", "cables": [{"id": 1, "sockets": ["S4", "S2"]}]},
+    {"mode": "industrial-robot-arm", "story": "Reconnect the remote teach-pendant interlock.", "cables": [{"id": 1, "sockets": ["S4", "S3"]}]},
+    {"mode": "retail-kiosk", "story": "Route the payment communications link through the local controller.", "cables": [{"id": 1, "sockets": ["S2", "S3"]}]},
+    {"mode": "smart-lock", "story": "Reconnect the credential-reader communications link.", "cables": [{"id": 1, "sockets": ["S1", "S4"]}, {"id": 1, "sockets": ["S2", "S3"]}]},
+    {"mode": "traffic-signal", "story": "Restore both the detector loop and the remote coordination link.", "cables": [{"id": 1, "sockets": ["S1", "S3"]}, {"id": 1, "sockets": ["S4", "S2"]}]},
+    {"mode": "water-pump", "story": "Restore local pressure feedback and remote pump permission together.", "cables": [{"id": 1, "sockets": ["S1", "S2"]}, {"id": 1, "sockets": ["S4", "S3"]}]}
   ]
 }
