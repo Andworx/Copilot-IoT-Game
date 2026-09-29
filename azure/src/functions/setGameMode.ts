@@ -1,4 +1,5 @@
-import { app, output, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { output, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getGameBoxState, setGameModeEnabled } from "../lib/dataverse";
 
 interface SetGameModeRequestBody {
@@ -21,7 +22,7 @@ interface SetGameModeRequestBody {
  * once per mount with no live update -- toggling it mid-session on a kiosk sitting on the
  * same device had no visible effect until the device happened to rotate).
  *
- * Function-key gated, same posture as set-mode/toggle-device.
+ * Entra staff-role gated, same posture as set-mode/toggle-device.
  */
 const signalROutput = output.generic({
   type: "signalR",
@@ -61,10 +62,10 @@ export async function setGameMode(
   }
 }
 
-app.http("set-game-mode", {
+registerHttp("set-game-mode", {
   route: "set-game-mode",
   methods: ["POST"],
-  authLevel: "function",
+  authLevel: "anonymous",
   extraOutputs: [signalROutput],
   handler: setGameMode,
 });

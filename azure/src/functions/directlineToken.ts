@@ -1,4 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
 const DIRECTLINE_USER_ID = "dl_kiosk_user";
 
@@ -37,7 +38,7 @@ export async function directlineToken(
   }
 }
 
-app.http("directline-token", {
+registerHttp("directline-token", {
   route: "directline-token",
   methods: ["GET"],
   authLevel: "anonymous",

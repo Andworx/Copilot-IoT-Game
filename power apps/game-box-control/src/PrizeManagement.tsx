@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { API_BASE_URL, BULK_CREATE_PRIZES_FUNCTION_KEY } from "./apiConfig";
+import { staffRequest } from "./apiConfig";
 
 interface PrizeType {
   id: string;
@@ -34,7 +34,7 @@ const MAX_QUANTITY = 100;
  * (power apps/bulk-add-prizes/bulk-add-prizes.tsx), ported to call the azure/
  * Functions backend (POST /api/bulk-create-prizes) instead of the genpage's direct
  * Dataverse dataApi -- Game Box Control has no genpage context, and this keeps it on
- * the same fetch + function-key pattern as its existing mode controls. The genpage
+ * the same authenticated connector as its existing mode controls. The genpage
  * itself is left running as a redundant alternate entry point.
  */
 export default function PrizeManagement() {
@@ -52,7 +52,7 @@ export default function PrizeManagement() {
   const loadPrizeTypes = useCallback(async () => {
     setTypesLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/prize-types`);
+      const res = await staffRequest("/api/prize-types");
       if (!res.ok) throw new Error(`prize-types failed: ${res.status}`);
       const body = (await res.json()) as { prizeTypes: PrizeType[] };
       setPrizeTypes(body.prizeTypes);
@@ -68,7 +68,7 @@ export default function PrizeManagement() {
 
   const loadCounts = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/prize-count`);
+      const res = await staffRequest("/api/prize-count");
       if (!res.ok) throw new Error(`prize-count failed: ${res.status}`);
       const body = (await res.json()) as PrizeCounts;
       setCounts(body);
@@ -100,9 +100,9 @@ export default function PrizeManagement() {
     setSubmitting(true);
     setMessage(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/bulk-create-prizes`, {
+      const res = await staffRequest("/api/bulk-create-prizes", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-functions-key": BULK_CREATE_PRIZES_FUNCTION_KEY },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prizeTypeId: selectedType.id,
           prizeTypeName: selectedType.name,

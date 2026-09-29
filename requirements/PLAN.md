@@ -21,7 +21,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Integration (Azure Functions) | 7 | 4 | 1 | 0 | 12 |
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 19 | 27 | 8 | 2 | 56 |
+| Network / browser API | 0 | 1 | 1 | 0 | 2 |
+| Totals | 19 | 28 | 9 | 2 | 58 |
 
 ## Dataverse
 
@@ -198,3 +199,10 @@ Verify: all mode instruments use domain labels/current state, with no physical i
 - Tank/relief/pump/outlet schematic with independent control status and simulated pressure/flow.
 - Full restoration gates process animation; stale data, interlocks and reduced motion stop motion.
 - Retain live Pi validation in #70 after normal PR deployment.
+
+## Network / browser API
+
+| Item | Type | Status | Notes |
+|---|---|---|---|
+| Private-network browser API boundary and diagnostics | Design/tooling | ⬜ Verify | [Control API network plan](../docs/CONTROL_API_NETWORK_PLAN.md); manual networking reported working, hosted Code App still needs API/DNS cutover validation. |
+| Entra staff authorization and client credential removal | Security | ⬜ TODO | Selected separate staff API + per-user Entra connector. Token validation, route separation and client migration implemented on feature branch; Entra registrations and consent recorded; automated staff provisioning added to app CI. IAM bootstrap, connector setup, generated bindings and live cutover remain pending. See docs/STAFF_API_WIRING.md. See docs/STAFF_API_SETUP.md and #177. |

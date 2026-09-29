@@ -9,19 +9,23 @@ This is a fresh Node.js/TypeScript Function App (v4 programming model) — `GAME
 describes an "existing Function App" from a sibling project (`copilot-iot-service`) that
 isn't actually built yet, so this lives here instead, in this repo.
 
+## API separation
+
+The same artifact runs with `API_SURFACE=public` on the existing app and `API_SURFACE=staff` on the new app. Staff-only routes are not registered on the public app. Every staff request, including shared read/test operations, passes Entra validation before its handler runs. Only the public app registers the telemetry trigger. See [manual setup and rollout](../docs/STAFF_API_SETUP.md). This source change is not yet a live cutover.
+
 ## Endpoints
 
 | Route | Method | Auth | Purpose |
 |---|---|---|---|
 | `/api/negotiate` | POST | anonymous | SignalR connection bootstrap for the kiosk SPA |
 | `/api/kiosk-state` | GET | anonymous | Current active device, for a freshly-loaded page |
-| `/api/set-mode` | POST | function key | Sets the active device, broadcasts `deviceChanged` |
+| `/api/set-mode` | POST | staff Entra | Sets the active device, broadcasts `deviceChanged` |
 | `/api/directline-token` | GET | anonymous | Exchanges the server-side `DIRECTLINE_SECRET` for a short-lived Direct Line token (503 until the secret is set) |
 | `/api/claim-prize` | POST | anonymous | Validates a QR claim token, claims the instant prize, creates/reuses Contact, creates the Grand Prize Entry, and generates/reuses the campaign check-in code when contact info is shared |
-| `/api/grand-prize/check-in` | POST | function key | Validates an emailed check-in code, marks eligible PrizeEngine Grand Prize Entry rows checked in, and returns a staff-facing status |
-| `/api/grand-prize/drawing-slices` | GET | function key | Returns the active campaign, registered/checked-in counts, and weighted checked-in wheel slices for the staff display |
-| `/api/grand-prize/drawing-state` | GET | function key | Returns the latest committed drawing state/result so a presentation screen can recover after reload or a missed SignalR event |
-| `/api/grand-prize/draw` | POST | function key | Atomically selects one checked-in winner, writes the PrizeEngine result/audit record, and broadcasts `grandPrizeDrawn` |
+| `/api/grand-prize/check-in` | POST | staff Entra | Validates an emailed check-in code, marks eligible PrizeEngine Grand Prize Entry rows checked in, and returns a staff-facing status |
+| `/api/grand-prize/drawing-slices` | GET | staff Entra | Returns the active campaign, registered/checked-in counts, and weighted checked-in wheel slices for the staff display |
+| `/api/grand-prize/drawing-state` | GET | staff Entra | Returns the latest committed drawing state/result so a presentation screen can recover after reload or a missed SignalR event |
+| `/api/grand-prize/draw` | POST | staff Entra | Atomically selects one checked-in winner, writes the PrizeEngine result/audit record, and returns the committed result to staff |
 | `iot-telemetry` | Event Hub trigger | — | Panel Pi telemetry → SignalR `SendTelemetryUpdate` / `TriggerAgentHelp` (gamebox hub) + an `andy_iottelemetryevent` row |
 
 `/api/claim-prize` also performs the Contact and grand-prize entry flow for epic #121:
@@ -110,52 +114,21 @@ wheel or direct Dataverse data.
 
 ## Grand prize drawing pipeline
 
-The grand-prize production flow uses the same Serverless Azure SignalR Service and
-`gamebox` hub as kiosk mode selection. The display device does not talk directly to the
-operator device:
+The staff connector loads drawing slices/state and submits the draw. The Function
+commits the server-selected winner and returns the result; presentation screens
+poll authenticated drawing-state every five seconds. Winner details are no longer
+broadcast on the publicly negotiable kiosk SignalR hub. Kiosk mode/telemetry
+broadcasts remain unchanged.
 
-1. The presentation screen opens Game Box Control in Grand prize presentation mode. It has
-   no run buttons, loads counts/slices from `GET /api/grand-prize/drawing-slices`, and
-   connects to SignalR through `POST /api/negotiate`.
-2. The operator device stays in normal Grand prize mode and calls `POST /api/grand-prize/draw`.
-3. The Function validates that a draw has not already been committed for the active
-   campaign, performs the weighted checked-in selection, writes the draw result/audit row
-   in PrizeEngine Dataverse, and emits this SignalR message:
-
-```json
-{
-  "target": "grandPrizeDrawn",
-  "arguments": [
-    {
-      "drawResultId": "<guid>",
-      "winnerContactId": "<contact-guid>",
-      "winnerName": "<display name>",
-      "winnerCode": "<check-in or draw code>",
-      "winningEntryCount": 3,
-      "eligibleContactCount": 100
-    }
-  ]
-}
-```
-
-4. The presentation screen receives `grandPrizeDrawn`, spins to the matching loaded slice,
-   and shows the winner reveal. If the screen reloads or misses the event, it should recover
-   from `GET /api/grand-prize/drawing-state` and the saved PrizeEngine result rather than
-   rerunning the draw.
-
-`POST /api/grand-prize/draw` must stay server-authoritative: it should enforce one committed
-draw per campaign, reject an empty checked-in lineup, cap entries according to campaign
-configuration, and write enough audit data to prove which eligible entries were considered.
-
-`set-mode`'s function key is what stands in for "only the Power App can call this" right
-now — the Power App's custom connector holds the key. `GAME_MODE_PLAN.md` §4a describes
-validating an Entra ID token passed through instead, for real per-user auth; not done yet,
-tracked as a hardening step once the basic loop is proven out end to end.
+Staff endpoints validate signature, issuer, audience, expiry, tenant, delegated
+Staff.Access scope, Game.Operator role and connector client ID using JOSE. Missing
+configuration fails closed. Function keys and client identity headers are not
+alternatives to bearer validation. See `src/lib/staffAuth.ts` and its tests.
 
 **Known simplification:** `set-mode`'s caller passes `deviceSlug` directly rather than the
 Function looking it up from `deviceProfileId` server-side. The Power App already has both
 values from its data source, so this avoids an extra Dataverse round-trip, but it does mean
-a buggy/malicious caller could send a mismatched slug. Fine behind a function key for now;
+a buggy/malicious caller could send a mismatched slug. Staff authorization does not validate this relationship;
 revisit if `set-mode` ever gets a less trusted caller.
 
 ## Panel telemetry pipeline
@@ -275,16 +248,7 @@ npm start
 `local.settings.json` is gitignored — never commit it, matching this project's "secrets via
 environment variables only" convention.
 
-Once running, `func start` prints the local base URL and each route. Test `kiosk-state`
-with a plain `curl http://localhost:7071/api/kiosk-state`; `set-mode` needs the local
-function key `func start` logs at startup, e.g.:
-
-```bash
-curl -X POST http://localhost:7071/api/set-mode \
-  -H "x-functions-key: <key-from-func-start-output>" \
-  -H "Content-Type: application/json" \
-  -d '{"deviceProfileId": "<a real andy_deviceprofile GUID>", "deviceSlug": "smart-lock", "deviceName": "Smart Lock"}'
-```
+Public mode can serve `kiosk-state` locally without a bearer token. Staff mode requires the Entra settings in the setup runbook and an actual delegated staff access token; there is no development authentication bypass.
 
 ## GitHub Actions releases
 

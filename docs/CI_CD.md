@@ -7,7 +7,7 @@ Two workflows release this repo:
   `CopilotIoTGame`). It deploys automatically when a relevant change merges to `main`.
 - `.github/workflows/deploy-infra.yml` manages the Azure resources in `infra/` (Event Hub,
   SignalR, and the Function App's access to the hub). It only runs on request, and every
-  Azure-touching job is manual, read-only, or scheduled drift detection.
+  Azure-touching job is manual, read-only, or scheduled drift detection. The separate staff app template is the owner-authorized exception: the application workflow provisions it automatically; see [staff wiring](STAFF_API_WIRING.md).
 
 Other site folders, Dataverse solutions, flows, and the Pi firmware are outside both workflows.
 
@@ -41,9 +41,9 @@ credential and branch gates, not separate deployment targets.
    all apps and retain deployment artifacts for 14 days. Documentation-only
    pushes do not deploy.
 3. `Deploy production apps` uses the `production` environment, checks required
-   settings, authenticates, deploys the Function App, rebuilds and pushes the
-   Game Box Control Code App with protected production function-key secrets, then
-   uploads the Code Site. The Function ZIP contains only host/package metadata,
+   settings, authenticates, previews/provisions and deploys the staff Function App. With `STAFF_API_CUTOVER_READY=true`, it then deploys the public Function App, rebuilds and pushes the
+   Game Box Control Code App with its OAuth connector binding, then
+   uploads the Code Site. With the flag unset/false, only the staff backend is released; existing app releases are held while connector setup finishes. The Function ZIP contains only host/package metadata,
    compiled code, and production dependencies.
 4. Validate the live kiosk and backend, then update related plan items from Verify
    to Done. A successful upload alone does not prove the application works.
@@ -80,16 +80,7 @@ user with permissions to upload the site and push the Code App; the backend's
 runtime identity, which only accesses game tables, is not sufficient. Rotate
 this secret when needed.
 
-Create these additional `production` **environment secrets** for the deployed
-Game Box Control bundle. They are Vite inputs and are intentionally client-side
-stopgap values until the Function App validates Entra ID tokens directly:
-
-| Secret | Purpose |
-|---|---|
-| `CODE_APP_SET_MODE_FUNCTION_KEY` | Function key for `POST /api/set-mode` |
-| `CODE_APP_TOGGLE_DEVICE_FUNCTION_KEY` | Function key for `POST /api/toggle-device` |
-| `CODE_APP_SET_GAME_MODE_FUNCTION_KEY` | Function key for `POST /api/set-game-mode` |
-| `CODE_APP_BULK_CREATE_PRIZES_FUNCTION_KEY` | Function key for `POST /api/bulk-create-prizes` |
+The Code App uses a per-user OAuth custom connector; no Function keys are injected into its build. Staff resource names and Entra IDs come from `infra/staff-api.prod.json`. An IAM administrator must first run the reviewed [deployment access bootstrap](STAFF_API_WIRING.md#deployment-access); the existing deployment identity cannot provision these resources yet. Leave repository variable `STAFF_API_CUTOVER_READY` unset/false for the staff-only bootstrap release. Complete [STAFF_API_SETUP.md](STAFF_API_SETUP.md), commit the actual connector binding, then set the flag true for coordinated cutover. The workflow requires an unauthenticated staff request to return 401 before advancing. Remove legacy CODE_APP_*_FUNCTION_KEY secrets and rotate previously exposed keys after acceptance.
 
 The workflow authenticates PAC with `--url` instead of `--environment` for the
 service-principal profile. `--environment` causes PAC to query the Business
@@ -122,10 +113,7 @@ provision resources or publish `local.settings.json`. The deploy job uses the
 prebuilt zip package with `sku: flexconsumption` and `remote-build: false`; do
 not add the legacy `SCM_DO_BUILD_DURING_DEPLOYMENT` app setting to the Flex
 Consumption app. Configure CORS for the public Power Pages and Code App origins.
-The frontends' `VITE_API_BASE_URL` is derived from the Function App name at
-build time and is not secret. The Code App function-key values are stored as
-GitHub environment secrets only to keep them out of source control; they still
-become client-visible after the Vite build and remain a temporary stopgap.
+Power Pages keeps its existing `VITE_API_BASE_URL`. The Code App uses the connector, with no direct Azure URL or client-bundled credentials.
 
 The Power Platform environment must have the intended Game Box Control Code App
 initialized with `power.config.json`; the workflow runs `pac code push
@@ -231,7 +219,7 @@ write access to it. See [`infra/README.md`](../infra/README.md) for why.
 | Manual, `action = drift`, and every Monday 13:00 UTC | `validate`, then two jobs: `drift` (`what-if` must show no Create/Modify/Delete; changes nothing) and `snapshots` (each snapshot in `infra/reference/` must match live) | `drift`: `infra-deploy`; `snapshots`: `infra-readonly` |
 | Manual, `action = deploy`, from `main` only | `validate`, then `deploy`: assign the game Function App a managed identity, deploy `main.bicep` (incremental), merge the telemetry settings, re-check snapshots | `infra-deploy` (`main` only) |
 
-Nothing deploys automatically. Merging an infra change does not change Azure until someone runs
+This shared-infrastructure workflow never deploys automatically. The staff-only template is released separately by deploy-apps.yml. Merging other infra changes does not change Azure until someone runs
 `deploy`.
 
 ### GitHub environments, Azure identities, and permissions

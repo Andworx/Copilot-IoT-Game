@@ -1,16 +1,10 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext, output } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { runGrandPrizeDraw } from "../lib/dataverse";
-
-const signalROutput = output.generic({
-  type: "signalR",
-  name: "signalRMessages",
-  hubName: "gamebox",
-  connectionStringSetting: "AzureSignalRConnectionString",
-});
 
 /**
  * POST /api/grand-prize/draw -- selects the committed grand-prize winner and
- * broadcasts it so presentation-mode displays animate from another device.
+ * exposes it only to staff. Presentation screens poll authenticated drawing-state.
  */
 export async function grandPrizeDraw(
   _request: HttpRequest,
@@ -18,10 +12,6 @@ export async function grandPrizeDraw(
 ): Promise<HttpResponseInit> {
   try {
     const result = await runGrandPrizeDraw();
-    context.extraOutputs.set(signalROutput, {
-      target: "grandPrizeDrawn",
-      arguments: [result],
-    });
 
     return { jsonBody: result };
   } catch (error) {
@@ -34,10 +24,9 @@ export async function grandPrizeDraw(
   }
 }
 
-app.http("grand-prize-draw", {
+registerHttp("grand-prize-draw", {
   route: "grand-prize/draw",
   methods: ["POST"],
-  authLevel: "function",
-  extraOutputs: [signalROutput],
+  authLevel: "anonymous",
   handler: grandPrizeDraw,
 });

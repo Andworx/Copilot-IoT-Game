@@ -1,0 +1,13 @@
+{
+  "description": "Non-secret staff deployment configuration; approved Entra registrations and existing network references.",
+  "resourceGroup": "rg-aw-azcom-iot-copilot",
+  "location": "eastus",
+  "functionAppName": "func-aw-azcom-iot-staff",
+  "sourceFunctionAppName": "func-aw-azcom-iot-game",
+  "storageAccountName": "stawazcomiotstafffn",
+  "vnetName": "iot-demo-vnet",
+  "integrationSubnetName": "function-integration",
+  "tenantId": "7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8",
+  "apiClientId": "00754488-3e99-4b4f-b55d-66cf161182d7",
+  "connectorClientId": "5645dd87-3e8f-437b-a1d8-70ed447ad24b"
+}

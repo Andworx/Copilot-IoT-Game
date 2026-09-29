@@ -11,6 +11,9 @@ on:
       - 'power pages/copilotiotgame/**'
       - '!power pages/copilotiotgame/.powerpages-site/**'
       - '.github/workflows/deploy-apps.yml'
+      - 'infra/staff-api.bicep'
+      - 'infra/staff-api.prod.json'
+      - 'infra/scripts/Deploy-StaffApi.ps1'
   workflow_dispatch:
 
 permissions:
@@ -35,6 +38,11 @@ jobs:
             azure/package-lock.json
             power apps/game-box-control/package-lock.json
             power pages/copilotiotgame/package-lock.json
+      - name: Validate staff provisioning template
+        run: az bicep build --file infra/staff-api.bicep --stdout > /dev/null
+      - name: Test staff provisioning guards offline
+        shell: pwsh
+        run: ./infra/scripts/Test-StaffDeployment.ps1
       - name: Build Function App
         working-directory: azure
         run: |
@@ -60,8 +68,6 @@ jobs:
           test -f dist/index.html
       - name: Build Power Apps Code App
         working-directory: power apps/game-box-control
-        env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
         run: |
           npm ci
           npm run build
@@ -99,27 +105,36 @@ jobs:
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_FUNCTIONAPP_NAME: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
+      STAFF_API_CUTOVER_READY: ${{ vars.STAFF_API_CUTOVER_READY || 'false' }}
       POWER_PLATFORM_ENVIRONMENT_URL: ${{ vars.POWER_PLATFORM_ENVIRONMENT_URL }}
       POWER_PLATFORM_TENANT_ID: ${{ vars.POWER_PLATFORM_TENANT_ID }}
       POWER_PLATFORM_CLIENT_ID: ${{ vars.POWER_PLATFORM_CLIENT_ID }}
       POWER_PLATFORM_SOLUTION_NAME: ${{ vars.POWER_PLATFORM_SOLUTION_NAME || 'CopilotIoTGame' }}
       POWER_PAGES_WEBSITE_ID: ${{ vars.POWER_PAGES_WEBSITE_ID || '4938f099-b8dd-485f-a5c2-3c4ad4b7e02a' }}
       POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}
-      VITE_SET_MODE_FUNCTION_KEY: ${{ secrets.CODE_APP_SET_MODE_FUNCTION_KEY }}
-      VITE_TOGGLE_DEVICE_FUNCTION_KEY: ${{ secrets.CODE_APP_TOGGLE_DEVICE_FUNCTION_KEY }}
-      VITE_SET_GAME_MODE_FUNCTION_KEY: ${{ secrets.CODE_APP_SET_GAME_MODE_FUNCTION_KEY }}
-      VITE_BULK_CREATE_PRIZES_FUNCTION_KEY: ${{ secrets.CODE_APP_BULK_CREATE_PRIZES_FUNCTION_KEY }}
     steps:
       - name: Validate deployment configuration
         shell: pwsh
         run: |
-          $required = @('AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_SUBSCRIPTION_ID', 'AZURE_FUNCTIONAPP_NAME', 'POWER_PLATFORM_ENVIRONMENT_URL', 'POWER_PLATFORM_TENANT_ID', 'POWER_PLATFORM_CLIENT_ID', 'POWER_PLATFORM_CLIENT_SECRET', 'POWER_PLATFORM_SOLUTION_NAME', 'VITE_SET_MODE_FUNCTION_KEY', 'VITE_TOGGLE_DEVICE_FUNCTION_KEY', 'VITE_SET_GAME_MODE_FUNCTION_KEY', 'VITE_BULK_CREATE_PRIZES_FUNCTION_KEY')
+          $required = @('AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_SUBSCRIPTION_ID', 'AZURE_FUNCTIONAPP_NAME')
+          if ($env:STAFF_API_CUTOVER_READY -notin @('true', 'false')) { throw 'STAFF_API_CUTOVER_READY must be true or false.' }
+          if ($env:STAFF_API_CUTOVER_READY -eq 'true') {
+            $required += @('POWER_PLATFORM_ENVIRONMENT_URL', 'POWER_PLATFORM_TENANT_ID', 'POWER_PLATFORM_CLIENT_ID', 'POWER_PLATFORM_CLIENT_SECRET', 'POWER_PLATFORM_SOLUTION_NAME')
+          }
           foreach ($name in $required) {
             if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
               throw "Missing GitHub deployment setting: $name. See docs/CI_CD.md."
             }
           }
       - uses: actions/checkout@v7
+      - name: Load staff deployment configuration
+        shell: pwsh
+        run: |
+          $config = Get-Content infra/staff-api.prod.json -Raw | ConvertFrom-Json
+          if ($config.sourceFunctionAppName -ne $env:AZURE_FUNCTIONAPP_NAME) { throw 'Staff source app differs from configured public app.' }
+          if ($config.tenantId -ne $env:AZURE_TENANT_ID) { throw 'Staff configuration belongs to another tenant.' }
+          "AZURE_STAFF_FUNCTIONAPP_NAME=$($config.functionAppName)" >> $env:GITHUB_ENV
+          "AZURE_RESOURCE_GROUP=$($config.resourceGroup)" >> $env:GITHUB_ENV
       - uses: actions/download-artifact@v8
         with:
           name: function-app
@@ -138,7 +153,50 @@ jobs:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Validate staff connector binding
+        if: env.STAFF_API_CUTOVER_READY == 'true'
+        shell: pwsh
+        working-directory: power apps/game-box-control
+        run: |
+          node scripts/verify-staff-binding.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Staff connector setup is incomplete; refusing cutover.' }
+      - name: Preview and provision staff API
+        id: staff_infra
+        shell: pwsh
+        run: ./infra/scripts/Deploy-StaffApi.ps1 -Mode Deploy
+      - name: Deploy staff Function App
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_STAFF_FUNCTIONAPP_NAME }}
+          package: function-artifact/function-app.zip
+          sku: flexconsumption
+          remote-build: false
+      - name: Verify staff API rejects unauthenticated requests
+        shell: pwsh
+        env:
+          STAFF_HOST: ${{ steps.staff_infra.outputs.hostName }}
+        run: |
+          $verified = $false
+          for ($attempt = 1; $attempt -le 12; $attempt++) {
+            try {
+              $response = Invoke-WebRequest "https://$env:STAFF_HOST/api/kiosk-state" -SkipHttpErrorCheck -TimeoutSec 15
+              if ($response.StatusCode -eq 401) { $verified = $true; break }
+              if ($response.StatusCode -eq 200) { throw 'Staff API accepted an unauthenticated request.' }
+            } catch {
+              if ($_.Exception.Message -like '*accepted an unauthenticated*') { throw }
+            }
+            Start-Sleep -Seconds 10
+          }
+          if (-not $verified) { throw 'Staff API did not return 401. Stopping before public/frontend cutover.' }
+          "Staff API provisioned: https://$env:STAFF_HOST. Unauthorized access rejected. Cutover enabled: $env:STAFF_API_CUTOVER_READY" >> $env:GITHUB_STEP_SUMMARY
+      - name: Select public API surface before coordinated cutover
+        if: env.STAFF_API_CUTOVER_READY == 'true'
+        shell: pwsh
+        run: |
+          az functionapp config appsettings set -g "$env:AZURE_RESOURCE_GROUP" -n "$env:AZURE_FUNCTIONAPP_NAME" --settings API_SURFACE=public --only-show-errors --output none
+          if ($LASTEXITCODE -ne 0) { throw 'Could not set the public API surface.' }
       - name: Deploy Function App
+        if: env.STAFF_API_CUTOVER_READY == 'true'
         uses: Azure/functions-action@v1
         with:
           app-name: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
@@ -146,30 +204,33 @@ jobs:
           sku: flexconsumption
           remote-build: false
       - name: Install Power Platform CLI
+        if: env.STAFF_API_CUTOVER_READY == 'true'
         uses: microsoft/powerplatform-actions/actions-install@v1
         with:
           add-tools-to-path: true
       - name: Authenticate Power Platform
+        if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         run: |
           pac auth create --name github-production --tenant "$env:POWER_PLATFORM_TENANT_ID" --applicationId "$env:POWER_PLATFORM_CLIENT_ID" --clientSecret "$env:POWER_PLATFORM_CLIENT_SECRET" --url "$env:POWER_PLATFORM_ENVIRONMENT_URL"
           if ($LASTEXITCODE -ne 0) { throw 'Power Platform authentication failed.' }
       - name: Build Power Apps Code App for deployment
+        if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         working-directory: power apps/game-box-control
-        env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME }}.azurewebsites.net
         run: |
           npm ci
           npm run build
           if (-not (Test-Path 'dist/index.html')) { throw 'Power Apps Code App build output is missing.' }
       - name: Push Power Apps Code App
+        if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         working-directory: power apps/game-box-control
         run: |
           pac code push --environment "$env:POWER_PLATFORM_ENVIRONMENT_URL" --solutionName "$env:POWER_PLATFORM_SOLUTION_NAME"
           if ($LASTEXITCODE -ne 0) { throw 'Power Apps Code App push failed.' }
       - name: Fetch live Power Pages site metadata
+        if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         run: |
           # pac pages upload-code-site has no website-ID parameter: it matches the
@@ -188,12 +249,14 @@ jobs:
           Remove-Item 'power-pages-artifact/.powerpages-site' -Recurse -Force -ErrorAction SilentlyContinue
           Copy-Item $meta.FullName 'power-pages-artifact/.powerpages-site' -Recurse
       - name: Upload Power Pages Code Site
+        if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         working-directory: power-pages-artifact
         run: |
           pac pages upload-code-site --rootPath "."
           if ($LASTEXITCODE -ne 0) { throw 'Power Pages Code Site upload failed.' }
       - name: Verify Power Pages upload targeted the live site
+        if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         working-directory: power-pages-artifact
         run: |
@@ -203,7 +266,7 @@ jobs:
           }
           Write-Host "Power Pages upload targeted website $id."
       - name: Clear PAC credentials
-        if: always()
+        if: always() && env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         run: |
           if (Get-Command pac -ErrorAction SilentlyContinue) {

@@ -3,6 +3,10 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "node",
+    "API_SURFACE": "public",
+    "STAFF_AUTH_TENANT_ID": "",
+    "STAFF_AUTH_AUDIENCE": "",
+    "STAFF_AUTH_CLIENT_ID": "",
 
     "DATAVERSE_URL": "https://yourorg.crm.dynamics.com",
     "DATAVERSE_TENANT_ID": "<entra-tenant-guid>",
