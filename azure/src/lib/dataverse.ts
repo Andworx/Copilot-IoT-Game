@@ -136,12 +136,13 @@ export interface DeviceProfileSummary {
   name: string;
   deviceSlug: string;
   isEnabled: boolean;
+  winText: string | null;
 }
 
 /** Lists all andy_deviceprofile rows, for the control app's device picker. */
 export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
   const response = await dataverseFetch(
-    "andy_deviceprofiles?$select=andy_deviceprofileid,andy_name,andy_deviceslug,andy_isenabled&$orderby=andy_name"
+    "andy_deviceprofiles?$select=andy_deviceprofileid,andy_name,andy_deviceslug,andy_isenabled,andy_wintext&$orderby=andy_name"
   );
   const body = (await response.json()) as {
     value: Array<{
@@ -149,6 +150,7 @@ export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
       andy_name: string;
       andy_deviceslug: string;
       andy_isenabled: boolean | null;
+      andy_wintext?: string | null;
     }>;
   };
   return body.value.map((row) => ({
@@ -157,6 +159,7 @@ export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
     deviceSlug: row.andy_deviceslug,
     // Same null-safe treatment as gameModeEnabled above.
     isEnabled: row.andy_isenabled !== false,
+    winText: row.andy_wintext?.trim() || null,
   }));
 }
 

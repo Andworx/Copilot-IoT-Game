@@ -13,8 +13,6 @@
           <cell name="andy_name" width="300" />
           <cell name="andy_deviceslug" width="150" />
           <cell name="andy_isgamedevice" width="150" />
-          <cell name="andy_introcopy" width="150" />
-          <cell name="andy_copilottopic" width="150" />
         </row>
       </grid>
     </layoutxml>
@@ -31,8 +29,6 @@
           </filter>
           <attribute name="andy_deviceslug" />
           <attribute name="andy_isgamedevice" />
-          <attribute name="andy_introcopy" />
-          <attribute name="andy_copilottopic" />
         </entity>
       </fetch>
     </fetchxml>

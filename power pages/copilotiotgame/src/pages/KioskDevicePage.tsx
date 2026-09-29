@@ -12,6 +12,11 @@ import { DemoGearMenu } from "../components/DemoGearMenu";
 import { useSignalR } from "../context/SignalRContext";
 import { API_BASE_URL } from "../lib/apiConfig";
 
+interface RuntimeDeviceProfile {
+  deviceSlug: string;
+  winText: string | null;
+}
+
 /**
  * One route, one component, 12 data-driven playable modes — GAME_MODE_PLAN.md §6. Keyed by
  * `deviceSlug` at the router level (see App.tsx) so React fully remounts this component on
@@ -38,6 +43,7 @@ export function KioskDevicePage() {
   const gameModeVersionRef = useRef(0);
   const [gameModeEnabled, setGameModeEnabled] = useState<boolean | null>(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [runtimeProfile, setRuntimeProfile] = useState<RuntimeDeviceProfile | null>(null);
 
   // Live panel: mirror the Pi's controls (same keys as `state`). The physical panel is
   // the only source of truth for state changes; the on-screen controls are read-only.
@@ -78,6 +84,28 @@ export function KioskDevicePage() {
       connection.off("gameModeChanged", handler);
     };
   }, [connection]);
+
+  useEffect(() => {
+    if (!deviceSlug) return;
+    let cancelled = false;
+    setRuntimeProfile(null);
+    fetch(`${API_BASE_URL}/api/device-profiles`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Device profiles unavailable");
+        return res.json();
+      })
+      .then((data: { profiles?: RuntimeDeviceProfile[] }) => {
+        if (cancelled) return;
+        setRuntimeProfile(data.profiles?.find((profile) => profile.deviceSlug === deviceSlug) ?? null);
+      })
+      .catch((err) => {
+        console.error("Failed to read device profile copy", err);
+        if (!cancelled) setRuntimeProfile(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [deviceSlug]);
 
   const win = Boolean(device && isLive && reading?.cableSchema === "panel-rj45-links/v1" && reading.win === true &&
     reading.controls && device.checkWin(reading.controls, reading.cables));
@@ -128,21 +156,16 @@ export function KioskDevicePage() {
 
   const lamps = device.computeLamps(state, win);
 
+  const completionMessage = runtimeProfile?.winText || device.winMessage;
+
   // Fires when the win/success overlay's own dwell timer elapses, in both Game Mode
-  // states. Clears local win state (belt-and-suspenders in case the auto-rotate below
-  // happens to re-pick this same device -- SignalR's deviceChanged dedupe would then
-  // skip re-navigating, so this component would otherwise stay stuck showing the win
-  // screen) and immediately auto-picks a new random *enabled* mode server-side; the
-  // resulting deviceChanged broadcast is what actually moves the kiosk on, via the
-  // existing useDeviceSync listener at the app root -- no local navigation call needed.
+  // states. Clears local overlay state, but keeps the kiosk on this same mode so the
+  // completed scenario remains visible instead of rotating to the next enabled item.
   function handleCompletionReset() {
     setState({ ...device.fault });
     setClaimToken(null);
     createWinRequestedRef.current = false;
     setShowSuccessPopup(false);
-    fetch(`${API_BASE_URL}/api/pick-random-mode`, { method: "POST" }).catch((err) =>
-      console.error("Failed to pick a random mode", err)
-    );
   }
 
   return (
@@ -190,7 +213,7 @@ export function KioskDevicePage() {
       {win && gameModeEnabled && claimToken && (
         <WinOverlay
           droneTakeoff={device.slug === "drone-ground-control"}
-          winMessage={device.winMessage}
+          winMessage={completionMessage}
           restoreItems={device.slug === "drone-ground-control" ? ["GPS enabled", "Telemetry enabled", "Uplink enabled", "Communications ready"] : device.restoreItems}
           claimToken={claimToken}
           onReset={handleCompletionReset}
@@ -200,7 +223,7 @@ export function KioskDevicePage() {
       {win && gameModeEnabled === false && showSuccessPopup && (
         <SuccessPopup
           droneTakeoff={device.slug === "drone-ground-control"}
-          winMessage={device.winMessage}
+          winMessage={completionMessage}
           restoreItems={device.slug === "drone-ground-control" ? ["GPS enabled", "Telemetry enabled", "Uplink enabled", "Communications ready"] : device.restoreItems}
           onReset={handleCompletionReset}
         />
