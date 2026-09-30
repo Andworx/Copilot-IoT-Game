@@ -55,6 +55,20 @@ also bold, color-capable geometry.
 RP08 remains the current immutable release until the coupon and at least one
 production face pass physical print review.
 
+## Lid storage working package
+
+The physically iterated lid-storage carrier, left mounting frame, quarter-turn
+cover retainers, blank cover, and left design plates are tracked in
+`lid-storage/`. That folder also retains the earlier fit frames and locator tile
+as validation history. It was promoted from `calibration/` after the carrier,
+stagger, pocket depths, and cover concept were physically exercised.
+
+The Microsoft-cloud left plate is supplied as a structural base plus a
+coordinate-matched 0.4 mm artwork part for multicolor printing. This promotion
+records completed modeling work; it does not make RP09 an approved release.
+The final assembled closed-lid check and remaining RP09 physical coupons still
+gate publication under `releases/RP09`.
+
 ## M4 Ethernet keystone candidate
 
 M4 retains its proven 90 x 74 x 3.2 mm envelope, four corner fasteners, port

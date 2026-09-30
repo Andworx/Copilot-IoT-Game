@@ -1,6 +1,6 @@
 {
-  "revision": "RP09 calibration only",
-  "status": "PASS - requires physical boss-pitch and closed-lid witness test",
+  "revision": "RP09 working candidate",
+  "status": "PASS - mesh validation; final assembled closed-lid test remains",
   "measurements_mm": {
     "boss_pitch": [
       274.0,

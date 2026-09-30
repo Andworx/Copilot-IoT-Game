@@ -1,7 +1,9 @@
-# RP09 lid-storage calibration
+# RP09 lid-storage working package
 
-This is a fit-first prototype for an **Andworx Field Kit** cassette in the
-APACHE 2800 lid. It is calibration work, not approved RP09 production geometry.
+This package contains the physically iterated **Andworx Field Kit** cassette
+for the APACHE 2800 lid. It has been promoted from calibration into the RP09
+working revision. RP09 is still not an approved production release until its
+remaining physical gates pass.
 
 ## Recorded measurements
 

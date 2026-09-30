@@ -3,11 +3,11 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $models = Resolve-Path (Join-Path $root '..\..\..\..')
 $openscad = 'C:\Program Files\OpenSCAD\openscad.com'
 $python = 'C:\Users\edrft\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
-$source = Join-Path $root 'lid_storage_calibration_rp09.scad'
+$source = Join-Path $root 'lid_storage_rp09.scad'
 $exports = Join-Path $root 'exports'
 $tempRoot = 'C:\tmp\apache-2800-lid-storage-RP09'
 
-& (Join-Path $models 'Save-ModelVersion.ps1') -Tag 'before-export-RP09-lid-storage-calibration'
+& (Join-Path $models 'Save-ModelVersion.ps1') -Tag 'before-export-RP09-lid-storage'
 New-Item -ItemType Directory -Path $exports -Force | Out-Null
 New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 
@@ -72,7 +72,7 @@ $cloudPreview = Join-Path $exports 'lid_storage_left_design_plate_cloud.png'
     -o $cloudPreview $source
 if ($LASTEXITCODE -ne 0) { throw 'Left cloud design-plate preview render failed' }
 
-& $python (Join-Path $root 'validate_lid_storage_calibration.py')
+& $python (Join-Path $root 'validate_lid_storage_rp09.py')
 if ($LASTEXITCODE -ne 0) { throw 'Lid-storage calibration validation failed' }
 
-& (Join-Path $models 'Save-ModelVersion.ps1') -Tag 'after-validated-RP09-lid-storage-calibration'
+& (Join-Path $models 'Save-ModelVersion.ps1') -Tag 'after-validated-RP09-lid-storage'

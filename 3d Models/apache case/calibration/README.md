@@ -10,8 +10,9 @@ production release revisions.
 - `rear-controls/T02/` — second rear-control coupon series.
 - `m4-keystone/RP09/` — three-size standard-keystone snap-fit coupon for the
   RP09 M4 Ethernet face.
-- `lid-storage/RP09/` — split four-boss lid frame, switch-location witness tile,
-  and two-colour Andworx cover proof for the proposed removable storage cassette.
+- The completed RP09 lid-storage working package was promoted to
+  `../versions/RP09/lid-storage/`. Its historical fit parts remain with that
+  package as traceable validation evidence.
 
 Passing calibration work may inform a later RP release, but it does not create
 the next RP number by itself.

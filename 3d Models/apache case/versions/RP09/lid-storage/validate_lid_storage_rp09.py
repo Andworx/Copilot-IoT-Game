@@ -1,4 +1,4 @@
-"""Validate the RP09 APACHE 2800 lid-storage fit prototypes."""
+"""Validate the promoted RP09 APACHE 2800 lid-storage working package."""
 from collections import Counter, defaultdict
 from pathlib import Path
 import json
@@ -134,8 +134,8 @@ assert meshes["lid_storage_left_design_plate_cloud_artwork.stl"]["bounds_mm"][2]
        0.4
 
 report = {
-    "revision": "RP09 calibration only",
-    "status": "PASS - requires physical boss-pitch and closed-lid witness test",
+    "revision": "RP09 working candidate",
+    "status": "PASS - mesh validation; final assembled closed-lid test remains",
     "measurements_mm": {
         "boss_pitch": [274.0, 200.0],
         "between_ribs": [255.0, 183.0],

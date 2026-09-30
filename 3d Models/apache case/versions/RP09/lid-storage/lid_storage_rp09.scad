@@ -1,5 +1,5 @@
-// APACHE 2800 RP09 lid-storage calibration.
-// Test geometry only: do not treat this as a production release.
+// APACHE 2800 RP09 lid-storage working candidate.
+// Promoted from calibration; do not treat as an approved production release.
 // All dimensions are millimetres.
 
 part = "layout";
