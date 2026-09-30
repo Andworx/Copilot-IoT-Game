@@ -285,9 +285,13 @@ Or use Actions > Infrastructure > Run workflow. Read-only checks also work local
 CLI and PowerShell 7 (`pwsh`): `az deployment group what-if ...` and
 `./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check` (commands in `infra/README.md`).
 
-Always run `what-if` and read it before `deploy`. The expected result today is a single Create
-(the `gamefunc` consumer group) until the first deploy, then no changes. That is also why `drift`
-fails until the first deploy has run: it treats any pending change as drift.
+Always run `what-if` and read it before `deploy`. For the Event Hub lockdown,
+expect the namespace and its default network rule set to change to private-only:
+public access Disabled, default action Deny, and trusted Microsoft services enabled.
+The trusted exception is required for the identity-based IoT Hub route. After
+deployment, the workflow checks the private endpoint, Function VNet integration,
+route authentication, and sender/receiver roles. Live Pi-to-kiosk telemetry still
+requires owner validation.
 
 ### Release order
 
@@ -307,8 +311,8 @@ flowchart TB
 For the telemetry pipeline, in order:
 
 1. Merge the infra PR (this adds the workflow to `main`).
-2. Run `what-if` and read it (expect one Create: the `gamefunc` consumer group), then `deploy`, then
-   `drift`, which should now pass clean. Before the first deploy `drift` fails on that pending Create.
+2. Run `what-if` and confirm it contains only the intended Event Hub network-rule
+   changes, then run `deploy` and `drift`.
 3. Merge the application PR; `deploy-apps.yml` ships the telemetry function.
 4. Restart the panel Pi service, then verify the live path (Pi to kiosk).
 5. Keep the plan items at Verify until step 4 passes.
@@ -336,7 +340,7 @@ leaves every other setting alone.
 | `drift` fails on a snapshot | An out-of-band change to the IoT Hub, DPS, a Function App, storage or App Insights. Investigate; if intended, run `Invoke-ReferenceSnapshot.ps1 -Mode Export` (PowerShell 7) and commit |
 | `deploy` job does not start | Not run from `main` (the environment only accepts `main`) |
 | Telemetry function does not start after `deploy` | Role assignments can take a few minutes to take effect; check the Function App's log stream, and confirm the three settings above exist |
-| Legacy `func-aw-iot-copilot` still writes junk rows | Its fix is in `Andworx/copilot-iot-service` (PR #205), which deploys from that repo |
+| Retired `func-aw-iot-copilot` still runs | It is no longer an Event Hub dependency. Retire its dedicated app/plan/storage/monitoring resources separately after the game telemetry validation window. |
 
 ## Copilot, Claude, and Codex procedure
 

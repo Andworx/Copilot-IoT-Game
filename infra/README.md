@@ -65,8 +65,12 @@ leases and each misses events.
 | Group | Reader |
 |---|---|
 | `$Default` | nothing (kept; it exists on every hub) |
-| `funcapp` | the legacy `copilot-iot-service` function app |
 | `gamefunc` | this repo's game Function App |
+
+The owner confirmed on 2026-09-29 that the former `copilot-iot-service` app is
+retired. Its `funcapp` consumer group can be deleted after the private-access
+deployment is validated; leaving the empty group briefly has no effect on the
+active consumer.
 
 ## Running it
 
@@ -98,6 +102,14 @@ hub with identity-based auth, so **no Event Hub key is stored anywhere**. This m
 before the telemetry function ships (`azure/src/functions/telemetry.ts`), or its trigger
 has nothing to read.
 
+The declared namespace configuration is private-only. `publicNetworkAccess` is
+disabled and the default network action is Deny. The trusted Microsoft services exception remains enabled
+because IoT Hub sends to the custom Event Hub endpoint with its system-assigned
+identity. The game Function App reads through VNet integration, private DNS, and
+the Event Hub private endpoint. Local/SAS authentication remains enabled for now,
+but it is unreachable over the public network; disabling local auth is a later,
+separately validated hardening step.
+
 ## One-time setup
 
 1. Run `scripts/Initialize-InfraIdentities.ps1` (try `-WhatIf` first) as someone with Owner
@@ -121,12 +133,13 @@ has nothing to read.
 - **Event Hub retention** is 1 hour or 1 day (Azure reports both). If the game Function App is
   down longer than that, readings are lost. Raising it is a one-line change in
   `main.prod.bicepparam` but a cost and behavior change, so it isn't done here.
-- **IoT Hub to Event Hub auth** almost certainly uses the namespace-wide
-  `RootManageSharedAccessKey` (Manage, Send, Listen), the only rule on the namespace. Moving the
-  route to an identity-based endpoint with Event Hubs Data Sender would remove the stored key,
-  but it changes a live route, so do it in a maintenance window after this pipeline is proven.
-- **SignalR CORS is `*`** and the tier is Free (daily message cap); both mirror live. Move to
-  Standard before a real booth event.
+- **Retired app cleanup:** `func-aw-iot-copilot` is no longer used. It remains a
+  separately owned reference resource until the app, its dedicated `EastUSPlan`,
+  `stfuncawiotcopilot`, Application Insights component and failure alert are
+  deliberately removed. Keep the shared Log Analytics workspace. Remove the
+  legacy `funcapp` consumer group only after current-game telemetry is verified.
+- **SignalR CORS is `*`** and the live tier is Standard S1. The Bicep now records
+  Standard explicitly because Free does not support the existing private endpoint.
 - **Leftovers** from the earlier Logic App design: the `eventhubs` API connection and the
   `la-*` deployments. Nothing here uses them.
 - The Function Apps' **application settings** (names only; values are never recorded): see

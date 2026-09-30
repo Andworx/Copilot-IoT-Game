@@ -182,6 +182,9 @@ jobs:
             -EventHubFullyQualifiedNamespace '${{ steps.deploy.outputs.fqns }}' `
             -EventHubName '${{ steps.deploy.outputs.hub }}' `
             -ConsumerGroup $env:GAME_CONSUMER_GROUP
+      - name: Verify Event Hub private-access prerequisites
+        shell: pwsh
+        run: ./infra/scripts/Test-EventHubPrivateAccess.ps1
       - name: Reference resources still match their snapshots
         shell: pwsh
         run: ./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check
