@@ -33,6 +33,10 @@ param vnetAddressPrefixes array
 param vnetSubnets array
 param vnetTags object = {}
 
+param privateDnsZoneNames array
+param privateDnsLinkName string
+param privateDnsTags object = {}
+
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
 
@@ -70,6 +74,16 @@ module vnet 'modules/vnet.bicep' = {
     addressPrefixes: vnetAddressPrefixes
     subnets: vnetSubnets
     tags: vnetTags
+  }
+}
+
+module privateDns 'modules/private-dns.bicep' = {
+  name: 'private-dns'
+  params: {
+    zoneNames: privateDnsZoneNames
+    linkName: privateDnsLinkName
+    virtualNetworkId: vnet.outputs.id
+    tags: privateDnsTags
   }
 }
 

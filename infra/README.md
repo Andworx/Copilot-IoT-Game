@@ -18,7 +18,7 @@ The owner requested automatic creation of the new staff backend. `staff-api.bice
 
 | Tier | Resources | How | Why |
 |---|---|---|---|
-| **1 + 2: deployed** | VNet and four subnets; Event Hub namespace, the `iot-telemetry` hub and its consumer groups; SignalR service; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
+| **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; Event Hub namespace, the `iot-telemetry` hub and its consumer groups; SignalR service; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
 | **Function App settings** | `IoTHubEventHubConnectionString__fullyQualifiedNamespace`, `IOT_EVENTHUB_NAME`, `IOT_EVENTHUB_CONSUMER_GROUP` | `scripts/Set-FunctionAppSettings.ps1` (merge) | A `Microsoft.Web/sites` resource replaces the whole app-settings collection and would wipe secrets such as `DATAVERSE_CLIENT_SECRET`. The merge only touches the three names above. |
 | **3: reference only** | IoT Hub, DPS, both Function Apps, both plans, both storage accounts, both App Insights | `reference/snapshots/*.json`, checked by `scripts/Invoke-ReferenceSnapshot.ps1` | See below. |
 
@@ -118,9 +118,10 @@ separately validated hardening step.
    - `id-gha-infra-reader`: Reader only. It remains available for reference inspection while
      resources are moved from snapshots into Bicep. It cannot run ARM what-if because ARM checks
      that the caller could write each resource in the template.
-   - `id-gha-infra-deployer`: deployments-only custom role; Contributor on the Event Hub
-     namespace, the SignalR service, the game Function App and `iot-demo-vnet` **only**; and permission to
-     assign only the Event Hubs Data Receiver role, only on the hub.
+   - `id-gha-infra-deployer`: deployments-only custom role; Private DNS Zone Contributor on
+     the resource group; Contributor on the Event Hub namespace, the SignalR service, the game
+     Function App and `iot-demo-vnet` **only**; and permission to assign only the Event Hubs Data
+     Receiver role, only on the hub.
 2. Create the GitHub environments `infra-readonly` (no protection) and `infra-deploy`
    (deployment branches: `main`; add a required reviewer if the plan supports it: the org's Free
    plan does not, see `docs/CI_CD.md`).
