@@ -1,8 +1,8 @@
 // Restore & Spin: the infrastructure this repo owns and may deploy from CI.
 // Scope: resource group. Full rationale and the tiers: infra/README.md.
 //
-//   Tier 1/2 (in this file): Event Hub namespace/hub/consumer groups, SignalR service, and
-//   read access for the game Function App's managed identity.
+//   Tier 1/2 (in this file): VNet/subnets, Event Hub namespace/hub/consumer groups, SignalR
+//   service, and read access for the game Function App's managed identity.
 //   Tier 3 (NOT here, by design): IoT Hub, DPS, Function Apps, plans, storage, App Insights.
 //   They are captured under infra/reference/ and only drift-checked.
 //
@@ -27,6 +27,11 @@ param consumerGroups array
 
 param signalRName string
 param signalRSkuName string
+
+param vnetName string
+param vnetAddressPrefixes array
+param vnetSubnets array
+param vnetTags object = {}
 
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
@@ -57,6 +62,17 @@ module signalR 'modules/signalr.bicep' = {
   }
 }
 
+module vnet 'modules/vnet.bicep' = {
+  name: 'vnet'
+  params: {
+    name: vnetName
+    location: location
+    addressPrefixes: vnetAddressPrefixes
+    subnets: vnetSubnets
+    tags: vnetTags
+  }
+}
+
 module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrincipalId)) {
   name: 'eventhub-receiver'
   dependsOn: [eventHub]
@@ -73,3 +89,4 @@ module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrinci
 output eventHubFullyQualifiedNamespace string = eventHub.outputs.fullyQualifiedNamespace
 output eventHubName string = eventHub.outputs.eventHubName
 output signalRName string = signalR.outputs.name
+output vnetName string = vnet.outputs.name

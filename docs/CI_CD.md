@@ -19,7 +19,7 @@ Other site folders, Dataverse solutions, flows, and the Pi firmware are outside 
 | | Application workflow | Infrastructure workflow |
 |---|---|---|
 | File | `deploy-apps.yml` | `deploy-infra.yml` |
-| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `infra/`: Event Hub, consumer groups, SignalR, Function App Event Hub access |
+| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `infra/`: VNet/subnets, Event Hub, consumer groups, SignalR, Function App Event Hub access |
 | When it deploys | automatically on merge to `main` | checks Azure automatically on every push to `main`; `deploy` is a manual approval action allowed from `main` only |
 | GitHub environment | `production` | `infra-deploy` (reconciliation preview and deploy) |
 | Azure identity | `id-gha-copilot-iot-game-deploy` | `id-gha-infra-reader` and `id-gha-infra-deployer`, least privilege |
@@ -208,8 +208,8 @@ reload the Code App and verify `/api/prize-types`, `/api/device-profiles`, and
 ## Infrastructure workflow (`deploy-infra.yml`)
 
 `.github/workflows/deploy-infra.yml` manages the Azure resources this repo owns, defined in
-[`infra/`](../infra/README.md): the Event Hub namespace, the `iot-telemetry` hub and its
-consumer groups, the SignalR service, and the game Function App's read access to the hub. It
+[`infra/`](../infra/README.md): the VNet and subnets, Event Hub namespace, the `iot-telemetry`
+hub and its consumer groups, SignalR service, and the game Function App's read access to the hub. It
 is separate from `deploy-apps.yml` on purpose: infrastructure changes can stop telemetry for
 every device, so each relevant merge is compared with Azure and applied only after a separate
 manual approval.
