@@ -17,6 +17,7 @@ on:
       - 'infra/modules/staff-resources.bicep'
       - 'infra/staff-api.prod.json'
       - 'infra/scripts/Deploy-StaffApi.ps1'
+      - 'infra/scripts/Deploy-CodeSite.ps1'
   workflow_dispatch:
 
 permissions:
@@ -27,8 +28,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build apps
+  build-function:
+    name: Build Function App
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -37,17 +38,13 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: |
-            azure/package-lock.json
-            power apps/game-box-control/package-lock.json
-            power pages/copilotiotgame/package-lock.json
-            power pages/prize wheel/package-lock.json
+          cache-dependency-path: azure/package-lock.json
       - name: Validate staff provisioning template
         run: az bicep build --file infra/staff-api.bicep --stdout > /dev/null
       - name: Test staff provisioning guards offline
         shell: pwsh
         run: ./infra/scripts/Test-StaffDeployment.ps1
-      - name: Build Function App
+      - name: Build and test Function App
         working-directory: azure
         run: |
           npm ci
@@ -62,7 +59,52 @@ jobs:
           test -f function-package/dist/src/index.js
           cd function-package
           zip -qr ../function-app.zip .
-      - name: Build Power Pages Code Site
+      - uses: actions/upload-artifact@v7
+        with:
+          name: function-app
+          path: function-app.zip
+          if-no-files-found: error
+          retention-days: 14
+
+  build-code-app:
+    name: Build Code App
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: power apps/game-box-control/package-lock.json
+      - name: Build
+        working-directory: power apps/game-box-control
+        run: |
+          npm ci
+          npm run build
+          test -f dist/index.html
+      - uses: actions/upload-artifact@v7
+        with:
+          name: code-app
+          path: |
+            power apps/game-box-control/
+            !power apps/game-box-control/node_modules/**
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+
+  build-kiosk:
+    name: Build kiosk Code Site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: power pages/copilotiotgame/package-lock.json
+      - name: Build
         working-directory: power pages/copilotiotgame
         env:
           VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
@@ -70,7 +112,27 @@ jobs:
           npm ci
           npm run build
           test -f dist/index.html
-      - name: Build Prize Wheel Code Site
+      - uses: actions/upload-artifact@v7
+        with:
+          name: power-pages-kiosk
+          path: |
+            power pages/copilotiotgame/dist/
+            power pages/copilotiotgame/powerpages.config.json
+          if-no-files-found: error
+          retention-days: 14
+
+  build-prize-wheel:
+    name: Build Prize Wheel Code Site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: power pages/prize wheel/package-lock.json
+      - name: Build
         working-directory: power pages/prize wheel
         env:
           VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
@@ -79,29 +141,6 @@ jobs:
           npm ci
           npm run build
           test -f dist/index.html
-      - name: Build Power Apps Code App
-        working-directory: power apps/game-box-control
-        run: |
-          npm ci
-          npm run build
-          test -f dist/index.html
-      - uses: actions/upload-artifact@v7
-        with:
-          name: function-app
-          path: function-app.zip
-          if-no-files-found: error
-          retention-days: 14
-      - uses: actions/upload-artifact@v7
-        with:
-          name: power-pages-kiosk
-          # .powerpages-site/ (site metadata + manifest) is deliberately NOT built from the
-          # repo: the deploy job downloads it from the live site by website ID so
-          # pac pages upload-code-site updates that site instead of creating a new one.
-          path: |
-            power pages/copilotiotgame/dist/
-            power pages/copilotiotgame/powerpages.config.json
-          if-no-files-found: error
-          retention-days: 14
       - uses: actions/upload-artifact@v7
         with:
           name: power-pages-prize-wheel
@@ -111,12 +150,19 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  deploy:
-    name: Deploy production apps
+  build:
+    name: Build apps
+    needs: [build-function, build-code-app, build-kiosk, build-prize-wheel]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'All application builds passed.'
+
+  deploy-backends:
+    name: Deploy and verify backends
     needs: build
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     environment: production
     permissions:
       contents: read
@@ -127,28 +173,19 @@ jobs:
       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       AZURE_FUNCTIONAPP_NAME: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
       STAFF_API_CUTOVER_READY: ${{ vars.STAFF_API_CUTOVER_READY || 'false' }}
-      POWER_PLATFORM_ENVIRONMENT_URL: ${{ vars.POWER_PLATFORM_ENVIRONMENT_URL }}
-      POWER_PLATFORM_TENANT_ID: ${{ vars.POWER_PLATFORM_TENANT_ID }}
-      POWER_PLATFORM_CLIENT_ID: ${{ vars.POWER_PLATFORM_CLIENT_ID }}
-      POWER_PLATFORM_SOLUTION_NAME: ${{ vars.POWER_PLATFORM_SOLUTION_NAME || 'CopilotIoTGame' }}
-      POWER_PAGES_WEBSITE_ID: ${{ vars.POWER_PAGES_WEBSITE_ID || '4938f099-b8dd-485f-a5c2-3c4ad4b7e02a' }}
-      POWER_PRIZE_WHEEL_WEBSITE_ID: ${{ vars.POWER_PRIZE_WHEEL_WEBSITE_ID || '5dadde98-1e91-4a34-8182-1b0a87466e58' }}
-      POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}
     steps:
-      - name: Validate deployment configuration
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - name: Validate Azure deployment configuration
         shell: pwsh
         run: |
           $required = @('AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_SUBSCRIPTION_ID', 'AZURE_FUNCTIONAPP_NAME')
           if ($env:STAFF_API_CUTOVER_READY -notin @('true', 'false')) { throw 'STAFF_API_CUTOVER_READY must be true or false.' }
-          if ($env:STAFF_API_CUTOVER_READY -eq 'true') {
-            $required += @('POWER_PLATFORM_ENVIRONMENT_URL', 'POWER_PLATFORM_TENANT_ID', 'POWER_PLATFORM_CLIENT_ID', 'POWER_PLATFORM_CLIENT_SECRET', 'POWER_PLATFORM_SOLUTION_NAME')
-          }
           foreach ($name in $required) {
-            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
-              throw "Missing GitHub deployment setting: $name. See docs/CI_CD.md."
-            }
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) { throw "Missing GitHub deployment setting: $name. See docs/CI_CD.md." }
           }
-      - uses: actions/checkout@v7
       - name: Load staff deployment configuration
         shell: pwsh
         run: |
@@ -161,19 +198,6 @@ jobs:
         with:
           name: function-app
           path: function-artifact
-      - uses: actions/download-artifact@v8
-        with:
-          name: power-pages-kiosk
-          path: power-pages-kiosk-artifact
-      - uses: actions/download-artifact@v8
-        with:
-          name: power-pages-prize-wheel
-          path: power-pages-prize-wheel-artifact
-      - uses: actions/setup-node@v7
-        with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: power apps/game-box-control/package-lock.json
       - uses: azure/login@v3
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
@@ -183,9 +207,7 @@ jobs:
         if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         working-directory: power apps/game-box-control
-        run: |
-          node scripts/verify-staff-binding.mjs
-          if ($LASTEXITCODE -ne 0) { throw 'Staff connector setup is incomplete; refusing cutover.' }
+        run: node scripts/verify-staff-binding.mjs
       - name: Preview and provision staff API
         id: staff_infra
         shell: pwsh
@@ -214,14 +236,13 @@ jobs:
             Start-Sleep -Seconds 10
           }
           if (-not $verified) { throw 'Staff API did not return 401. Stopping before public/frontend cutover.' }
-          "Staff API provisioned: https://$env:STAFF_HOST. Unauthorized access rejected. Cutover enabled: $env:STAFF_API_CUTOVER_READY" >> $env:GITHUB_STEP_SUMMARY
       - name: Select public API surface before coordinated cutover
         if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         run: |
           az functionapp config appsettings set -g "$env:AZURE_RESOURCE_GROUP" -n "$env:AZURE_FUNCTIONAPP_NAME" --settings API_SURFACE=public --only-show-errors --output none
           if ($LASTEXITCODE -ne 0) { throw 'Could not set the public API surface.' }
-      - name: Deploy Function App
+      - name: Deploy public Function App
         if: env.STAFF_API_CUTOVER_READY == 'true'
         uses: Azure/functions-action@v1
         with:
@@ -229,103 +250,90 @@ jobs:
           package: function-artifact/function-app.zip
           sku: flexconsumption
           remote-build: false
+
+  deploy-frontends:
+    name: Deploy ${{ matrix.label }}
+    needs: [build, deploy-backends]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.STAFF_API_CUTOVER_READY == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - kind: code-app
+            label: Code App
+            artifact: code-app
+          - kind: kiosk
+            label: kiosk Code Site
+            artifact: power-pages-kiosk
+          - kind: prize-wheel
+            label: Prize Wheel Code Site
+            artifact: power-pages-prize-wheel
+    runs-on: windows-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      POWER_PLATFORM_ENVIRONMENT_URL: ${{ vars.POWER_PLATFORM_ENVIRONMENT_URL }}
+      POWER_PLATFORM_TENANT_ID: ${{ vars.POWER_PLATFORM_TENANT_ID }}
+      POWER_PLATFORM_CLIENT_ID: ${{ vars.POWER_PLATFORM_CLIENT_ID }}
+      POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}
+      POWER_PLATFORM_SOLUTION_NAME: ${{ vars.POWER_PLATFORM_SOLUTION_NAME || 'CopilotIoTGame' }}
+      KIOSK_WEBSITE_ID: ${{ vars.POWER_PAGES_WEBSITE_ID || '4938f099-b8dd-485f-a5c2-3c4ad4b7e02a' }}
+      PRIZE_WHEEL_WEBSITE_ID: ${{ vars.POWER_PRIZE_WHEEL_WEBSITE_ID || '5dadde98-1e91-4a34-8182-1b0a87466e58' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ matrix.artifact }}
+          path: artifact
+      - name: Validate Power Platform deployment configuration
+        shell: pwsh
+        run: |
+          foreach ($name in @('POWER_PLATFORM_ENVIRONMENT_URL', 'POWER_PLATFORM_TENANT_ID', 'POWER_PLATFORM_CLIENT_ID', 'POWER_PLATFORM_CLIENT_SECRET', 'POWER_PLATFORM_SOLUTION_NAME')) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) { throw "Missing GitHub deployment setting: $name. See docs/CI_CD.md." }
+          }
       - name: Install Power Platform CLI
-        if: env.STAFF_API_CUTOVER_READY == 'true'
         uses: microsoft/powerplatform-actions/actions-install@v1
         with:
           add-tools-to-path: true
       - name: Authenticate Power Platform
-        if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         run: |
-          pac auth create --name github-production --tenant "$env:POWER_PLATFORM_TENANT_ID" --applicationId "$env:POWER_PLATFORM_CLIENT_ID" --clientSecret "$env:POWER_PLATFORM_CLIENT_SECRET" --url "$env:POWER_PLATFORM_ENVIRONMENT_URL"
+          pac auth create --name "github-${{ matrix.kind }}" --tenant "$env:POWER_PLATFORM_TENANT_ID" --applicationId "$env:POWER_PLATFORM_CLIENT_ID" --clientSecret "$env:POWER_PLATFORM_CLIENT_SECRET" --url "$env:POWER_PLATFORM_ENVIRONMENT_URL"
           if ($LASTEXITCODE -ne 0) { throw 'Power Platform authentication failed.' }
-      - name: Build Power Apps Code App for deployment
-        if: env.STAFF_API_CUTOVER_READY == 'true'
-        shell: pwsh
-        working-directory: power apps/game-box-control
-        run: |
-          npm ci
-          npm run build
-          if (-not (Test-Path 'dist/index.html')) { throw 'Power Apps Code App build output is missing.' }
       - name: Push Power Apps Code App
-        if: env.STAFF_API_CUTOVER_READY == 'true'
+        if: matrix.kind == 'code-app'
         shell: pwsh
-        working-directory: power apps/game-box-control
+        working-directory: artifact
         run: |
           pac code push --environment "$env:POWER_PLATFORM_ENVIRONMENT_URL" --solutionName "$env:POWER_PLATFORM_SOLUTION_NAME"
           if ($LASTEXITCODE -ne 0) { throw 'Power Apps Code App push failed.' }
-      - name: Fetch live kiosk Power Pages metadata
-        if: env.STAFF_API_CUTOVER_READY == 'true'
+      - name: Upload pinned Power Pages Code Site
+        if: matrix.kind != 'code-app'
         shell: pwsh
         run: |
-          # pac pages upload-code-site has no website-ID parameter: it matches the
-          # target site through the .powerpages-site/ folder next to the compiled
-          # code. A checked-in copy drifts (every upload rewrote its IDs, so each
-          # deploy created a brand-new "CopilotIoTGame" website and the live one was
-          # never touched). Download the live site's real metadata by ID instead, and
-          # stop here rather than letting pac create a new site if that fails.
-          $download = Join-Path $env:RUNNER_TEMP 'live-site'
-          pac pages download-code-site --path $download --webSiteId $env:POWER_PAGES_WEBSITE_ID --overwrite
-          if ($LASTEXITCODE -ne 0) { throw "Could not download Power Pages website $env:POWER_PAGES_WEBSITE_ID. Refusing to upload, which would create a new site." }
-          $meta = Get-ChildItem $download -Recurse -Directory -Force -Filter '.powerpages-site' | Select-Object -First 1
-          if (-not $meta) { throw 'Downloaded site has no .powerpages-site folder.' }
-          $id = (Select-String -Path (Join-Path $meta.FullName 'website.yml') -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
-          if ($id -ne $env:POWER_PAGES_WEBSITE_ID) { throw "Downloaded website id $id does not match $env:POWER_PAGES_WEBSITE_ID." }
-          Remove-Item 'power-pages-kiosk-artifact/.powerpages-site' -Recurse -Force -ErrorAction SilentlyContinue
-          Copy-Item $meta.FullName 'power-pages-kiosk-artifact/.powerpages-site' -Recurse
-      - name: Upload kiosk Power Pages Code Site
-        if: env.STAFF_API_CUTOVER_READY == 'true'
-        shell: pwsh
-        working-directory: power-pages-kiosk-artifact
-        run: |
-          pac pages upload-code-site --rootPath "."
-          if ($LASTEXITCODE -ne 0) { throw 'Power Pages Code Site upload failed.' }
-      - name: Verify kiosk Power Pages upload targeted the live site
-        if: env.STAFF_API_CUTOVER_READY == 'true'
-        shell: pwsh
-        working-directory: power-pages-kiosk-artifact
-        run: |
-          $id = (Select-String -Path '.powerpages-site/website.yml' -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
-          if ($id -ne $env:POWER_PAGES_WEBSITE_ID) {
-            throw "Upload used website $id instead of $env:POWER_PAGES_WEBSITE_ID; a duplicate site was created and must be deleted."
-          }
-          Write-Host "Power Pages upload targeted website $id."
-      - name: Fetch live prize wheel Power Pages metadata
-        if: env.STAFF_API_CUTOVER_READY == 'true'
-        shell: pwsh
-        run: |
-          $download = Join-Path $env:RUNNER_TEMP 'live-prize-wheel-site'
-          pac pages download-code-site --path $download --webSiteId $env:POWER_PRIZE_WHEEL_WEBSITE_ID --overwrite
-          if ($LASTEXITCODE -ne 0) { throw "Could not download Power Pages website $env:POWER_PRIZE_WHEEL_WEBSITE_ID. Refusing to upload, which would create a new site." }
-          $meta = Get-ChildItem $download -Recurse -Directory -Force -Filter '.powerpages-site' | Select-Object -First 1
-          if (-not $meta) { throw 'Downloaded prize wheel site has no .powerpages-site folder.' }
-          $id = (Select-String -Path (Join-Path $meta.FullName 'website.yml') -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
-          if ($id -ne $env:POWER_PRIZE_WHEEL_WEBSITE_ID) { throw "Downloaded website id $id does not match $env:POWER_PRIZE_WHEEL_WEBSITE_ID." }
-          Remove-Item 'power-pages-prize-wheel-artifact/.powerpages-site' -Recurse -Force -ErrorAction SilentlyContinue
-          Copy-Item $meta.FullName 'power-pages-prize-wheel-artifact/.powerpages-site' -Recurse
-      - name: Upload prize wheel Power Pages Code Site
-        if: env.STAFF_API_CUTOVER_READY == 'true'
-        shell: pwsh
-        working-directory: power-pages-prize-wheel-artifact
-        run: |
-          pac pages upload-code-site --rootPath "."
-          if ($LASTEXITCODE -ne 0) { throw 'Prize Wheel Power Pages Code Site upload failed.' }
-      - name: Verify prize wheel upload targeted the live site
-        if: env.STAFF_API_CUTOVER_READY == 'true'
-        shell: pwsh
-        working-directory: power-pages-prize-wheel-artifact
-        run: |
-          $id = (Select-String -Path '.powerpages-site/website.yml' -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
-          if ($id -ne $env:POWER_PRIZE_WHEEL_WEBSITE_ID) {
-            throw "Prize Wheel upload used website $id instead of $env:POWER_PRIZE_WHEEL_WEBSITE_ID; a duplicate site was created and must be deleted."
-          }
-          Write-Host "Prize Wheel upload targeted website $id."
+          $websiteId = if ('${{ matrix.kind }}' -eq 'kiosk') { $env:KIOSK_WEBSITE_ID } else { $env:PRIZE_WHEEL_WEBSITE_ID }
+          ./infra/scripts/Deploy-CodeSite.ps1 -ArtifactPath 'artifact' -WebsiteId $websiteId -SiteLabel '${{ matrix.kind }}'
       - name: Clear PAC credentials
-        if: always() && env.STAFF_API_CUTOVER_READY == 'true'
+        if: always()
         shell: pwsh
         run: |
           if (Get-Command pac -ErrorAction SilentlyContinue) {
             pac auth clear
             if ($LASTEXITCODE -ne 0) { throw 'PAC credential cleanup failed.' }
           }
+
+  deploy:
+    name: Deploy production apps
+    needs: [deploy-backends, deploy-frontends]
+    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify deployment fan-out
+        env:
+          BACKEND_RESULT: ${{ needs.deploy-backends.result }}
+          FRONTEND_RESULT: ${{ needs.deploy-frontends.result }}
+          CUTOVER_READY: ${{ vars.STAFF_API_CUTOVER_READY || 'false' }}
+        run: |
+          test "$BACKEND_RESULT" = success
+          if test "$CUTOVER_READY" = true; then test "$FRONTEND_RESULT" = success; fi
+          echo 'All required application deployments passed.'

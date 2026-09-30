@@ -18,6 +18,7 @@
                                  "Infra Deployment Operator": deployments/* only),
                                - Contributor on the Event Hub namespace, the SignalR service
                                  the game Function App, and the demo VNet only,
+                               - Private DNS Zone Contributor on the resource group,
                                - assign ONLY the "Azure Event Hubs Data Receiver" role, and
                                  only on the telemetry event hub (ABAC-conditioned).
                              It has no write access to the IoT Hub, DPS, the legacy Function
@@ -166,6 +167,7 @@ New-Assignment $deployerName 'Contributor' $nsScope
 New-Assignment $deployerName 'Contributor' $signalrScope
 New-Assignment $deployerName 'Contributor' $appScope
 New-Assignment $deployerName 'Contributor' $vnetScope
+New-Assignment $deployerName 'Private DNS Zone Contributor' $rgScope
 
 # May assign/remove only Event Hubs Data Receiver, and only at the hub.
 $condition = "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {$receiverRoleId})) AND " +

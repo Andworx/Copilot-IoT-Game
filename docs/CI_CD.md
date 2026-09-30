@@ -36,25 +36,30 @@ credential and branch gates, not separate deployment targets.
 
 ## Application workflow: flow
 
-1. Work on a feature branch and open a PR to `main`. Every PR runs `Build apps`:
-   Node 22, `npm ci`, and TypeScript/production builds for the Function App, the
-   Game Box Control Code App, the kiosk Power Pages Code Site, and the PrizeWheel Code Site. No cloud credentials
-   are available to the build job, and PRs never deploy.
+1. Work on a feature branch and open a PR to `main`. Four credential-free jobs build the
+   Function App, Game Box Control Code App, kiosk Code Site and PrizeWheel Code Site in
+   parallel. The `Build apps` aggregation job remains the single required branch-protection
+   check. PRs never deploy.
 2. Merge the PR. Pushes to `main` touching any deployed app or the workflow build
    all apps and retain deployment artifacts for 14 days. Documentation-only
    pushes do not deploy.
-3. `Deploy production apps` uses the `production` environment, checks required
-   settings, authenticates, previews/provisions and deploys the staff Function App. With `STAFF_API_CUTOVER_READY=true`, it then deploys the public Function App, rebuilds and pushes the
-   Game Box Control Code App with its OAuth connector binding, then
-   uploads both Code Sites. With the flag unset/false, only the staff backend is released; existing app releases are held while connector setup finishes. The Function ZIP contains only host/package metadata,
-   compiled code, and production dependencies.
+3. `Deploy and verify backends` uses the `production` environment, checks required settings,
+   provisions and deploys the staff Function App, and requires an unauthenticated request to
+   return 401. With `STAFF_API_CUTOVER_READY=true`, it then deploys the public Function App.
+   After that backend gate passes, three isolated jobs push the Code App and upload both Code
+   Sites in parallel. With the flag unset/false, only the staff backend is released. The final
+   `Deploy production apps` aggregation job fails unless every required deployment succeeds.
+   The Function ZIP contains only host/package metadata, compiled code, and production dependencies.
 4. Validate the live kiosk and backend, then update related plan items from Verify
    to Done. A successful upload alone does not prove the application works.
 
-Deployments are serialized and running deployments are not cancelled by a new
-push. GitHub may replace an older pending run with a newer one. This is not an
-atomic release: if the site upload fails, the backend may already be updated.
-Keep backend changes compatible with the previous frontend during rollout.
+Workflow runs are serialized and a running release is not cancelled by a new push. Within one
+run, independent builds run together, the backend deploy and health check form the release gate,
+and the three frontend deploys then run together. The infrastructure workflow is independent and
+can run at the same time. When application code depends on a new infrastructure resource, deploy
+and validate that infrastructure first, then merge or dispatch the application release. This is
+not an atomic release: a frontend may fail after the backend is updated, so keep backend changes
+compatible with the previous frontend during rollout.
 
 ## Application workflow: one-time configuration
 
@@ -252,7 +257,7 @@ branch rule. The existing `production` environment and its identity
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
 | `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Retained for reference inspection while resources are migrated from snapshots into Bicep. | no active workflow job |
-| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only) and Reader on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, and `iot-demo-vnet` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader and Private DNS Zone Contributor on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, and `iot-demo-vnet` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action

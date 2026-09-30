@@ -84,6 +84,18 @@ param vnetSubnets = [
   }
 ]
 
+param privateDnsZoneNames = [
+  'privatelink.azure-devices.net'
+  'privatelink.azurewebsites.net'
+  'privatelink.blob.core.windows.net'
+  'privatelink.service.signalr.net'
+  'privatelink.servicebus.windows.net'
+]
+param privateDnsLinkName = '7jkty3vvfilac'
+param privateDnsTags = {
+  'managed-by': 'bicep'
+}
+
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.
 param functionAppPrincipalId = readEnvironmentVariable('FUNCTION_APP_PRINCIPAL_ID', '')
