@@ -19,11 +19,14 @@ param eventHubName string
 param eventHubPartitionCount int
 param eventHubRetentionDays int
 param eventHubRetentionHours int
+param eventHubPublicNetworkAccess string
+param eventHubTrustedServiceAccessEnabled bool
 
-@description('Consumer groups on the hub. `funcapp` is the legacy copilot-iot-service app; `gamefunc` is this repo\'s Function App.')
+@description('Consumer groups on the hub. `gamefunc` is this repo\'s Function App; the retired legacy `funcapp` reader is intentionally omitted.')
 param consumerGroups array
 
 param signalRName string
+param signalRSkuName string
 
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
@@ -37,6 +40,8 @@ module eventHub 'modules/eventhub.bicep' = {
     partitionCount: eventHubPartitionCount
     messageRetentionInDays: eventHubRetentionDays
     retentionTimeInHours: eventHubRetentionHours
+    publicNetworkAccess: eventHubPublicNetworkAccess
+    trustedServiceAccessEnabled: eventHubTrustedServiceAccessEnabled
     consumerGroups: consumerGroups
     tags: tags
   }
@@ -47,6 +52,7 @@ module signalR 'modules/signalr.bicep' = {
   params: {
     name: signalRName
     location: location
+    skuName: signalRSkuName
     tags: tags
   }
 }
