@@ -246,13 +246,13 @@ branch rule. The existing `production` environment and its identity
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
 | `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Retained for reference inspection while resources are migrated from snapshots into Bicep. | no active workflow job |
-| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only) and Reader on the resource group; Contributor on the Event Hub namespace, the SignalR service and `func-aw-azcom-iot-game` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only) and Reader on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, and `iot-demo-vnet` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
 (nothing deploys on merge), the environment only accepts `main` (so the Azure login is unavailable to any
 other branch), `main` itself is protected by PR review, and the deploy identity can only change the
-Event Hub, SignalR and the game Function App. `what-if` shows exactly what a deploy would do. If the org
+Event Hub, SignalR, the game Function App and the demo VNet. `what-if` shows exactly what a deploy would do. If the org
 later moves to a plan with required reviewers, add one to `infra-deploy`; no workflow change is needed.
 
 Each identity's GitHub credential is bound to its environment name, so a job can only log in as
