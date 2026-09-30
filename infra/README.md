@@ -119,7 +119,7 @@ separately validated hardening step.
      resources are moved from snapshots into Bicep. It cannot run ARM what-if because ARM checks
      that the caller could write each resource in the template.
    - `id-gha-infra-deployer`: deployments-only custom role; Contributor on the Event Hub
-     namespace, the SignalR service and the game Function App **only**; and permission to
+     namespace, the SignalR service, the game Function App and `iot-demo-vnet` **only**; and permission to
      assign only the Event Hubs Data Receiver role, only on the hub.
 2. Create the GitHub environments `infra-readonly` (no protection) and `infra-deploy`
    (deployment branches: `main`; add a required reviewer if the plan supports it: the org's Free

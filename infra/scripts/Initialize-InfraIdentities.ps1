@@ -17,7 +17,7 @@
                                - create deployments in the resource group (custom role
                                  "Infra Deployment Operator": deployments/* only),
                                - Contributor on the Event Hub namespace, the SignalR service
-                                 and the game Function App only,
+                                 the game Function App, and the demo VNet only,
                                - assign ONLY the "Azure Event Hubs Data Receiver" role, and
                                  only on the telemetry event hub (ABAC-conditioned).
                              It has no write access to the IoT Hub, DPS, the legacy Function
@@ -44,6 +44,7 @@ param(
     [string]$EventHubName = 'iot-telemetry',
     [string]$SignalRName = 'signalr-aw-iot-copilot',
     [string]$GameFunctionApp = 'func-aw-azcom-iot-game',
+    [string]$VirtualNetworkName = 'iot-demo-vnet',
     [switch]$PreflightOnly
 )
 
@@ -67,6 +68,7 @@ $nsScope = "$rgScope/providers/Microsoft.EventHub/namespaces/$EventHubNamespace"
 $hubScope = "$nsScope/eventhubs/$EventHubName"
 $signalrScope = "$rgScope/providers/Microsoft.SignalRService/SignalR/$SignalRName"
 $appScope = "$rgScope/providers/Microsoft.Web/sites/$GameFunctionApp"
+$vnetScope = "$rgScope/providers/Microsoft.Network/virtualNetworks/$VirtualNetworkName"
 
 # --- preflight: fail before creating anything ---
 function Assert-CanAdministerRoles {
@@ -163,6 +165,7 @@ New-Assignment $deployerName $deployRoleName $rgScope
 New-Assignment $deployerName 'Contributor' $nsScope
 New-Assignment $deployerName 'Contributor' $signalrScope
 New-Assignment $deployerName 'Contributor' $appScope
+New-Assignment $deployerName 'Contributor' $vnetScope
 
 # May assign/remove only Event Hubs Data Receiver, and only at the hub.
 $condition = "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {$receiverRoleId})) AND " +
