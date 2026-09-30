@@ -103,7 +103,8 @@ before the telemetry function ships (`azure/src/functions/telemetry.ts`), or its
 has nothing to read.
 
 The declared namespace configuration is private-only. `publicNetworkAccess` is
-disabled and the default network action is Deny. The trusted Microsoft services exception remains enabled
+disabled. Azure reports the otherwise-unused default action as Allow when the
+public endpoint is disabled. The trusted Microsoft services exception remains enabled
 because IoT Hub sends to the custom Event Hub endpoint with its system-assigned
 identity. The game Function App reads through VNet integration, private DNS, and
 the Event Hub private endpoint. Local/SAS authentication remains enabled for now,

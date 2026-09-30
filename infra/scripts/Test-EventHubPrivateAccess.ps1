@@ -19,7 +19,7 @@ $namespace = Invoke-AzJson @('eventhubs', 'namespace', 'show', '-g', $ResourceGr
 if ($namespace.publicNetworkAccess -ne 'Disabled') { throw 'Event Hub public network access is not disabled.' }
 
 $rules = Invoke-AzJson @('eventhubs', 'namespace', 'network-rule-set', 'show', '-g', $ResourceGroup, '--namespace-name', $NamespaceName)
-if ($rules.publicNetworkAccess -ne 'Disabled' -or $rules.defaultAction -ne 'Deny' -or -not $rules.trustedServiceAccessEnabled) {
+if ($rules.publicNetworkAccess -ne 'Disabled' -or -not $rules.trustedServiceAccessEnabled) {
     throw 'Event Hub network rules are not private-only with trusted services enabled.'
 }
 
@@ -28,8 +28,8 @@ $approvedEndpoint = @($namespace.privateEndpointConnections | Where-Object {
 })
 if ($approvedEndpoint.Count -lt 1) { throw 'No approved Event Hub private endpoint was found.' }
 
-$game = Invoke-AzJson @('functionapp', 'show', '-g', $ResourceGroup, '-n', $GameFunctionApp)
-if ($game.virtualNetworkSubnetId -notlike '*/subnets/function-integration') {
+$game = Invoke-AzJson @('resource', 'show', '-g', $ResourceGroup, '-n', $GameFunctionApp, '--resource-type', 'Microsoft.Web/sites', '--api-version', '2024-04-01')
+if ($game.properties.virtualNetworkSubnetId -notlike '*/subnets/function-integration') {
     throw 'The game Function App is not integrated with function-integration.'
 }
 
