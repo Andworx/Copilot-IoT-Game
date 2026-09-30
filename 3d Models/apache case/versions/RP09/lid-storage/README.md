@@ -1,0 +1,202 @@
+# RP09 lid-storage working package
+
+This package contains the physically iterated **Andworx Field Kit** cassette
+for the APACHE 2800 lid. It has been promoted from calibration into the RP09
+working revision. RP09 is still not an approved production release until its
+remaining physical gates pass.
+
+## Recorded measurements
+
+- M3 lid-boss pitch: approximately 274 x 200 mm.
+- Clear area between the major ribs: approximately 255 x 183 mm.
+- Lid depth: approximately 35 mm.
+- Adapter length: approximately 45 mm.
+- Key length: approximately 34 mm.
+- Cable length: 152.4 mm (6 in).
+
+Because the 274 mm boss spacing exceeds the 256 mm printer envelope, the fit
+frame is split into left and right halves. Each half is about 145 x 216 mm and
+fits the configured Bambu Lab X1 Carbon bed.
+
+## Print first
+
+Print these three low-material fit parts initially:
+
+1. `exports/lid_fit_frame_L.stl`
+2. `exports/lid_fit_frame_R.stl`
+3. Two or three copies of `exports/switch_locator_tile.stl`
+
+Use the same PETG profile planned for the final holder. Install the four M3
+heat-set inserts with a temperature and depth stop appropriate for the selected
+insert. Allow the case bosses to cool completely before fastening the frame.
+Use M3 pan/button screws only long enough to fully engage the insert; confirm
+the screw cannot bottom in or penetrate the moulded lid.
+
+The two frame halves meet at round alignment tongues. This seam is only an
+alignment feature: the four case screws carry the prototype.
+
+## Fit and switch-location test
+
+1. Confirm the left and right frame halves align with all four lid bosses
+   without bending, spreading, or forcing either half.
+2. Confirm the rails remain inside the gasket and do not rest on the raised
+   moulded ribs.
+3. Cover the face of each locator tile with painter's tape and a 2-3 mm layer
+   of soft modelling clay, removable putty, or low-density foam.
+4. Temporarily tape the tiles to the lid floor in the expected safety-switch
+   area. Keep the printed face toward the lid and the soft witness material
+   toward the controls.
+5. Close the lid **gently by hand without latching it**. Stop immediately if
+   hard resistance is felt; never use the latch to force the lid over a tile.
+6. Open the lid and record the witness position relative to the tile's 10 mm
+   grid and to the nearest boss. Repeat until the full two-switch envelope is
+   mapped.
+7. Also measure the deepest uncompressed witness. The final cassette must leave
+   3-5 mm beyond that control envelope.
+
+Report the measured boss pitch if either frame half misses a hole, and provide
+a straight-on photograph of the installed frame plus the marked locator tiles.
+
+## Printable storage prototype
+
+After the two fit-frame halves align, print:
+
+1. `exports/lid_storage_frame_L.stl` — the left perimeter, open switch garage,
+   two seam tongues, and four design-plate mounting bosses.
+2. `exports/lid_storage_carrier_R.stl` — the right frame half with a 34 mm
+   total carrier well. The original 21 mm cavity remains in front of the frame,
+   and an additional 13 mm extends behind the frame into the lid. All
+   compartments are printed directly into it: the left storage bay has four
+   cable cells, while the 85 mm-wide right bay has a 122 mm lower compartment
+   and a 51.8 mm upper tray. The lower compartment has 33 mm clear depth and
+   nominally clears the 120 x 83 mm GL.iNet Beryl AX footprint by 1 mm per side.
+3. `exports/lid_storage_cover_base.stl` — the common drop-in cover.
+4. `exports/lid_storage_cover_logo.stl` — the contrasting Andworx/Field Kit
+   inlay.
+5. Four copies of `exports/lid_storage_cover_cam_tab.stl` — quarter-turn M3
+   cover retainers.
+
+The former cable and accessory insert STLs are obsolete. Their compartments
+are now integrated into `lid_storage_carrier_R.stl` and must not be printed
+separately.
+
+Two optional blank parts are also included:
+
+- `exports/lid_storage_cover_blank.stl` has the same outline and six mounting
+  holes as the branded cover, but no text or logo pockets. Use it as the source
+  for future text or graphics.
+- `exports/lid_storage_left_design_plate_blank.stl` is an 85 x 196 x 1.6 mm
+  solid plate with four M3 holes aligned to the raised bosses on the left frame.
+  Its uninterrupted face is the source for future raised, recessed, painted,
+  or multicolor artwork. Because it closes the former safety-switch opening,
+  complete the closed-lid witness test before leaving it installed in service.
+
+The `artwork/` folder contains a dimension-matched Microsoft cloud architecture
+SVG for this plate. It uses current source vectors for IoT Hub, Event Hubs,
+Azure Functions, SignalR, Dataverse, Power Pages, Power Apps, and Copilot Studio
+and includes a hidden alignment layer for the four plate screws.
+
+Three printable cloud-architecture options accompany the SVG:
+
+- `lid_storage_left_design_plate_cloud_base.stl` is the 1.6 mm structural
+  plate.
+- `lid_storage_left_design_plate_cloud_artwork.stl` is the matching 0.4 mm
+  raised artwork. Load it as a second part in the same slicer object, preserve
+  its coordinates, and assign a contrasting filament.
+
+For a single-extruder color change, load the base and artwork as parts of one
+object and schedule the filament change at Z = 1.6 mm. The artwork occupies
+only the final 0.4 mm.
+
+The blank plate remains available for custom art. All cloud variants preserve
+the same 85 x 196 mm outline and four mounting holes.
+
+## Tool-free storage cover
+
+The print-sensitive flex latches and fixed top retaining rail have been removed.
+Both branded and blank covers now drop straight between the two reinforced side
+guides. Four rigid printed cam tabs rotate over the existing recessed top and
+bottom edge pads, so normal access requires no bending and no screw removal.
+
+Install one M3 heat-set insert in each of the four new pivot bosses outside the
+cover edge. Retain each cam with an M3 x 6 mm button-head screw; tighten only
+until the cam remains flat but still rotates by hand. A thin M3 nylon washer is
+optional. Turn all four cam arms outward to remove the cover, then turn them
+inward over the recessed pads to lock it. The 20 mm finger notch remains for
+lifting the cover.
+
+The six original M3 cover holes and heat-set-insert bosses remain available as
+backup fasteners. The cams reach only 24.05 mm forward of the mounting frame,
+remaining inside the existing 24.2 mm side-guide envelope. Confirm every cam
+clears the cover in its open position and overlaps the recessed pad when locked
+before testing the carrier vertically.
+
+## Left/right seam hardware
+
+The updated left frame has two 20 x 8 x 3.2 mm tongues. They slide into
+three-sided pockets at the top and bottom of the right carrier; the case lid
+closes the fourth side after installation. Each joint uses one M3 screw through
+the tongue and pocket roof, with an M3 hex nut captured from the front. The
+screw head is recessed into the tongue on the lid side.
+
+Start with M3 x 12 mm countersunk screws and standard M3 nuts, but verify the
+actual screw does not bottom out or protrude toward the lid. Insert both tongues
+fully before installing either screw. The joint must pull together without
+bending the long frame rails.
+
+The mounting frame crosses the carrier depth. The carrier floor is 13 mm behind
+the frame, toward the moulded lid, while the cavity continues 21 mm in front of
+the frame to the removable cover. The standard 2.4 mm floor provides 31.6 mm
+clear internal depth. Only the 85 x 122 mm lower-right compartment is locally
+thinned to a 1.0 mm floor, providing 33 mm clear depth without increasing the
+external carrier envelope. The cover face is 23.4 mm forward of the frame and
+the reinforced side guides reach 24.2 mm. Perform a clay or tape witness test
+to confirm the new 13 mm rear extension clears the lid before latching the
+case. The cover retains six M3 clearance holes over 4.0 mm heat-set-insert
+pilots as optional backup fastening points.
+
+This remains a test assembly. Before closing the lid, verify that every cable
+coil sits below the integrated dividers, the adapter and keys cannot rock above
+the rim, and the cover lies flat without preload. Close the lid gently without
+engaging the case latches for the first test.
+
+## Intended final architecture
+
+The final cassette will use the four-boss frame as a permanent mounting
+interface and divide the 255 x 183 mm rib opening into three bays. Viewed with
+the open lid in the same orientation as the supplied photograph, they are:
+
+- left: a permanently open safety-switch garage;
+- centre: four printed-in flat-coil cable cells for the 6-inch leads; and
+- right: an integrated 85 mm-wide bay with a 122 x 33 mm lower compartment and
+  an upper tray.
+
+The two storage bays can share one removable cover. Its visible face becomes
+the Andworx advertising panel while the entire left bay remains open. The
+switch witness test still determines the final size and edge clearances of that
+left cutout; the named bay is not permission to skip the closure test.
+
+The prototype carrier adds 13 mm behind the frame to the previously acceptable
+21 mm front cavity, producing 34 mm total depth. Physical witness results
+override the nominal dimensions; do not latch the case until the rear extension
+and safety-switch garage have both passed a clay or tape witness test.
+
+The final storage covers will use captured screws or sliding retainers so every
+item remains secured when the lid is vertical or upside down. No cable, key, or
+adapter may be able to fall onto the controls.
+
+## Advertising proof
+
+`andworx_field_kit_base.stl` and `andworx_field_kit_logo.stl` are an optional
+two-colour appearance coupon. Print the base in navy/black and the logo insert
+in Andworx yellow. The production cover will reuse the official vector-derived
+wordmark only after the switch-garage position is known.
+
+## Promotion gate
+
+Do not design or print the full storage cassette until:
+
+- the four-boss frame fits;
+- the gasket and ribs remain clear;
+- the safety-switch envelope is transferred into lid coordinates; and
+- the maximum safe pocket depth is confirmed with the complete panel installed.
