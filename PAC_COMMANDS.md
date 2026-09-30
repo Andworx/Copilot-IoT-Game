@@ -19,7 +19,7 @@ pac solution export --name CopilotIoTGame --path "solutions" -ow
 ### CopilotIoTGame Solution — Unpack
 
 ```powershell
-pac solution unpack --zipfile "solutions\CopilotIoTGame.zip" --folder "solutions\CopilotIoTGame" --allowWrite
+pac solution unpack --zipfile "solutions\CopilotIoTGame.zip" --folder "solutions\CopilotIoTGame" --allowWrite -ad
 ```
 
 ### CopilotIoTGame Solution — Pack
@@ -45,7 +45,7 @@ pac solution export --name andy_PrizeEngine --path "solutions" -ow
 ### PrizeEngine Solution — Unpack
 
 ```powershell
-pac solution unpack --zipfile "solutions\andy_PrizeEngine.zip" --folder "solutions\PrizeEngine" --allowWrite
+pac solution unpack --zipfile "solutions\andy_PrizeEngine.zip" --folder "solutions\PrizeEngine" --allowWrite -ad
 ```
 
 ### PrizeEngine Solution — Pack
