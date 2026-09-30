@@ -68,9 +68,8 @@ leases and each misses events.
 | `gamefunc` | this repo's game Function App |
 
 The owner confirmed on 2026-09-29 that the former `copilot-iot-service` app is
-retired. Its `funcapp` consumer group can be deleted after the private-access
-deployment is validated; leaving the empty group briefly has no effect on the
-active consumer.
+retired. Its `funcapp` consumer group was removed on 2026-09-30 after the
+private-access path was validated.
 
 ## Running it
 
@@ -91,9 +90,9 @@ the release order and troubleshooting are in [docs/CI_CD.md](../docs/CI_CD.md#in
 
 | Trigger | Runs | Cloud access |
 |---|---|---|
-| PR or push touching `infra/**` | Bicep compile + lint, manifest check | none |
-| Manual `what-if` | preview; changes nothing | `infra-deploy` (deployer identity, `main` only) |
-| Manual `drift`, and weekly | `drift`: what-if must show no Create/Modify/Delete (`infra-deploy`); `snapshots`: every snapshot must match live (`infra-readonly`, read-only) |
+| PR touching `infra/**` | Bicep compile + lint, manifest check | none |
+| Every push to `main` | compare Bicep with Azure; report and fail on actionable differences | `infra-deploy`; changes nothing |
+| Manual `what-if` | run the same reconciliation check on demand | `infra-deploy`; changes nothing |
 | Manual `deploy` (from `main` only) | assign the Function App a managed identity, deploy `main.bicep`, merge the settings, re-check snapshots | `infra-deploy` (`main` only) |
 
 The first `deploy` creates the `gamefunc` consumer group and the Function App's managed
@@ -116,7 +115,9 @@ separately validated hardening step.
 1. Run `scripts/Initialize-InfraIdentities.ps1` (try `-WhatIf` first) as someone with Owner
    or User Access Administrator on the resource group. It creates two managed identities with
    GitHub OIDC credentials:
-   - `id-gha-infra-reader`: Reader only. It runs the snapshot drift check. It cannot run `what-if`: ARM checks that the caller could write each resource in the template, so `what-if` runs as the deployer.
+   - `id-gha-infra-reader`: Reader only. It remains available for reference inspection while
+     resources are moved from snapshots into Bicep. It cannot run ARM what-if because ARM checks
+     that the caller could write each resource in the template.
    - `id-gha-infra-deployer`: deployments-only custom role; Contributor on the Event Hub
      namespace, the SignalR service and the game Function App **only**; and permission to
      assign only the Event Hubs Data Receiver role, only on the hub.
@@ -125,9 +126,8 @@ separately validated hardening step.
    plan does not, see `docs/CI_CD.md`).
 3. Add the repository variables `AZURE_INFRA_READER_CLIENT_ID` and
    `AZURE_INFRA_DEPLOYER_CLIENT_ID` (the script prints the values).
-4. Run the workflow with `what-if` first, then `deploy`, then `drift` to confirm it is clean
-   (`drift` fails until the first deploy because the `gamefunc` group is still pending). The role
-   assignments and the what-if permissions have not yet been exercised by CI.
+4. Merge an infrastructure change. Review the automatic reconciliation summary, approve it with
+   the manual `deploy` action, then rerun `what-if` to confirm Azure matches Bicep.
 
 ## Known gaps and things worth changing later
 
@@ -137,8 +137,8 @@ separately validated hardening step.
 - **Retired app cleanup:** `func-aw-iot-copilot` is no longer used. It remains a
   separately owned reference resource until the app, its dedicated `EastUSPlan`,
   `stfuncawiotcopilot`, Application Insights component and failure alert are
-  deliberately removed. Keep the shared Log Analytics workspace. Remove the
-  legacy `funcapp` consumer group only after current-game telemetry is verified.
+  deliberately removed. Keep the shared Log Analytics workspace. The legacy
+  `funcapp` consumer group has already been removed.
 - **SignalR CORS is `*`** and the live tier is Standard S1. The Bicep now records
   Standard explicitly because Free does not support the existing private endpoint.
 - **Leftovers** from the earlier Logic App design: the `eventhubs` API connection and the
@@ -154,3 +154,24 @@ in [infra/network](network/README.md). The Infrastructure workflow has a
 `network-what-if` action; this is preview-only and never runs the older service
 main.bicep. Actual live gateway settings (Generation2, BGP on) and the singular
 `private-endpoint` subnet name supersede earlier planning notes.
+
+## Step-by-step adoption plan
+
+The end state is a portable deployment that can recreate the demo in another subscription.
+The captured network template is intentionally not deployed as one large change. Move one resource
+group into the owned template at a time, using this loop for every step:
+
+1. Add one resource or tightly coupled resource set to Bicep and parameterize subscription-specific
+   values.
+2. Merge the PR. The main-branch reconciliation check reports the exact Azure difference.
+3. Review the summary and manually run `deploy` to approve it.
+4. Run reconciliation again; it must report no actionable difference.
+5. Validate VPN, private DNS, telemetry, the Power Page and the agent before continuing.
+
+Adopt the network in dependency order: VNet and subnets; private DNS zones and links; DNS resolver
+and inbound endpoint; VPN public IP and gateway; then one private endpoint and its DNS zone group at
+a time. After the network is reproducible, adopt the remaining service plans, storage, Function Apps,
+monitoring, IoT Hub and DPS. IoT Hub and DPS come last because device enrollment state is outside ARM
+and the existing IoT Hub route contains a redacted credential that cannot be reconstructed from an
+export. VPN client private keys and application secrets stay outside the repository; only public
+certificates or secret-store references belong in deployment parameters.

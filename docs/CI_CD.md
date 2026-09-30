@@ -6,8 +6,10 @@ Two workflows release this repo:
   `power apps/game-box-control/`, and `power pages/copilotiotgame/` (site name
   `CopilotIoTGame`). It deploys automatically when a relevant change merges to `main`.
 - `.github/workflows/deploy-infra.yml` manages the Azure resources in `infra/` (Event Hub,
-  SignalR, and the Function App's access to the hub). It only runs on request, and every
-  Azure-touching job is manual, read-only, or scheduled drift detection. The separate staff app template is the owner-authorized exception: the application workflow provisions it automatically; see [staff wiring](STAFF_API_WIRING.md).
+  SignalR, and the Function App's access to the hub). Every push to `main` automatically
+  compares Bicep with Azure and reports whether deployment approval is needed. Deployment is
+  still a separate manual action. The separate staff app template is the owner-authorized
+  exception: the application workflow provisions it automatically; see [staff wiring](STAFF_API_WIRING.md).
 
 Other site folders, Dataverse solutions, flows, and the Pi firmware are outside both workflows.
 
@@ -17,8 +19,8 @@ Other site folders, Dataverse solutions, flows, and the Pi firmware are outside 
 |---|---|---|
 | File | `deploy-apps.yml` | `deploy-infra.yml` |
 | Covers | Function App code, Game Box Control, Code Site | `infra/`: Event Hub, consumer groups, SignalR, Function App Event Hub access |
-| When it deploys | automatically on merge to `main` | never automatically; `deploy` is a manual action, allowed from `main` only |
-| GitHub environment | `production` | `infra-deploy` (what-if, drift, deploy) and `infra-readonly` (snapshot drift check) |
+| When it deploys | automatically on merge to `main` | checks Azure automatically on every push to `main`; `deploy` is a manual approval action allowed from `main` only |
+| GitHub environment | `production` | `infra-deploy` (reconciliation preview and deploy) |
 | Azure identity | `id-gha-copilot-iot-game-deploy` | `id-gha-infra-reader` and `id-gha-infra-deployer`, least privilege |
 | Details | [Application workflow](#application-workflow-flow) and the sections below | [Infrastructure workflow](#infrastructure-workflow-deploy-infrayml) |
 
@@ -202,25 +204,36 @@ reload the Code App and verify `/api/prize-types`, `/api/device-profiles`, and
 `.github/workflows/deploy-infra.yml` manages the Azure resources this repo owns, defined in
 [`infra/`](../infra/README.md): the Event Hub namespace, the `iot-telemetry` hub and its
 consumer groups, the SignalR service, and the game Function App's read access to the hub. It
-is separate from `deploy-apps.yml` on purpose: infrastructure changes rarely, and a mistake
-there can stop telemetry for every device, so it is previewed, drift-checked, and applied only
-on request.
+is separate from `deploy-apps.yml` on purpose: infrastructure changes can stop telemetry for
+every device, so each relevant merge is compared with Azure and applied only after a separate
+manual approval.
 
 Everything else in the resource group (IoT Hub, DPS, both Function Apps, plans, storage,
-App Insights) is **recorded and drift-checked but never deployed**. The deploy identity has no
-write access to it. See [`infra/README.md`](../infra/README.md) for why.
+App Insights) is currently **recorded but never deployed**. Its snapshots are checked as a
+post-deployment safety guard. The deploy identity has no write access to it. These resources will
+move into Bicep one at a time as their deployment behavior is validated; see
+[`infra/README.md`](../infra/README.md).
 
 ### What triggers what
 
 | Trigger | Jobs that run | Azure access |
 |---|---|---|
-| PR or push touching `infra/**` or the workflow | `validate`: compile and lint the Bicep, confirm every reference snapshot exists | none |
-| Manual, `action = what-if` | `validate`, then `what-if`: preview against the live resource group; changes nothing | `infra-deploy` (deployer identity, `main` only) |
-| Manual, `action = drift`, and every Monday 13:00 UTC | `validate`, then two jobs: `drift` (`what-if` must show no Create/Modify/Delete; changes nothing) and `snapshots` (each snapshot in `infra/reference/` must match live) | `drift`: `infra-deploy`; `snapshots`: `infra-readonly` |
+| PR touching `infra/**` or the workflow | `validate`: compile and lint the Bicep, confirm every reference snapshot exists | none |
+| Every push to `main` | `validate`, then `reconcile`: compare Bicep with Azure and fail with a change summary when approval/deployment is needed | `infra-deploy`; read-only operation |
+| Manual, `action = what-if` | Run the same reconciliation check on demand; changes nothing | `infra-deploy` (deployer identity, `main` only) |
 | Manual, `action = deploy`, from `main` only | `validate`, then `deploy`: assign the game Function App a managed identity, deploy `main.bicep` (incremental), merge the telemetry settings, re-check snapshots | `infra-deploy` (`main` only) |
 
-This shared-infrastructure workflow never deploys automatically. The staff-only template is released separately by deploy-apps.yml. Merging other infra changes does not change Azure until someone runs
-`deploy`.
+This shared-infrastructure workflow never deploys automatically. The staff-only template is
+released separately by deploy-apps.yml. Merging an infrastructure change checks Azure and
+notifies repository watchers through the failed reconciliation check when Azure differs. Review
+the job summary and run `deploy` to approve it. After deployment, rerun the failed reconciliation
+job or dispatch `what-if`; it passes when Azure matches Bicep.
+
+Deployments use ARM incremental mode. Resources absent from the template are retained, and Azure
+reconciles declared resources to their desired properties. ARM can still issue a PUT for a declared
+resource even when most properties are unchanged, so each resource must be captured and validated
+individually before expanding the template. The known read-only Event Hub
+`privateEndpointConnections` what-if difference is filtered from the approval signal.
 
 ### GitHub environments, Azure identities, and permissions
 
@@ -232,8 +245,8 @@ branch rule. The existing `production` environment and its identity
 
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
-| `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Used only by the `snapshots` drift job. | none, because the weekly drift check runs unattended |
-| `infra-deploy` | `id-gha-infra-deployer` | Runs `what-if`, the Bicep `drift` check and `deploy`. `Infra Deployment Operator` (deployments only) and Reader on the resource group; Contributor on the Event Hub namespace, the SignalR service and `func-aw-azcom-iot-game` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Retained for reference inspection while resources are migrated from snapshots into Bicep. | no active workflow job |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only) and Reader on the resource group; Contributor on the Event Hub namespace, the SignalR service and `func-aw-azcom-iot-game` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
@@ -275,7 +288,6 @@ the legacy Function App, or storage, because the identity has no permission to.
 
 ```powershell
 gh workflow run deploy-infra.yml --ref main -f action=what-if   # preview, read-only
-gh workflow run deploy-infra.yml --ref main -f action=drift     # also runs weekly
 gh workflow run deploy-infra.yml --ref main -f action=deploy    # main only
 gh run list --workflow deploy-infra.yml --limit 5
 gh run watch <run-id> --exit-status
@@ -305,16 +317,17 @@ group, the Function App's managed identity, and its Event Hub role before it can
 flowchart TB
   PR[Pull request] -->|"Build apps + Validate Bicep, no cloud credentials"| Merge[Merge to main]
   Merge -->|"app code changed: automatic"| Apps["Deploy production apps (deploy-apps.yml)"]
-  Merge -->|"infra changed: nothing happens yet"| Manual[Run Infrastructure manually]
-  Manual --> WI[what-if: read the preview] --> Drift[drift: expect only the intended change] --> Deploy["deploy: main only"]
+  Merge -->|"infra changed: automatic comparison"| WI[reconcile: review the preview]
+  WI -->|"difference found"| Manual[Approve by running Infrastructure deploy]
+  Manual --> Deploy["deploy: main only"]
   Deploy -.->|"must finish first when the app needs it"| Apps
 ```
 
 For the telemetry pipeline, in order:
 
 1. Merge the infra PR (this adds the workflow to `main`).
-2. Run `what-if` and confirm it contains only the intended Event Hub network-rule
-   changes, then run `deploy` and `drift`.
+2. Review the automatic reconciliation summary, then run `deploy`. Dispatch `what-if`
+   afterward to confirm Azure matches Bicep.
 3. Merge the application PR; `deploy-apps.yml` ships the telemetry function.
 4. Restart the panel Pi service, then verify the live path (Pi to kiosk).
 5. Keep the plan items at Verify until step 4 passes.
@@ -337,9 +350,8 @@ leaves every other setting alone.
 |---|---|
 | `AADSTS700213` / no matching federated identity | The job's environment name does not match the identity's credential (`infra-readonly` / `infra-deploy`), or the environment does not exist |
 | `AuthorizationFailed` on `what-if` or `deploy` | The identity's role assignment is missing; re-run `Initialize-InfraIdentities.ps1` |
-| `Authorization failed for template resource ... /write` on `what-if` | `what-if` was run as a read-only identity. ARM checks that the caller could *write* every resource in the template, even though what-if changes nothing, so `what-if` and the Bicep `drift` check run as the deployer identity, not the reader |
-| `drift` fails on the `what-if` step | The live Event Hub or SignalR differs from `infra/`. Read the listed changes: either fix Azure or update the Bicep |
-| `drift` fails on a snapshot | An out-of-band change to the IoT Hub, DPS, a Function App, storage or App Insights. Investigate; if intended, run `Invoke-ReferenceSnapshot.ps1 -Mode Export` (PowerShell 7) and commit |
+| `Authorization failed for template resource ... /write` on reconciliation | The check was run as a read-only identity. ARM checks that the caller could write every resource in the template, even though what-if changes nothing, so reconciliation runs as the deployer identity |
+| Reconciliation fails after a merge | Azure differs from `infra/`. Review the listed Create/Modify/Delete operations and run the manual `deploy` action if they are intended |
 | `deploy` job does not start | Not run from `main` (the environment only accepts `main`) |
 | Telemetry function does not start after `deploy` | Role assignments can take a few minutes to take effect; check the Function App's log stream, and confirm the three settings above exist |
 | Retired `func-aw-iot-copilot` still runs | It is no longer an Event Hub dependency. Retire its dedicated app/plan/storage/monitoring resources separately after the game telemetry validation window. |
@@ -369,7 +381,6 @@ Infrastructure follows the same rule (see [Infrastructure workflow](#infrastruct
 
 ```powershell
 gh workflow run deploy-infra.yml --ref main -f action=what-if   # read-only preview
-gh workflow run deploy-infra.yml --ref main -f action=drift     # read-only check
 gh workflow run deploy-infra.yml --ref main -f action=deploy    # only when explicitly asked
 ```
 
