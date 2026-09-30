@@ -67,7 +67,9 @@ resource networkRules 'Microsoft.EventHub/namespaces/networkRuleSets@2024-05-01-
   name: 'default'
   properties: {
     publicNetworkAccess: publicNetworkAccess
-    defaultAction: 'Deny'
+    // Azure normalizes this to Allow when public access is Disabled. The public
+    // endpoint is still blocked; keeping the reported value avoids permanent drift.
+    defaultAction: publicNetworkAccess == 'Disabled' ? 'Allow' : 'Deny'
     trustedServiceAccessEnabled: trustedServiceAccessEnabled
     ipRules: []
     virtualNetworkRules: []
