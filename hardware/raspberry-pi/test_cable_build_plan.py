@@ -15,7 +15,7 @@ class CableBuildPlanTests(unittest.TestCase):
     def test_rj45_socket_inventory(self):
         self.assertEqual(PLAN["schema"], "panel-rj45-links/v1")
         self.assertEqual(set(PLAN["socketTypes"].values()), {"rj45"})
-        self.assertEqual(PLAN["socketContacts"], {"S1": [1], "S2": [1], "S3": [1], "S4": [2]})
+        self.assertEqual(PLAN["socketContacts"], {"S1": [4], "S2": [4], "S3": [4], "S4": [4]})
 
     def test_standard_patch_cable_definition(self):
         self.assertEqual(len(PLAN["cables"]), 1)

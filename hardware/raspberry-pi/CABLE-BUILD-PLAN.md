@@ -6,16 +6,16 @@ This replaces the earlier custom connector matrix. The panel now uses four ident
 
 Wire exactly one active contact on each RJ-45 jack. Leave every other RJ-45 contact open. Do not connect any RJ-45 contact, shield, drain, or jack shell to ground.
 
-The current panel uses the contacts observed in live continuity testing: LAN 1-LAN 3 use RJ-45 pin 1, and LAN 4 uses RJ-45 pin 2.
+The panel uses RJ-45 pin 4 on every socket. Standard straight-through patch cables bridge pin 4 to pin 4 between ports.
 
 | Panel label | Firmware name | RJ-45 jack contact | Pi BCM GPIO | Pi physical header pin |
 |---|---|---:|---:|---:|
-| LAN 1 | S1 | Pin 1 | GPIO4 | Pin 7 |
-| LAN 2 | S2 | Pin 1 | GPIO25 | Pin 22 |
-| LAN 3 | S3 | Pin 1 | GPIO2 | Pin 3 |
-| LAN 4 | S4 | Pin 2 | GPIO3 | Pin 5 |
+| LAN 1 | S1 | Pin 4 | GPIO4 | Pin 7 |
+| LAN 2 | S2 | Pin 4 | GPIO25 | Pin 22 |
+| LAN 3 | S3 | Pin 4 | GPIO2 | Pin 3 |
+| LAN 4 | S4 | Pin 4 | GPIO7 | Pin 26 |
 
-Unused previous socket lines are no longer part of the cable matrix: GPIO7, GPIO12, GPIO16, GPIO18, GPIO20, and GPIO24 should be disconnected from the panel sockets.
+Unused previous socket lines are no longer part of the cable matrix: GPIO3, GPIO12, GPIO16, GPIO18, GPIO20, and GPIO24 should be disconnected from the panel sockets.
 
 ## Valid links
 
@@ -23,12 +23,12 @@ Any standard straight-through RJ-45 patch cable creates one detectable bridge be
 
 | Required link | Firmware link | Expected raw bridge |
 |---|---|---|
-| LAN 1-LAN 2 | S1-S2 | `S1 pin 1 <-> S2 pin 1` |
-| LAN 1-LAN 3 | S1-S3 | `S1 pin 1 <-> S3 pin 1` |
-| LAN 1-LAN 4 | S1-S4 | `S1 pin 1 <-> S4 pin 2` |
-| LAN 2-LAN 3 | S2-S3 | `S2 pin 1 <-> S3 pin 1` |
-| LAN 2-LAN 4 | S2-S4 | `S2 pin 1 <-> S4 pin 2` |
-| LAN 3-LAN 4 | S3-S4 | `S3 pin 1 <-> S4 pin 2` |
+| LAN 1-LAN 2 | S1-S2 | `S1 pin 4 <-> S2 pin 4` |
+| LAN 1-LAN 3 | S1-S3 | `S1 pin 4 <-> S3 pin 4` |
+| LAN 1-LAN 4 | S1-S4 | `S1 pin 4 <-> S4 pin 4` |
+| LAN 2-LAN 3 | S2-S3 | `S2 pin 4 <-> S3 pin 4` |
+| LAN 2-LAN 4 | S2-S4 | `S2 pin 4 <-> S4 pin 4` |
+| LAN 3-LAN 4 | S3-S4 | `S3 pin 4 <-> S4 pin 4` |
 
 Two cables can be used at the same time when they do not share a port, such as S1-S2 plus S3-S4.
 
@@ -71,7 +71,7 @@ sudo systemctl stop restore-and-spin-panel.service
 With no cables connected, expect no bridges and all sockets open. With a cable between LAN 1 and LAN 3, expect only:
 
 ```text
-bridges: ['S1 pin 1 <-> S3 pin 1']
+bridges: ['S1 pin 4 <-> S3 pin 4']
 cables:  [{'cable': 1, 'sockets': ['S1', 'S3']}]
 sockets: {'S1': 'connected', 'S2': 'open', 'S3': 'connected', 'S4': 'open'}
 ```

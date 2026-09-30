@@ -77,7 +77,7 @@ class DecodeTests(unittest.TestCase):
         self.assertEqual(checked, 6)
 
     def test_self_short_is_unknown(self):
-        m = matrix_for({frozenset((("S3", 1), ("S3", 1)))})
+        m = matrix_for({frozenset((("S3", 4), ("S3", 4)))})
         cables, plugged = m.decode(m.scan_bridges())
         self.assertEqual(cables, [])
         self.assertFalse(any(plugged.values()))
@@ -92,7 +92,7 @@ class DecodeTests(unittest.TestCase):
         self.assertTrue(all(plugged.values()))
 
     def test_unlisted_contact_reports_no_link(self):
-        m = matrix_for({frozenset((("S1", 4), ("S2", 4)))})
+        m = matrix_for({frozenset((("S1", 1), ("S2", 1)))})
         cables, plugged = m.decode(m.scan_bridges())
         self.assertEqual(cables, [])
         self.assertFalse(any(plugged.values()))

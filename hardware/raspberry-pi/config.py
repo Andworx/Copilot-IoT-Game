@@ -29,9 +29,9 @@ LED_PINS = {
 # cable bridges the active contact between the two connected ports (see
 # cable_matrix.py and the README's "RJ-45 cable matrix" section).
 SOCKET_NODES = {
-    "S1": {1: 4},
-    "S2": {1: 25},
-    "S3": {1: 2},
-    "S4": {2: 7},
+    "S1": {4: 4},
+    "S2": {4: 25},
+    "S3": {4: 2},
+    "S4": {4: 7},
 }
 

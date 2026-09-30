@@ -93,10 +93,10 @@ No external resistors are needed except the LED current-limiting resistors.
 | LED 2 (Yellow) | LED2 | GPIO27 | 13 |
 | LED 3 (Orange) | LED3 | GPIO22 | 15 |
 | LED 4 (Green) | LED4 | GPIO23 | 16 |
-| LAN 1 / S1 RJ-45 pin 1 | S1P1 | GPIO4 | 7 |
-| LAN 2 / S2 RJ-45 pin 1 | S2P1 | GPIO25 | 22 |
-| LAN 3 / S3 RJ-45 pin 1 | S3P1 | GPIO2 | 3 |
-| LAN 4 / S4 RJ-45 pin 2 | S4P2 | GPIO7 | 26 |
+| LAN 1 / S1 RJ-45 pin 4 | S1P4 | GPIO4 | 7 |
+| LAN 2 / S2 RJ-45 pin 4 | S2P4 | GPIO25 | 22 |
+| LAN 3 / S3 RJ-45 pin 4 | S3P4 | GPIO2 | 3 |
+| LAN 4 / S4 RJ-45 pin 4 | S4P4 | GPIO7 | 26 |
 
 **14 of the Pi's 26 usable GPIO pins used, 12 spare** (GPIO3, 8, 9, 10, 11, 12, 14, 15, 16, 18, 20, 24 —
 the SPI0 and UART pins, which this project has found unreliable as pulled-up
@@ -128,10 +128,10 @@ switch harness, LED harness, cable socket matrix, and common ground rail.
    GPIO23 ──[330Ω]──▶│── GND   (LED4 green)
 
   LAN 1 / S1 RJ-45 port            LAN 2 / S2 RJ-45 port
-  GPIO4  ────[RJ-45 pin 1]         GPIO25 ────[RJ-45 pin 1]
+  GPIO4  ────[RJ-45 pin 4]         GPIO25 ────[RJ-45 pin 4]
 
   LAN 3 / S3 RJ-45 port            LAN 4 / S4 RJ-45 port
-  GPIO2  ────[RJ-45 pin 1]         GPIO7  ────[RJ-45 pin 2]
+  GPIO2  ────[RJ-45 pin 4]         GPIO7  ────[RJ-45 pin 4]
 
       (direct GPIO wiring, no series resistors; no RJ-45 contact goes to
       GND; standard straight-through patch cables bridge active contacts port-to-port)
@@ -145,10 +145,10 @@ panel jack wires one active RJ-45 contact to the Pi, and nothing on a socket goe
 
 | Socket | Connector | Wired contacts | Notes |
 |---|---|---|---|
-| LAN 1 / S1 | RJ-45 | pin 1 only | Pin 1 to GPIO4 / physical pin 7. |
-| LAN 2 / S2 | RJ-45 | pin 1 only | Pin 1 to GPIO25 / physical pin 22. |
-| LAN 3 / S3 | RJ-45 | pin 1 only | Pin 1 to GPIO2 / physical pin 3. |
-| LAN 4 / S4 | RJ-45 | pin 2 only | Pin 2 to GPIO7 / physical pin 26. |
+| LAN 1 / S1 | RJ-45 | pin 4 only | Pin 4 to GPIO4 / physical pin 7. |
+| LAN 2 / S2 | RJ-45 | pin 4 only | Pin 4 to GPIO25 / physical pin 22. |
+| LAN 3 / S3 | RJ-45 | pin 4 only | Pin 4 to GPIO2 / physical pin 3. |
+| LAN 4 / S4 | RJ-45 | pin 4 only | Pin 4 to GPIO7 / physical pin 26. |
 
 The GPIO for each contact is in the pinout table above and in
 `config.SOCKET_NODES`. Leave unlisted contacts open.
