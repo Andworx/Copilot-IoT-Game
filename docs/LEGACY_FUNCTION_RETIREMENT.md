@@ -33,3 +33,11 @@ it is outside this retirement scope and may contain other telemetry.
 The infrastructure deploy identity intentionally cannot delete the legacy app or
 its storage. These steps require an operator with explicit access and should not
 be folded into the normal game deployment.
+
+## Retirement progress
+
+As of 2026-09-30, the private Event Hub path is carrying messages to the current
+game, `func-aw-iot-copilot` is stopped, and the retired `funcapp` consumer group
+has been deleted. The remaining consumer groups are `$Default` and `gamefunc`.
+The Function App and its dedicated supporting resources remain available for the
+retention and final-deletion steps above.
