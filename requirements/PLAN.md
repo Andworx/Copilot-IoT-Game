@@ -14,14 +14,14 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 5 | 5 | 2 | 0 | 12 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
-| Power Pages | 5 | 7 | 1 | 0 | 13 |
+| Power Pages | 5 | 10 | 1 | 0 | 16 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
 | Integration (Azure Functions) | 7 | 4 | 1 | 0 | 12 |
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
-| Totals | 19 | 27 | 8 | 2 | 56 |
+| Totals | 19 | 30 | 8 | 2 | 59 |
 
 ## Dataverse
 
@@ -72,6 +72,9 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | CI deploys the Power Pages code site to the **live** website (pinned `POWER_PAGES_WEBSITE_ID`, live metadata via `pac pages download-code-site`, post-upload ID check); document platform-generated CSP console messages | Code Site — CI/CD fix | ✅ Done | Issues #48 / PR #50 — every deploy had been creating a new "CopilotIoTGame" website (six orphans) while the live one was never updated; deploy run 35441457949 updated site `4938f099-…` ("Deleted 4 bundle directories", verify step passed, one CopilotIoTGame site remains) and the portal serves the new build (a stale browser cache showed the platform error until cleared; private window OK). Inline-script CSP console errors are Power Pages' own private-site banner/wrapper, not repo output |
 | `copilotiotgame`: live panel state from `SendTelemetryUpdate` (controls, cables, link status) and Help Fix over Direct Line with static-steps fallback | Code Site — SPA change | ⬜ Verify | Issue #60 — Help Fix now only appears while the active mode is unresolved/broken, sends one mode/state prompt to the agent, and displays only repair steps or static fallback steps. Previously verified in a browser against a mock SignalR/Direct Line backend; needs verification against the real pipeline after deployment. |
 | `copilotiotgame`: physical-panel-only kiosk controls, connection status in gear menu, no top restore/status strips, Help Fix hides after activation | Code Site — SPA change | ⬜ Verify | Issues #65/#67/#68/#69 — local build passes and browser preview confirms first mode has disabled on-screen controls, gear-based IoT/Azure status, no restore order panel, and Help Fix fallback sheet with the button removed while open. Needs deployment and live Pi/SignalR validation. |
+| `copilotiotgame`: full secure networking solution diagram page | Code Site page | ⬜ Verify | Issue #194 — added `/kiosk/solution` as a large-screen demo architecture view reachable from the bottom-right gear menu, covering edge clients/devices, Azure Functions/Event Hub/IoT Hub/SignalR, Dataverse, Copilot Studio, deployment, public claim paths, and private telemetry paths. Needs production deployment and live demo validation. |
+| `prize wheel`: Explore this solution entry point | Code Site page | ⬜ Verify | Issue #195 — added a responsive `Explore this solution` action that opens the shared `/kiosk/solution` diagram from the phone-facing prize flow. Needs live mobile validation after both Code Sites deploy. |
+| `prize wheel`: GitHub Actions Code Site deployment and claim reachability | Code Site + CI/CD | ⬜ Verify | Issues #196/#197 — `deploy-apps.yml` now builds `power pages/prize wheel`, uploads it through live-site metadata, and injects the current Function App URL so the deployed claim flow no longer depends on stale checked-in site metadata. Needs a production Actions run plus real QR claim smoke test. |
 | `copilotiotgame`: review each kiosk mode UI one by one | Code Site review | ⬜ TODO | Issue #70 — use the local preview/device routes to review all 12 modes individually and track any mode-specific fixes separately. |
 
 ## Plugins

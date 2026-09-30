@@ -25,7 +25,7 @@ power pages/
 │   ├── powerpages.config.json   # site name + build output path, read by PAC
 │   ├── src/                     # React app source
 │   └── README.md                # app-specific dev notes, Game Mode behavior, what's stubbed
-└── prize wheel/            # standalone phone-facing spin Code Site (separate site/domain)
+└── prize wheel/            # standalone phone-facing spin Code Site — deployed via deploy-apps.yml
     ├── powerpages.config.json
     └── src/
 ```
@@ -34,11 +34,11 @@ See `docs/README.md` for what's still an active reference vs. archived.
 
 ## GitHub Actions releases
 
-Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App and
-`copilotiotgame` releases: PR build checks, then automatic deployment after
-relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
-Local publishing commands are for explicitly requested recovery/bootstrap work.
-`prize wheel` is not yet wired into that workflow and is deployed manually.
+Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App,
+`copilotiotgame`, and `prize wheel` releases: PR build checks, then automatic
+deployment after relevant changes merge to `main`. Workflow:
+`.github/workflows/deploy-apps.yml`. Local publishing commands are for explicitly
+requested recovery/bootstrap work.
 
 ## PAC CLI Commands
 

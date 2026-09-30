@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { KioskInfoPage } from "./pages/KioskInfoPage";
 import { KioskDevicePage } from "./pages/KioskDevicePage";
 import { PlaySpinPage } from "./pages/PlaySpinPage";
+import { SolutionArchitecturePage } from "./pages/SolutionArchitecturePage";
 import { useDeviceSync } from "./hooks/useDeviceSync";
 
 /**
@@ -26,6 +27,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/kiosk/info" replace />} />
       <Route path="/kiosk/info" element={<KioskInfoPage activeSlug={activeSlug} />} />
+      <Route path="/kiosk/solution" element={<SolutionArchitecturePage activeSlug={activeSlug} />} />
       <Route path="/kiosk/:deviceSlug" element={<KeyedKioskDevicePage />} />
       <Route path="/play-spin" element={<PlaySpinPage />} />
     </Routes>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { toWheelPrizes } from "./data/prizes";
 import type { Prize } from "./types/prize";
 import { PrizeWheel } from "./components/PrizeWheel";
-import { API_BASE_URL } from "./lib/apiConfig";
+import { API_BASE_URL, SOLUTION_DIAGRAM_URL } from "./lib/apiConfig";
 
 type Step = "share" | "wheel" | "result" | "error";
 
@@ -81,6 +81,8 @@ function App() {
     setStep("result");
   }
 
+  const exploreButton = <a className="btn-secondary explore-solution" href={SOLUTION_DIAGRAM_URL}>Explore this solution</a>;
+
   return (
     <div className="phone-page">
       <div className="handset-screen">
@@ -88,6 +90,7 @@ function App() {
           <div className="phone-step">
             <span className="eyebrow">Can't spin right now</span>
             <p>{errorMessage}</p>
+            <div className="phone-actions">{exploreButton}</div>
           </div>
         )}
 
@@ -120,6 +123,7 @@ function App() {
               <button type="button" className="btn-secondary" disabled={claiming} onClick={() => handleContinue(false)}>
                 Skip — just spin
               </button>
+              {exploreButton}
             </div>
           </div>
         )}
@@ -139,6 +143,7 @@ function App() {
               <div className="prize-name">{claimResult.prizeName}</div>
             </div>
             <p>Show this screen to a staff member at the prize table to collect your prize.</p>
+            <div className="phone-actions">{exploreButton}</div>
           </div>
         )}
       </div>

@@ -3,8 +3,9 @@
 Two workflows release this repo:
 
 - `.github/workflows/deploy-apps.yml` releases `azure/` (the Function App),
-  `power apps/game-box-control/`, and `power pages/copilotiotgame/` (site name
-  `CopilotIoTGame`). It deploys automatically when a relevant change merges to `main`.
+  `power apps/game-box-control/`, `power pages/copilotiotgame/` (site name
+  `CopilotIoTGame`), and `power pages/prize wheel/` (site name `PrizeWheel`). It
+  deploys automatically when a relevant change merges to `main`.
 - `.github/workflows/deploy-infra.yml` manages the Azure resources in `infra/` (Event Hub,
   SignalR, and the Function App's access to the hub). It only runs on request, and every
   Azure-touching job is manual, read-only, or scheduled drift detection.
@@ -16,7 +17,7 @@ Other site folders, Dataverse solutions, flows, and the Pi firmware are outside 
 | | Application workflow | Infrastructure workflow |
 |---|---|---|
 | File | `deploy-apps.yml` | `deploy-infra.yml` |
-| Covers | Function App code, Game Box Control, Code Site | `infra/`: Event Hub, consumer groups, SignalR, Function App Event Hub access |
+| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `infra/`: Event Hub, consumer groups, SignalR, Function App Event Hub access |
 | When it deploys | automatically on merge to `main` | never automatically; `deploy` is a manual action, allowed from `main` only |
 | GitHub environment | `production` | `infra-deploy` (what-if, drift, deploy) and `infra-readonly` (snapshot drift check) |
 | Azure identity | `id-gha-copilot-iot-game-deploy` | `id-gha-infra-reader` and `id-gha-infra-deployer`, least privilege |
@@ -35,7 +36,7 @@ credential and branch gates, not separate deployment targets.
 
 1. Work on a feature branch and open a PR to `main`. Every PR runs `Build apps`:
    Node 22, `npm ci`, and TypeScript/production builds for the Function App, the
-   Game Box Control Code App, and the Power Pages Code Site. No cloud credentials
+   Game Box Control Code App, the kiosk Power Pages Code Site, and the PrizeWheel Code Site. No cloud credentials
    are available to the build job, and PRs never deploy.
 2. Merge the PR. Pushes to `main` touching any deployed app or the workflow build
    all apps and retain deployment artifacts for 14 days. Documentation-only
@@ -43,7 +44,7 @@ credential and branch gates, not separate deployment targets.
 3. `Deploy production apps` uses the `production` environment, checks required
    settings, authenticates, deploys the Function App, rebuilds and pushes the
    Game Box Control Code App with protected production function-key secrets, then
-   uploads the Code Site. The Function ZIP contains only host/package metadata,
+   uploads both Code Sites. The Function ZIP contains only host/package metadata,
    compiled code, and production dependencies.
 4. Validate the live kiosk and backend, then update related plan items from Verify
    to Done. A successful upload alone does not prove the application works.
@@ -73,6 +74,9 @@ and deploy jobs use the same API host; do not override it at environment scope.
 | `POWER_PLATFORM_TENANT_ID` | Target Power Platform tenant ID |
 | `POWER_PLATFORM_CLIENT_ID` | Power Platform deployment application ID |
 | `POWER_PLATFORM_SOLUTION_NAME` | Optional; defaults to `CopilotIoTGame` and is passed to `pac code push --solutionName` |
+| `POWER_PAGES_WEBSITE_ID` | Optional; defaults to the live `CopilotIoTGame` Code Site ID |
+| `POWER_PRIZE_WHEEL_WEBSITE_ID` | Optional; defaults to the live `PrizeWheel` Code Site ID |
+| `SOLUTION_DIAGRAM_URL` | Optional; defaults to `https://copilotiotgame.powerappsportals.com/kiosk/solution` for the PrizeWheel "Explore this solution" button |
 
 Create the `POWER_PLATFORM_CLIENT_SECRET` **environment secret** in `production`.
 Use a dedicated deployment application registered as a Dataverse application
@@ -132,7 +136,7 @@ initialized with `power.config.json`; the workflow runs `pac code push
 --environment "$POWER_PLATFORM_ENVIRONMENT_URL" --solutionName
 "$POWER_PLATFORM_SOLUTION_NAME"` from `power apps/game-box-control`. The same
 environment must support Code Sites, allow JavaScript attachments, and have the
-intended Power Pages site. The install action provides PAC; Code Sites require
+intended Power Pages sites. The install action provides PAC; Code Sites require
 PAC 1.44 or later. For the first Code Site upload, activate the resulting
 inactive site in Power Pages and configure table permissions in its admin UI.
 Subsequent uploads update the active site. Verify `powerpages.config.json` before
@@ -148,11 +152,13 @@ created another "CopilotIoTGame" website and the live one (bound to
 `copilotiotgame.powerappsportals.com`) was never updated, while every run still
 reported success.
 
-The deploy job therefore pins the live site by ID (`POWER_PAGES_WEBSITE_ID`,
-a repository variable that defaults to `4938f099-b8dd-485f-a5c2-3c4ad4b7e02a`)
+The deploy job therefore pins each live site by ID (`POWER_PAGES_WEBSITE_ID`,
+a repository variable that defaults to `4938f099-b8dd-485f-a5c2-3c4ad4b7e02a`,
+and `POWER_PRIZE_WHEEL_WEBSITE_ID`, which defaults to
+`5dadde98-1e91-4a34-8182-1b0a87466e58`)
 and, before uploading, runs `pac pages download-code-site --webSiteId` to fetch
-that site's real `.powerpages-site/` into the artifact. The download fails the
-deploy if the site cannot be fetched, and a post-upload step fails it if the
+each site's real `.powerpages-site/` into its artifact. The download fails the
+deploy if a site cannot be fetched, and a post-upload step fails it if the
 uploaded website ID is not the pinned one, so a wrong target is loud instead of
 silent. Nothing is committed back to `main`.
 

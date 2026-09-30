@@ -73,6 +73,7 @@ input:focus-visible {
 .btn-primary:hover { filter: brightness(1.08); }
 .btn-secondary { background: transparent; color: #c8d4c8; border: 1px solid #243224; }
 .btn-secondary:hover { border-color: #c8d4c8; }
+.explore-solution { display:block; text-align:center; text-decoration:none; }
 
 .wheel-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; flex: 1; justify-content: center; }
 .wheel-stack { position: relative; width: 240px; height: 240px; }
