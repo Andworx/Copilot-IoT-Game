@@ -16,11 +16,11 @@ function Invoke-AzJson([string[]]$Arguments) {
 }
 
 $namespace = Invoke-AzJson @('eventhubs', 'namespace', 'show', '-g', $ResourceGroup, '-n', $NamespaceName)
-if ($namespace.publicNetworkAccess -ne 'Disabled') { throw 'Event Hub public network access is not disabled.' }
+if ($namespace.publicNetworkAccess -ne 'Enabled') { throw 'Event Hub selected-network access is not enabled.' }
 
 $rules = Invoke-AzJson @('eventhubs', 'namespace', 'network-rule-set', 'show', '-g', $ResourceGroup, '--namespace-name', $NamespaceName)
-if ($rules.publicNetworkAccess -ne 'Disabled' -or -not $rules.trustedServiceAccessEnabled) {
-    throw 'Event Hub network rules are not private-only with trusted services enabled.'
+if ($rules.publicNetworkAccess -ne 'Enabled' -or $rules.defaultAction -ne 'Deny' -or -not $rules.trustedServiceAccessEnabled -or @($rules.ipRules).Count -lt 1) {
+    throw 'Event Hub is not restricted to selected networks with trusted services enabled.'
 }
 
 $approvedEndpoint = @($namespace.privateEndpointConnections | Where-Object {
@@ -50,4 +50,4 @@ if (-not @($receiver | Where-Object { $_.principalId -eq $game.identity.principa
     throw 'The game Function App is missing Azure Event Hubs Data Receiver.'
 }
 
-Write-Host 'Event Hub is private-only; the approved private endpoint, trusted IoT Hub route, and game receiver identity are configured.'
+Write-Host 'Event Hub is restricted to selected networks; the approved private endpoint, trusted IoT Hub route, and game receiver identity are configured.'

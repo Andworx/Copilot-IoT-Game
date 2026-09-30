@@ -21,6 +21,7 @@ param eventHubRetentionDays int
 param eventHubRetentionHours int
 param eventHubPublicNetworkAccess string
 param eventHubTrustedServiceAccessEnabled bool
+param eventHubIpRules array
 
 @description('Consumer groups on the hub. `gamefunc` is this repo\'s Function App; the retired legacy `funcapp` reader is intentionally omitted.')
 param consumerGroups array
@@ -42,6 +43,7 @@ module eventHub 'modules/eventhub.bicep' = {
     retentionTimeInHours: eventHubRetentionHours
     publicNetworkAccess: eventHubPublicNetworkAccess
     trustedServiceAccessEnabled: eventHubTrustedServiceAccessEnabled
+    ipRules: eventHubIpRules
     consumerGroups: consumerGroups
     tags: tags
   }

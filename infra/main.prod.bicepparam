@@ -6,8 +6,16 @@ param eventHubName = 'iot-telemetry'
 param eventHubPartitionCount = 2
 param eventHubRetentionDays = 1
 param eventHubRetentionHours = 1
-param eventHubPublicNetworkAccess = 'Disabled'
+param eventHubPublicNetworkAccess = 'Enabled'
 param eventHubTrustedServiceAccessEnabled = true
+// A rule is required for Event Hubs to enforce Selected networks. This stable
+// VPN-gateway address is not used by application traffic; the game uses Private Link.
+param eventHubIpRules = [
+  {
+    ipMask: '20.83.141.134'
+    action: 'Allow'
+  }
+]
 param consumerGroups = [
   '$Default'
   'gamefunc'

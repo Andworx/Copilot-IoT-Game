@@ -286,10 +286,10 @@ CLI and PowerShell 7 (`pwsh`): `az deployment group what-if ...` and
 `./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check` (commands in `infra/README.md`).
 
 Always run `what-if` and read it before `deploy`. For the Event Hub lockdown,
-expect the namespace and its default network rule set to change to private-only:
-public access Disabled and trusted Microsoft services enabled. Azure normalizes
-the default action to Allow while the public endpoint is disabled; this does not
-permit public traffic.
+expect the namespace network rule set to use Selected networks: public access
+Enabled, default action Deny, the stable VPN-gateway sentinel IP rule present,
+and trusted Microsoft services enabled. Fully disabling the public endpoint was
+tested and prevented the identity-based IoT Hub route from delivering messages.
 The trusted exception is required for the identity-based IoT Hub route. After
 deployment, the workflow checks the private endpoint, Function VNet integration,
 route authentication, and sender/receiver roles. Live Pi-to-kiosk telemetry still

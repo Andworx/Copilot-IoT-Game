@@ -102,11 +102,12 @@ hub with identity-based auth, so **no Event Hub key is stored anywhere**. This m
 before the telemetry function ships (`azure/src/functions/telemetry.ts`), or its trigger
 has nothing to read.
 
-The declared namespace configuration is private-only. `publicNetworkAccess` is
-disabled. Azure reports the otherwise-unused default action as Allow when the
-public endpoint is disabled. The trusted Microsoft services exception remains enabled
+The namespace uses Selected networks: public access is enabled with default Deny
+and a single stable VPN-gateway IP rule so Event Hubs enforces the firewall. The
+trusted Microsoft services exception remains enabled
 because IoT Hub sends to the custom Event Hub endpoint with its system-assigned
-identity. The game Function App reads through VNet integration, private DNS, and
+identity. Fully disabling the public endpoint prevented this live IoT Hub route
+from delivering even with the exception enabled. The game Function App reads through VNet integration, private DNS, and
 the Event Hub private endpoint. Local/SAS authentication remains enabled for now,
 but it is unreachable over the public network; disabling local auth is a later,
 separately validated hardening step.
