@@ -47,8 +47,10 @@ real win into the wrong path):
 - **OFF** — no Dataverse write at all; `SuccessPopup` shows a simple client-side
   congratulations screen instead.
 
-Both states auto-rotate to a new random *enabled* device (`POST /api/pick-random-mode`)
-after the reset timer elapses.
+Both states clear the completion overlay after the reset timer elapses, then remain on
+the same mode so players can review the completed scenario. If `andy_deviceprofile.andy_wintext`
+is populated, that Dataverse text is shown as the completion message; otherwise the page
+falls back to the built-in `deviceProfiles.ts` message.
 
 ## Live panel state
 

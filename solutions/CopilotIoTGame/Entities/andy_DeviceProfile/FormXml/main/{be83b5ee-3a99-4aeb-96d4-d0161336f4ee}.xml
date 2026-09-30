@@ -5,7 +5,7 @@
     <IntroducedVersion>1.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
         <tab verticallayout="true" id="{7978CDC3-4F67-4901-9580-06A34E8587B2}" IsUserDefined="1">
           <labels>
@@ -28,14 +28,6 @@
                       </cell>
                     </row>
                     <row>
-                      <cell id="{A1C8F92D-6FD5-40EE-9E1A-2EE612716CD0}">
-                        <labels>
-                          <label description="Owner" languagecode="1033" />
-                        </labels>
-                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
-                      </cell>
-                    </row>
-                    <row>
                       <cell id="{08f881f0-277d-4d65-8d4b-d8ddcad5fe93}">
                         <labels>
                           <label description="Device Slug" languagecode="1033" />
@@ -52,19 +44,19 @@
                       </cell>
                     </row>
                     <row>
-                      <cell id="{4540172c-1c3d-46ae-95b2-6a1bb5061095}">
+                      <cell id="{c243b66c-cc9b-4eac-a4df-a4bd02624211}" locklevel="0" colspan="1" rowspan="1">
                         <labels>
-                          <label description="Intro copy" languagecode="1033" />
+                          <label description="Layout" languagecode="1033" />
                         </labels>
-                        <control id="andy_introcopy" classid="{e0dece4b-6fc8-4a8f-a065-082708572369}" datafieldname="andy_introcopy" />
+                        <control id="header_andy_layout" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="andy_layout" disabled="false" />
                       </cell>
                     </row>
                     <row>
-                      <cell id="{86423b2f-befd-4968-8e90-6fb509788612}">
+                      <cell id="{75d3eabf-264a-44ad-82d5-badf7112c26e}" locklevel="0" colspan="1" rowspan="1">
                         <labels>
-                          <label description="Copilot Topic" languagecode="1033" />
+                          <label description="Win Text" languagecode="1033" />
                         </labels>
-                        <control id="andy_copilottopic" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_copilottopic" />
+                        <control id="andy_wintext" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_wintext" disabled="false" />
                       </cell>
                     </row>
                   </rows>
@@ -74,6 +66,63 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{0dafdfae-5968-4e18-9d27-6edcbb335a73}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{1d3c60b8-86e5-4875-b078-7f272d7cb5e5}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{c5537597-5f5f-4dd7-96ab-a9ba1743997a}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{e50ef5dc-5486-46df-a636-4da3c6297878}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{A1C8F92D-6FD5-40EE-9E1A-2EE612716CD0}" colspan="1" rowspan="1">
+              <labels>
+                <label description="Owner" languagecode="1033" />
+              </labels>
+              <control id="header_ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+            </cell>
+            <cell id="{97fbd01d-fd9c-4150-ad22-eb8a4fb9e0d1}" locklevel="0" colspan="1" rowspan="1">
+              <labels>
+                <label description="Name" languagecode="1033" />
+              </labels>
+              <control id="header_andy_name" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="andy_name" disabled="true" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{a1daf3b0-1a10-4a25-8165-1d23dd6077d9}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{2fc264e1-9292-46ea-8797-8d21f2b627f3}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{2ca2458b-cfc5-4d93-a9bb-5ee70e1d67c9}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{4c2797ac-406b-4d5e-ab58-44b2ec87454d}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>

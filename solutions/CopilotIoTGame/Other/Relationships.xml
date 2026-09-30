@@ -6,6 +6,8 @@
   <EntityRelationship Name="business_unit_andy_deviceprofile" />
   <EntityRelationship Name="business_unit_andy_gameboxstate" />
   <EntityRelationship Name="business_unit_andy_iotgamewin" />
+  <EntityRelationship Name="lk_andy_contestcampaign_createdby" />
+  <EntityRelationship Name="lk_andy_contestcampaign_modifiedby" />
   <EntityRelationship Name="lk_andy_deviceprofile_createdby" />
   <EntityRelationship Name="lk_andy_deviceprofile_modifiedby" />
   <EntityRelationship Name="lk_andy_gameboxstate_createdby" />
@@ -14,6 +16,7 @@
   <EntityRelationship Name="lk_andy_iotgamewin_modifiedby" />
   <EntityRelationship Name="lk_andy_iottelemetryevent_createdby" />
   <EntityRelationship Name="lk_andy_iottelemetryevent_modifiedby" />
+  <EntityRelationship Name="organization_andy_contestcampaign" />
   <EntityRelationship Name="organization_andy_iottelemetryevent" />
   <EntityRelationship Name="owner_andy_deviceprofile" />
   <EntityRelationship Name="owner_andy_gameboxstate" />

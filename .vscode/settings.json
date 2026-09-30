@@ -16,5 +16,9 @@
   "powershell.codeFormatting.preset": "OTBS",
   "powershell.codeFormatting.useCorrectCasing": true,
   "powershell.codeFormatting.whitespaceAroundOperator": true,
-  "powershell.codeFormatting.whitespaceBeforeOpenBrace": true
+  "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
+  "chat.tools.terminal.autoApprove": {
+    "git push": true,
+    "gh": true
+  }
 }
