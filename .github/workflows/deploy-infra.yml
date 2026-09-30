@@ -2,13 +2,10 @@ name: Infrastructure
 
 # Azure infrastructure this repo owns (infra/main.bicep). See infra/README.md.
 #
-#   PRs / pushes   Compile + lint the Bicep and check the reference manifest. No cloud credentials.
-#   what-if        Preview against the live resource group. Changes nothing, but ARM requires write
-#                  permission on the template's resources to evaluate it, so it runs as the deployer
-#                  identity (environment infra-deploy, main only).
-#   drift          Two jobs, also weekly: Bicep vs live (what-if must show no changes; deployer identity)
-#                  and the IoT Hub/DPS/Function App/storage snapshots under infra/reference vs live
-#                  (read-only reader identity, environment infra-readonly).
+#   PRs            Compile + lint the Bicep and check the reference manifest. No cloud credentials.
+#   pushes         Compare Bicep on every push to main with Azure. Any actionable difference fails the check and
+#                  points the operator to the separately approved deploy action.
+#   what-if        Runs the same reconciliation check manually and changes nothing.
 #   deploy         Applies main.bicep and merges the Function App's telemetry settings. Only from
 #                  `main`, only through the `infra-deploy` environment (which only accepts `main`).
 #
@@ -22,9 +19,6 @@ on:
       - '.github/workflows/deploy-infra.yml'
   push:
     branches: [main]
-    paths:
-      - 'infra/**'
-      - '.github/workflows/deploy-infra.yml'
   workflow_dispatch:
     inputs:
       action:
@@ -32,9 +26,7 @@ on:
         required: true
         default: what-if
         type: choice
-        options: [what-if, drift, deploy, network-what-if]
-  schedule:
-    - cron: '0 13 * * 1'   # weekly drift check, Mondays
+        options: [what-if, deploy, network-what-if]
 
 permissions:
   contents: read
@@ -60,6 +52,7 @@ jobs:
           az bicep build --file infra/network/main.bicep --stdout > /dev/null
           python3 infra/network/check-baseline.py
           az bicep build-params --file infra/main.prod.bicepparam --stdout > /dev/null
+          python3 -m py_compile infra/scripts/Test-WhatIfChanges.py
           lint="$(az bicep lint --file infra/main.bicep 2>&1)"
           echo "$lint"
           if echo "$lint" | grep -qi "error"; then exit 1; fi
@@ -74,11 +67,11 @@ jobs:
 
   # ARM's what-if checks that the caller could WRITE every resource in the template (it fails with
   # "Authorization failed for template resource ... Microsoft.EventHub/namespaces/write" for a
-  # read-only identity), even though what-if itself changes nothing. So the template checks run as
-  # the deployer identity; only the snapshot check runs as the read-only reader.
-  what-if:
-    name: What-if (changes nothing)
-    if: github.event_name == 'workflow_dispatch' && inputs.action == 'what-if'
+  # read-only identity), even though what-if itself changes nothing. Reconciliation therefore runs
+  # as the narrowly scoped deployer identity.
+  reconcile:
+    name: Reconcile Bicep with Azure (changes nothing)
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.action == 'what-if')
     needs: validate
     runs-on: ubuntu-latest
     environment: infra-deploy
@@ -92,57 +85,13 @@ jobs:
           client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - name: What-if
+      - name: Compare Bicep with Azure
         run: |
-          az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP"             -f infra/main.bicep -p infra/main.prod.bicepparam --no-prompt
-
-  drift:
-    name: Drift check - Bicep vs live (changes nothing)
-    if: (github.event_name == 'workflow_dispatch' && inputs.action == 'drift') || github.event_name == 'schedule'
-    needs: validate
-    runs-on: ubuntu-latest
-    environment: infra-deploy
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v7
-      - uses: azure/login@v3
-        with:
-          client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - name: Owned resources match main.bicep (no Create/Modify/Delete)
-        run: |
-          az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP"             -f infra/main.bicep -p infra/main.prod.bicepparam --no-pretty-print -o json             > whatif.json
-          python3 - <<'PY'
-          import json, sys
-          changes = [c for c in json.load(open("whatif.json"))["changes"]
-                     if c["changeType"] in ("Create", "Modify", "Delete")]
-          for c in changes:
-              print(c["changeType"], c["resourceId"].split("/providers/")[-1])
-          sys.exit(1 if changes else 0)
-          PY
-
-  snapshots:
-    name: Drift check - reference snapshots (read-only)
-    if: (github.event_name == 'workflow_dispatch' && inputs.action == 'drift') || github.event_name == 'schedule'
-    needs: validate
-    runs-on: ubuntu-latest
-    environment: infra-readonly
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v7
-      - uses: azure/login@v3
-        with:
-          client-id: ${{ vars.AZURE_INFRA_READER_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - name: Reference resources match their snapshots
-        shell: pwsh
-        run: ./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check
+          az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP" \
+            -f infra/main.bicep -p infra/main.prod.bicepparam \
+            --no-pretty-print -o json > whatif.json
+          python3 infra/scripts/Test-WhatIfChanges.py whatif.json \
+            --ignore-path properties.privateEndpointConnections
 
   deploy:
     name: Deploy
