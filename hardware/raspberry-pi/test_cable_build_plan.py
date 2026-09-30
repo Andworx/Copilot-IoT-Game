@@ -22,13 +22,13 @@ class CableBuildPlanTests(unittest.TestCase):
         cable = PLAN["cables"][0]
         self.assertEqual(cable["id"], 1)
         self.assertEqual(cable["ends"], ["rj45", "rj45"])
-        self.assertEqual(cable["wires"], [[4, 4]])
+        self.assertEqual(cable["wires"], [["active", "active"]])
 
     def test_every_socket_pair_has_a_unique_signature(self):
         signatures = {}
         sockets = list(PLAN["socketTypes"])
         for a_socket, b_socket in itertools.combinations(sockets, 2):
-            signature = frozenset((a_socket, 4, b_socket, 4))
+            signature = frozenset((a_socket, PLAN["socketContacts"][a_socket][0], b_socket, PLAN["socketContacts"][b_socket][0]))
             self.assertNotIn(signature, signatures)
             signatures[signature] = tuple(sorted((a_socket, b_socket)))
         self.assertEqual(len(signatures), 6)

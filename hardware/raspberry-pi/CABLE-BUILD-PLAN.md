@@ -4,18 +4,18 @@ This replaces the earlier custom connector matrix. The panel now uses four ident
 
 ## Wiring rule
 
-Wire exactly one contact on each RJ-45 jack: **RJ-45 pin 4**. Leave every other RJ-45 contact open. Do not connect any RJ-45 contact, shield, drain, or jack shell to ground.
+Wire exactly one active contact on each RJ-45 jack. Leave every other RJ-45 contact open. Do not connect any RJ-45 contact, shield, drain, or jack shell to ground.
 
-RJ-45 pin 4 is the blue conductor in both T568A and T568B patch cables, which makes it easy to trace and keeps the design independent of A/B termination style.
+The panel uses RJ-45 pin 4 on every socket. Standard straight-through patch cables bridge pin 4 to pin 4 between ports.
 
 | Panel label | Firmware name | RJ-45 jack contact | Pi BCM GPIO | Pi physical header pin |
 |---|---|---:|---:|---:|
 | LAN 1 | S1 | Pin 4 | GPIO4 | Pin 7 |
 | LAN 2 | S2 | Pin 4 | GPIO25 | Pin 22 |
 | LAN 3 | S3 | Pin 4 | GPIO2 | Pin 3 |
-| LAN 4 | S4 | Pin 4 | GPIO3 | Pin 5 |
+| LAN 4 | S4 | Pin 4 | GPIO7 | Pin 26 |
 
-Unused previous socket lines are no longer part of the cable matrix: GPIO7, GPIO12, GPIO16, GPIO18, GPIO20, and GPIO24 should be disconnected from the panel sockets.
+Unused previous socket lines are no longer part of the cable matrix: GPIO3, GPIO12, GPIO16, GPIO18, GPIO20, and GPIO24 should be disconnected from the panel sockets.
 
 ## Valid links
 
@@ -55,9 +55,9 @@ Some modes now share the same cable-pair recipe. That is okay because the active
 
 Before connecting the jacks to the Pi:
 
-1. With no patch cables plugged in, confirm every RJ-45 pin 4 is open from every other RJ-45 pin 4.
-2. Confirm each RJ-45 pin 4 is open to ground, the panel metal, switch returns, and jack shield/drain tabs.
-3. Plug a straight-through patch cable between each pair and confirm only pin 4 bridges between those two ports.
+1. With no patch cables plugged in, confirm every active RJ-45 contact is open from every other active RJ-45 contact.
+2. Confirm each active RJ-45 contact is open to ground, the panel metal, switch returns, and jack shield/drain tabs.
+3. Plug a straight-through patch cable between each pair and confirm only the active contacts bridge between those two ports.
 4. Do not use crossover cables, Ethernet couplers with electronics, magnetics modules, or shielded jacks whose shield is tied to a contact.
 
 After wiring the Pi, stop the panel service and run the live scanner:

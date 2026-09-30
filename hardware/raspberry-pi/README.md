@@ -23,7 +23,7 @@ order:
 - `SW3-SW4` — toggle switches.
 - `SW5-SW6` — keyed switches.
 - `S1-S4` — panel-side RJ-45 cable ports labeled **LAN 1** through **LAN 4**
-  on the physical panel. Each port wires only RJ-45 pin 4 to the Pi. A socket
+  on the physical panel. Each port wires one active RJ-45 contact to the Pi. A socket
   reads as connected when a standard straight-through RJ-45 patch cable bridges
   it to another socket (see "RJ-45 cable matrix" below).
 
@@ -69,7 +69,7 @@ App-selected mode rather than to any physical selector.
 | 2 | Toggle switches | SW3-SW4 |
 | 2 | Keyed switches | SW5-SW6 |
 | 4 | Single-color LEDs (5mm) + 330Ω resistors | LED1 blue, LED2 yellow, LED3 orange, LED4 green; one resistor each, LED cathode/resistor to GND |
-| 4 | RJ-45 panel-mount jacks or keystones | Label as LAN 1-LAN 4; only RJ-45 pin 4 is wired |
+| 4 | RJ-45 panel-mount jacks or keystones | Label as LAN 1-LAN 4; only one active contact per jack is wired |
 | 2+ | Standard straight-through RJ-45 patch cables | Any patch cable can connect any two S1-S4 ports |
 | — | Hookup wire, breadboard/perfboard, pull-up not needed (internal pull-ups used throughout) | |
 
@@ -77,7 +77,7 @@ App-selected mode rather than to any physical selector.
 
 All inputs use the Pi's **internal pull-up**. Each switch wires its signal pin
 to a GPIO and its return to GND. The cable sockets are different: each RJ-45
-port wires only pin 4 to a GPIO and **nothing on a socket goes to GND**; cables
+port wires only one active contact to a GPIO and **nothing on a socket goes to GND**; cables
 are detected by which two ports they bridge (see "RJ-45 cable matrix").
 No external resistors are needed except the LED current-limiting resistors.
 
@@ -96,13 +96,13 @@ No external resistors are needed except the LED current-limiting resistors.
 | LAN 1 / S1 RJ-45 pin 4 | S1P4 | GPIO4 | 7 |
 | LAN 2 / S2 RJ-45 pin 4 | S2P4 | GPIO25 | 22 |
 | LAN 3 / S3 RJ-45 pin 4 | S3P4 | GPIO2 | 3 |
-| LAN 4 / S4 RJ-45 pin 4 | S4P4 | GPIO3 | 5 |
+| LAN 4 / S4 RJ-45 pin 4 | S4P4 | GPIO7 | 26 |
 
-**14 of the Pi's 26 usable GPIO pins used, 12 spare** (GPIO7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 20, 24 —
+**14 of the Pi's 26 usable GPIO pins used, 12 spare** (GPIO3, 8, 9, 10, 11, 12, 14, 15, 16, 18, 20, 24 —
 the SPI0 and UART pins, which this project has found unreliable as pulled-up
-inputs; see `pulled_input.py`, though GPIO7/12/16/18/20/24 are no longer needed
+inputs; see `pulled_input.py`, though GPIO3/12/16/18/20/24 are no longer needed
 for the RJ-45 ports). GPIO0/1 (ID_SD/ID_SC, reserved for HAT EEPROM) are not
-used. GPIO2/3 have board-level I2C pull-ups, which is fine here since the cable
+used. GPIO2 has a board-level I2C pull-up, which is fine here since the cable
 scan only ever drives them low. All pin assignments live in `config.py` — change
 them there, not in `panel_controller.py`.
 
@@ -131,29 +131,29 @@ switch harness, LED harness, cable socket matrix, and common ground rail.
   GPIO4  ────[RJ-45 pin 4]         GPIO25 ────[RJ-45 pin 4]
 
   LAN 3 / S3 RJ-45 port            LAN 4 / S4 RJ-45 port
-  GPIO2  ────[RJ-45 pin 4]         GPIO3  ────[RJ-45 pin 4]
+  GPIO2  ────[RJ-45 pin 4]         GPIO7  ────[RJ-45 pin 4]
 
       (direct GPIO wiring, no series resistors; no RJ-45 contact goes to
-      GND; standard straight-through patch cables bridge pin 4 port-to-port)
+      GND; standard straight-through patch cables bridge active contacts port-to-port)
 ```
 
 ### RJ-45 cable matrix
 
 The four sockets S1-S4 detect **which ports are connected**. Cable identity no
 longer matters: any standard straight-through RJ-45 patch cable is accepted. Each
-panel jack wires only RJ-45 pin 4 to the Pi, and nothing on a socket goes to GND.
+panel jack wires one active RJ-45 contact to the Pi, and nothing on a socket goes to GND.
 
 | Socket | Connector | Wired contacts | Notes |
 |---|---|---|---|
 | LAN 1 / S1 | RJ-45 | pin 4 only | Pin 4 to GPIO4 / physical pin 7. |
 | LAN 2 / S2 | RJ-45 | pin 4 only | Pin 4 to GPIO25 / physical pin 22. |
 | LAN 3 / S3 | RJ-45 | pin 4 only | Pin 4 to GPIO2 / physical pin 3. |
-| LAN 4 / S4 | RJ-45 | pin 4 only | Pin 4 to GPIO3 / physical pin 5. |
+| LAN 4 / S4 | RJ-45 | pin 4 only | Pin 4 to GPIO7 / physical pin 26. |
 
 The GPIO for each contact is in the pinout table above and in
 `config.SOCKET_NODES`. Leave unlisted contacts open.
 
-**How it is read** (`cable_matrix.py`): every RJ-45 pin 4 node idles as an
+**How it is read** (`cable_matrix.py`): every active RJ-45 contact idles as an
 input with a pull-up. The scan drives one node low, reads the other three, and
 repeats for each node. A node that follows it low is wired to it through a
 patch cable. Only one node is driven at a time, and only low, so a wrongly
@@ -172,7 +172,7 @@ not recognise.
 
 Use passive RJ-45 panel jacks or keystones, not Ethernet modules with magnetics
 or LEDs. Use standard straight-through patch cables, not crossover cables. Only
-RJ-45 pin 4 is used on each port; all other RJ-45 pins and any shield/drain tabs
+the listed active RJ-45 contact is used on each port; all other RJ-45 pins and any shield/drain tabs
 must remain disconnected from the Pi and from ground.
 
 See [CABLE-BUILD-PLAN.md](CABLE-BUILD-PLAN.md) for the exact pinouts, valid

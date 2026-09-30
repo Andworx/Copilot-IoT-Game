@@ -33,10 +33,11 @@ class FakeBackend:
 
 
 def plug(cable, a_socket, b_socket):
-    return {
-        frozenset(((a_socket, a), (b_socket, b)))
-        for a, b in cm.CABLES[cable]["wires"]
-    }
+    table, _ = cm.build_signature_table({a_socket: config.SOCKET_NODES[a_socket], b_socket: config.SOCKET_NODES[b_socket]})
+    for signature, (cable_id, sockets) in table.items():
+        if cable_id == cable and set(sockets) == {a_socket, b_socket}:
+            return set(signature)
+    return set()
 
 
 def link(a_socket, b_socket):

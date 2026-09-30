@@ -1,5 +1,6 @@
 export type MapTier = "edge" | "cloud" | "platform";
 export interface MapNode { id: string; label: string; subtitle: string; tier: MapTier; x: number; y: number; icon?: string; detail: string; }
+export interface MapLink { from: string; to: string; label: string; }
 export const MAP_NODES: MapNode[] = [
   { id: "inputs", label: "Switches & sockets", subtitle: "Physical inputs", tier: "edge", x: 20, y: 18, detail: "Six switches and four sockets provide the physical puzzle inputs. Cable connections and switch positions are read by the panel Pi. Use the gear menu in a device mode to see its required setup." },
   { id: "pi", label: "Raspberry Pi", subtitle: "Panel controller", tier: "edge", x: 50, y: 18, icon: "pi", detail: "The panel controller reads GPIO inputs, evaluates the selected mode, drives the lamps and publishes state changes and heartbeats to IoT Hub. It polls kiosk state to follow the mode selected by staff." },
@@ -14,7 +15,7 @@ export const MAP_NODES: MapNode[] = [
   { id: "agent", label: "Copilot Studio", subtitle: "Help Fix agent", tier: "platform", x: 69.5, y: 82, icon: "copilot", detail: "Help Fix sends current and required controls to the agent through Direct Line, using a short-lived token from the Function App. Static mode instructions are the fallback when the agent is unavailable." },
   { id: "prize", label: "Prize wheel", subtitle: "Player phone", tier: "platform", x: 89, y: 82, icon: "pages", detail: "The player scans the kiosk QR to open the separate prize-wheel site. Its claim token goes to the Function APIs, which validate the win and award a prize from Dataverse inventory." },
 ];
-export const MAP_LINKS = [
+export const MAP_LINKS: MapLink[] = [
   { from: "inputs", to: "pi", label: "GPIO inputs" }, { from: "pi", to: "lamps", label: "GPIO outputs" },
   { from: "pi", to: "hub", label: "Panel telemetry" }, { from: "hub", to: "events", label: "Event routing" },
   { from: "events", to: "functions", label: "Event trigger" }, { from: "functions", to: "signalr", label: "Broadcast events" },
@@ -26,4 +27,42 @@ export const MAP_LINKS = [
   { from: "pages", to: "agent", label: "Direct Line troubleshooting" },
   { from: "pages", to: "prize", label: "Scan win QR" },
   { from: "prize", to: "functions", label: "Prize list & claim APIs" },
+];
+
+export const SOLUTION_NODES: MapNode[] = [
+  { id: "box", label: "Game box", subtitle: "Switches, sockets, lamps", tier: "edge", x: 12, y: 17, detail: "The physical restore box exposes the puzzle inputs and feedback lamps. The browser diagram is passive and never changes the live mode or GPIO state." },
+  { id: "pi", label: "Raspberry Pi", subtitle: "Local controller", tier: "edge", x: 34, y: 17, icon: "pi", detail: "The Pi reads GPIO, evaluates the active restore contract, drives lamps locally, and sends telemetry through its configured IoT identity." },
+  { id: "phone", label: "Player phone", subtitle: "Public prize claim", tier: "edge", x: 63, y: 17, detail: "Players scan the kiosk QR and use the standalone PrizeWheel Power Pages site on their own phone. The claim token is a bearer secret with no staff permissions." },
+  { id: "staff", label: "Staff browser", subtitle: "Power Apps Code App", tier: "edge", x: 87, y: 17, detail: "Staff use Game Box Control to select modes, enable devices, toggle Game Mode, and stock prizes. Staff writes are separated from anonymous prize claims." },
+  { id: "iot", label: "IoT Hub", subtitle: "Device ingress", tier: "cloud", x: 11, y: 46, icon: "iothub", detail: "Receives authenticated device-to-cloud telemetry from the Pi. This is the device ingress path, not a public browser API." },
+  { id: "events", label: "Event Hub", subtitle: "Private telemetry stream", tier: "cloud", x: 30, y: 46, icon: "iothub", detail: "Routes telemetry into the game Function App through a dedicated consumer group. The Function identity has scoped Event Hub Data Receiver access." },
+  { id: "functions", label: "Azure Functions", subtitle: "Public API boundary", tier: "cloud", x: 51, y: 46, icon: "functions", detail: "Hosts the kiosk, prize, agent-token, mode, and telemetry APIs. Anonymous endpoints are limited to kiosk read/prize-token flows; staff side effects are tracked under the secure API boundary work." },
+  { id: "signalr", label: "SignalR", subtitle: "Browser push", tier: "cloud", x: 72, y: 46, icon: "signalr", detail: "Broadcasts current mode, telemetry, and Game Mode updates to browser clients. SignalR CORS is broad, while the Function App origin list is the browser gate." },
+  { id: "gha", label: "GitHub Actions", subtitle: "Production deploy", tier: "cloud", x: 90, y: 46, detail: "Builds the Function App, Code App, kiosk Code Site, and PrizeWheel Code Site, then deploys through Azure OIDC and Power Platform service-principal credentials." },
+  { id: "pages", label: "Kiosk Code Site", subtitle: "Power Pages", tier: "platform", x: 12, y: 80, icon: "pages", detail: "The large kiosk UI renders live device pages, the original System Map, the win QR, and this demo architecture view. It calls Function APIs from allowed Power Pages origins." },
+  { id: "wheel", label: "PrizeWheel site", subtitle: "Power Pages", tier: "platform", x: 32, y: 80, icon: "pages", detail: "The phone-facing site loads prize names, submits the claim token and optional player info, then animates the server-selected prize. It links back to this same solution diagram." },
+  { id: "data", label: "Dataverse", subtitle: "State and inventory", tier: "platform", x: 53, y: 80, icon: "dataverse", detail: "Stores game state, telemetry events, win records, shared prize claims, prize types, and prize stock rows. Runtime access flows through Azure Functions, not direct anonymous browser writes." },
+  { id: "agent", label: "Copilot Studio", subtitle: "Help Fix", tier: "platform", x: 73, y: 80, icon: "copilot", detail: "Receives short-lived Direct Line chat requests for Help Fix guidance. The Function App brokers the token instead of exposing long-lived secrets in the browser." },
+  { id: "solution", label: "Solutions", subtitle: "ALM packages", tier: "platform", x: 91, y: 80, icon: "platform-tier", detail: "Dataverse solutions carry app, table, flow, and site assets between environments. Code-site deployment uses live site metadata to avoid duplicate Power Pages websites." },
+];
+
+export const SOLUTION_LINKS: MapLink[] = [
+  { from: "box", to: "pi", label: "GPIO reads and lamp writes" },
+  { from: "pi", to: "iot", label: "Device-auth telemetry" },
+  { from: "iot", to: "events", label: "IoT route" },
+  { from: "events", to: "functions", label: "Managed identity trigger" },
+  { from: "functions", to: "signalr", label: "Realtime fan-out" },
+  { from: "signalr", to: "pages", label: "Live browser updates" },
+  { from: "pages", to: "functions", label: "Read state, create wins, request agent tokens" },
+  { from: "pages", to: "wheel", label: "QR opens claim token" },
+  { from: "phone", to: "wheel", label: "Mobile browser" },
+  { from: "wheel", to: "functions", label: "Prize list and claim POST" },
+  { from: "staff", to: "functions", label: "Staff mode and prize APIs" },
+  { from: "functions", to: "data", label: "Scoped Dataverse reads and writes" },
+  { from: "pages", to: "agent", label: "Help Fix chat" },
+  { from: "agent", to: "functions", label: "Token brokered by API" },
+  { from: "gha", to: "functions", label: "Function ZIP" },
+  { from: "gha", to: "pages", label: "Kiosk Code Site upload" },
+  { from: "gha", to: "wheel", label: "PrizeWheel Code Site upload" },
+  { from: "gha", to: "solution", label: "Solution-aware app push" },
 ];

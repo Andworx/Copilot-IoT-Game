@@ -5,7 +5,7 @@
   "socketTypes": {"S1": "rj45", "S2": "rj45", "S3": "rj45", "S4": "rj45"},
   "socketContacts": {"S1": [4], "S2": [4], "S3": [4], "S4": [4]},
   "cables": [
-    {"id": 1, "built": true, "ends": ["rj45", "rj45"], "wires": [[4, 4]], "role": "Standard straight-through RJ-45 patch cable; cable identity is not significant"}
+    {"id": 1, "built": true, "ends": ["rj45", "rj45"], "wires": [["active", "active"]], "role": "Standard straight-through RJ-45 patch cable; cable identity is not significant"}
   ],
   "modeUseCases": [
     {"mode": "thermostat", "story": "Reconnect the room sensor to the controller.", "cables": [{"id": 1, "sockets": ["S1", "S2"]}]},

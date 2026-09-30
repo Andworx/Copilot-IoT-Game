@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EmailTemplates xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <emailtemplate>
+    <IsCustomizable>1</IsCustomizable>
+    <templateid>{70b65f51-beba-f111-aaaf-3833c5e7f0a0}</templateid>
+    <subject></subject>
+    <subjectpresentationxml></subjectpresentationxml>
+    <templatetypecode>2</templatetypecode>
+    <body></body>
+    <title>gameengine - Grand Prize Booth Reminder</title>
+    <description>Follow-up reminder for checked-in-code recipients before the grand-prize drawing time. Placeholder tokens: {{FirstName}}, {{CheckInCode}}, {{DrawingTime}}, {{EventName}}, {{CheckInLocation}}, {{CheckInQrDataUrl}} Version: 1.2</description>
+    <presentationxml></presentationxml>
+    <languagecode>1033</languagecode>
+    <generationtypecode>0</generationtypecode>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  </emailtemplate>
+  <emailtemplate>
+    <IsCustomizable>1</IsCustomizable>
+    <templateid>{6db65f51-beba-f111-aaaf-3833c5e7f0a0}</templateid>
+    <subject></subject>
+    <subjectpresentationxml></subjectpresentationxml>
+    <templatetypecode>2</templatetypecode>
+    <body></body>
+    <title>gameengine - Grand Prize Check-In Code</title>
+    <description>Sent after a player scans the claim QR, shares contact info, and receives a Grand Prize Entry. Placeholder tokens: {{FirstName}}, {{CheckInCode}}, {{DrawingTime}}, {{EventName}}, {{CheckInLocation}}, {{CheckInQrDataUrl}}, {{PreferenceUrl}} Version: 1.2</description>
+    <presentationxml></presentationxml>
+    <languagecode>1033</languagecode>
+    <generationtypecode>0</generationtypecode>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  </emailtemplate>
+</EmailTemplates>

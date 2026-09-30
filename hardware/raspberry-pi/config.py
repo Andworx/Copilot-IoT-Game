@@ -24,14 +24,14 @@ LED_PINS = {
     "LED4": 23,
 }
 
-# Cable-matrix sockets. Each RJ-45 panel jack wires only contact/pin 4 to one
+# Cable-matrix sockets. Each RJ-45 panel jack wires one active contact to one
 # GPIO. Nothing on a socket goes to GND; a standard straight-through RJ-45 patch
-# cable bridges pin 4 between the two connected ports (see cable_matrix.py and
-# the README's "RJ-45 cable matrix" section).
+# cable bridges the active contact between the two connected ports (see
+# cable_matrix.py and the README's "RJ-45 cable matrix" section).
 SOCKET_NODES = {
     "S1": {4: 4},
     "S2": {4: 25},
     "S3": {4: 2},
-    "S4": {4: 3},
+    "S4": {4: 7},
 }
 

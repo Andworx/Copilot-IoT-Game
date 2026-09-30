@@ -10,6 +10,8 @@ on:
       - 'power apps/game-box-control/**'
       - 'power pages/copilotiotgame/**'
       - '!power pages/copilotiotgame/.powerpages-site/**'
+      - 'power pages/prize wheel/**'
+      - '!power pages/prize wheel/.powerpages-site/**'
       - '.github/workflows/deploy-apps.yml'
       - 'infra/staff-api.bicep'
       - 'infra/modules/staff-resources.bicep'
@@ -39,6 +41,7 @@ jobs:
             azure/package-lock.json
             power apps/game-box-control/package-lock.json
             power pages/copilotiotgame/package-lock.json
+            power pages/prize wheel/package-lock.json
       - name: Validate staff provisioning template
         run: az bicep build --file infra/staff-api.bicep --stdout > /dev/null
       - name: Test staff provisioning guards offline
@@ -67,6 +70,15 @@ jobs:
           npm ci
           npm run build
           test -f dist/index.html
+      - name: Build Prize Wheel Code Site
+        working-directory: power pages/prize wheel
+        env:
+          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
+          VITE_SOLUTION_DIAGRAM_URL: ${{ vars.SOLUTION_DIAGRAM_URL || 'https://copilotiotgame.powerappsportals.com/kiosk/solution' }}
+        run: |
+          npm ci
+          npm run build
+          test -f dist/index.html
       - name: Build Power Apps Code App
         working-directory: power apps/game-box-control
         run: |
@@ -81,13 +93,21 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v7
         with:
-          name: power-pages
+          name: power-pages-kiosk
           # .powerpages-site/ (site metadata + manifest) is deliberately NOT built from the
           # repo: the deploy job downloads it from the live site by website ID so
           # pac pages upload-code-site updates that site instead of creating a new one.
           path: |
             power pages/copilotiotgame/dist/
             power pages/copilotiotgame/powerpages.config.json
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v7
+        with:
+          name: power-pages-prize-wheel
+          path: |
+            power pages/prize wheel/dist/
+            power pages/prize wheel/powerpages.config.json
           if-no-files-found: error
           retention-days: 14
 
@@ -112,6 +132,7 @@ jobs:
       POWER_PLATFORM_CLIENT_ID: ${{ vars.POWER_PLATFORM_CLIENT_ID }}
       POWER_PLATFORM_SOLUTION_NAME: ${{ vars.POWER_PLATFORM_SOLUTION_NAME || 'CopilotIoTGame' }}
       POWER_PAGES_WEBSITE_ID: ${{ vars.POWER_PAGES_WEBSITE_ID || '4938f099-b8dd-485f-a5c2-3c4ad4b7e02a' }}
+      POWER_PRIZE_WHEEL_WEBSITE_ID: ${{ vars.POWER_PRIZE_WHEEL_WEBSITE_ID || '5dadde98-1e91-4a34-8182-1b0a87466e58' }}
       POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}
     steps:
       - name: Validate deployment configuration
@@ -142,8 +163,12 @@ jobs:
           path: function-artifact
       - uses: actions/download-artifact@v8
         with:
-          name: power-pages
-          path: power-pages-artifact
+          name: power-pages-kiosk
+          path: power-pages-kiosk-artifact
+      - uses: actions/download-artifact@v8
+        with:
+          name: power-pages-prize-wheel
+          path: power-pages-prize-wheel-artifact
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
@@ -230,7 +255,7 @@ jobs:
         run: |
           pac code push --environment "$env:POWER_PLATFORM_ENVIRONMENT_URL" --solutionName "$env:POWER_PLATFORM_SOLUTION_NAME"
           if ($LASTEXITCODE -ne 0) { throw 'Power Apps Code App push failed.' }
-      - name: Fetch live Power Pages site metadata
+      - name: Fetch live kiosk Power Pages metadata
         if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
         run: |
@@ -247,25 +272,55 @@ jobs:
           if (-not $meta) { throw 'Downloaded site has no .powerpages-site folder.' }
           $id = (Select-String -Path (Join-Path $meta.FullName 'website.yml') -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
           if ($id -ne $env:POWER_PAGES_WEBSITE_ID) { throw "Downloaded website id $id does not match $env:POWER_PAGES_WEBSITE_ID." }
-          Remove-Item 'power-pages-artifact/.powerpages-site' -Recurse -Force -ErrorAction SilentlyContinue
-          Copy-Item $meta.FullName 'power-pages-artifact/.powerpages-site' -Recurse
-      - name: Upload Power Pages Code Site
+          Remove-Item 'power-pages-kiosk-artifact/.powerpages-site' -Recurse -Force -ErrorAction SilentlyContinue
+          Copy-Item $meta.FullName 'power-pages-kiosk-artifact/.powerpages-site' -Recurse
+      - name: Upload kiosk Power Pages Code Site
         if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
-        working-directory: power-pages-artifact
+        working-directory: power-pages-kiosk-artifact
         run: |
           pac pages upload-code-site --rootPath "."
           if ($LASTEXITCODE -ne 0) { throw 'Power Pages Code Site upload failed.' }
-      - name: Verify Power Pages upload targeted the live site
+      - name: Verify kiosk Power Pages upload targeted the live site
         if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
-        working-directory: power-pages-artifact
+        working-directory: power-pages-kiosk-artifact
         run: |
           $id = (Select-String -Path '.powerpages-site/website.yml' -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
           if ($id -ne $env:POWER_PAGES_WEBSITE_ID) {
             throw "Upload used website $id instead of $env:POWER_PAGES_WEBSITE_ID; a duplicate site was created and must be deleted."
           }
           Write-Host "Power Pages upload targeted website $id."
+      - name: Fetch live prize wheel Power Pages metadata
+        if: env.STAFF_API_CUTOVER_READY == 'true'
+        shell: pwsh
+        run: |
+          $download = Join-Path $env:RUNNER_TEMP 'live-prize-wheel-site'
+          pac pages download-code-site --path $download --webSiteId $env:POWER_PRIZE_WHEEL_WEBSITE_ID --overwrite
+          if ($LASTEXITCODE -ne 0) { throw "Could not download Power Pages website $env:POWER_PRIZE_WHEEL_WEBSITE_ID. Refusing to upload, which would create a new site." }
+          $meta = Get-ChildItem $download -Recurse -Directory -Force -Filter '.powerpages-site' | Select-Object -First 1
+          if (-not $meta) { throw 'Downloaded prize wheel site has no .powerpages-site folder.' }
+          $id = (Select-String -Path (Join-Path $meta.FullName 'website.yml') -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
+          if ($id -ne $env:POWER_PRIZE_WHEEL_WEBSITE_ID) { throw "Downloaded website id $id does not match $env:POWER_PRIZE_WHEEL_WEBSITE_ID." }
+          Remove-Item 'power-pages-prize-wheel-artifact/.powerpages-site' -Recurse -Force -ErrorAction SilentlyContinue
+          Copy-Item $meta.FullName 'power-pages-prize-wheel-artifact/.powerpages-site' -Recurse
+      - name: Upload prize wheel Power Pages Code Site
+        if: env.STAFF_API_CUTOVER_READY == 'true'
+        shell: pwsh
+        working-directory: power-pages-prize-wheel-artifact
+        run: |
+          pac pages upload-code-site --rootPath "."
+          if ($LASTEXITCODE -ne 0) { throw 'Prize Wheel Power Pages Code Site upload failed.' }
+      - name: Verify prize wheel upload targeted the live site
+        if: env.STAFF_API_CUTOVER_READY == 'true'
+        shell: pwsh
+        working-directory: power-pages-prize-wheel-artifact
+        run: |
+          $id = (Select-String -Path '.powerpages-site/website.yml' -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
+          if ($id -ne $env:POWER_PRIZE_WHEEL_WEBSITE_ID) {
+            throw "Prize Wheel upload used website $id instead of $env:POWER_PRIZE_WHEEL_WEBSITE_ID; a duplicate site was created and must be deleted."
+          }
+          Write-Host "Prize Wheel upload targeted website $id."
       - name: Clear PAC credentials
         if: always() && env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
