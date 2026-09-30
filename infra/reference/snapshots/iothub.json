@@ -10,7 +10,7 @@
   "enrichments": null,
   "eventHubEndpoints": [
     {
-      "authenticationType": null,
+      "authenticationType": "identityBased",
       "name": "endpoint-iotpanel",
       "resourceGroup": "rg-aw-azcom-iot-copilot",
       "subscriptionId": "2e291b4a-5f03-4dcd-bb56-09643c729adc"

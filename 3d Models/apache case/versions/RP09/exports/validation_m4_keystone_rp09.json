@@ -1,0 +1,96 @@
+{
+  "revision": "RP09",
+  "component": "M4 ETHERNET",
+  "status": "PASS - physical keystone coupon approval required",
+  "production_candidate": {
+    "cutout_mm": [
+      14.9,
+      19.4
+    ],
+    "local_clip_wall_mm": 1.6,
+    "rear_relief_mm": [
+      19.0,
+      23.5,
+      1.6
+    ],
+    "port_centers_mm": [
+      [
+        -22,
+        18
+      ],
+      [
+        22,
+        18
+      ],
+      [
+        -22,
+        -18
+      ],
+      [
+        22,
+        -18
+      ]
+    ]
+  },
+  "coupon_candidates_mm": [
+    [
+      14.7,
+      19.2
+    ],
+    [
+      14.9,
+      19.4
+    ],
+    [
+      15.1,
+      19.6
+    ]
+  ],
+  "unchanged_meshes_verified": 12,
+  "meshes": {
+    "activity_face_base.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "activity_face_text.stl": {
+      "bounds_mm": [
+        57.146,
+        67.87,
+        1.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 31,
+      "fits_256mm_bed": true
+    },
+    "activity_face_layer_swap.stl": {
+      "bounds_mm": [
+        90.0,
+        74.0,
+        3.6
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    },
+    "calibration/m4_keystone_fit_coupon.stl": {
+      "bounds_mm": [
+        82.0,
+        38.0,
+        3.2
+      ],
+      "closed_edges": true,
+      "winding_consistent": true,
+      "connected_bodies": 1,
+      "fits_256mm_bed": true
+    }
+  }
+}

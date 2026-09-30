@@ -1,4 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getGameBoxState } from "../lib/dataverse";
 
 /**
@@ -22,7 +23,7 @@ export async function kioskState(
   }
 }
 
-app.http("kiosk-state", {
+registerHttp("kiosk-state", {
   route: "kiosk-state",
   methods: ["GET"],
   authLevel: "anonymous",

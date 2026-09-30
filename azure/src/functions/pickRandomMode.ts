@@ -1,4 +1,5 @@
-import { app, output, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { output, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getGameBoxState, pickRandomEnabledMode } from "../lib/dataverse";
 
 /**
@@ -40,7 +41,7 @@ export async function pickRandomMode(
   }
 }
 
-app.http("pick-random-mode", {
+registerHttp("pick-random-mode", {
   route: "pick-random-mode",
   methods: ["POST"],
   authLevel: "anonymous",

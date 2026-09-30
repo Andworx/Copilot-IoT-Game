@@ -1,4 +1,5 @@
-import { app, output, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { output, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { getGameBoxState, setActiveDeviceProfile } from "../lib/dataverse";
 
 interface SetModeRequestBody {
@@ -60,10 +61,10 @@ export async function setMode(
   }
 }
 
-app.http("set-mode", {
+registerHttp("set-mode", {
   route: "set-mode",
   methods: ["POST"],
-  authLevel: "function",
+  authLevel: "anonymous",
   extraOutputs: [signalROutput],
   handler: setMode,
 });

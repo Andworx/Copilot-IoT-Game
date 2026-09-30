@@ -20,6 +20,15 @@ param partitionCount int
 param messageRetentionInDays int
 param retentionTimeInHours int
 
+@allowed([
+  'Enabled'
+  'Disabled'
+])
+param publicNetworkAccess string
+
+@description('Allows the identity-based IoT Hub route through the Event Hubs firewall.')
+param trustedServiceAccessEnabled bool
+
 @description('One consumer group per independent reader. A group must never be shared between apps: two readers in one group split the partition leases and each misses events.')
 param consumerGroups array
 
@@ -39,7 +48,7 @@ resource namespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = {
     isAutoInflateEnabled: false
     kafkaEnabled: true
     minimumTlsVersion: '1.2'
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: publicNetworkAccess
     disableLocalAuth: false
     geoDataReplication: {
       maxReplicationLagDurationInSeconds: 0
@@ -50,6 +59,20 @@ resource namespace 'Microsoft.EventHub/namespaces@2024-05-01-preview' = {
         }
       ]
     }
+  }
+}
+
+resource networkRules 'Microsoft.EventHub/namespaces/networkRuleSets@2024-05-01-preview' = {
+  parent: namespace
+  name: 'default'
+  properties: {
+    publicNetworkAccess: publicNetworkAccess
+    // Azure normalizes this to Allow when public access is Disabled. The public
+    // endpoint is still blocked; keeping the reported value avoids permanent drift.
+    defaultAction: publicNetworkAccess == 'Disabled' ? 'Allow' : 'Deny'
+    trustedServiceAccessEnabled: trustedServiceAccessEnabled
+    ipRules: []
+    virtualNetworkRules: []
   }
 }
 

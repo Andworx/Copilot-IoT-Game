@@ -1,4 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { createPrizeInstances } from "../lib/dataverse";
 
 const MIN_QUANTITY = 1;
@@ -18,7 +19,7 @@ interface BulkCreatePrizesRequestBody {
  * bulk-add-prizes.tsx) -- that genpage is left running as a redundant alternate entry
  * point, this is a second way to do the same thing from Game Box Control.
  *
- * Function-key gated, same posture as toggle-device/set-game-mode -- this changes
+ * Entra staff-role gated, same posture as toggle-device/set-game-mode -- this changes
  * what's in the prize pool, not public presentation data.
  */
 export async function bulkCreatePrizes(
@@ -59,9 +60,9 @@ export async function bulkCreatePrizes(
   }
 }
 
-app.http("bulk-create-prizes", {
+registerHttp("bulk-create-prizes", {
   route: "bulk-create-prizes",
   methods: ["POST"],
-  authLevel: "function",
+  authLevel: "anonymous",
   handler: bulkCreatePrizes,
 });

@@ -1,3 +1,4 @@
+import { apiSurface } from "../lib/apiSurface";
 import { app, output, InvocationContext, RetryOptions } from "@azure/functions";
 import { createTelemetryEvent } from "../lib/dataverse";
 import {
@@ -87,7 +88,7 @@ export async function iotTelemetry(events: unknown[], context: InvocationContext
   await Promise.all(dataverseWrites);
 }
 
-app.eventHub("iot-telemetry", {
+if (apiSurface() === "public") app.eventHub("iot-telemetry", {
   connection: "IoTHubEventHubConnectionString",
   eventHubName: process.env.IOT_EVENTHUB_NAME ?? "iot-telemetry",
   consumerGroup: process.env.IOT_EVENTHUB_CONSUMER_GROUP ?? "$Default",

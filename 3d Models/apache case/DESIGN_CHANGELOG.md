@@ -5,6 +5,32 @@ why the document and design changed, what evidence caused the change, and which
 values remain candidates. It complements Git history rather than duplicating
 commit messages.
 
+## RP09 working revision - 2026-09-28 - M4 Ethernet keystones
+
+### Changed
+
+- Replaced only the M4 face's four circular cable-socket interfaces with four
+  standard RJ-45 keystone openings; preserved the 90 x 74 mm face envelope,
+  corner fasteners, port centers, shell, trays, and M1-M3 geometry.
+- Changed the visible M4 title to `M4 ETHERNET` and the four port identifiers
+  to `LAN1` through `LAN4` while retaining the RP09 multicolor text workflow.
+- Added a rear relief at every port so the 3.2 mm face presents a 1.6 mm local
+  clip wall, matching the reference jack manufacturer's recommended panel
+  thickness.
+- Added a three-opening coupon around the 14.90 x 19.40 mm production candidate
+  so the exact purchased keystone determines final printed tolerance.
+
+### Validated
+
+- OpenSCAD export, manifold, winding, connected-body, 256 mm build-envelope,
+  and unchanged-mesh SHA-256 checks are automated by
+  `versions/RP09/export_m4_keystone.ps1`.
+
+### Physical gate
+
+- RP09 M4 remains a candidate until the smallest passing coupon opening is
+  recorded and the jack clips seat without forcing, rocking, or cracking.
+
 ## RP09 working revision - 2026-09-20 - Pi display retention
 
 ### Changed

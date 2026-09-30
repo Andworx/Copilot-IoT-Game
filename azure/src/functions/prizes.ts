@@ -1,4 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { listActivePrizeTypes } from "../lib/dataverse";
 
 /**
@@ -21,7 +22,7 @@ export async function prizes(
   }
 }
 
-app.http("prizes", {
+registerHttp("prizes", {
   route: "prizes",
   methods: ["GET"],
   authLevel: "anonymous",

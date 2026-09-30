@@ -6,13 +6,15 @@ param eventHubName = 'iot-telemetry'
 param eventHubPartitionCount = 2
 param eventHubRetentionDays = 1
 param eventHubRetentionHours = 1
+param eventHubPublicNetworkAccess = 'Disabled'
+param eventHubTrustedServiceAccessEnabled = true
 param consumerGroups = [
   '$Default'
-  'funcapp'
   'gamefunc'
 ]
 
 param signalRName = 'signalr-aw-iot-copilot'
+param signalRSkuName = 'Standard_S1'
 
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.

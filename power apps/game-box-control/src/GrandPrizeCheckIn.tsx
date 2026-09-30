@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import { API_BASE_URL, GRAND_PRIZE_CHECK_IN_FUNCTION_KEY } from "./apiConfig";
+import { staffRequest } from "./apiConfig";
 
 type BarcodeDetectorResult = { rawValue?: string };
 type BarcodeDetectorInstance = { detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]> };
@@ -62,11 +62,10 @@ export default function GrandPrizeCheckIn() {
     setError(null);
     setResult(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/grand-prize/check-in`, {
+      const response = await staffRequest("/api/grand-prize/check-in", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(GRAND_PRIZE_CHECK_IN_FUNCTION_KEY ? { "x-functions-key": GRAND_PRIZE_CHECK_IN_FUNCTION_KEY } : {}),
         },
         body: JSON.stringify({ checkInCode }),
       });

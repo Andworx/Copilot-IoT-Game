@@ -1,0 +1,439 @@
+{
+    "swagger":  "2.0",
+    "info":  {
+                 "title":  "IoT Game Staff API",
+                 "description":  "Entra-authenticated staff operations. Configure the actual staff Function hostname and OAuth connection before use.",
+                 "version":  "1.0"
+             },
+    "host":  "staff-api.example.invalid",
+    "basePath":  "/api",
+    "schemes":  [
+                    "https"
+                ],
+    "consumes":  [
+                     "application/json"
+                 ],
+    "produces":  [
+                     "application/json"
+                 ],
+    "securityDefinitions":  {
+                                "entra":  {
+                                              "flow":  "accessCode",
+                                              "scopes":  {
+                                                             "api://API_CLIENT_ID/Staff.Access":  "Access staff operations"
+                                                         },
+                                              "authorizationUrl":  "https://login.microsoftonline.com/TENANT_ID/oauth2/v2.0/authorize",
+                                              "type":  "oauth2",
+                                              "tokenUrl":  "https://login.microsoftonline.com/TENANT_ID/oauth2/v2.0/token"
+                                          }
+                            },
+    "security":  [
+                     {
+                         "entra":  [
+                                       "api://API_CLIENT_ID/Staff.Access"
+                                   ]
+                     }
+                 ],
+    "paths":  {
+                  "/device-profiles":  {
+                                           "get":  {
+                                                       "operationId":  "GetDeviceProfiles",
+                                                       "summary":  "GetDeviceProfiles",
+                                                       "parameters":  [
+
+                                                                      ],
+                                                       "responses":  {
+                                                                         "401":  {
+                                                                                     "description":  "Missing or invalid token"
+                                                                                 },
+                                                                         "403":  {
+                                                                                     "description":  "Staff permission required"
+                                                                                 },
+                                                                         "200":  {
+                                                                                     "description":  "Operation result",
+                                                                                     "schema":  {
+                                                                                                    "type":  "object",
+                                                                                                    "additionalProperties":  true
+                                                                                                }
+                                                                                 }
+                                                                     }
+                                                   }
+                                       },
+                  "/kiosk-state":  {
+                                       "get":  {
+                                                   "operationId":  "GetKioskState",
+                                                   "summary":  "GetKioskState",
+                                                   "parameters":  [
+
+                                                                  ],
+                                                   "responses":  {
+                                                                     "401":  {
+                                                                                 "description":  "Missing or invalid token"
+                                                                             },
+                                                                     "403":  {
+                                                                                 "description":  "Staff permission required"
+                                                                             },
+                                                                     "200":  {
+                                                                                 "description":  "Operation result",
+                                                                                 "schema":  {
+                                                                                                "type":  "object",
+                                                                                                "additionalProperties":  true
+                                                                                            }
+                                                                             }
+                                                                 }
+                                               }
+                                   },
+                  "/set-mode":  {
+                                    "post":  {
+                                                 "operationId":  "SetMode",
+                                                 "summary":  "SetMode",
+                                                 "parameters":  [
+                                                                    {
+                                                                        "name":  "body",
+                                                                        "in":  "body",
+                                                                        "schema":  {
+                                                                                       "type":  "object",
+                                                                                       "additionalProperties":  true
+                                                                                   },
+                                                                        "required":  true
+                                                                    }
+                                                                ],
+                                                 "responses":  {
+                                                                   "401":  {
+                                                                               "description":  "Missing or invalid token"
+                                                                           },
+                                                                   "403":  {
+                                                                               "description":  "Staff permission required"
+                                                                           },
+                                                                   "200":  {
+                                                                               "description":  "Operation result",
+                                                                               "schema":  {
+                                                                                              "type":  "object",
+                                                                                              "additionalProperties":  true
+                                                                                          }
+                                                                           }
+                                                               }
+                                             }
+                                },
+                  "/toggle-device":  {
+                                         "post":  {
+                                                      "operationId":  "ToggleDevice",
+                                                      "summary":  "ToggleDevice",
+                                                      "parameters":  [
+                                                                         {
+                                                                             "name":  "body",
+                                                                             "in":  "body",
+                                                                             "schema":  {
+                                                                                            "type":  "object",
+                                                                                            "additionalProperties":  true
+                                                                                        },
+                                                                             "required":  true
+                                                                         }
+                                                                     ],
+                                                      "responses":  {
+                                                                        "401":  {
+                                                                                    "description":  "Missing or invalid token"
+                                                                                },
+                                                                        "403":  {
+                                                                                    "description":  "Staff permission required"
+                                                                                },
+                                                                        "200":  {
+                                                                                    "description":  "Operation result",
+                                                                                    "schema":  {
+                                                                                                   "type":  "object",
+                                                                                                   "additionalProperties":  true
+                                                                                               }
+                                                                                }
+                                                                    }
+                                                  }
+                                     },
+                  "/set-game-mode":  {
+                                         "post":  {
+                                                      "operationId":  "SetGameMode",
+                                                      "summary":  "SetGameMode",
+                                                      "parameters":  [
+                                                                         {
+                                                                             "name":  "body",
+                                                                             "in":  "body",
+                                                                             "schema":  {
+                                                                                            "type":  "object",
+                                                                                            "additionalProperties":  true
+                                                                                        },
+                                                                             "required":  true
+                                                                         }
+                                                                     ],
+                                                      "responses":  {
+                                                                        "401":  {
+                                                                                    "description":  "Missing or invalid token"
+                                                                                },
+                                                                        "403":  {
+                                                                                    "description":  "Staff permission required"
+                                                                                },
+                                                                        "200":  {
+                                                                                    "description":  "Operation result",
+                                                                                    "schema":  {
+                                                                                                   "type":  "object",
+                                                                                                   "additionalProperties":  true
+                                                                                               }
+                                                                                }
+                                                                    }
+                                                  }
+                                     },
+                  "/prize-types":  {
+                                       "get":  {
+                                                   "operationId":  "GetPrizeTypes",
+                                                   "summary":  "GetPrizeTypes",
+                                                   "parameters":  [
+
+                                                                  ],
+                                                   "responses":  {
+                                                                     "401":  {
+                                                                                 "description":  "Missing or invalid token"
+                                                                             },
+                                                                     "403":  {
+                                                                                 "description":  "Staff permission required"
+                                                                             },
+                                                                     "200":  {
+                                                                                 "description":  "Operation result",
+                                                                                 "schema":  {
+                                                                                                "type":  "object",
+                                                                                                "additionalProperties":  true
+                                                                                            }
+                                                                             }
+                                                                 }
+                                               }
+                                   },
+                  "/prize-count":  {
+                                       "get":  {
+                                                   "operationId":  "GetPrizeCount",
+                                                   "summary":  "GetPrizeCount",
+                                                   "parameters":  [
+
+                                                                  ],
+                                                   "responses":  {
+                                                                     "401":  {
+                                                                                 "description":  "Missing or invalid token"
+                                                                             },
+                                                                     "403":  {
+                                                                                 "description":  "Staff permission required"
+                                                                             },
+                                                                     "200":  {
+                                                                                 "description":  "Operation result",
+                                                                                 "schema":  {
+                                                                                                "type":  "object",
+                                                                                                "additionalProperties":  true
+                                                                                            }
+                                                                             }
+                                                                 }
+                                               }
+                                   },
+                  "/bulk-create-prizes":  {
+                                              "post":  {
+                                                           "operationId":  "BulkCreatePrizes",
+                                                           "summary":  "BulkCreatePrizes",
+                                                           "parameters":  [
+                                                                              {
+                                                                                  "name":  "body",
+                                                                                  "in":  "body",
+                                                                                  "schema":  {
+                                                                                                 "type":  "object",
+                                                                                                 "additionalProperties":  true
+                                                                                             },
+                                                                                  "required":  true
+                                                                              }
+                                                                          ],
+                                                           "responses":  {
+                                                                             "401":  {
+                                                                                         "description":  "Missing or invalid token"
+                                                                                     },
+                                                                             "403":  {
+                                                                                         "description":  "Staff permission required"
+                                                                                     },
+                                                                             "200":  {
+                                                                                         "description":  "Operation result",
+                                                                                         "schema":  {
+                                                                                                        "type":  "object",
+                                                                                                        "additionalProperties":  true
+                                                                                                    }
+                                                                                     }
+                                                                         }
+                                                       }
+                                          },
+                  "/grand-prize/check-in":  {
+                                                "post":  {
+                                                             "operationId":  "GrandPrizeCheckIn",
+                                                             "summary":  "GrandPrizeCheckIn",
+                                                             "parameters":  [
+                                                                                {
+                                                                                    "name":  "body",
+                                                                                    "in":  "body",
+                                                                                    "schema":  {
+                                                                                                   "type":  "object",
+                                                                                                   "additionalProperties":  true
+                                                                                               },
+                                                                                    "required":  true
+                                                                                }
+                                                                            ],
+                                                             "responses":  {
+                                                                               "401":  {
+                                                                                           "description":  "Missing or invalid token"
+                                                                                       },
+                                                                               "403":  {
+                                                                                           "description":  "Staff permission required"
+                                                                                       },
+                                                                               "200":  {
+                                                                                           "description":  "Operation result",
+                                                                                           "schema":  {
+                                                                                                          "type":  "object",
+                                                                                                          "additionalProperties":  true
+                                                                                                      }
+                                                                                       }
+                                                                           }
+                                                         }
+                                            },
+                  "/grand-prize/drawing-slices":  {
+                                                      "get":  {
+                                                                  "operationId":  "GetDrawingSlices",
+                                                                  "summary":  "GetDrawingSlices",
+                                                                  "parameters":  [
+
+                                                                                 ],
+                                                                  "responses":  {
+                                                                                    "401":  {
+                                                                                                "description":  "Missing or invalid token"
+                                                                                            },
+                                                                                    "403":  {
+                                                                                                "description":  "Staff permission required"
+                                                                                            },
+                                                                                    "200":  {
+                                                                                                "description":  "Operation result",
+                                                                                                "schema":  {
+                                                                                                               "type":  "object",
+                                                                                                               "additionalProperties":  true
+                                                                                                           }
+                                                                                            }
+                                                                                }
+                                                              }
+                                                  },
+                  "/grand-prize/drawing-state":  {
+                                                     "get":  {
+                                                                 "operationId":  "GetDrawingState",
+                                                                 "summary":  "GetDrawingState",
+                                                                 "parameters":  [
+
+                                                                                ],
+                                                                 "responses":  {
+                                                                                   "401":  {
+                                                                                               "description":  "Missing or invalid token"
+                                                                                           },
+                                                                                   "403":  {
+                                                                                               "description":  "Staff permission required"
+                                                                                           },
+                                                                                   "200":  {
+                                                                                               "description":  "Operation result",
+                                                                                               "schema":  {
+                                                                                                              "type":  "object",
+                                                                                                              "additionalProperties":  true
+                                                                                                          }
+                                                                                           }
+                                                                               }
+                                                             }
+                                                 },
+                  "/grand-prize/draw":  {
+                                            "post":  {
+                                                         "operationId":  "DrawGrandPrize",
+                                                         "summary":  "DrawGrandPrize",
+                                                         "parameters":  [
+                                                                            {
+                                                                                "name":  "body",
+                                                                                "in":  "body",
+                                                                                "schema":  {
+                                                                                               "type":  "object",
+                                                                                               "additionalProperties":  true
+                                                                                           },
+                                                                                "required":  true
+                                                                            }
+                                                                        ],
+                                                         "responses":  {
+                                                                           "401":  {
+                                                                                       "description":  "Missing or invalid token"
+                                                                                   },
+                                                                           "403":  {
+                                                                                       "description":  "Staff permission required"
+                                                                                   },
+                                                                           "200":  {
+                                                                                       "description":  "Operation result",
+                                                                                       "schema":  {
+                                                                                                      "type":  "object",
+                                                                                                      "additionalProperties":  true
+                                                                                                  }
+                                                                                   }
+                                                                       }
+                                                     }
+                                        },
+                  "/create-win":  {
+                                      "post":  {
+                                                   "operationId":  "CreateTestWin",
+                                                   "summary":  "CreateTestWin",
+                                                   "parameters":  [
+                                                                      {
+                                                                          "name":  "body",
+                                                                          "in":  "body",
+                                                                          "schema":  {
+                                                                                         "type":  "object",
+                                                                                         "additionalProperties":  true
+                                                                                     },
+                                                                          "required":  true
+                                                                      }
+                                                                  ],
+                                                   "responses":  {
+                                                                     "401":  {
+                                                                                 "description":  "Missing or invalid token"
+                                                                             },
+                                                                     "403":  {
+                                                                                 "description":  "Staff permission required"
+                                                                             },
+                                                                     "200":  {
+                                                                                 "description":  "Operation result",
+                                                                                 "schema":  {
+                                                                                                "type":  "object",
+                                                                                                "additionalProperties":  true
+                                                                                            }
+                                                                             }
+                                                                 }
+                                               }
+                                  },
+                  "/claim-prize":  {
+                                       "post":  {
+                                                    "operationId":  "ClaimTestPrize",
+                                                    "summary":  "ClaimTestPrize",
+                                                    "parameters":  [
+                                                                       {
+                                                                           "name":  "body",
+                                                                           "in":  "body",
+                                                                           "schema":  {
+                                                                                          "type":  "object",
+                                                                                          "additionalProperties":  true
+                                                                                      },
+                                                                           "required":  true
+                                                                       }
+                                                                   ],
+                                                    "responses":  {
+                                                                      "401":  {
+                                                                                  "description":  "Missing or invalid token"
+                                                                              },
+                                                                      "403":  {
+                                                                                  "description":  "Staff permission required"
+                                                                              },
+                                                                      "200":  {
+                                                                                  "description":  "Operation result",
+                                                                                  "schema":  {
+                                                                                                 "type":  "object",
+                                                                                                 "additionalProperties":  true
+                                                                                             }
+                                                                              }
+                                                                  }
+                                                }
+                                   }
+              }
+}

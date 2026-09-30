@@ -1,14 +1,13 @@
 // Azure SignalR Service in Serverless mode, matching what is live.
 //
-// Free_F1 has daily message and connection limits; move to Standard_S1 before a real booth
-// event (see azure/README.md). CORS `*` mirrors the live setting; the browser negotiates
+// Standard_S1 supports the existing private endpoint. CORS `*` mirrors the live setting; the browser negotiates
 // through the Function App, whose own CORS list is the real gate.
 
 param name string
 param location string = resourceGroup().location
 
 @allowed(['Free_F1', 'Standard_S1'])
-param skuName string = 'Free_F1'
+param skuName string = 'Standard_S1'
 param capacity int = 1
 
 param tags object = {}

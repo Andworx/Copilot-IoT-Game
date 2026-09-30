@@ -27,7 +27,7 @@ manual recovery/bootstrap references for these two apps.
 
 Event Hub, consumer groups, SignalR, and the Function App's Event Hub access are defined in
 `infra/` and released by `.github/workflows/deploy-infra.yml`, documented in
-[docs/CI_CD.md](docs/CI_CD.md#infrastructure-workflow-deploy-infrayml). Nothing deploys on
+[docs/CI_CD.md](docs/CI_CD.md#infrastructure-workflow-deploy-infrayml). The owner-authorized exception is `infra/staff-api.bicep`, provisioned by the app release workflow as documented in `docs/STAFF_API_WIRING.md`. Shared infrastructure does not deploy on
 merge: use `gh workflow run deploy-infra.yml --ref main -f action=what-if|drift|deploy`, show the
 `what-if` first, and run `deploy` only when explicitly asked (it is main-only; there is no reviewer gate). Do not
 run infra deployments or `infra/scripts/Initialize-InfraIdentities.ps1` locally. Never change

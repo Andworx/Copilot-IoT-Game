@@ -1,4 +1,5 @@
-import { app, input, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { input, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
 /**
  * SignalR connection bootstrap. The kiosk SPA calls this once on load to get a
@@ -19,7 +20,7 @@ export async function negotiate(
   return { jsonBody: context.extraInputs.get(signalRConnectionInfo) };
 }
 
-app.http("negotiate", {
+registerHttp("negotiate", {
   route: "negotiate",
   methods: ["POST"],
   authLevel: "anonymous",

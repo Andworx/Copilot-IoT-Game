@@ -1,6 +1,6 @@
 {
   "revision": "RP09",
-  "status": "PASS - screen cover, screen seat, and LED retainer require physical fit approval",
+  "status": "PASS - screen parts and M4 keystone require physical fit approval",
   "exports": [
     "activity_face_base.stl",
     "activity_face_layer_swap.stl",
@@ -134,6 +134,26 @@
     ],
     "mounting_screw": "M3 x 4 mm pan/button head, thread-forming into printed pilot"
   },
+  "m4_keystone_candidate": {
+    "title": "M4 ETHERNET",
+    "cutout_mm": [
+      14.9,
+      19.4
+    ],
+    "local_clip_wall_mm": 1.6,
+    "rear_relief_mm": [
+      19.0,
+      23.5,
+      1.6
+    ],
+    "labels": [
+      "LAN1",
+      "LAN2",
+      "LAN3",
+      "LAN4"
+    ],
+    "physical_coupon_status": "PENDING"
+  },
   "rp08_release_stls_verified": 17,
   "meshes": {
     "activity_face_base.stl": {
@@ -160,13 +180,13 @@
     },
     "activity_face_text.stl": {
       "bounds_mm": [
-        65.692,
-        67.945,
+        57.146,
+        67.87,
         1.2
       ],
       "closed_edges": true,
       "winding_consistent": true,
-      "connected_bodies": 25,
+      "connected_bodies": 31,
       "fits_256mm_bed": true
     },
     "panel_L.stl": {

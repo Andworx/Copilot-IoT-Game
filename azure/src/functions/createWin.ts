@@ -1,4 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { createGameWin } from "../lib/dataverse";
 
 interface CreateWinRequestBody {
@@ -42,7 +43,7 @@ export async function createWin(
   }
 }
 
-app.http("create-win", {
+registerHttp("create-win", {
   route: "create-win",
   methods: ["POST"],
   authLevel: "anonymous",

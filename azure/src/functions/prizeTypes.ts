@@ -1,4 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { listAllPrizeTypes } from "../lib/dataverse";
 
 /**
@@ -7,7 +8,7 @@ import { listAllPrizeTypes } from "../lib/dataverse";
  * GET /api/prizes (the wheel's non-fallback, name-only list), staff need ids to bind
  * new andy_Prizes rows to a specific type, and may legitimately want to stock the
  * fallback type too. Anonymous, same posture as device-profiles/kiosk-state -- type
- * names/ids aren't sensitive, only the write (bulk-create-prizes) needs a function key.
+ * names/ids aren't sensitive, only the write (bulk-create-prizes) requires Entra staff authorization.
  */
 export async function prizeTypes(
   _request: HttpRequest,
@@ -22,7 +23,7 @@ export async function prizeTypes(
   }
 }
 
-app.http("prize-types", {
+registerHttp("prize-types", {
   route: "prize-types",
   methods: ["GET"],
   authLevel: "anonymous",

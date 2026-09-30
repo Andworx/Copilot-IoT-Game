@@ -1,4 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { registerHttp } from "../lib/apiSurface";
+import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { setDeviceProfileEnabled } from "../lib/dataverse";
 
 interface ToggleDeviceRequestBody {
@@ -8,11 +9,11 @@ interface ToggleDeviceRequestBody {
 
 /**
  * POST /api/toggle-device -- called by Game Box Control's per-tile enable/disable
- * switch (GAME_MODE_PLAN.md follow-up). Flips andy_deviceprofile.andy_isenabled. A
+ * switch (GAME_MODE_PLAN.md follow-up). Sets Device Profile Status to Active/Inactive. A
  * disabled device is hidden from staff's manual picker in the control app and skipped
  * by pick-random-mode, but the row and its data stay intact for later re-enabling.
  *
- * Function-key gated, same posture as set-mode -- this changes what staff can offer at
+ * Entra staff-role gated, same posture as set-mode -- this changes what staff can offer at
  * the booth, not public presentation data.
  */
 export async function toggleDevice(
@@ -42,9 +43,9 @@ export async function toggleDevice(
   }
 }
 
-app.http("toggle-device", {
+registerHttp("toggle-device", {
   route: "toggle-device",
   methods: ["POST"],
-  authLevel: "function",
+  authLevel: "anonymous",
   handler: toggleDevice,
 });
