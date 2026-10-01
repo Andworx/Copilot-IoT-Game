@@ -4,9 +4,9 @@
     Captures (-Mode Export) or verifies (-Mode Check) the Tier 3 reference snapshots.
 
 .DESCRIPTION
-    infra/reference/manifest.json lists resources this repo deliberately does not deploy
+    azure/infrastructure/reference/manifest.json lists resources this repo deliberately does not deploy
     (IoT Hub, DPS, Function Apps, plans, storage, App Insights) and the stable, non-secret
-    properties to record for each. Export writes infra/reference/snapshots/<name>.json from
+    properties to record for each. Export writes azure/infrastructure/reference/snapshots/<name>.json from
     the live resource. Check re-reads the live resource and fails (exit 1) if it differs
     from the committed snapshot, which is how an out-of-band change to the IoT Hub is
     noticed. Check only reads, so a Reader role is enough.

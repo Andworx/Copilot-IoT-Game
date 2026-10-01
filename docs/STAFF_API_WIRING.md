@@ -56,7 +56,7 @@ Function keys and browser identity headers cannot substitute for it.
 
 Target subscription `2e291b4a-5f03-4dcd-bb56-09643c729adc`, resource group
 `rg-aw-azcom-iot-copilot`, East US. Non-secret inputs live in
-[`infra/staff-api.prod.json`](../infra/staff-api.prod.json).
+[`azure/infrastructure/staff-api.prod.json`](../azure/infrastructure/staff-api.prod.json).
 
 | Resource | Configuration |
 |---|---|
@@ -87,7 +87,7 @@ Redeploys preserve unrelated existing staff settings, refresh the allowlisted
 source settings and override template-owned settings. Event Hub and Direct Line
 credentials are not copied. The staff surface never registers the telemetry trigger.
 The public surface retains kiosk/prize operations; staff-only routes are removed
-from it only at coordinated cutover. See `azure/src/lib/apiSurface.ts` for the
+from it only at coordinated cutover. See `azure/functions/game/src/lib/apiSurface.ts` for the
 authoritative route sets and `connectors/iot-game-staff/openapi.json` for operations.
 
 ## Deployment access
@@ -98,13 +98,13 @@ Existing production GitHub identity client ID:
 Read-only inspection found Website Contributor on the existing game app only.
 That original grant could not create the staff resources. The owner subsequently ran the bootstrap successfully; the release has now provisioned them.
 
-An IAM administrator must review `infra/roles/staff-provisioner.json` and run the
+An IAM administrator must review `azure/infrastructure/roles/staff-provisioner.json` and run the
 one-time bootstrap before the first release. This is not run by CI; it has
 now been run successfully by the owner (commands retained for reproducibility):
 
 ```powershell
 az account set --subscription 2e291b4a-5f03-4dcd-bb56-09643c729adc
-./infra/scripts/Initialize-StaffDeploymentAccess.ps1 -DeploymentPrincipalId 8904a13a-0f97-47de-854e-c7649b5d7fe6 -WhatIf
+./azure/infrastructure/scripts/Initialize-StaffDeploymentAccess.ps1 -DeploymentPrincipalId 8904a13a-0f97-47de-854e-c7649b5d7fe6 -WhatIf
 # After reviewing the role, run the same command without -WhatIf.
 ```
 
@@ -167,7 +167,7 @@ Storage queue/table/file private endpoints and off-VPN isolation remain unverifi
 The new staff template does not adopt or replay this manually built network.
 
 Read-only inventory on 2026-09-29 captured the network separately in
-[`infra/network`](../infra/network/README.md). The live gateway is Generation2
+[`azure/infrastructure/network`](../azure/infrastructure/network/README.md). The live gateway is Generation2
 with BGP enabled, and the private endpoint subnet is named `private-endpoint`
 (singular). This baseline preserves those settings. Its GitHub action previews
 only; network adoption and service lockdown remain pending.
@@ -194,7 +194,7 @@ References: [setup runbook](STAFF_API_SETUP.md), [CI/CD](CI_CD.md),
 
 Release [36639623856](https://github.com/Andworx/Copilot-IoT-Game/actions/runs/36639623856) failed with InvalidTemplate/circular dependency before code deployment. The bootstrap succeeded, but reading the existing staff settings inside the same template that writes the staff site introduced a self-dependency on subsequent releases. This was a template defect, not a connector-role failure.
 
-The entry template now reads previous settings and passes them as a secure object parameter into `infra/modules/staff-resources.bicep`. Unrelated settings are preserved without returning credentials to the runner. The release script runs ARM validation with output suppressed before the resource-ID-only what-if; a failed validation stops deployment. No additional IAM or networking grant is required for this fix. Hosted Code App acceptance and cutover remain pending until the owner's result is unambiguous.
+The entry template now reads previous settings and passes them as a secure object parameter into `azure/infrastructure/modules/staff-resources.bicep`. Unrelated settings are preserved without returning credentials to the runner. The release script runs ARM validation with output suppressed before the resource-ID-only what-if; a failed validation stops deployment. No additional IAM or networking grant is required for this fix. Hosted Code App acceptance and cutover remain pending until the owner's result is unambiguous.
 
 ## Device-profile read correction
 

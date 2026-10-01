@@ -31,7 +31,7 @@ const MAX_QUANTITY = 100;
 /**
  * Bulk-create andy_Prizes instance rows without leaving Game Box Control. Same
  * capability as the "Bulk Add Prizes" genpage in the Game Backend app
- * (power apps/bulk-add-prizes/bulk-add-prizes.tsx), ported to call the azure/
+ * (power apps/bulk-add-prizes/bulk-add-prizes.tsx), ported to call the azure/functions/game/
  * Functions backend (POST /api/bulk-create-prizes) instead of the genpage's direct
  * Dataverse dataApi -- Game Box Control has no genpage context, and this keeps it on
  * the same authenticated connector as its existing mode controls. The genpage

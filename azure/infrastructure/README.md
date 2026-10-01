@@ -5,14 +5,14 @@ Azure resources for the Restore & Spin pipeline live in one resource group,
 the rest under drift detection, without ever letting CI touch the IoT Hub.
 
 ```
-panel Pi ─► IoT Hub ─► route ─► Event Hub ─► game Function App ─► SignalR ─► kiosk page
- (device)   iothub-…            evhns-…/       func-aw-azcom-       signalr-…
+panel Pi â”€â–º IoT Hub â”€â–º route â”€â–º Event Hub â”€â–º game Function App â”€â–º SignalR â”€â–º kiosk page
+ (device)   iothub-â€¦            evhns-â€¦/       func-aw-azcom-       signalr-â€¦
                                 iot-telemetry  iot-game
 ```
 
 ## Staff API release exception
 
-The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They create only the staff app, plan and dedicated storage and join the existing integration subnet. They do not replay `main.bicep` or adopt the manually built network. The historical reference-only rows below describe the two existing apps, not this new third app. See [wiring, IAM bootstrap and release stages](../docs/STAFF_API_WIRING.md).
+The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They create only the staff app, plan and dedicated storage and join the existing integration subnet. They do not replay `main.bicep` or adopt the manually built network. The historical reference-only rows below describe the two existing apps, not this new third app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).
 
 ## What is managed how
 
@@ -41,20 +41,20 @@ device message to `iot-telemetry`.
 ## Files
 
 ```
-infra/
-├── main.bicep                     # tier 1+2 entry point (resource group scope)
-├── main.prod.bicepparam           # values that reproduce live
-├── modules/
-│   ├── eventhub.bicep             # namespace, hub, consumer groups
-│   ├── signalr.bicep
-│   └── eventhub-receiver.bicep    # Event Hubs Data Receiver for the Function App identity
-├── reference/
-│   ├── manifest.json              # which resources, and which properties to record
-│   └── snapshots/*.json           # committed live state (no keys or connection strings)
-└── scripts/
-    ├── Invoke-ReferenceSnapshot.ps1     # -Mode Export | Check
-    ├── Set-FunctionAppSettings.ps1
-    └── Initialize-InfraIdentities.ps1   # one-time bootstrap, run by a human
+azure/infrastructure/
+â”œâ”€â”€ main.bicep                     # tier 1+2 entry point (resource group scope)
+â”œâ”€â”€ main.prod.bicepparam           # values that reproduce live
+â”œâ”€â”€ modules/
+â”‚   â”œâ”€â”€ eventhub.bicep             # namespace, hub, consumer groups
+â”‚   â”œâ”€â”€ signalr.bicep
+â”‚   â””â”€â”€ eventhub-receiver.bicep    # Event Hubs Data Receiver for the Function App identity
+â”œâ”€â”€ reference/
+â”‚   â”œâ”€â”€ manifest.json              # which resources, and which properties to record
+â”‚   â””â”€â”€ snapshots/*.json           # committed live state (no keys or connection strings)
+â””â”€â”€ scripts/
+    â”œâ”€â”€ Invoke-ReferenceSnapshot.ps1     # -Mode Export | Check
+    â”œâ”€â”€ Set-FunctionAppSettings.ps1
+    â””â”€â”€ Initialize-InfraIdentities.ps1   # one-time bootstrap, run by a human
 ```
 
 ## Consumer groups
@@ -75,22 +75,22 @@ private-access path was validated.
 
 ```powershell
 # Preview (read-only)
-az deployment group what-if -g rg-aw-azcom-iot-copilot -f infra/main.bicep -p infra/main.prod.bicepparam
+az deployment group what-if -g rg-aw-azcom-iot-copilot -f azure/infrastructure/main.bicep -p azure/infrastructure/main.prod.bicepparam
 
 # Do the reference resources still match? (PowerShell 7, i.e. `pwsh`)
-./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check
+./azure/infrastructure/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check
 
 # An intended change was made out of band: re-capture and commit
-./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Export
+./azure/infrastructure/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Export
 ```
 
 Normally you run none of this by hand: use the **Infrastructure** workflow
 (`.github/workflows/deploy-infra.yml`). How it fits with the app workflow, the GitHub environments,
-the release order and troubleshooting are in [docs/CI_CD.md](../docs/CI_CD.md#infrastructure-workflow-deploy-infrayml).
+the release order and troubleshooting are in [docs/CI_CD.md](../../docs/CI_CD.md#infrastructure-workflow-deploy-infrayml).
 
 | Trigger | Runs | Cloud access |
 |---|---|---|
-| PR touching `infra/**` | Bicep compile + lint, manifest check | none |
+| PR touching `azure/infrastructure/**` | Bicep compile + lint, manifest check | none |
 | Every push to `main` | compare Bicep with Azure; report and fail on actionable differences | `infra-deploy`; changes nothing |
 | Manual `what-if` | run the same reconciliation check on demand | `infra-deploy`; changes nothing |
 | Manual `deploy` (from `main` only) | assign the Function App a managed identity, deploy `main.bicep`, merge the settings, re-check snapshots | `infra-deploy` (`main` only) |
@@ -98,7 +98,7 @@ the release order and troubleshooting are in [docs/CI_CD.md](../docs/CI_CD.md#in
 The first `deploy` creates the `gamefunc` consumer group and the Function App's managed
 identity, grants it Event Hubs Data Receiver on the hub, and points the Function App at the
 hub with identity-based auth, so **no Event Hub key is stored anywhere**. This must happen
-before the telemetry function ships (`azure/src/functions/telemetry.ts`), or its trigger
+before the telemetry function ships (`azure/functions/game/src/functions/telemetry.ts`), or its trigger
 has nothing to read.
 
 The declared namespace configuration is private-only. `publicNetworkAccess` is
@@ -145,13 +145,13 @@ separately validated hardening step.
 - **Leftovers** from the earlier Logic App design: the `eventhubs` API connection and the
   `la-*` deployments. Nothing here uses them.
 - The Function Apps' **application settings** (names only; values are never recorded): see
-  `docs/CI_CD.md` and `azure/README.md`. `DIRECTLINE_SECRET` and the Dataverse secret are set
+  `docs/CI_CD.md` and `azure/functions/game/README.md`. `DIRECTLINE_SECRET` and the Dataverse secret are set
   by hand.
 
 ## Captured network baseline
 
 The manually built VNet, VPN, DNS and private endpoints are now recorded separately
-in [infra/network](network/README.md). The Infrastructure workflow has a
+in [azure/infrastructure/network](network/README.md). The Infrastructure workflow has a
 `network-what-if` action; this is preview-only and never runs the older service
 main.bicep. Actual live gateway settings (Generation2, BGP on) and the singular
 `private-endpoint` subnet name supersede earlier planning notes.

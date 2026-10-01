@@ -50,8 +50,8 @@ the restoration procedures change.
 
 ## Telemetry payload and the cloud pipeline
 
-The payload below is consumed by this repo's `azure/` Function App (`iot-telemetry`
-Event Hub trigger, `azure/src/lib/telemetry.ts`), which relays it to the kiosk over
+The payload below is consumed by this repo's `azure/functions/game/` Function App (`iot-telemetry`
+Event Hub trigger, `azure/functions/game/src/lib/telemetry.ts`), which relays it to the kiosk over
 SignalR and logs each state change and win to the `andy_iottelemetryevent` event log (the full
 payload goes into its JSON `andy_payload` column). Keep the two in sync when the shape
 changes. The sibling `copilot-iot-service` app expects an older payload

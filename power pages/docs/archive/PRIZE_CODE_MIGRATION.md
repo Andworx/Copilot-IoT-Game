@@ -1,6 +1,6 @@
 # Prize Code Migration — Execution Plan
 
-> **✅ ARCHIVED — completed and deployed 2026-09-09.** The `azure/src/lib/dataverse.ts`
+> **✅ ARCHIVED — completed and deployed 2026-09-09.** The `azure/functions/game/src/lib/dataverse.ts`
 > rewrite described here shipped to `func-aw-azcom-copilot-iot-game` and was smoke-tested
 > live end to end (see
 > [`PRIZE_DATA_MODEL_MIGRATION_STATUS.md`](PRIZE_DATA_MODEL_MIGRATION_STATUS.md) for the
@@ -10,7 +10,7 @@
 Companion to [`PRIZE_DATA_MODEL_MIGRATION.md`](PRIZE_DATA_MODEL_MIGRATION.md) (the
 schema/Dataverse side of this same change) and
 [`PRIZE_ENGINE_SPEC.md`](PRIZE_ENGINE_SPEC.md) (the original design this supersedes).
-This document is the **code side only** — what changes in `azure/` (the Functions
+This document is the **code side only** — what changes in `azure/functions/game/` (the Functions
 backend) and what, if anything, changes in the two Power Pages SPAs
 (`power pages/copilotiotgame`, `power pages/prize wheel`).
 
@@ -61,7 +61,7 @@ new `andy_gamewin` lookup column gets added here.
 - The final `andy_isfallback` schema name on `andy_PrizeTypes` — confirm it landed as
   `andy_isfallback` and not something Dataverse auto-adjusted.
 
-## Changes in `azure/src/lib/dataverse.ts`
+## Changes in `azure/functions/game/src/lib/dataverse.ts`
 
 ### Remove
 
@@ -142,7 +142,7 @@ The concrete algorithm (replaces `selectAndClaimPrize`):
 validation, and the `andy_gamewin` status-transition logic are all unaffected by this
 migration -- only the prize-selection half changes.
 
-## Changes in `azure/src/functions/`
+## Changes in `azure/functions/game/src/functions/`
 
 - **`prizes.ts`** — swap `listActivePrizes` for `listActivePrizeTypes`. Response shape
   (`{ prizes: [{ name }] }`) stays identical, so nothing downstream needs to know the
@@ -173,9 +173,9 @@ requirement of it -- do it as a separate change.
    `solutions/CopilotIoTGame` has been re-exported with the new tables/columns.
 2. Check the real navigation property names (see "What's NOT confirmed yet" above)
    against `solutions/CopilotIoTGame/Other/Relationships/`.
-3. Rewrite `azure/src/lib/dataverse.ts` per the algorithm above, using the *confirmed*
+3. Rewrite `azure/functions/game/src/lib/dataverse.ts` per the algorithm above, using the *confirmed*
    navigation property names, not the anticipated ones.
-4. `npm run build` in `azure/` -- must compile clean before deploying.
+4. `npm run build` in `azure/functions/game/` -- must compile clean before deploying.
 5. `func azure functionapp publish func-aw-azcom-copilot-iot-game --typescript`.
 6. Smoke test directly, same pattern used throughout this project:
    - `curl https://func-aw-azcom-copilot-iot-game.azurewebsites.net/api/prizes` -- should

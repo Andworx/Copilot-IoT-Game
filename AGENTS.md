@@ -9,7 +9,7 @@ directly to `main`.
 Follow [docs/CI_CD.md](docs/CI_CD.md) for Function App and Power Pages releases.
 The authoritative workflow is `.github/workflows/deploy-apps.yml`.
 
-- Run `npm ci` and `npm run build` in `azure` and `power pages/copilotiotgame`.
+- Run `npm ci` and `npm run build` in `azure/functions/game` and `power pages/copilotiotgame`.
 - PRs run `Build apps` without deployment credentials. Merging relevant changes to
   `main` builds and deploys both apps through the `production` GitHub environment.
 - For a requested redeploy, dispatch `deploy-apps.yml` on `main` and inspect its run.

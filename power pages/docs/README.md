@@ -27,7 +27,7 @@ explaining what superseded it and where to look instead.
 | [`archive/PRIZE_ENGINE_SPEC.md`](archive/PRIZE_ENGINE_SPEC.md) | Superseded 2026-09-09 | Original single-table `andy_prize` design (weight/remaining decrement). Replaced by the `andy_PrizeTypes`/`andy_Prizes` split below. |
 | [`archive/PRIZE_DATA_MODEL_MIGRATION.md`](archive/PRIZE_DATA_MODEL_MIGRATION.md) | Done 2026-09-09 | The Dataverse-side migration plan (schema, seed data, decommission). |
 | [`archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md`](archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md) | Done 2026-09-09 | Phase-by-phase status/checklist tracking the migration above to completion, including the Phase 6 decommission of `andy_prize`/`andy_prizecategory` and the `andy_PrizeEngine` solution split. This is the most detailed record of the final live state. |
-| [`archive/PRIZE_CODE_MIGRATION.md`](archive/PRIZE_CODE_MIGRATION.md) | Done 2026-09-09 | The Azure Functions (`azure/src/lib/dataverse.ts`) backend rewrite against the new schema, deployed and smoke-tested live. |
+| [`archive/PRIZE_CODE_MIGRATION.md`](archive/PRIZE_CODE_MIGRATION.md) | Done 2026-09-09 | The Azure Functions (`azure/functions/game/src/lib/dataverse.ts`) backend rewrite against the new schema, deployed and smoke-tested live. |
 
 ## Why archive instead of delete
 

@@ -12,7 +12,7 @@ interface ClaimResult {
 
 /**
  * Standalone phone-facing spin page, reads `?token=` from the kiosk QR
- * (PRIZE_ENGINE_SPEC.md §3). The claim endpoint (azure/src/functions/claimPrize.ts)
+ * (PRIZE_ENGINE_SPEC.md §3). The claim endpoint (azure/functions/game/src/functions/claimPrize.ts)
  * runs the real weighted-pick + atomic-decrement server-side; this page never picks a
  * prize itself, it only plays the reveal animation for whatever the server already
  * committed to.

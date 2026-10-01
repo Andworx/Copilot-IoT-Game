@@ -68,7 +68,7 @@ async function dataverseFetch(path: string, init: RequestInit = {}): Promise<Res
 
 /**
  * Writes one event to the generic andy_iottelemetryevent event log (name, device, type, value
- * plus a JSON payload; see azure/README.md). The record is built by lib/telemetry.ts.
+ * plus a JSON payload; see azure/functions/game/README.md). The record is built by lib/telemetry.ts.
  */
 export async function createTelemetryEvent(record: Record<string, unknown>): Promise<void> {
   await dataverseFetch("andy_iottelemetryevents", {

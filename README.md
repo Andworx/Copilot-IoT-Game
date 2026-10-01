@@ -15,6 +15,7 @@ Other Power Platform components retain their existing PAC workflows.
 | Area | Contents |
 |------|----------|
 | **Apps** | `apps/` folder for app-level assets and source folders |
+| **Azure** | `azure/functions/` application source and `azure/infrastructure/` Bicep, deployment scripts, and captured baselines |
 | **PowerShell Scripts** | Dataverse auth, HTTP wrapper, deploy orchestrator, and full export/import suite in `scripts/` |
 | **Dataverse Tables** | Schema convention docs, `tables/choices/` and `tables/relationships/` structure, and SVG icon support (Fluent UI / Iconify) with automated web resource deployment |
 | **Power Automate Flows** | `flows/` folder with connection reference templates, environment variable templates, and adaptive cards |

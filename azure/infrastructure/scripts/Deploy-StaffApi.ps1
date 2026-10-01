@@ -11,7 +11,7 @@
 .PARAMETER Mode
     Preview (default) validates and runs what-if. Deploy then applies incrementally.
 .EXAMPLE
-    ./infra/scripts/Deploy-StaffApi.ps1 -Mode Preview
+    ./azure/infrastructure/scripts/Deploy-StaffApi.ps1 -Mode Preview
 #>
 [CmdletBinding()]
 param(

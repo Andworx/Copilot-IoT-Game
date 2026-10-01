@@ -1,5 +1,5 @@
 /**
- * Base URL of the azure/ Functions backend. Not a secret -- overridable via
+ * Base URL of the azure/functions/game/ Functions backend. Not a secret -- overridable via
  * VITE_API_BASE_URL (see .env.example) for local dev against `func start`,
  * defaults to the deployed Function App otherwise.
  */

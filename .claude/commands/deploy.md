@@ -4,7 +4,7 @@ Guide the user through deploying Power Platform components to the target environ
 
 ## Function App and Power Pages
 
-For `azure/` and `power pages/copilotiotgame/`, follow `docs/CI_CD.md`.
+For `azure/functions/game/` and `power pages/copilotiotgame/`, follow `docs/CI_CD.md`.
 Run both local builds and use a PR to `main`; relevant merged changes trigger
 `.github/workflows/deploy-apps.yml`. For a requested redeploy of current main:
 
