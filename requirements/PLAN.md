@@ -11,7 +11,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 
 | Area | ✅ Done | ⬜ Verify | ⬜ TODO | Future | Total |
 |---|---:|---:|---:|---:|---:|
-| Dataverse | 5 | 5 | 2 | 0 | 12 |
+| Dataverse | 5 | 5 | 3 | 0 | 13 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
 | Power Pages | 5 | 11 | 1 | 0 | 17 |
@@ -22,7 +22,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 1 | 1 | 0 | 2 |
-| Totals | 19 | 32 | 9 | 2 | 62 |
+| Totals | 19 | 32 | 10 | 2 | 63 |
 
 ## Dataverse
 
@@ -37,6 +37,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `andy_iottelemetryevent` generic event log (name, device id, event type, value, JSON payload) | Table | ⬜ Verify | Created in `andy_PrizeEngine` (shared) and `CopilotIoTGame`, organization-owned; `Copilot IoT Game Security Role` has Create and Read only. Verified: the game function writes a row per state change or win. Still to do: `pac solution export` + unpack `CopilotIoTGame` into `solutions/`. Spec: `azure/functions/game/README.md`. |
 | Shared contest/campaign, Contact identity, source caps, and grand-prize entry model | Design | ⬜ Verify | Issue #123 / epic #121 — implemented as relationship-first PrizeEngine metadata in `solutions/PrizeEngine`: Campaigns, Source Caps, Grand Prize Entries, Contact references, app navigation, and table icons. Packed/imported once; current check-in-field import is in progress. |
 | Shared Prize Claim table and IoT Game Win rollout | Table + rollout | ⬜ Verify | Issue #149 / epic #121 — PrizeEngine-owned `andy_prizeclaim` and CopilotIoTGame-owned `andy_iotgamewin` created live with the correct preferred solution context; both solutions exported/unpacked, packed, imported, and published. `andy_iotgamewin` is intentionally minimal: Prize Claim + Device Profile only, and now has the imported `andy_iotgamewin_icon` SVG webresource bound in the CopilotIoTGame sitemap. Stage 3 backend cutover is coded and local tests pass; CopilotIoTGame role privileges for both new tables were packed/imported/published. Prize Claim redemption columns were removed after deciding `Claimed` is fulfillment for instant prizes, and notes are enabled for booth/operator context. Current phase moved Grand Prize Entry source traceability from legacy Game Win to Prize Claim, generates check-in codes at entry creation, and removed the legacy `andy_gamewin` table, relationships, choices, and icon from live/source after export and unpack. Historical `andy_gamewin` rows did not require migration. |
+| Plinko solution CSV import package | Table import starter | ⬜ TODO | Issue #124 — staged CSVs and import guide under `solutions/Plinko/import-csv/` for `andy_plinkostation`, `andy_plinkoplay`, Contest Source `plinko`, and the active-campaign Source Cap row. Live maker import, lookup/alternate-key setup, solution export, and unpack remain pending. |
 | Campaign-owned entry cap and Source Cap cleanup | Columns + form | ⬜ TODO | Issue #146 / epic #121 — keep `Max Entries Per Contact` as a global Campaign setting; remove Source Cap `Max Entries Per Contact` and `Max Entries Per Day`; add a Campaign quick view to the Source Cap form so makers can see the effective global cap without duplicating rule fields. |
 | Source catalog lookup for Contest Source Cap | Table + lookup | ⬜ TODO | Issue #147 / epic #121 — replace free-text `Source Identifier` entry with a source catalog lookup so makers select `IoT`, `Plinko`, etc.; backend should resolve the selected source's stable key such as `iot`. |
 | Contest Source Cap generated setting name | Form script | ⬜ TODO | Issue #148 / epic #121 — add model-driven form JavaScript that sets `Setting Name` from the selected Campaign and Source, using a format like `<Campaign Event Name> - <Source Name>`. |
