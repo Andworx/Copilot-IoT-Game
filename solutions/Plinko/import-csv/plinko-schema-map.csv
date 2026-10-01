@@ -5,7 +5,6 @@ Plinko Station,andy_plinkostation,IoT Device ID,andy_iotdeviceid,Text,Required,,
 Plinko Station,andy_plinkostation,Bucket Count,andy_bucketcount,Whole Number,Required,6,,Issue #124 default is 6.
 Plinko Station,andy_plinkostation,Lit Bucket Entries,andy_litbucketentries,Whole Number,Required,2,,Issue #124 default is 2.
 Plinko Station,andy_plinkostation,Standard Bucket Entries,andy_standardbucketentries,Whole Number,Required,1,,Issue #124 default is 1.
-Plinko Station,andy_plinkostation,Is Enabled,andy_isenabled,Yes/No,Required,Yes,,Disable a board without deleting configuration.
 Plinko Play,andy_plinkoplay,Name,andy_name,Text,Required,,Confirm primary name,Primary display name for an accepted landing.
 Plinko Play,andy_plinkoplay,Prize Claim,andy_prizeclaim,Lookup,Required,,Create lookup manually,Target table: andy_prizeclaim in PrizeEngine. Claim status Contact and prize are derived through this row.
 Plinko Play,andy_plinkoplay,Station,andy_station,Lookup,Recommended,,Create lookup manually,Target table: andy_plinkostation.
