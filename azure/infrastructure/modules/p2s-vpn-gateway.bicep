@@ -31,6 +31,11 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
     publicIPAddressVersion: 'IPv4'
     publicIPAllocationMethod: 'Static'
     ipTags: []
+    ddosSettings: {
+      // Azure materializes this inherited default after a PUT. Declare it so reconciliation
+      // remains exact and a future protection-mode change is still actionable.
+      protectionMode: 'VirtualNetworkInherited'
+    }
   }
 }
 
