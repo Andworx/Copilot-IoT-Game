@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{83f359a6-d040-4df6-bcfb-4f6ca75b8401}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_playname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_plinkoplayid">
+          <cell name="andy_playname" width="220" />
+          <cell name="andy_timelanded" width="140" />
+          <cell name="andy_bucketnumber" width="110" />
+          <cell name="andy_entriesawarded" width="130" />
+          <cell name="andy_prizeclaim" width="180" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_plinkoplay">
+          <attribute name="andy_plinkoplayid" />
+          <attribute name="andy_playname" />
+          <attribute name="andy_timelanded" />
+          <attribute name="andy_bucketnumber" />
+          <attribute name="andy_entriesawarded" />
+          <attribute name="andy_prizeclaim" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <link-entity name="andy_prizeclaim" from="andy_prizeclaimid" to="andy_prizeclaim" link-type="inner" alias="claim">
+            <filter type="and">
+              <condition attribute="andy_contact" operator="not-null" />
+            </filter>
+          </link-entity>
+          <order attribute="andy_timelanded" descending="true" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Plays with Contact" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

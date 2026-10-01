@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{02f6b020-f22d-4704-9cd1-68af3895f101}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_playname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_plinkoplayid">
+          <cell name="andy_playname" width="220" />
+          <cell name="andy_bucketnumber" width="110" />
+          <cell name="andy_illuminatedbucketnumber" width="130" />
+          <cell name="andy_isbucketlit" width="120" />
+          <cell name="andy_entriesawarded" width="130" />
+          <cell name="andy_timelanded" width="140" />
+          <cell name="andy_hardwareeventidentifier" width="180" />
+          <cell name="andy_prizeclaim" width="180" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_plinkoplay">
+          <attribute name="andy_plinkoplayid" />
+          <attribute name="andy_playname" />
+          <attribute name="andy_bucketnumber" />
+          <attribute name="andy_illuminatedbucketnumber" />
+          <attribute name="andy_isbucketlit" />
+          <attribute name="andy_entriesawarded" />
+          <attribute name="andy_timelanded" />
+          <attribute name="andy_hardwareeventidentifier" />
+          <attribute name="andy_prizeclaim" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <order attribute="andy_bucketnumber" descending="false" />
+          <order attribute="andy_timelanded" descending="true" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Plays by Bucket" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>
