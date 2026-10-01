@@ -10,7 +10,7 @@ name: Infrastructure
 #                  `main`, only through the `infra-deploy` environment (which only accepts `main`).
 #
 # The deploy identity has narrowly scoped write access to the adopted resources, including the VNet,
-# private DNS zones, and DNS resolver. It cannot modify the IoT Hub, DPS, or the legacy Function App
+# private DNS zones, DNS resolver, and VPN. It cannot modify the IoT Hub, DPS, or the legacy Function App
 # (azure/infrastructure/scripts/Initialize-InfraIdentities.ps1).
 
 on:
@@ -54,6 +54,7 @@ jobs:
           python3 azure/infrastructure/network/check-baseline.py
           az bicep build-params --file azure/infrastructure/main.prod.bicepparam --stdout > /dev/null
           python3 -m py_compile azure/infrastructure/scripts/Test-WhatIfChanges.py
+          python3 -m unittest discover -s azure/infrastructure/scripts -p 'test_*.py'
           lint="$(az bicep lint --file azure/infrastructure/main.bicep 2>&1)"
           echo "$lint"
           if echo "$lint" | grep -qi "error"; then exit 1; fi
@@ -92,7 +93,18 @@ jobs:
             -f azure/infrastructure/main.bicep -p azure/infrastructure/main.prod.bicepparam \
             --no-pretty-print -o json > whatif.json
           python3 azure/infrastructure/scripts/Test-WhatIfChanges.py whatif.json \
-            --ignore-path properties.privateEndpointConnections
+            --ignore-path properties.privateEndpointConnections \
+            --ignore-path properties.blockUpgradeOfMigratedLegacyGateways \
+            --ignore-path properties.enableHighBandwidthVpnGateway \
+            --ignore-path 'properties.ipConfigurations[0].type' \
+            --ignore-path properties.isMigratedLegacySKU \
+            --ignore-path properties.isMigrateToCSES \
+            --ignore-path properties.packetCaptureDiagnosticState \
+            --ignore-path properties.virtualNetworkGatewayMigrationStatus \
+            --ignore-path properties.vpnClientConfiguration.vpnClientConnectionHealth \
+            --ignore-path 'properties.vpnClientConfiguration.vpnClientRootCertificates[0].id' \
+            --ignore-path 'properties.vpnClientConfiguration.vpnClientRootCertificates[0].type' \
+            --ignore-path properties.vpnStack
 
   deploy:
     name: Deploy
@@ -138,6 +150,9 @@ jobs:
       - name: Verify DNS Private Resolver
         shell: pwsh
         run: ./azure/infrastructure/scripts/Test-DnsPrivateResolver.ps1
+      - name: Verify Point-to-Site VPN gateway
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-P2sVpnGateway.ps1
       - name: Reference resources still match their snapshots
         shell: pwsh
         run: ./azure/infrastructure/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check

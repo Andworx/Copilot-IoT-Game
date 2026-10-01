@@ -102,6 +102,37 @@ param dnsResolverInboundSubnetName = 'dns-inbound'
 param dnsResolverInboundPrivateIpAddress = '10.20.3.4'
 param dnsResolverTags = {}
 
+param vpnPublicIpName = 'iot-demo-vpn-pip'
+param vpnPublicIpZones = [
+  '1'
+  '2'
+  '3'
+]
+param vpnPublicIpTags = {}
+param vpnGatewayName = 'iot-demo-vpn'
+param vpnGatewaySkuName = 'VpnGw1AZ'
+param vpnGatewayGeneration = 'Generation2'
+param vpnGatewaySubnetName = 'GatewaySubnet'
+param vpnGatewayTags = {}
+param vpnClientAddressPrefixes = [
+  '172.27.240.0/24'
+]
+param vpnClientProtocols = [
+  'OpenVPN'
+]
+param vpnAuthenticationTypes = [
+  'Certificate'
+]
+param vpnClientRootCertificates = [
+  {
+    name: 'IoTDemo-VPN-Root'
+    properties: {
+      // Public certificate only. The router's client certificate and private key stay off-repo.
+      publicCertData: 'MIIC8TCCAdmgAwIBAgIQFgDHjOqI6qlM47pk4DvfkzANBgkqhkiG9w0BAQsFADAbMRkwFwYDVQQDDBBJb1REZW1vLVZQTi1Sb290MB4XDTI2MDkyMjE4MjE0NloXDTI4MDkyMjE4MzE0NVowGzEZMBcGA1UEAwwQSW9URGVtby1WUE4tUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOMcZL7mymyBS7W7w+8bJhbnZiBnvxZhrgB3F1wUopyNu0w+4iA25N35vPnUqqgFqd62kDp4d3syv6K32yw2H4aqmTOrTpY44fTbTShA1CtKJXsYczAdSWGI2dd8vTpeW41iarfZU8atS7vGvZqeKzCY78tPRXN4MGd89xjgbAX5c81ukiRrhhPl3Juy2lHQskIMhT2zPyVvOgLVtJidT7lSss+bUFGRgv3ZpUbVks9n2lSuHmqyFLtUii638JdDtNHGEr6SRBzu102sL0GkbNDSrwSnjVgNmfo+i393zJqQhg/bThynUjJzJcLQyCi6VjLiV2dEadKLOR1LGlwQtkECAwEAAaMxMC8wDgYDVR0PAQH/BAQDAgIEMB0GA1UdDgQWBBT67VNoll2GjnH0gQZWXom8opC0wjANBgkqhkiG9w0BAQsFAAOCAQEAjtgZ015K50iCb/dBWkzTcKKKfscrW3Mo+4sYSpYrfDcJW0lL458DbwGTE2UvZI6Slg/3aud3N8ImiONAfW3GqpjI05G/O5wziwoqJvPxgs966Viu3cuGarVAvjMSNFsZQ3z/z8Z+OrDYd/OES/MnP4Hs/QhWpXAgw5k7GacoJOukXsM+EBFxLXYKImB4GE2Q19qS50oTW/gbsYtspAjBlV6mT0QGtcJj1KY35nuVr8tAkDoymjvrn1QRIJ6zrIzzoi8xUi864oxrSTlBjfIixI+SIiO96VJRNz+jZaVphZ9fNUynRYW0xyva+CbJtssZ6MKj6k4TKOH8Zmok3wlKLg=='
+    }
+  }
+]
+
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.
 param functionAppPrincipalId = readEnvironmentVariable('FUNCTION_APP_PRINCIPAL_ID', '')

@@ -10,6 +10,25 @@ from pathlib import Path
 ACTIONABLE_TYPES = {"Create", "Modify", "Delete"}
 
 
+def join_delta_path(parent: str, child: str) -> str:
+    if not parent:
+        return child
+    if child.isdigit():
+        return f"{parent}[{child}]"
+    return f"{parent}.{child}"
+
+
+def delta_is_actionable(item: dict, ignored_paths: set[str], parent: str = "") -> bool:
+    path = join_delta_path(parent, item.get("path", ""))
+    if item.get("propertyChangeType") == "NoEffect" or path in ignored_paths:
+        return False
+
+    children = item.get("children") or []
+    if children:
+        return any(delta_is_actionable(child, ignored_paths, path) for child in children)
+    return True
+
+
 def is_actionable(change: dict, ignored_paths: set[str]) -> bool:
     if change.get("changeType") not in ACTIONABLE_TYPES:
         return False
@@ -20,11 +39,7 @@ def is_actionable(change: dict, ignored_paths: set[str]) -> bool:
     if not delta:
         return True
 
-    return any(
-        item.get("propertyChangeType") != "NoEffect"
-        and item.get("path") not in ignored_paths
-        for item in delta
-    )
+    return any(delta_is_actionable(item, ignored_paths) for item in delta)
 
 
 def main() -> int:

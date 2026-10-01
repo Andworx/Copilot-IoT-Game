@@ -1,8 +1,8 @@
 # Network adoption baseline
 
 Status: captured from live Azure for review. The VNet/subnets, private DNS zones/links,
-and DNS resolver/inbound endpoint have been adopted into the deployable main stack;
-the VPN and private endpoints remain baseline-only. This is the current network, not the
+DNS resolver/inbound endpoint, and Point-to-Site VPN gateway/public IP have been adopted
+into the deployable main stack; the private endpoints remain baseline-only. This is the current network, not the
 older proposed foundation in the companion service repository.
 
 ## Ownership and scope
@@ -61,7 +61,7 @@ permissions just to preview. Its result must be inspected; a successful preview
 alone does not mean zero differences. No role grants were changed by this work.
 
 There is intentionally no whole-baseline network apply action. The adopted VNet,
-private DNS, and resolver resources are applied through `azure/infrastructure/main.bicep`.
+private DNS, resolver, and VPN resources are applied through `azure/infrastructure/main.bicep`.
 Before adopting the remaining baseline, review
 all differences, settle ownership with companion network PR 207, and explicitly
 add narrowly scoped network deployment permissions. Existing service `deploy`
