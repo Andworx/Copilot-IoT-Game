@@ -31,6 +31,7 @@ Assert-Equal $publicIp.publicIPAddressVersion 'IPv4' 'Public IP version'
 Assert-Equal $publicIp.sku.name 'Standard' 'Public IP SKU'
 Assert-Equal $publicIp.sku.tier 'Regional' 'Public IP tier'
 Assert-Equal $publicIp.ipAddress $ExpectedPublicIpAddress 'Public IP address'
+Assert-Equal $publicIp.ddosSettings.protectionMode 'VirtualNetworkInherited' 'Public IP DDoS protection mode'
 if ((@($publicIp.zones) -join ',') -ne '1,2,3') { throw "Public IP zones are '$(@($publicIp.zones) -join ',')'; expected '1,2,3'." }
 
 $gateway = Invoke-AzJson @('network', 'vnet-gateway', 'show', '-g', $ResourceGroup, '-n', $GatewayName)
