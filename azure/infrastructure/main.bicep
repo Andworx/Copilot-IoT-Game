@@ -44,6 +44,19 @@ param dnsResolverInboundSubnetName string
 param dnsResolverInboundPrivateIpAddress string
 param dnsResolverTags object = {}
 
+param vpnPublicIpName string
+param vpnPublicIpZones array
+param vpnPublicIpTags object = {}
+param vpnGatewayName string
+param vpnGatewaySkuName string
+param vpnGatewayGeneration string
+param vpnGatewaySubnetName string
+param vpnGatewayTags object = {}
+param vpnClientAddressPrefixes array
+param vpnClientProtocols array
+param vpnAuthenticationTypes array
+param vpnClientRootCertificates array
+
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
 
@@ -107,6 +120,26 @@ module dnsResolver 'modules/dns-private-resolver.bicep' = {
   }
 }
 
+module vpnGateway 'modules/p2s-vpn-gateway.bicep' = {
+  name: 'p2s-vpn-gateway'
+  params: {
+    location: location
+    publicIpName: vpnPublicIpName
+    publicIpZones: vpnPublicIpZones
+    publicIpTags: vpnPublicIpTags
+    gatewayName: vpnGatewayName
+    gatewaySkuName: vpnGatewaySkuName
+    gatewayGeneration: vpnGatewayGeneration
+    gatewaySubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, vpnGatewaySubnetName)
+    gatewayTags: vpnGatewayTags
+    vpnClientAddressPrefixes: vpnClientAddressPrefixes
+    vpnClientProtocols: vpnClientProtocols
+    vpnAuthenticationTypes: vpnAuthenticationTypes
+    vpnClientRootCertificates: vpnClientRootCertificates
+  }
+  dependsOn: [vnet]
+}
+
 module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrincipalId)) {
   name: 'eventhub-receiver'
   dependsOn: [eventHub]
@@ -127,3 +160,5 @@ output vnetName string = vnet.outputs.name
 output dnsResolverName string = dnsResolver.outputs.resolverName
 output dnsResolverInboundEndpointName string = dnsResolver.outputs.inboundEndpointName
 output dnsResolverInboundPrivateIpAddress string = dnsResolver.outputs.inboundPrivateIpAddress
+output vpnPublicIpName string = vpnGateway.outputs.publicIpName
+output vpnGatewayName string = vpnGateway.outputs.gatewayName

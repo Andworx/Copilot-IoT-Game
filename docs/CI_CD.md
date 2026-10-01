@@ -246,6 +246,12 @@ resource even when most properties are unchanged, so each resource must be captu
 individually before expanding the template. The known read-only Event Hub
 `privateEndpointConnections` what-if difference is filtered from the approval signal.
 
+Azure also returns VPN gateway runtime health, migration/default flags, and child
+resource `id`/`type` metadata that cannot be declared. Reconciliation filters only
+those exact leaf paths. Array parents are inspected recursively, so a real change to
+the gateway IP configuration, root certificate, client pool, protocol, SKU, or BGP
+configuration still fails reconciliation. Unit tests cover this behavior.
+
 ### GitHub environments, Azure identities, and permissions
 
 The two environments below are **GitHub Actions environments**, not Azure or Power Platform
@@ -257,7 +263,7 @@ branch rule. The existing `production` environment and its identity
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
 | `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Retained for reference inspection while resources are migrated from snapshots into Bicep. | no active workflow job |
-| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader and Private DNS Zone Contributor on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, `iot-demo-vnet`, and `iot-demo-dns-resolver` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader and Private DNS Zone Contributor on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, `iot-demo-vnet`, `iot-demo-dns-resolver`, `iot-demo-vpn-pip`, and `iot-demo-vpn` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
@@ -436,4 +442,4 @@ Use Infrastructure > Run workflow > main > `network-what-if` for the remaining c
 The main-only preview uses the existing infra-deploy identity with ProviderNoRbac;
 it does not require write grants for the baseline-only resources and does not apply them. This
 action is separate from the main what-if/deploy, which now owns the VNet/subnets, private DNS
-zones/links, and DNS resolver/inbound endpoint. No whole-baseline apply action exists.
+zones/links, DNS resolver/inbound endpoint, and Point-to-Site VPN gateway/public IP. No whole-baseline apply action exists.
