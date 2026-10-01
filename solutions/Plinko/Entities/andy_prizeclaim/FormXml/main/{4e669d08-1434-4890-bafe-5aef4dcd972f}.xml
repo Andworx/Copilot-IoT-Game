@@ -1,0 +1,244 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{4e669d08-1434-4890-bafe-5aef4dcd972f}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{d7bf0274-ec54-4c3f-875e-d9db35370a27}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{8c59a688-d4a7-4aac-8168-78d7dc612e73}" columns="111">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{9d0e7806-d788-4e4c-8628-9fe853609c10}" colspan="1">
+                        <labels>
+                          <label description="Prize Claim Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_name" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell locklevel="0" id="{3a675e26-0e70-460e-9788-5b4fcf4d2c8e}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell id="{b44d7976-893a-45c6-9ad5-9af861e1dbf3}" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Campaign" languagecode="1033" />
+                        </labels>
+                        <control id="andy_campaign" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_campaign" disabled="true" />
+                      </cell>
+                      <cell id="{608dfd26-a2ba-40d9-bf6f-5386e7e64d6f}" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Contact" languagecode="1033" />
+                        </labels>
+                        <control id="andy_contact" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_contact" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{15cef186-7ef9-4bc3-a6ff-d2cf8f02f6f7}" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Win Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_win_time" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_win_time" disabled="true" />
+                      </cell>
+                      <cell id="{de124814-40aa-4977-aa88-c632d8e58ea7}" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Contest Source" languagecode="1033" />
+                        </labels>
+                        <control id="andy_contest_source" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_contest_source" disabled="true" />
+                      </cell>
+                      <cell locklevel="0" id="{6583666b-8973-4082-9b7f-78249cb8869f}" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="New QV control 1790428506051" languagecode="1033" />
+                        </labels>
+                        <control id="QuickviewControl1790428506051" classid="{5C5600E0-1D6E-4205-A272-BE80DA87FD42}" datafieldname="andy_contact">
+                          <parameters>
+                            <DisplayAsCustomer360Tile>false</DisplayAsCustomer360Tile>
+                            <QuickForms>&lt;QuickFormIds&gt;&lt;QuickFormId entityname="andy_contestcampaign"&gt;0f64608c-a7e0-4b54-ad80-2b070147b2d8&lt;/QuickFormId&gt;&lt;/QuickFormIds&gt;</QuickForms>
+                          </parameters>
+                        </control>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{bd7d4214-a94f-4568-8908-fda1a9c4cf28}">
+                        <labels>
+                          <label description="Claim Token" languagecode="1033" />
+                        </labels>
+                        <control id="andy_claim_token" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_claim_token" disabled="true" />
+                      </cell>
+                      <cell locklevel="0" id="{a648f21b-455e-49d6-aac5-126c9ef4f0c5}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{c5c23965-b772-4fc2-9be3-3e3a1bed564b}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{3d48b558-1f1e-449e-b4e9-5416e4795b70}">
+                        <labels>
+                          <label description="Claim Status" languagecode="1033" />
+                        </labels>
+                        <control id="andy_claim_status" classid="{3ef39988-22bb-4f0b-bbbe-64b5a3748aee}" datafieldname="andy_claim_status" disabled="true" />
+                      </cell>
+                      <cell locklevel="0" id="{8bdb4682-cb0e-4834-9841-8a4af22b1883}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{d49bd8e8-8768-4d06-9923-1e5641a0da88}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{67a48e61-29e2-421d-bbbb-34e09900f5ef}">
+                        <labels>
+                          <label description="Claimed Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_claimed_time" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_claimed_time" disabled="true" />
+                      </cell>
+                      <cell locklevel="0" id="{3d54ea4e-6201-408f-9512-08f2c2b726e5}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell locklevel="0" id="{b1d4f6f0-75e2-4c5f-9e20-4f502e3e288f}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                    <row>
+                      <cell locklevel="0" id="{97f8c9f5-f305-4cd7-912c-0a2d6c5846a0}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                      <cell id="{1074fb82-73e2-4d77-9b66-6bd8e160a7b6}" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Prize" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prize_instance" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_prize_instance" disabled="true" />
+                      </cell>
+                      <cell locklevel="0" id="{93562fe2-6f00-46fb-be52-905e41674fb4}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+                <section name="null_section_3" id="4dc20cc4-263c-46b1-8e94-297c6e270a3a" IsUserDefined="0" locklevel="0" showlabel="false" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="1" labelwidth="115">
+                  <labels>
+                    <label description="New Section" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row />
+                    <row>
+                      <cell locklevel="0" id="{3f4b367c-6089-4823-8485-2206e11a654c}" rowspan="15" colspan="1">
+                        <labels>
+                          <label description="Note Text" languagecode="1033" />
+                        </labels>
+                        <control id="notescontrol" classid="{06375649-C143-495E-A496-C962E5B4488E}" disabled="false" />
+                      </cell>
+                    </row>
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                    <row />
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{d703282d-5407-4b32-980b-2c75538ff49d}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{fa518aae-a72c-4f90-b4a1-60e13838c28d}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{212b2512-ab9a-4e80-84f8-36a1a36470be}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{e56b0d96-62ad-4d27-9831-8900baf48cde}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{324646e1-cff3-4ff7-84fa-f0199919d003}" colspan="1" rowspan="1">
+              <labels>
+                <label description="Owner" languagecode="1033" />
+              </labels>
+              <control id="header_ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{ae9ed1f9-96ce-430c-9346-b0da321d4315}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{a57899a6-433f-41ab-a4d0-22e05a006e32}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{1e9d8d51-2f9a-4cfd-8edc-2926a060ae2b}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{346647b1-44ac-447b-8345-9ee95be2c0ae}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

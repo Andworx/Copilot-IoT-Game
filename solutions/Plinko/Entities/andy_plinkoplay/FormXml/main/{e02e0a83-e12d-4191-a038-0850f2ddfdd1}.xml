@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{e02e0a83-e12d-4191-a038-0850f2ddfdd1}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{63991F80-3986-4402-969E-895838B57A9D}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{B8FF5AFE-E050-49B3-A94F-AC3A8176E4FF}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{4169FFA8-CD5F-46FA-808C-936CBBD1148C}">
+                        <labels>
+                          <label description="Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_playname" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_playname" />
+                      </cell>
+                    </row>
+                    <row></row>
+                    <row>
+                      <cell id="{fbdfc05b-4aa0-4601-b895-0a7b76287fbb}">
+                        <labels>
+                          <label description="Hardware Event ID" languagecode="1033" />
+                        </labels>
+                        <control id="andy_hardwareeventidentifier" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_hardwareeventidentifier" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{baba77df-c625-4b82-a7eb-ada9931700ed}">
+                        <labels>
+                          <label description="Bucket" languagecode="1033" />
+                        </labels>
+                        <control id="andy_bucketnumber" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_bucketnumber" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{00f6409a-725d-4a15-8e21-67bb48f2cdc4}">
+                        <labels>
+                          <label description="Lit Bucket" languagecode="1033" />
+                        </labels>
+                        <control id="andy_illuminatedbucketnumber" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_illuminatedbucketnumber" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{47b6cfad-66c7-4af8-bc5c-70512601bd51}">
+                        <labels>
+                          <label description="Is Lit Bucket" languagecode="1033" />
+                        </labels>
+                        <control id="andy_isbucketlit" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_isbucketlit" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{dd8f5bb8-44a2-4cf1-9814-0f8fce9b8ff9}">
+                        <labels>
+                          <label description="Entries Awarded" languagecode="1033" />
+                        </labels>
+                        <control id="andy_entriesawarded" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_entriesawarded" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{c1e0dcee-72f6-4403-9025-44f194314658}">
+                        <labels>
+                          <label description="Landed Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_timelanded" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_timelanded" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1d7482ab-1525-4fbf-b482-f92ab4c16425}">
+                        <labels>
+                          <label description="Profile" languagecode="1033" />
+                        </labels>
+                        <control id="andy_profile" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_profile" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>
