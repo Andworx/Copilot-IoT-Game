@@ -22,8 +22,10 @@ Copy-Item $metadata.FullName $targetMetadata -Recurse
 
 Push-Location $ArtifactPath
 try {
-    pac pages upload-code-site --rootPath '.'
+    $uploadOutput = pac pages upload-code-site --rootPath '.' 2>&1
+    $uploadOutput | ForEach-Object { Write-Host $_ }
     if ($LASTEXITCODE -ne 0) { throw "$SiteLabel Power Pages Code Site upload failed." }
+    if ($uploadOutput -match 'XRM Network error|Does Not Exist') { throw "$SiteLabel Power Pages Code Site upload reported Dataverse record errors. Treating the upload as failed to avoid a partial code-site deployment." }
     $uploadedId = (Select-String -Path '.powerpages-site/website.yml' -Pattern '^id:\s*(\S+)').Matches[0].Groups[1].Value
     if ($uploadedId -ne $WebsiteId) { throw "$SiteLabel upload used website $uploadedId instead of $WebsiteId; a duplicate site was created and must be deleted." }
     Write-Host "$SiteLabel upload targeted website $uploadedId."
