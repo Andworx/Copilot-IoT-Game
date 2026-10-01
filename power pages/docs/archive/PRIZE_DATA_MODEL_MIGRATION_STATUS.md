@@ -127,7 +127,7 @@ Sticker.
 
 `PRIZE_CODE_MIGRATION.md` is done and deployed live:
 
-- Rewrote `azure/src/lib/dataverse.ts`: removed the old single-row `andy_prize`
+- Rewrote `azure/functions/game/src/lib/dataverse.ts`: removed the old single-row `andy_prize`
   functions (`listActivePrizes`, `fetchEligiblePrizes`, `fetchFallbackPrize`,
   `tryClaimPrizeRow`, `pickWeighted`, etc.) and added `listActivePrizeTypes()` +
   a weighted-**type**-pick + atomic-**instance**-claim algorithm against
@@ -143,7 +143,7 @@ Sticker.
   `in` operator (`_andy_prizetype_value in (...)`), which this environment's Dataverse
   rejects (`"The query node In is not supported"`, HTTP 501). Rewrote as an OR-chain
   filter (`_andy_prizetype_value eq guid1 or ... `), confirmed working.
-- Updated `azure/src/functions/prizes.ts` to call `listActivePrizeTypes`. No changes
+- Updated `azure/functions/game/src/functions/prizes.ts` to call `listActivePrizeTypes`. No changes
   needed to `claimPrize.ts`/`createWin.ts`, or either Power Pages SPA (per the doc's
   own scoping — the public API contract is unchanged).
 - `npm run build` compiled clean; deployed via

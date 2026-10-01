@@ -2,11 +2,11 @@
 
 Two workflows release this repo:
 
-- `.github/workflows/deploy-apps.yml` releases `azure/` (the Function App),
+- `.github/workflows/deploy-apps.yml` releases `azure/functions/game/` (the Function App),
   `power apps/game-box-control/`, `power pages/copilotiotgame/` (site name
   `CopilotIoTGame`), and `power pages/prize wheel/` (site name `PrizeWheel`). It
   deploys automatically when a relevant change merges to `main`.
-- `.github/workflows/deploy-infra.yml` manages the Azure resources in `infra/` (Event Hub,
+- `.github/workflows/deploy-infra.yml` manages the Azure resources in `azure/infrastructure/` (Event Hub,
   SignalR, and the Function App's access to the hub). Every push to `main` automatically
   compares Bicep with Azure and reports whether deployment approval is needed. Deployment is
   still a separate manual action. The separate staff app template is the owner-authorized
@@ -19,7 +19,7 @@ Other site folders, Dataverse solutions, flows, and the Pi firmware are outside 
 | | Application workflow | Infrastructure workflow |
 |---|---|---|
 | File | `deploy-apps.yml` | `deploy-infra.yml` |
-| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `infra/`: VNet/subnets, Event Hub, consumer groups, SignalR, Function App Event Hub access |
+| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `azure/infrastructure/`: VNet/subnets, Event Hub, consumer groups, SignalR, Function App Event Hub access |
 | When it deploys | automatically on merge to `main` | checks Azure automatically on every push to `main`; `deploy` is a manual approval action allowed from `main` only |
 | GitHub environment | `production` | `infra-deploy` (reconciliation preview and deploy) |
 | Azure identity | `id-gha-copilot-iot-game-deploy` | `id-gha-infra-reader` and `id-gha-infra-deployer`, least privilege |
@@ -91,7 +91,7 @@ user with permissions to upload the site and push the Code App; the backend's
 runtime identity, which only accesses game tables, is not sufficient. Rotate
 this secret when needed.
 
-The Code App uses a per-user OAuth custom connector; no Function keys are injected into its build. Staff resource names and Entra IDs come from `infra/staff-api.prod.json`. An IAM administrator must first run the reviewed [deployment access bootstrap](STAFF_API_WIRING.md#deployment-access); the existing deployment identity cannot provision these resources yet. Leave repository variable `STAFF_API_CUTOVER_READY` unset/false for the staff-only bootstrap release. Complete [STAFF_API_SETUP.md](STAFF_API_SETUP.md), commit the actual connector binding, then set the flag true for coordinated cutover. The workflow requires an unauthenticated staff request to return 401 before advancing. Remove legacy CODE_APP_*_FUNCTION_KEY secrets and rotate previously exposed keys after acceptance.
+The Code App uses a per-user OAuth custom connector; no Function keys are injected into its build. Staff resource names and Entra IDs come from `azure/infrastructure/staff-api.prod.json`. An IAM administrator must first run the reviewed [deployment access bootstrap](STAFF_API_WIRING.md#deployment-access); the existing deployment identity cannot provision these resources yet. Leave repository variable `STAFF_API_CUTOVER_READY` unset/false for the staff-only bootstrap release. Complete [STAFF_API_SETUP.md](STAFF_API_SETUP.md), commit the actual connector binding, then set the flag true for coordinated cutover. The workflow requires an unauthenticated staff request to return 401 before advancing. Remove legacy CODE_APP_*_FUNCTION_KEY secrets and rotate previously exposed keys after acceptance.
 
 The workflow authenticates PAC with `--url` instead of `--environment` for the
 service-principal profile. `--environment` causes PAC to query the Business
@@ -213,7 +213,7 @@ reload the Code App and verify `/api/prize-types`, `/api/device-profiles`, and
 ## Infrastructure workflow (`deploy-infra.yml`)
 
 `.github/workflows/deploy-infra.yml` manages the Azure resources this repo owns, defined in
-[`infra/`](../infra/README.md): the VNet and subnets, Event Hub namespace, the `iot-telemetry`
+[`azure/infrastructure/`](../azure/infrastructure/README.md): the VNet and subnets, Event Hub namespace, the `iot-telemetry`
 hub and its consumer groups, SignalR service, and the game Function App's read access to the hub. It
 is separate from `deploy-apps.yml` on purpose: infrastructure changes can stop telemetry for
 every device, so each relevant merge is compared with Azure and applied only after a separate
@@ -223,13 +223,13 @@ Everything else in the resource group (IoT Hub, DPS, both Function Apps, plans, 
 App Insights) is currently **recorded but never deployed**. Its snapshots are checked as a
 post-deployment safety guard. The deploy identity has no write access to it. These resources will
 move into Bicep one at a time as their deployment behavior is validated; see
-[`infra/README.md`](../infra/README.md).
+[`azure/infrastructure/README.md`](../azure/infrastructure/README.md).
 
 ### What triggers what
 
 | Trigger | Jobs that run | Azure access |
 |---|---|---|
-| PR touching `infra/**` or the workflow | `validate`: compile and lint the Bicep, confirm every reference snapshot exists | none |
+| PR touching `azure/infrastructure/**` or the workflow | `validate`: compile and lint the Bicep, confirm every reference snapshot exists | none |
 | Every push to `main` | `validate`, then `reconcile`: compare Bicep with Azure and fail with a change summary when approval/deployment is needed | `infra-deploy`; read-only operation |
 | Manual, `action = what-if` | Run the same reconciliation check on demand; changes nothing | `infra-deploy` (deployer identity, `main` only) |
 | Manual, `action = deploy`, from `main` only | `validate`, then `deploy`: assign the game Function App a managed identity, deploy `main.bicep` (incremental), merge the telemetry settings, re-check snapshots | `infra-deploy` (`main` only) |
@@ -273,7 +273,7 @@ the legacy Function App, or storage, because the identity has no permission to.
 ### One-time setup
 
 1. **Azure identities and roles.** Someone with Owner or User Access Administrator on the
-   resource group runs `infra/scripts/Initialize-InfraIdentities.ps1`. Try `-PreflightOnly` first
+   resource group runs `azure/infrastructure/scripts/Initialize-InfraIdentities.ps1`. Try `-PreflightOnly` first
    (it confirms the permission and changes nothing) or `-WhatIf`. The script is safe to re-run.
    Contributor is not enough: it can create the identities but not the roles.
 2. **GitHub environments** (Settings > Environments):
@@ -306,7 +306,7 @@ gh run watch <run-id> --exit-status
 
 Or use Actions > Infrastructure > Run workflow. Read-only checks also work locally with the Azure
 CLI and PowerShell 7 (`pwsh`): `az deployment group what-if ...` and
-`./infra/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check` (commands in `infra/README.md`).
+`./azure/infrastructure/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check` (commands in `azure/infrastructure/README.md`).
 
 Always run `what-if` and read it before `deploy`. For the Event Hub lockdown,
 expect the namespace and its default network rule set to change to private-only:
@@ -362,7 +362,7 @@ leaves every other setting alone.
 | `AADSTS700213` / no matching federated identity | The job's environment name does not match the identity's credential (`infra-readonly` / `infra-deploy`), or the environment does not exist |
 | `AuthorizationFailed` on `what-if` or `deploy` | The identity's role assignment is missing; re-run `Initialize-InfraIdentities.ps1` |
 | `Authorization failed for template resource ... /write` on reconciliation | The check was run as a read-only identity. ARM checks that the caller could write every resource in the template, even though what-if changes nothing, so reconciliation runs as the deployer identity |
-| Reconciliation fails after a merge | Azure differs from `infra/`. Review the listed Create/Modify/Delete operations and run the manual `deploy` action if they are intended |
+| Reconciliation fails after a merge | Azure differs from `azure/infrastructure/`. Review the listed Create/Modify/Delete operations and run the manual `deploy` action if they are intended |
 | `deploy` job does not start | Not run from `main` (the environment only accepts `main`) |
 | Telemetry function does not start after `deploy` | Role assignments can take a few minutes to take effect; check the Function App's log stream, and confirm the three settings above exist |
 | Retired `func-aw-iot-copilot` still runs | It is no longer an Event Hub dependency. Retire its dedicated app/plan/storage/monitoring resources separately after the game telemetry validation window. |
@@ -432,7 +432,7 @@ Code App.
 ### Network baseline preview
 
 Use Infrastructure > Run workflow > main > `network-what-if` for the captured
-[network baseline](../infra/network/README.md). PRs compile it without credentials.
+[network baseline](../azure/infrastructure/network/README.md). PRs compile it without credentials.
 The main-only preview uses the existing infra-deploy identity with ProviderNoRbac;
 it does not require network write grants and does not apply resources. This action
 is separate from the existing service what-if/deploy; no network apply action or

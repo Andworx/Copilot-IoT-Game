@@ -1,10 +1,10 @@
 // Restore & Spin: the infrastructure this repo owns and may deploy from CI.
-// Scope: resource group. Full rationale and the tiers: infra/README.md.
+// Scope: resource group. Full rationale and the tiers: azure/infrastructure/README.md.
 //
 //   Tier 1/2 (in this file): VNet/subnets, Event Hub namespace/hub/consumer groups, SignalR
 //   service, and read access for the game Function App's managed identity.
 //   Tier 3 (NOT here, by design): IoT Hub, DPS, Function Apps, plans, storage, App Insights.
-//   They are captured under infra/reference/ and only drift-checked.
+//   They are captured under azure/infrastructure/reference/ and only drift-checked.
 //
 // Deploy with an incremental deployment only. Preview first:
 //   az deployment group what-if -g <rg> -f main.bicep -p main.prod.bicepparam
@@ -97,7 +97,7 @@ module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrinci
   }
 }
 
-// The Function App's settings are merged by infra/scripts/Set-FunctionAppSettings.ps1 from
+// The Function App's settings are merged by azure/infrastructure/scripts/Set-FunctionAppSettings.ps1 from
 // these outputs. They are never written by an ARM/Bicep resource: a Microsoft.Web/sites
 // resource replaces the whole app-settings collection and would wipe the Dataverse secret.
 output eventHubFullyQualifiedNamespace string = eventHub.outputs.fullyQualifiedNamespace

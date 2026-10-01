@@ -1,4 +1,4 @@
-ï»¿# Network adoption baseline
+# Network adoption baseline
 
 Status: captured from live Azure for review; no network deployment or public-access
 lockdown has been performed. This is the current manually built network, not the
@@ -62,14 +62,14 @@ alone does not mean zero differences. No role grants were changed by this work.
 There is intentionally no network apply action yet. Before adoption/apply, review
 all differences, settle ownership with companion network PR 207, and explicitly
 add narrowly scoped network deployment permissions. Existing service `deploy`
-continues to deploy `infra/main.bicep`; it does **not** deploy this baseline. Do not
+continues to deploy `azure/infrastructure/main.bicep`; it does **not** deploy this baseline. Do not
 run that older service deployment as a substitute for network adoption.
 
 Local read-only preview:
 
 ```powershell
 az account set --subscription 2e291b4a-5f03-4dcd-bb56-09643c729adc
-./infra/network/Preview-Network.ps1
+./azure/infrastructure/network/Preview-Network.ps1
 ```
 
 ## Next: Event Hub lockdown
@@ -80,11 +80,11 @@ route. Only then prepare a separate service-access change and before/after
 telemetry checks. The legacy consumer is not assumed to have private networking.
 Keep public staff HTTPS/Entra and the public prize API reachable.
 
-References: [current wiring](../../docs/STAFF_API_WIRING.md),
+References: [current wiring](../../../docs/STAFF_API_WIRING.md),
 [ARM incremental deployment/subnet guidance](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deployment-modes),
 [what-if validation levels](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-what-if).
 
-## Validation record — 2026-09-29
+## Validation record ï¿½ 2026-09-29
 
 Bicep compilation and the baseline contract checks passed. Both required app
 builds passed (including the Power Pages device-contract checks).

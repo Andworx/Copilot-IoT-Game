@@ -56,7 +56,7 @@ falls back to the built-in `deviceProfiles.ts` message.
 
 The panel Pi's readings reach the page as `SendTelemetryUpdate` on the same SignalR hub as
 `deviceChanged` (Pi → IoT Hub → Event Hub → the Function App's `iot-telemetry` trigger →
-SignalR; see `azure/README.md`). `hooks/usePanelTelemetry.ts` keeps the latest reading
+SignalR; see `azure/functions/game/README.md`). `hooks/usePanelTelemetry.ts` keeps the latest reading
 for the current device:
 
 - **Live** (a reading for this mode in the last 45 s; the Pi heartbeats every 30 s): the
@@ -94,7 +94,7 @@ src/
 ├── hooks/useDeviceSync.ts      # fetch-on-load + navigate-on-broadcast (GAME_MODE_PLAN.md §4a)
 ├── hooks/usePanelTelemetry.ts  # live panel state from SendTelemetryUpdate
 ├── hooks/useAgentChat.ts       # Direct Line quick-fix request/reply
-├── lib/apiConfig.ts            # azure/ Functions base URL + prize wheel app URL
+├── lib/apiConfig.ts            # azure/functions/game/ Functions base URL + prize wheel app URL
 ├── lib/quickFixPrompt.ts       # the structured prompt Help Fix sends
 ├── types/telemetry.ts          # the Pi payload as relayed by the Function App
 ├── components/

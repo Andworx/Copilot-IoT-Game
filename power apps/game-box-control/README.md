@@ -3,7 +3,7 @@
 Staff control device for the `copilotiotgame` kiosk — a **Power Apps Code App**, not a
 Canvas app (chosen for a normal React/Vite dev loop instead of the low-code designer; see
 `power pages/docs/GAME_MODE_PLAN.md` §4a for why a control app exists at all instead of a
-physical dial). Picking a tile calls `POST /api/set-mode` on the `azure/` Function App,
+physical dial). Picking a tile calls `POST /api/set-mode` on the `azure/functions/game/` Function App,
 which writes `andy_gameboxstate` and broadcasts the change to every open kiosk screen over
 SignalR.
 

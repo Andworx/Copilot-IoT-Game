@@ -36,8 +36,8 @@ Record its expiry and a rotation reminder privately.
 ## 3. Separate staff Function App
 
 Do not create this app manually. `deploy-apps.yml` runs
-`infra/scripts/Deploy-StaffApi.ps1 -Mode Deploy` to preview and provision
-`infra/staff-api.bicep` using `infra/staff-api.prod.json`. This creates Linux Node 22
+`azure/infrastructure/scripts/Deploy-StaffApi.ps1 -Mode Deploy` to preview and provision
+`azure/infrastructure/staff-api.bicep` using `azure/infrastructure/staff-api.prod.json`. This creates Linux Node 22
 **Flex Consumption** app `func-aw-azcom-iot-staff`, its FC1 plan and dedicated
 `stawazcomiotstafffn` storage (names subject to availability). No always-ready
 instances are configured. This adds consumption/storage cost, not an APIM fee.

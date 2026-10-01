@@ -11,7 +11,7 @@
 .PARAMETER ConfigPath
     Non-secret staff deployment configuration.
 .EXAMPLE
-    ./infra/scripts/Initialize-StaffDeploymentAccess.ps1 -DeploymentPrincipalId <object-id> -WhatIf
+    ./azure/infrastructure/scripts/Initialize-StaffDeploymentAccess.ps1 -DeploymentPrincipalId <object-id> -WhatIf
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(

@@ -1,7 +1,7 @@
 import type { Prize } from "../types/prize";
 
 /**
- * The actual weighted pick moved server-side (azure/src/functions/claimPrize.ts,
+ * The actual weighted pick moved server-side (azure/functions/game/src/functions/claimPrize.ts,
  * PRIZE_ENGINE_SPEC.md §1.2/§1.3) once andy_prize existed -- this file no longer
  * decides anything, it just turns the names GET /api/prizes returns into wheel
  * slices with a color. Known names keep their original colors from the prototype;

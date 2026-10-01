@@ -1,6 +1,6 @@
 // Event Hub namespace + hub + consumer groups for panel telemetry.
 //
-// Values are set to match what is live (see infra/README.md): Standard, zone-redundant,
+// Values are set to match what is live (see azure/infrastructure/README.md): Standard, zone-redundant,
 // 2 partitions, 1-day retention. Partition count cannot be changed on an existing hub, so a
 // mismatch fails the deployment instead of recreating it. IoT Hub's catch-all route already
 // delivers device messages here; nothing in this module touches the IoT Hub.

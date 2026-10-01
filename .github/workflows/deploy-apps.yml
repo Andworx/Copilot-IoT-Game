@@ -6,18 +6,18 @@ on:
   push:
     branches: [main]
     paths:
-      - 'azure/**'
+      - 'azure/functions/game/**'
       - 'power apps/game-box-control/**'
       - 'power pages/copilotiotgame/**'
       - '!power pages/copilotiotgame/.powerpages-site/**'
       - 'power pages/prize wheel/**'
       - '!power pages/prize wheel/.powerpages-site/**'
       - '.github/workflows/deploy-apps.yml'
-      - 'infra/staff-api.bicep'
-      - 'infra/modules/staff-resources.bicep'
-      - 'infra/staff-api.prod.json'
-      - 'infra/scripts/Deploy-StaffApi.ps1'
-      - 'infra/scripts/Deploy-CodeSite.ps1'
+      - 'azure/infrastructure/staff-api.bicep'
+      - 'azure/infrastructure/modules/staff-resources.bicep'
+      - 'azure/infrastructure/staff-api.prod.json'
+      - 'azure/infrastructure/scripts/Deploy-StaffApi.ps1'
+      - 'azure/infrastructure/scripts/Deploy-CodeSite.ps1'
   workflow_dispatch:
 
 permissions:
@@ -38,14 +38,14 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: azure/package-lock.json
+          cache-dependency-path: azure/functions/game/package-lock.json
       - name: Validate staff provisioning template
-        run: az bicep build --file infra/staff-api.bicep --stdout > /dev/null
+        run: az bicep build --file azure/infrastructure/staff-api.bicep --stdout > /dev/null
       - name: Test staff provisioning guards offline
         shell: pwsh
-        run: ./infra/scripts/Test-StaffDeployment.ps1
+        run: ./azure/infrastructure/scripts/Test-StaffDeployment.ps1
       - name: Build and test Function App
-        working-directory: azure
+        working-directory: azure/functions/game
         run: |
           npm ci
           npm run build
@@ -54,8 +54,8 @@ jobs:
       - name: Package Function App
         run: |
           mkdir -p function-package
-          cp azure/host.json azure/package.json azure/package-lock.json function-package/
-          cp -r azure/dist azure/node_modules function-package/
+          cp azure/functions/game/host.json azure/functions/game/package.json azure/functions/game/package-lock.json function-package/
+          cp -r azure/functions/game/dist azure/functions/game/node_modules function-package/
           test -f function-package/dist/src/index.js
           cd function-package
           zip -qr ../function-app.zip .
@@ -189,7 +189,7 @@ jobs:
       - name: Load staff deployment configuration
         shell: pwsh
         run: |
-          $config = Get-Content infra/staff-api.prod.json -Raw | ConvertFrom-Json
+          $config = Get-Content azure/infrastructure/staff-api.prod.json -Raw | ConvertFrom-Json
           if ($config.sourceFunctionAppName -ne $env:AZURE_FUNCTIONAPP_NAME) { throw 'Staff source app differs from configured public app.' }
           if ($config.tenantId -ne $env:AZURE_TENANT_ID) { throw 'Staff configuration belongs to another tenant.' }
           "AZURE_STAFF_FUNCTIONAPP_NAME=$($config.functionAppName)" >> $env:GITHUB_ENV
@@ -211,7 +211,7 @@ jobs:
       - name: Preview and provision staff API
         id: staff_infra
         shell: pwsh
-        run: ./infra/scripts/Deploy-StaffApi.ps1 -Mode Deploy
+        run: ./azure/infrastructure/scripts/Deploy-StaffApi.ps1 -Mode Deploy
       - name: Deploy staff Function App
         uses: Azure/functions-action@v1
         with:
@@ -312,7 +312,7 @@ jobs:
         shell: pwsh
         run: |
           $websiteId = if ('${{ matrix.kind }}' -eq 'kiosk') { $env:KIOSK_WEBSITE_ID } else { $env:PRIZE_WHEEL_WEBSITE_ID }
-          ./infra/scripts/Deploy-CodeSite.ps1 -ArtifactPath 'artifact' -WebsiteId $websiteId -SiteLabel '${{ matrix.kind }}'
+          ./azure/infrastructure/scripts/Deploy-CodeSite.ps1 -ArtifactPath 'artifact' -WebsiteId $websiteId -SiteLabel '${{ matrix.kind }}'
       - name: Clear PAC credentials
         if: always()
         shell: pwsh

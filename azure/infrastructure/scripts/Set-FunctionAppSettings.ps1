@@ -9,9 +9,9 @@
     replaces the whole collection.
 
     The Event Hub connection is identity-based: only the namespace host name is set, under the
-    `IoTHubEventHubConnectionString__` prefix the trigger in azure/src/functions/telemetry.ts
+    `IoTHubEventHubConnectionString__` prefix the trigger in azure/functions/game/src/functions/telemetry.ts
     reads. No key or connection string is stored. The Function App's managed identity needs
-    the "Azure Event Hubs Data Receiver" role on the hub (infra/main.bicep grants it).
+    the "Azure Event Hubs Data Receiver" role on the hub (azure/infrastructure/main.bicep grants it).
 
     Secrets are never set here. DIRECTLINE_SECRET stays a manual/protected setting.
 
