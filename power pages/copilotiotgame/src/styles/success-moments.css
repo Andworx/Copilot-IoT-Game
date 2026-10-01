@@ -1,0 +1,200 @@
+.device-win-overlay {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(260px, 1fr);
+  grid-template-rows: auto 180px auto auto;
+  gap: 12px 24px;
+  align-content: center;
+  justify-items: center;
+}
+
+.device-win-overlay > h2 {
+  grid-column: 1 / -1;
+  max-width: min(680px, 92vw);
+  font-size: 1.25rem;
+}
+
+.device-win-overlay > .success-moment,
+.device-win-overlay > .drone-takeoff {
+  grid-column: 1;
+  grid-row: 2 / 5;
+}
+
+.device-win-overlay > .qr-block,
+.device-win-overlay > .qr-caption,
+.device-win-overlay > .reset-timer {
+  grid-column: 2;
+}
+
+.device-win-overlay > .reset-timer:first-of-type {
+  grid-column: 2;
+  align-self: center;
+}
+
+.success-moment {
+  width: 100%;
+  max-width: 340px;
+  margin: 0;
+  color: var(--device-accent);
+}
+
+.success-moment svg {
+  display: block;
+  width: 100%;
+  filter: drop-shadow(0 0 18px var(--device-accent-glow));
+}
+
+.success-grid,
+.success-outline,
+.success-primary,
+.success-spark {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.success-grid {
+  stroke: color-mix(in srgb, var(--device-accent) 24%, transparent);
+  stroke-width: 1.5;
+}
+
+.success-outline {
+  stroke: color-mix(in srgb, var(--device-accent) 62%, #d8f6ff);
+  stroke-width: 6;
+}
+
+.success-primary {
+  stroke: var(--device-accent);
+  stroke-width: 8;
+}
+
+.success-spark,
+.success-ring {
+  stroke: var(--color-accent);
+  stroke-width: 5;
+}
+
+.success-ring {
+  fill: color-mix(in srgb, var(--device-accent) 8%, transparent);
+}
+
+.success-ring.inner {
+  fill: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+.success-fill {
+  fill: var(--color-accent);
+  stroke: color-mix(in srgb, var(--color-accent) 65%, #ffffff);
+  stroke-width: 3;
+}
+
+.success-moment [data-success-device],
+.success-primary,
+.success-fill,
+.success-spark,
+.success-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.success-moment .success-ring {
+  animation: success-ring-pulse 2.8s ease-in-out infinite;
+}
+
+.success-moment .success-fill {
+  animation: success-pop 1.6s ease-out both;
+}
+
+.success-moment .success-spark {
+  animation: success-spark 1.8s ease-in-out infinite alternate;
+}
+
+.success-water .wave-two,
+.success-patient .pulse,
+.success-radio .spark-one,
+.success-radio .spark-two,
+.success-ev .cable,
+.success-robot .arm-one,
+.success-robot .arm-two {
+  animation: success-line-flow 2.2s ease-in-out infinite;
+}
+
+.success-elevator .car {
+  animation: success-elevator-rise 2.8s cubic-bezier(.3, 0, .2, 1) both;
+}
+
+.success-traffic .red { fill: #ef4444; opacity: 0.35; }
+.success-traffic .amber { fill: #f59e0b; opacity: 0.62; }
+.success-traffic .green { fill: var(--color-accent); animation: success-green-light 1.4s ease-in-out infinite alternate; }
+
+.success-retail .receipt {
+  animation: success-receipt-print 2.2s ease-out both;
+}
+
+.success-lock .unlock {
+  animation: success-unlock 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes success-ring-pulse {
+  50% { opacity: 0.45; transform: scale(1.04); }
+}
+
+@keyframes success-pop {
+  0% { opacity: 0; transform: scale(0.7); }
+  70% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes success-spark {
+  to { opacity: 0.45; transform: translateY(-5px); }
+}
+
+@keyframes success-line-flow {
+  50% { opacity: 0.45; transform: translateY(-4px); }
+}
+
+@keyframes success-elevator-rise {
+  0% { transform: translateY(28px); opacity: 0.45; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes success-green-light {
+  to { filter: brightness(1.5); }
+}
+
+@keyframes success-receipt-print {
+  0% { transform: translateY(-30px) scaleY(0.45); opacity: 0.4; }
+  100% { transform: translateY(0) scaleY(1); opacity: 1; }
+}
+
+@keyframes success-unlock {
+  to { transform: translateX(8px) translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .success-moment * {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .device-win-overlay {
+    display: flex;
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding: 18px;
+    gap: 10px;
+  }
+
+  .device-win-overlay > h2 {
+    font-size: 1.05rem;
+  }
+
+  .success-moment,
+  .device-win-overlay > .drone-takeoff {
+    max-width: 230px;
+  }
+
+  .device-win-overlay .qr-block {
+    flex-shrink: 0;
+  }
+}
