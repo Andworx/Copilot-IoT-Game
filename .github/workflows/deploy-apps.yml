@@ -288,6 +288,7 @@ jobs:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.STAFF_API_CUTOVER_READY == 'true'
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
           - kind: code-app
