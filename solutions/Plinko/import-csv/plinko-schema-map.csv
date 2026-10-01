@@ -1,7 +1,6 @@
 Table Display Name,Table Logical Name,Column Display Name,Column Logical Name,Target Type,Required,Default,Post-Import Action,Notes
 Plinko Profile,andy_plinkoprofile,Name,andy_name,Text,Required,,Confirm primary name,Primary display name for the single Plinko profile/state row.
 Plinko Profile,andy_plinkoprofile,Profile Slug,andy_profileslug,Text,Required,,Add alternate key,Stable backend key for the profile row.
-Plinko Profile,andy_plinkoprofile,IoT Device ID,andy_iotdeviceid,Text,Required,,,The landing event's IoT Hub device id must match this value.
 Plinko Profile,andy_plinkoprofile,Bucket Count,andy_bucketcount,Whole Number,Required,6,,Issue #124 default is 6.
 Plinko Profile,andy_plinkoprofile,Lit Bucket Entries,andy_litbucketentries,Whole Number,Required,2,,Issue #124 default is 2.
 Plinko Profile,andy_plinkoprofile,Standard Bucket Entries,andy_standardbucketentries,Whole Number,Required,1,,Issue #124 default is 1.

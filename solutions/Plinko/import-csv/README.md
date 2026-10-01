@@ -35,4 +35,3 @@ The existing IoT-specific detail table is user-owned, while several shared confi
 
 - Should `andy_plinkoprofile` and `andy_plinkoplay` be user-owned like `andy_iotgamewin`, or organization-owned like shared configuration/event tables?
 - What active Campaign row should receive the Plinko Source Cap row?
-- Should the initial `Plinko Default Profile` sample row use a final IoT Hub device id or remain a temporary placeholder?
