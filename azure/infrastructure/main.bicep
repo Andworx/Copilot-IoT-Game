@@ -1,8 +1,9 @@
 // Restore & Spin: the infrastructure this repo owns and may deploy from CI.
 // Scope: resource group. Full rationale and the tiers: azure/infrastructure/README.md.
 //
-//   Tier 1/2 (in this file): VNet/subnets, Event Hub namespace/hub/consumer groups, SignalR
-//   service, and read access for the game Function App's managed identity.
+//   Tier 1/2 (in this file): VNet/subnets, private DNS and resolver, Event Hub
+//   namespace/hub/consumer groups, SignalR service, and read access for the game Function
+//   App's managed identity.
 //   Tier 3 (NOT here, by design): IoT Hub, DPS, Function Apps, plans, storage, App Insights.
 //   They are captured under azure/infrastructure/reference/ and only drift-checked.
 //
@@ -36,6 +37,12 @@ param vnetTags object = {}
 param privateDnsZoneNames array
 param privateDnsLinkName string
 param privateDnsTags object = {}
+
+param dnsResolverName string
+param dnsResolverInboundEndpointName string
+param dnsResolverInboundSubnetName string
+param dnsResolverInboundPrivateIpAddress string
+param dnsResolverTags object = {}
 
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
@@ -87,6 +94,19 @@ module privateDns 'modules/private-dns.bicep' = {
   }
 }
 
+module dnsResolver 'modules/dns-private-resolver.bicep' = {
+  name: 'dns-private-resolver'
+  params: {
+    resolverName: dnsResolverName
+    inboundEndpointName: dnsResolverInboundEndpointName
+    location: location
+    virtualNetworkId: vnet.outputs.id
+    inboundSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, dnsResolverInboundSubnetName)
+    inboundPrivateIpAddress: dnsResolverInboundPrivateIpAddress
+    tags: dnsResolverTags
+  }
+}
+
 module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrincipalId)) {
   name: 'eventhub-receiver'
   dependsOn: [eventHub]
@@ -104,3 +124,6 @@ output eventHubFullyQualifiedNamespace string = eventHub.outputs.fullyQualifiedN
 output eventHubName string = eventHub.outputs.eventHubName
 output signalRName string = signalR.outputs.name
 output vnetName string = vnet.outputs.name
+output dnsResolverName string = dnsResolver.outputs.resolverName
+output dnsResolverInboundEndpointName string = dnsResolver.outputs.inboundEndpointName
+output dnsResolverInboundPrivateIpAddress string = dnsResolver.outputs.inboundPrivateIpAddress

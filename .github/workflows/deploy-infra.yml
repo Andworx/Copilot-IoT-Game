@@ -9,8 +9,9 @@ name: Infrastructure
 #   deploy         Applies main.bicep and merges the Function App's telemetry settings. Only from
 #                  `main`, only through the `infra-deploy` environment (which only accepts `main`).
 #
-# The deploy identity has write access to the Event Hub namespace, SignalR and the game Function App
-# only. It cannot modify the IoT Hub, DPS, or the legacy Function App (azure/infrastructure/scripts/Initialize-InfraIdentities.ps1).
+# The deploy identity has narrowly scoped write access to the adopted resources, including the VNet,
+# private DNS zones, and DNS resolver. It cannot modify the IoT Hub, DPS, or the legacy Function App
+# (azure/infrastructure/scripts/Initialize-InfraIdentities.ps1).
 
 on:
   pull_request:
@@ -134,6 +135,9 @@ jobs:
       - name: Verify Event Hub private-access prerequisites
         shell: pwsh
         run: ./azure/infrastructure/scripts/Test-EventHubPrivateAccess.ps1
+      - name: Verify DNS Private Resolver
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-DnsPrivateResolver.ps1
       - name: Reference resources still match their snapshots
         shell: pwsh
         run: ./azure/infrastructure/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check

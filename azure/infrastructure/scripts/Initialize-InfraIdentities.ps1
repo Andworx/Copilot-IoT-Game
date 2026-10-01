@@ -16,8 +16,9 @@
                              plan supports it). It can:
                                - create deployments in the resource group (custom role
                                  "Infra Deployment Operator": deployments/* only),
-                               - Contributor on the Event Hub namespace, the SignalR service
-                                 the game Function App, and the demo VNet only,
+                               - Contributor on the Event Hub namespace, the SignalR service,
+                                 the game Function App, the demo VNet, and the DNS Private
+                                 Resolver only,
                                - Private DNS Zone Contributor on the resource group,
                                - assign ONLY the "Azure Event Hubs Data Receiver" role, and
                                  only on the telemetry event hub (ABAC-conditioned).
@@ -46,6 +47,7 @@ param(
     [string]$SignalRName = 'signalr-aw-iot-copilot',
     [string]$GameFunctionApp = 'func-aw-azcom-iot-game',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
+    [string]$DnsResolverName = 'iot-demo-dns-resolver',
     [switch]$PreflightOnly
 )
 
@@ -70,6 +72,7 @@ $hubScope = "$nsScope/eventhubs/$EventHubName"
 $signalrScope = "$rgScope/providers/Microsoft.SignalRService/SignalR/$SignalRName"
 $appScope = "$rgScope/providers/Microsoft.Web/sites/$GameFunctionApp"
 $vnetScope = "$rgScope/providers/Microsoft.Network/virtualNetworks/$VirtualNetworkName"
+$dnsResolverScope = "$rgScope/providers/Microsoft.Network/dnsResolvers/$DnsResolverName"
 
 # --- preflight: fail before creating anything ---
 function Assert-CanAdministerRoles {
@@ -167,6 +170,7 @@ New-Assignment $deployerName 'Contributor' $nsScope
 New-Assignment $deployerName 'Contributor' $signalrScope
 New-Assignment $deployerName 'Contributor' $appScope
 New-Assignment $deployerName 'Contributor' $vnetScope
+New-Assignment $deployerName 'Contributor' $dnsResolverScope
 New-Assignment $deployerName 'Private DNS Zone Contributor' $rgScope
 
 # May assign/remove only Event Hubs Data Receiver, and only at the hub.

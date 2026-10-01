@@ -257,7 +257,7 @@ branch rule. The existing `production` environment and its identity
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
 | `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Retained for reference inspection while resources are migrated from snapshots into Bicep. | no active workflow job |
-| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader and Private DNS Zone Contributor on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, and `iot-demo-vnet` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader and Private DNS Zone Contributor on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, `iot-demo-vnet`, and `iot-demo-dns-resolver` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
@@ -431,9 +431,9 @@ Code App.
 
 ### Network baseline preview
 
-Use Infrastructure > Run workflow > main > `network-what-if` for the captured
+Use Infrastructure > Run workflow > main > `network-what-if` for the remaining captured
 [network baseline](../azure/infrastructure/network/README.md). PRs compile it without credentials.
 The main-only preview uses the existing infra-deploy identity with ProviderNoRbac;
-it does not require network write grants and does not apply resources. This action
-is separate from the existing service what-if/deploy; no network apply action or
-public-access lockdown is introduced at this stage.
+it does not require write grants for the baseline-only resources and does not apply them. This
+action is separate from the main what-if/deploy, which now owns the VNet/subnets, private DNS
+zones/links, and DNS resolver/inbound endpoint. No whole-baseline apply action exists.

@@ -96,6 +96,12 @@ param privateDnsTags = {
   'managed-by': 'bicep'
 }
 
+param dnsResolverName = 'iot-demo-dns-resolver'
+param dnsResolverInboundEndpointName = 'iot-demo-dns-inbound'
+param dnsResolverInboundSubnetName = 'dns-inbound'
+param dnsResolverInboundPrivateIpAddress = '10.20.3.4'
+param dnsResolverTags = {}
+
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.
 param functionAppPrincipalId = readEnvironmentVariable('FUNCTION_APP_PRINCIPAL_ID', '')
