@@ -212,9 +212,8 @@ export function KioskDevicePage() {
 
       {win && gameModeEnabled && claimToken && (
         <WinOverlay
-          droneTakeoff={device.slug === "drone-ground-control"}
+          deviceSlug={device.slug}
           winMessage={completionMessage}
-          restoreItems={device.slug === "drone-ground-control" ? ["GPS enabled", "Telemetry enabled", "Uplink enabled", "Communications ready"] : device.restoreItems}
           claimToken={claimToken}
           onReset={handleCompletionReset}
         />
@@ -222,9 +221,8 @@ export function KioskDevicePage() {
 
       {win && gameModeEnabled === false && showSuccessPopup && (
         <SuccessPopup
-          droneTakeoff={device.slug === "drone-ground-control"}
+          deviceSlug={device.slug}
           winMessage={completionMessage}
-          restoreItems={device.slug === "drone-ground-control" ? ["GPS enabled", "Telemetry enabled", "Uplink enabled", "Communications ready"] : device.restoreItems}
           onReset={handleCompletionReset}
         />
       )}
