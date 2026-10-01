@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <EntityRelationship Name="andy_andy_contestcampaign_Campaign_andy_prizeclaim" />
+  <EntityRelationship Name="andy_andy_contestsource_Contest_Source_andy_prizeclaim" />
+  <EntityRelationship Name="andy_andy_prizes_Prize_Instance_andy_prizeclaim" />
+  <EntityRelationship Name="andy_contact_Contact_andy_prizeclaim" />
+  <EntityRelationship Name="andy_plinkoplay_PrizeClaim_andy_prizeclaim" />
+  <EntityRelationship Name="andy_plinkoplay_Profile_andy_plinkoprofile" />
+  <EntityRelationship Name="business_unit_andy_prizeclaim" />
+  <EntityRelationship Name="lk_andy_plinkoplay_createdby" />
+  <EntityRelationship Name="lk_andy_plinkoplay_modifiedby" />
+  <EntityRelationship Name="lk_andy_plinkoprofile_createdby" />
+  <EntityRelationship Name="lk_andy_plinkoprofile_modifiedby" />
+  <EntityRelationship Name="lk_andy_prizeclaim_createdby" />
+  <EntityRelationship Name="lk_andy_prizeclaim_modifiedby" />
+  <EntityRelationship Name="organization_andy_plinkoplay" />
+  <EntityRelationship Name="organization_andy_plinkoprofile" />
+  <EntityRelationship Name="owner_andy_prizeclaim" />
+  <EntityRelationship Name="team_andy_prizeclaim" />
+  <EntityRelationship Name="user_andy_prizeclaim" />
+</EntityRelationships>

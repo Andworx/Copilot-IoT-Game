@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{0d533901-6b7a-4700-9def-df9fd0841aad}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_playname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_plinkoplayid">
+          <cell name="andy_playname" width="300" />
+          <cell name="andy_hardwareeventidentifier" width="150" />
+          <cell name="andy_bucketnumber" width="150" />
+          <cell name="andy_illuminatedbucketnumber" width="150" />
+          <cell name="andy_isbucketlit" width="150" />
+          <cell name="andy_entriesawarded" width="150" />
+          <cell name="andy_timelanded" width="150" />
+          <cell name="andy_profile" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_plinkoplay">
+          <attribute name="andy_plinkoplayid" />
+          <attribute name="andy_playname" />
+          <attribute name="createdon" />
+          <order attribute="andy_playname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="andy_hardwareeventidentifier" />
+          <attribute name="andy_bucketnumber" />
+          <attribute name="andy_illuminatedbucketnumber" />
+          <attribute name="andy_isbucketlit" />
+          <attribute name="andy_entriesawarded" />
+          <attribute name="andy_timelanded" />
+          <attribute name="andy_profile" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active Plinko Play" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

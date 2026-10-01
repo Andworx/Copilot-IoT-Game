@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{9b95bc22-e248-4197-a6e0-10bcb7d321c9}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_playname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_plinkoplayid">
+          <cell name="andy_playname" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_plinkoplay">
+          <attribute name="andy_plinkoplayid" />
+          <attribute name="andy_playname" />
+          <attribute name="createdon" />
+          <order attribute="andy_playname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="1" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Inactive Plinko Play" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

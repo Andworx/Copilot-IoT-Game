@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{31b88a24-f708-4a45-ae26-29197c56f622}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form>
+      <tabs>
+        <tab verticallayout="true" id="{CF5EA955-5BA9-43F6-BE55-23DF1A137E41}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{B7D39ADE-F768-4FEC-BDC9-BE3534501CCC}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{D43019B6-4769-40A1-B330-1995928B2B78}">
+                        <labels>
+                          <label description="Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_profilename" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_profilename" />
+                      </cell>
+                    </row>
+                    <row></row>
+                    <row>
+                      <cell id="{786b1a31-9091-43e1-ba24-782a4d7bfc97}">
+                        <labels>
+                          <label description="Profile Slug" languagecode="1033" />
+                        </labels>
+                        <control id="andy_profileslug" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_profileslug" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a957ddf6-cfe7-4432-a881-2edb975a7248}">
+                        <labels>
+                          <label description="Bucket Count" languagecode="1033" />
+                        </labels>
+                        <control id="andy_numberofbuckets" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_numberofbuckets" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ab6cfa9a-f074-44b2-aac1-f332e41aec39}">
+                        <labels>
+                          <label description="Lit Bucket Entries" languagecode="1033" />
+                        </labels>
+                        <control id="andy_litbucketentries" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_litbucketentries" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{cd314a2a-608b-4dcd-8380-39444c9e2538}">
+                        <labels>
+                          <label description="Standard Bucket Entries" languagecode="1033" />
+                        </labels>
+                        <control id="andy_standardbucketentries" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_standardbucketentries" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b70cec82-62c1-477e-86b6-3a80a99b9403}">
+                        <labels>
+                          <label description="Game Mode Enabled" languagecode="1033" />
+                        </labels>
+                        <control id="andy_gamemodeactive" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_gamemodeactive" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{afe8be15-e854-491b-9570-6a8e67d89c17}">
+                        <labels>
+                          <label description="Current Lit Bucket" languagecode="1033" />
+                        </labels>
+                        <control id="andy_activelitbucket" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_activelitbucket" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>
