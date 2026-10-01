@@ -18,7 +18,7 @@ The owner requested automatic creation of the new staff backend. `staff-api.bice
 
 | Tier | Resources | How | Why |
 |---|---|---|---|
-| **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; Event Hub namespace, the `iot-telemetry` hub and its consumer groups; SignalR service; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
+| **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; DNS Private Resolver and its inbound endpoint; Event Hub namespace, the `iot-telemetry` hub and its consumer groups; SignalR service; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
 | **Function App settings** | `IoTHubEventHubConnectionString__fullyQualifiedNamespace`, `IOT_EVENTHUB_NAME`, `IOT_EVENTHUB_CONSUMER_GROUP` | `scripts/Set-FunctionAppSettings.ps1` (merge) | A `Microsoft.Web/sites` resource replaces the whole app-settings collection and would wipe secrets such as `DATAVERSE_CLIENT_SECRET`. The merge only touches the three names above. |
 | **3: reference only** | IoT Hub, DPS, both Function Apps, both plans, both storage accounts, both App Insights | `reference/snapshots/*.json`, checked by `scripts/Invoke-ReferenceSnapshot.ps1` | See below. |
 
@@ -95,6 +95,12 @@ the release order and troubleshooting are in [docs/CI_CD.md](../../docs/CI_CD.md
 | Manual `what-if` | run the same reconciliation check on demand | `infra-deploy`; changes nothing |
 | Manual `deploy` (from `main` only) | assign the Function App a managed identity, deploy `main.bicep`, merge the settings, re-check snapshots | `infra-deploy` (`main` only) |
 
+The deployed DNS resolver is `iot-demo-dns-resolver`; its `iot-demo-dns-inbound`
+endpoint retains the static `10.20.3.4` address in the delegated `dns-inbound`
+subnet. The GL.iNet router forwards the five private service suffixes to that
+address over the VPN. Router configuration and its reconnect hotplug script remain
+outside ARM and are documented in [staff/network wiring](../../docs/STAFF_API_WIRING.md).
+
 The first `deploy` creates the `gamefunc` consumer group and the Function App's managed
 identity, grants it Event Hubs Data Receiver on the hub, and points the Function App at the
 hub with identity-based auth, so **no Event Hub key is stored anywhere**. This must happen
@@ -120,7 +126,7 @@ separately validated hardening step.
      that the caller could write each resource in the template.
    - `id-gha-infra-deployer`: deployments-only custom role; Private DNS Zone Contributor on
      the resource group; Contributor on the Event Hub namespace, the SignalR service, the game
-     Function App and `iot-demo-vnet` **only**; and permission to assign only the Event Hubs Data
+     Function App, `iot-demo-vnet`, and `iot-demo-dns-resolver` **only**; and permission to assign only the Event Hubs Data
      Receiver role, only on the hub.
 2. Create the GitHub environments `infra-readonly` (no protection) and `infra-deploy`
    (deployment branches: `main`; add a required reviewer if the plan supports it: the org's Free
@@ -150,7 +156,7 @@ separately validated hardening step.
 
 ## Captured network baseline
 
-The manually built VNet, VPN, DNS and private endpoints are now recorded separately
+The manually built VPN and private endpoints are recorded separately
 in [azure/infrastructure/network](network/README.md). The Infrastructure workflow has a
 `network-what-if` action; this is preview-only and never runs the older service
 main.bicep. Actual live gateway settings (Generation2, BGP on) and the singular
@@ -170,7 +176,7 @@ group into the owned template at a time, using this loop for every step:
 5. Validate VPN, private DNS, telemetry, the Power Page and the agent before continuing.
 
 Adopt the network in dependency order: VNet and subnets; private DNS zones and links; DNS resolver
-and inbound endpoint; VPN public IP and gateway; then one private endpoint and its DNS zone group at
+and inbound endpoint (complete); VPN public IP and gateway; then one private endpoint and its DNS zone group at
 a time. After the network is reproducible, adopt the remaining service plans, storage, Function Apps,
 monitoring, IoT Hub and DPS. IoT Hub and DPS come last because device enrollment state is outside ARM
 and the existing IoT Hub route contains a redacted credential that cannot be reconstructed from an

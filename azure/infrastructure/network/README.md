@@ -1,12 +1,13 @@
 # Network adoption baseline
 
-Status: captured from live Azure for review; no network deployment or public-access
-lockdown has been performed. This is the current manually built network, not the
+Status: captured from live Azure for review. The VNet/subnets, private DNS zones/links,
+and DNS resolver/inbound endpoint have been adopted into the deployable main stack;
+the VPN and private endpoints remain baseline-only. This is the current network, not the
 older proposed foundation in the companion service repository.
 
 ## Ownership and scope
 
-`main.bicep` loads `baseline.json`, an explicit allowlist of writable properties.
+This folder's `main.bicep` loads `baseline.json`, an explicit allowlist of writable properties.
 It declares the VNet with all four subnets inline, VPN public IP/gateway, DNS
 resolver/inbound endpoint, five private endpoints, five private DNS zones, five
 VNet links and five endpoint DNS zone groups. It preserves existing names, subnet
@@ -59,7 +60,9 @@ Infra Deployment Operator role. The preview uses `ProviderNoRbac` (Azure CLI
 permissions just to preview. Its result must be inspected; a successful preview
 alone does not mean zero differences. No role grants were changed by this work.
 
-There is intentionally no network apply action yet. Before adoption/apply, review
+There is intentionally no whole-baseline network apply action. The adopted VNet,
+private DNS, and resolver resources are applied through `azure/infrastructure/main.bicep`.
+Before adopting the remaining baseline, review
 all differences, settle ownership with companion network PR 207, and explicitly
 add narrowly scoped network deployment permissions. Existing service `deploy`
 continues to deploy `azure/infrastructure/main.bicep`; it does **not** deploy this baseline. Do not
