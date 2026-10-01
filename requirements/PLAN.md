@@ -14,7 +14,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 5 | 5 | 3 | 0 | 13 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
-| Power Pages | 5 | 11 | 1 | 0 | 17 |
+| Power Pages | 5 | 11 | 2 | 0 | 18 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
@@ -78,6 +78,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `copilotiotgame`: full secure networking solution diagram page | Code Site page | ⬜ Verify | Issue #194 — added `/kiosk/solution` as a large-screen demo architecture view reachable from the bottom-right gear menu, covering edge clients/devices, Azure Functions/Event Hub/IoT Hub/SignalR, Dataverse, Copilot Studio, deployment, public claim paths, and private telemetry paths. Needs production deployment and live demo validation. |
 | `prize wheel`: Explore this solution entry point | Code Site page | ⬜ Verify | Issue #195 — added a responsive `Explore this solution` action that opens the shared `/kiosk/solution` diagram from the phone-facing prize flow. Needs live mobile validation after both Code Sites deploy. |
 | `prize wheel`: GitHub Actions Code Site deployment and claim reachability | Code Site + CI/CD | ⬜ Verify | Issues #196/#197 — `deploy-apps.yml` now builds `power pages/prize wheel`, uploads it through live-site metadata, and injects the current Function App URL so the deployed claim flow no longer depends on stale checked-in site metadata. Needs a production Actions run plus real QR claim smoke test. |
+| `plinko`: player-facing display Code Site and event-day operations UI | Code Site + model-driven views | ⬜ TODO | Issue #127 — staff MDA basics exist in `solutions/Plinko`, but named operational views and the player-facing Power Pages Code Site still need implementation. Build `power pages/plinko` with idle how-it-works flow, on-screen chase lights, `plinkoResult` win celebration, QR scan/skip flow, and Plinko-specific prize-wheel copy; wire it into `deploy-apps.yml` after the site exists. |
 | `copilotiotgame`: review each kiosk mode UI one by one | Code Site review | ⬜ TODO | Issue #70 — use the local preview/device routes to review all 12 modes individually and track any mode-specific fixes separately. |
 
 ## Plugins
