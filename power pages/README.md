@@ -3,7 +3,8 @@
 This folder contains **`copilotiotgame`**, the kiosk **Power Pages Code Site** (React 19 +
 Vite SPA) — not a classic Liquid portal. There's no `web-templates/`, `web-pages/`, or
 `website.yml` here; the whole site is the React app under `copilotiotgame/src/`. The
-standalone phone-facing spin flow lives in the sibling `prize wheel` Code Site.
+standalone phone-facing spin flow lives in the sibling `prize wheel` Code Site, and the
+event-facing Plinko board display lives in the sibling `plinko` Code Site.
 
 `restore-and-spin` was the original prototype for the kiosk site and has been retired —
 it had no Game Mode support and only a fake placeholder QR. Everything it did has a
@@ -28,6 +29,9 @@ power pages/
 └── prize wheel/            # standalone phone-facing spin Code Site — deployed via deploy-apps.yml
     ├── powerpages.config.json
     └── src/
+└── plinko/                 # Plinko board display Code Site — deployed via deploy-apps.yml
+  ├── powerpages.config.json
+  └── src/
 ```
 
 See `docs/README.md` for what's still an active reference vs. archived.
@@ -35,7 +39,7 @@ See `docs/README.md` for what's still an active reference vs. archived.
 ## GitHub Actions releases
 
 Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App,
-`copilotiotgame`, and `prize wheel` releases: PR build checks, then automatic
+`copilotiotgame`, `prize wheel`, and `plinko` releases: PR build checks, then automatic
 deployment after relevant changes merge to `main`. Workflow:
 `.github/workflows/deploy-apps.yml`. Local publishing commands are for explicitly
 requested recovery/bootstrap work.

@@ -110,5 +110,14 @@ npm run build
 pac pages upload-code-site --rootPath "."
 ```
 
+### plinko
+
+```powershell
+cd "power pages\plinko"
+npm install
+npm run build
+pac pages upload-code-site --rootPath "."
+```
+
 Authenticate to the intended Dataverse environment first. Activate an initial
 inactive site through Power Pages, then verify the public site.
