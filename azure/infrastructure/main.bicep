@@ -57,6 +57,20 @@ param vpnClientProtocols array
 param vpnAuthenticationTypes array
 param vpnClientRootCertificates array
 
+param signalRPrivateEndpointName string
+param signalRPrivateEndpointNicName string
+param privateEndpointSubnetName string
+param signalRPrivateDnsZoneGroupName string
+param signalRPrivateDnsZoneConfigName string
+param signalRPrivateDnsZoneName string
+
+param gameFunctionAppName string
+param gameFunctionPrivateEndpointName string
+param gameFunctionPrivateEndpointNicName string
+param gameFunctionPrivateDnsZoneGroupName string
+param gameFunctionPrivateDnsZoneConfigName string
+param gameFunctionPrivateDnsZoneName string
+
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
 
@@ -140,6 +154,38 @@ module vpnGateway 'modules/p2s-vpn-gateway.bicep' = {
   dependsOn: [vnet]
 }
 
+module signalRPrivateEndpoint 'modules/signalr-private-endpoint.bicep' = {
+  name: 'signalr-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: signalRPrivateEndpointName
+    customNetworkInterfaceName: signalRPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    signalRId: resourceId('Microsoft.SignalRService/SignalR', signalRName)
+    privateDnsZoneGroupName: signalRPrivateDnsZoneGroupName
+    privateDnsZoneConfigName: signalRPrivateDnsZoneConfigName
+    privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', signalRPrivateDnsZoneName)
+    tags: {}
+  }
+  dependsOn: [signalR, vnet, privateDns]
+}
+
+module gameFunctionPrivateEndpoint 'modules/game-function-private-endpoint.bicep' = {
+  name: 'game-function-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: gameFunctionPrivateEndpointName
+    customNetworkInterfaceName: gameFunctionPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    functionAppId: resourceId('Microsoft.Web/sites', gameFunctionAppName)
+    privateDnsZoneGroupName: gameFunctionPrivateDnsZoneGroupName
+    privateDnsZoneConfigName: gameFunctionPrivateDnsZoneConfigName
+    privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', gameFunctionPrivateDnsZoneName)
+    tags: {}
+  }
+  dependsOn: [vnet, privateDns]
+}
+
 module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrincipalId)) {
   name: 'eventhub-receiver'
   dependsOn: [eventHub]
@@ -162,3 +208,5 @@ output dnsResolverInboundEndpointName string = dnsResolver.outputs.inboundEndpoi
 output dnsResolverInboundPrivateIpAddress string = dnsResolver.outputs.inboundPrivateIpAddress
 output vpnPublicIpName string = vpnGateway.outputs.publicIpName
 output vpnGatewayName string = vpnGateway.outputs.gatewayName
+output signalRPrivateEndpointName string = signalRPrivateEndpoint.outputs.privateEndpointName
+output gameFunctionPrivateEndpointName string = gameFunctionPrivateEndpoint.outputs.privateEndpointName

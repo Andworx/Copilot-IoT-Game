@@ -378,12 +378,12 @@ export function buildIotGameWinCreatePayload(input: {
   };
 }
 
-/** Active, non-fallback prize types -- for the prize wheel SPA's wheel rendering (not
- * the pick itself, which stays server-side and can also draw the fallback type). */
+/** Active prize types -- for the prize wheel SPA's wheel rendering (not the pick itself,
+ * which stays server-side and only draws from stocked non-fallback types before fallback). */
 export async function listActivePrizeTypes(): Promise<Array<{ name: string }>> {
   const response = await dataverseFetch(
     `${PRIZE_TYPES_SET}?$select=andy_prizetypename` +
-      "&$filter=statecode eq 0 and andy_isfallback eq false" +
+      "&$filter=statecode eq 0" +
       "&$orderby=andy_prizetypename"
   );
   const body = (await response.json()) as { value: Array<{ andy_prizetypename: string }> };

@@ -133,6 +133,20 @@ param vpnClientRootCertificates = [
   }
 ]
 
+param signalRPrivateEndpointName = 'iot-demo-signalr-pe'
+param signalRPrivateEndpointNicName = 'iot-demo-signalr-pe-nic'
+param privateEndpointSubnetName = 'private-endpoint'
+param signalRPrivateDnsZoneGroupName = 'default'
+param signalRPrivateDnsZoneConfigName = 'privatelink-service-signalr-net'
+param signalRPrivateDnsZoneName = 'privatelink.service.signalr.net'
+
+param gameFunctionAppName = 'func-aw-azcom-iot-game'
+param gameFunctionPrivateEndpointName = 'iot-demo-game-function-pe'
+param gameFunctionPrivateEndpointNicName = 'iot-demo-game-function-pe-nic'
+param gameFunctionPrivateDnsZoneGroupName = 'default'
+param gameFunctionPrivateDnsZoneConfigName = 'privatelink-azurewebsites-net'
+param gameFunctionPrivateDnsZoneName = 'privatelink.azurewebsites.net'
+
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.
 param functionAppPrincipalId = readEnvironmentVariable('FUNCTION_APP_PRINCIPAL_ID', '')
