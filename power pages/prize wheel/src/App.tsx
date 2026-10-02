@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { toWheelPrizes } from "./data/prizes";
 import type { Prize } from "./types/prize";
 import { PrizeWheel } from "./components/PrizeWheel";
-import { API_BASE_URL, SOLUTION_DIAGRAM_URL } from "./lib/apiConfig";
+import { API_BASE_URL } from "./lib/apiConfig";
 
 type Step = "share" | "wheel" | "result" | "error";
 
@@ -27,6 +27,7 @@ function App() {
   const [email, setEmail] = useState("");
   const [claiming, setClaiming] = useState(false);
   const [claimResult, setClaimResult] = useState<ClaimResult | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/prizes`)
@@ -81,7 +82,51 @@ function App() {
     setStep("result");
   }
 
-  const exploreButton = <a className="btn-secondary explore-solution" href={SOLUTION_DIAGRAM_URL}>Explore this solution</a>;
+  const exploreButton = (
+    <button type="button" className="btn-secondary explore-solution" onClick={() => setShowSolution(true)}>
+      Explore this solution
+    </button>
+  );
+
+  if (showSolution) {
+    return (
+      <div className="phone-page">
+        <div className="handset-screen">
+          <div className="phone-step solution-step">
+            <span className="eyebrow">Solution tour</span>
+            <h3>How the IoT game pays out prizes</h3>
+            <div className="solution-flow" aria-label="IoT game solution flow">
+              <article>
+                <span>01</span>
+                <strong>Restore the device</strong>
+                <p>The physical game box sends switch telemetry through Azure IoT Hub.</p>
+              </article>
+              <article>
+                <span>02</span>
+                <strong>Show the kiosk win</strong>
+                <p>Power Pages renders the live device state and receives updates from the Function App.</p>
+              </article>
+              <article>
+                <span>03</span>
+                <strong>Scan the claim QR</strong>
+                <p>The kiosk-created token opens this phone page without giving the player staff access.</p>
+              </article>
+              <article>
+                <span>04</span>
+                <strong>Claim from Dataverse</strong>
+                <p>The API selects and reserves one stocked prize type, then falls back only when stock is empty.</p>
+              </article>
+            </div>
+            <div className="phone-actions">
+              <button type="button" className="btn-primary" onClick={() => setShowSolution(false)}>
+                Back to spin
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="phone-page">
@@ -132,6 +177,7 @@ function App() {
           <div className="phone-step">
             <span className="eyebrow">Spin to win</span>
             <PrizeWheel prizes={wheelPrizes} winningPrizeName={claimResult.prizeName} onResult={handleSpinResult} />
+            <div className="phone-actions">{exploreButton}</div>
           </div>
         )}
 
