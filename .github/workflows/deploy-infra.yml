@@ -97,9 +97,14 @@ jobs:
             --ignore-path properties.blockUpgradeOfMigratedLegacyGateways \
             --ignore-path properties.enableHighBandwidthVpnGateway \
             --ignore-path 'properties.ipConfigurations[0].type' \
+            --ignore-path properties.isIPv6EnabledPrivateEndpoint \
             --ignore-path properties.isMigratedLegacySKU \
             --ignore-path properties.isMigrateToCSES \
             --ignore-path properties.packetCaptureDiagnosticState \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].etag' \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].id' \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].properties.provisioningState' \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].type' \
             --ignore-path properties.virtualNetworkGatewayMigrationStatus \
             --ignore-path properties.vpnClientConfiguration.vpnClientConnectionHealth \
             --ignore-path 'properties.vpnClientConfiguration.vpnClientRootCertificates[0].id' \
@@ -153,6 +158,12 @@ jobs:
       - name: Verify Point-to-Site VPN gateway
         shell: pwsh
         run: ./azure/infrastructure/scripts/Test-P2sVpnGateway.ps1
+      - name: Verify SignalR private endpoint
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-SignalRPrivateEndpoint.ps1
+      - name: Verify game Function private endpoint
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-GameFunctionPrivateEndpoint.ps1
       - name: Reference resources still match their snapshots
         shell: pwsh
         run: ./azure/infrastructure/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check

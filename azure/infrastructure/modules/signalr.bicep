@@ -37,7 +37,7 @@ resource signalr 'Microsoft.SignalRService/signalR@2024-03-01' = {
     tls: {
       clientCertEnabled: false
     }
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     disableLocalAuth: false
     disableAadAuth: false
   }
