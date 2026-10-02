@@ -147,6 +147,13 @@ param gameFunctionPrivateDnsZoneGroupName = 'default'
 param gameFunctionPrivateDnsZoneConfigName = 'privatelink-azurewebsites-net'
 param gameFunctionPrivateDnsZoneName = 'privatelink.azurewebsites.net'
 
+param gameStorageAccountName = 'stawazcomiotgamefn'
+param gameStorageBlobPrivateEndpointName = 'iot-demo-game-storage-blob-pe'
+param gameStorageBlobPrivateEndpointNicName = 'iot-demo-game-storage-blob-pe-nic'
+param gameStorageBlobPrivateDnsZoneGroupName = 'default'
+param gameStorageBlobPrivateDnsZoneConfigName = 'privatelink-blob-core-windows-net'
+param gameStorageBlobPrivateDnsZoneName = 'privatelink.blob.core.windows.net'
+
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.
 param functionAppPrincipalId = readEnvironmentVariable('FUNCTION_APP_PRINCIPAL_ID', '')
