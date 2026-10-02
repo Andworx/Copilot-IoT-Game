@@ -164,6 +164,9 @@ jobs:
       - name: Verify game Function private endpoint
         shell: pwsh
         run: ./azure/infrastructure/scripts/Test-GameFunctionPrivateEndpoint.ps1
+      - name: Verify game storage blob private endpoint
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-GameStorageBlobPrivateEndpoint.ps1
       - name: Reference resources still match their snapshots
         shell: pwsh
         run: ./azure/infrastructure/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check

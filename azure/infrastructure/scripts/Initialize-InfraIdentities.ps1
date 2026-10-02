@@ -19,7 +19,7 @@
                                - Contributor on the Event Hub namespace, the SignalR service,
                                  the game Function App, the demo VNet, and the DNS Private
                                                                  Resolver, VPN public IP, VPN gateway, SignalR private
-                                                                 endpoint, and game Function private endpoint only,
+                                                                 endpoint, game Function private endpoint, and game storage blob private endpoint only,
                                - Private DNS Zone Contributor on the resource group,
                                - assign ONLY the "Azure Event Hubs Data Receiver" role, and
                                  only on the telemetry event hub (ABAC-conditioned).
@@ -53,6 +53,7 @@ param(
     [string]$VpnGatewayName = 'iot-demo-vpn',
     [string]$SignalRPrivateEndpointName = 'iot-demo-signalr-pe',
     [string]$GameFunctionPrivateEndpointName = 'iot-demo-game-function-pe',
+    [string]$GameStorageBlobPrivateEndpointName = 'iot-demo-game-storage-blob-pe',
     [switch]$PreflightOnly
 )
 
@@ -82,6 +83,7 @@ $vpnPublicIpScope = "$rgScope/providers/Microsoft.Network/publicIPAddresses/$Vpn
 $vpnGatewayScope = "$rgScope/providers/Microsoft.Network/virtualNetworkGateways/$VpnGatewayName"
 $signalRPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$SignalRPrivateEndpointName"
 $gameFunctionPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$GameFunctionPrivateEndpointName"
+$gameStorageBlobPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$GameStorageBlobPrivateEndpointName"
 
 # --- preflight: fail before creating anything ---
 function Assert-CanAdministerRoles {
@@ -184,6 +186,7 @@ New-Assignment $deployerName 'Contributor' $vpnPublicIpScope
 New-Assignment $deployerName 'Contributor' $vpnGatewayScope
 New-Assignment $deployerName 'Contributor' $signalRPrivateEndpointScope
 New-Assignment $deployerName 'Contributor' $gameFunctionPrivateEndpointScope
+New-Assignment $deployerName 'Contributor' $gameStorageBlobPrivateEndpointScope
 New-Assignment $deployerName 'Private DNS Zone Contributor' $rgScope
 
 # May assign/remove only Event Hubs Data Receiver, and only at the hub.

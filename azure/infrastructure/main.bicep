@@ -71,6 +71,13 @@ param gameFunctionPrivateDnsZoneGroupName string
 param gameFunctionPrivateDnsZoneConfigName string
 param gameFunctionPrivateDnsZoneName string
 
+param gameStorageAccountName string
+param gameStorageBlobPrivateEndpointName string
+param gameStorageBlobPrivateEndpointNicName string
+param gameStorageBlobPrivateDnsZoneGroupName string
+param gameStorageBlobPrivateDnsZoneConfigName string
+param gameStorageBlobPrivateDnsZoneName string
+
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
 
@@ -186,6 +193,22 @@ module gameFunctionPrivateEndpoint 'modules/game-function-private-endpoint.bicep
   dependsOn: [vnet, privateDns]
 }
 
+module gameStorageBlobPrivateEndpoint 'modules/game-storage-blob-private-endpoint.bicep' = {
+  name: 'game-storage-blob-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: gameStorageBlobPrivateEndpointName
+    customNetworkInterfaceName: gameStorageBlobPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    storageAccountId: resourceId('Microsoft.Storage/storageAccounts', gameStorageAccountName)
+    privateDnsZoneGroupName: gameStorageBlobPrivateDnsZoneGroupName
+    privateDnsZoneConfigName: gameStorageBlobPrivateDnsZoneConfigName
+    privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', gameStorageBlobPrivateDnsZoneName)
+    tags: {}
+  }
+  dependsOn: [vnet, privateDns]
+}
+
 module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrincipalId)) {
   name: 'eventhub-receiver'
   dependsOn: [eventHub]
@@ -210,3 +233,4 @@ output vpnPublicIpName string = vpnGateway.outputs.publicIpName
 output vpnGatewayName string = vpnGateway.outputs.gatewayName
 output signalRPrivateEndpointName string = signalRPrivateEndpoint.outputs.privateEndpointName
 output gameFunctionPrivateEndpointName string = gameFunctionPrivateEndpoint.outputs.privateEndpointName
+output gameStorageBlobPrivateEndpointName string = gameStorageBlobPrivateEndpoint.outputs.privateEndpointName
