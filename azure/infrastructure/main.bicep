@@ -78,6 +78,12 @@ param gameStorageBlobPrivateDnsZoneGroupName string
 param gameStorageBlobPrivateDnsZoneConfigName string
 param gameStorageBlobPrivateDnsZoneName string
 
+param iotHubName string
+param iotHubPrivateEndpointName string
+param iotHubPrivateEndpointNicName string
+param iotHubPrivateDnsZoneGroupName string
+param iotHubPrivateDnsZoneConfigNames array
+
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
 
@@ -209,6 +215,26 @@ module gameStorageBlobPrivateEndpoint 'modules/game-storage-blob-private-endpoin
   dependsOn: [vnet, privateDns]
 }
 
+module iotHubPrivateEndpoint 'modules/iothub-private-endpoint.bicep' = {
+  name: 'iothub-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: iotHubPrivateEndpointName
+    customNetworkInterfaceName: iotHubPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    iotHubId: resourceId('Microsoft.Devices/IotHubs', iotHubName)
+    privateDnsZoneGroupName: iotHubPrivateDnsZoneGroupName
+    privateDnsZoneConfigs: [for config in iotHubPrivateDnsZoneConfigNames: {
+      name: config.configName
+      properties: {
+        privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', config.zoneName)
+      }
+    }]
+    tags: {}
+  }
+  dependsOn: [vnet, privateDns]
+}
+
 module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrincipalId)) {
   name: 'eventhub-receiver'
   dependsOn: [eventHub]
@@ -234,3 +260,4 @@ output vpnGatewayName string = vpnGateway.outputs.gatewayName
 output signalRPrivateEndpointName string = signalRPrivateEndpoint.outputs.privateEndpointName
 output gameFunctionPrivateEndpointName string = gameFunctionPrivateEndpoint.outputs.privateEndpointName
 output gameStorageBlobPrivateEndpointName string = gameStorageBlobPrivateEndpoint.outputs.privateEndpointName
+output iotHubPrivateEndpointName string = iotHubPrivateEndpoint.outputs.privateEndpointName

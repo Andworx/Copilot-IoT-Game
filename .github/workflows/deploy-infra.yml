@@ -105,6 +105,10 @@ jobs:
             --ignore-path 'properties.privateDnsZoneConfigs[0].id' \
             --ignore-path 'properties.privateDnsZoneConfigs[0].properties.provisioningState' \
             --ignore-path 'properties.privateDnsZoneConfigs[0].type' \
+            --ignore-path 'properties.privateDnsZoneConfigs[1].etag' \
+            --ignore-path 'properties.privateDnsZoneConfigs[1].id' \
+            --ignore-path 'properties.privateDnsZoneConfigs[1].properties.provisioningState' \
+            --ignore-path 'properties.privateDnsZoneConfigs[1].type' \
             --ignore-path properties.virtualNetworkGatewayMigrationStatus \
             --ignore-path properties.vpnClientConfiguration.vpnClientConnectionHealth \
             --ignore-path 'properties.vpnClientConfiguration.vpnClientRootCertificates[0].id' \
@@ -167,6 +171,9 @@ jobs:
       - name: Verify game storage blob private endpoint
         shell: pwsh
         run: ./azure/infrastructure/scripts/Test-GameStorageBlobPrivateEndpoint.ps1
+      - name: Verify IoT Hub private endpoint
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-IoTHubPrivateEndpoint.ps1
       - name: Reference resources still match their snapshots
         shell: pwsh
         run: ./azure/infrastructure/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check

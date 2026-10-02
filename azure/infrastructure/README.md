@@ -18,7 +18,7 @@ The owner requested automatic creation of the new staff backend. `staff-api.bice
 
 | Tier | Resources | How | Why |
 |---|---|---|---|
-| **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; DNS Private Resolver and inbound endpoint; Point-to-Site VPN gateway and public IP; Event Hub namespace, the `iot-telemetry` hub and its consumer groups; SignalR service and private endpoint; game Function and game storage blob private endpoints; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
+| **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; DNS Private Resolver and inbound endpoint; Point-to-Site VPN gateway and public IP; Event Hub namespace, the `iot-telemetry` hub and its consumer groups; SignalR service and private endpoint; game Function, game storage blob, and IoT Hub private endpoints; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
 | **Function App settings** | `IoTHubEventHubConnectionString__fullyQualifiedNamespace`, `IOT_EVENTHUB_NAME`, `IOT_EVENTHUB_CONSUMER_GROUP` | `scripts/Set-FunctionAppSettings.ps1` (merge) | A `Microsoft.Web/sites` resource replaces the whole app-settings collection and would wipe secrets such as `DATAVERSE_CLIENT_SECRET`. The merge only touches the three names above. |
 | **3: reference only** | IoT Hub, DPS, both Function Apps, both plans, both storage accounts, both App Insights | `reference/snapshots/*.json`, checked by `scripts/Invoke-ReferenceSnapshot.ps1` | See below. |
 
@@ -33,8 +33,8 @@ The owner requested automatic creation of the new staff backend. `staff-api.bice
   break devices.
 - The hub is shared with other devices and the sibling `copilot-iot-service` project.
 
-So the hub is captured and drift-checked, and the deploy identity has **no write access** to
-it, enforced by role assignments rather than by convention. The telemetry feature does not
+So the hub service is captured and drift-checked, and the deploy identity has **no write access** to
+it, enforced by role assignments rather than by convention. The IoT Hub private endpoint is deployable separately from the hub service. The telemetry feature does not
 need to change it: the existing catch-all route (`route-iotpanel`) already delivers every
 device message to `iot-telemetry`.
 
@@ -48,6 +48,7 @@ azure/infrastructure/
 â”‚   â”œâ”€â”€ eventhub.bicep             # namespace, hub, consumer groups
 â”‚   â”œâ”€â”€ game-function-private-endpoint.bicep
 â”‚   â”œâ”€â”€ game-storage-blob-private-endpoint.bicep
+â”‚   â”œâ”€â”€ iothub-private-endpoint.bicep
 â”‚   â”œâ”€â”€ signalr-private-endpoint.bicep
 â”‚   â”œâ”€â”€ signalr.bicep
 â”‚   â””â”€â”€ eventhub-receiver.bicep    # Event Hubs Data Receiver for the Function App identity
@@ -135,7 +136,7 @@ separately validated hardening step.
      that the caller could write each resource in the template.
    - `id-gha-infra-deployer`: deployments-only custom role; Private DNS Zone Contributor on
      the resource group; Contributor on the Event Hub namespace, the SignalR service, the game
-    Function App, `iot-demo-vnet`, `iot-demo-dns-resolver`, the SignalR private endpoint, the game Function private endpoint, and the game storage blob private endpoint **only**; and permission to assign only the Event Hubs Data
+    Function App, `iot-demo-vnet`, `iot-demo-dns-resolver`, the SignalR private endpoint, the game Function private endpoint, the game storage blob private endpoint, and the IoT Hub private endpoint **only**; and permission to assign only the Event Hubs Data
      Receiver role, only on the hub.
 2. Create the GitHub environments `infra-readonly` (no protection) and `infra-deploy`
    (deployment branches: `main`; add a required reviewer if the plan supports it: the org's Free
@@ -166,7 +167,7 @@ separately validated hardening step.
 ## Captured network baseline
 
 The remaining manually built private endpoints are recorded separately in
-[azure/infrastructure/network](network/README.md); the SignalR, game Function, and game storage blob endpoints are now deployable. The Infrastructure workflow has a
+[azure/infrastructure/network](network/README.md); the SignalR, game Function, game storage blob, and IoT Hub endpoints are now deployable. The Infrastructure workflow has a
 `network-what-if` action; this is preview-only and never runs the older service
 main.bicep. Actual live gateway settings (Generation2, BGP on) and the singular
 `private-endpoint` subnet name supersede earlier planning notes.
