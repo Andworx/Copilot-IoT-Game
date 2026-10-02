@@ -18,11 +18,11 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
-| Integration (Azure Functions) | 7 | 4 | 1 | 0 | 12 |
+| Integration (Azure Functions) | 7 | 5 | 1 | 0 | 13 |
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 1 | 1 | 0 | 2 |
-| Totals | 19 | 33 | 9 | 2 | 63 |
+| Totals | 19 | 34 | 9 | 2 | 64 |
 
 ## Dataverse
 
@@ -117,6 +117,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Event Hub trigger `iot-telemetry`: panel Pi telemetry → SignalR `SendTelemetryUpdate`/`TriggerAgentHelp` (gamebox hub) + `andy_iottelemetryevent` row | Azure Function (`azure/functions/game/`) | ✅ Done | Verified live 2026-09-19: the trigger runs on every Pi heartbeat (30 s) with identity-based access, the SignalR broadcast is flowing (hundreds of messages), and after a real switch change a row landed in `andy_iottelemetryevent` with the `restore-and-spin/v1` payload (mode, controls, sockets, cables, lamps, timestamp). Only `state_change` and `win` are logged. |
 | `GET /api/directline-token` | Azure Function (`azure/functions/game/`) | ⬜ Verify | Issue #66 — token generation now binds to the same stable `dl_kiosk_user` sender id used by the SPA, and the kiosk suppresses the raw Copilot Studio access-denied reply in favor of fallback steps. Local Azure/SPA builds pass; needs deployment plus a live Help Fix conversation check against the configured agent/channel. |
 | `azure/infrastructure/`: Bicep for the Event Hub namespace/hub/consumer groups, SignalR, and Function App read access; `deploy-infra.yml` (what-if, drift, gated deploy) | Infrastructure as code | ✅ Done | Verified 2026-09-19 through the workflow on `main`: `what-if` showed one Create (`gamefunc`), `deploy` created it, gave the game Function App a managed identity with Event Hubs Data Receiver on the hub only, and merged the three telemetry settings (all existing settings intact); `drift` then passed clean. The IoT Hub route and all Tier 3 resources were untouched. See `docs/CI_CD.md`. |
+| Adopt the game storage blob private endpoint and DNS zone group into `main.bicep` | Infrastructure as code | ⬜ Verify | Issue #207 / PR #229 — existing live endpoint configuration is represented in the template; pending post-deployment reconciliation and live checks. |
 | Tier 3 reference snapshots + drift check for IoT Hub, DPS, Function Apps, plans, storage, App Insights | Infrastructure reference | ✅ Done | Verified in CI: the read-only reader identity's `snapshots` job passes against live, and the deploy job's post-check caught the one intended change (the Function App's new identity). |
 | Retire legacy `func-aw-iot-copilot` | Azure Function (`Andworx/copilot-iot-service`) | ⬜ Verify | Owner confirmed 2026-09-29 that the original dashboard app is no longer used. Remove its Event Hub dependency during private-access cutover, validate the current game, then retire its dedicated app/plan/storage/monitoring resources using [the retirement runbook](../docs/LEGACY_FUNCTION_RETIREMENT.md). |
 | `POST /api/grand-prize/check-in` | Azure Function endpoint (`azure/functions/game/`) | ⬜ TODO | Issue #131 / epic #120 — validate active campaign, Contact, emailed check-in code, current check-in status, and eligibility; mark matching Grand Prize Entry rows checked in with `andy_checkinstatus = Checked In` and `andy_checkintime`; return clear staff-facing statuses for invalid, expired, already-used, invalidated, and ineligible codes. |
