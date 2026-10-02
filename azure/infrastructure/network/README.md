@@ -2,7 +2,7 @@
 
 Status: captured from live Azure for review. The VNet/subnets, private DNS zones/links,
 DNS resolver/inbound endpoint, and Point-to-Site VPN gateway/public IP have been adopted
-into the deployable main stack; the SignalR, game Function, and game storage blob private endpoints are also deployable and the other private endpoints remain baseline-only. This is the current network, not the
+into the deployable main stack; the SignalR, game Function, game storage blob, and IoT Hub private endpoints are also deployable and the other private endpoints remain baseline-only. This is the current network, not the
 older proposed foundation in the companion service repository.
 
 ## Ownership and scope

@@ -7,7 +7,7 @@ Two workflows release this repo:
   `CopilotIoTGame`), and `power pages/prize wheel/` (site name `PrizeWheel`). It
   deploys automatically when a relevant change merges to `main`.
 - `.github/workflows/deploy-infra.yml` manages the Azure resources in `azure/infrastructure/` (Event Hub,
-  SignalR, and the Function App's access to the hub). Every push to `main` automatically
+  SignalR, the IoT Hub private endpoint, and the Function App's access to the hub). Every push to `main` automatically
   compares Bicep with Azure and reports whether deployment approval is needed. Deployment is
   still a separate manual action. The separate staff app template is the owner-authorized
   exception: the application workflow provisions it automatically; see [staff wiring](STAFF_API_WIRING.md).
@@ -214,12 +214,12 @@ reload the Code App and verify `/api/prize-types`, `/api/device-profiles`, and
 
 `.github/workflows/deploy-infra.yml` manages the Azure resources this repo owns, defined in
 [`azure/infrastructure/`](../azure/infrastructure/README.md): the VNet and subnets, Event Hub namespace, the `iot-telemetry`
-hub and its consumer groups, SignalR service, and the game Function App's read access to the hub. It
+hub and its consumer groups, SignalR service, the IoT Hub private endpoint, and the game Function App's read access to the hub. It
 is separate from `deploy-apps.yml` on purpose: infrastructure changes can stop telemetry for
 every device, so each relevant merge is compared with Azure and applied only after a separate
 manual approval.
 
-Everything else in the resource group (IoT Hub, DPS, both Function Apps, plans, storage,
+Everything else in the resource group (IoT Hub service, DPS, both Function Apps, plans, storage,
 App Insights) is currently **recorded but never deployed**. Its snapshots are checked as a
 post-deployment safety guard. The deploy identity has no write access to it. These resources will
 move into Bicep one at a time as their deployment behavior is validated; see
