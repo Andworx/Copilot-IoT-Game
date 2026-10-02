@@ -65,5 +65,9 @@ Assert-Equal $configs[0].privateDnsZoneId $expectedDnsZoneId 'Private DNS zone I
 if (-not (@($configs[0].recordSets).ipAddresses -contains $ExpectedPrivateIpAddress)) {
     throw "Private DNS record set does not contain $ExpectedPrivateIpAddress."
 }
+$dnsRecord = Invoke-AzJson @('network', 'private-dns', 'record-set', 'a', 'show', '-g', $ResourceGroup, '-z', $DnsZoneName, '-n', $EventHubNamespaceName)
+if (-not (@($dnsRecord.aRecords).ipv4Address -contains $ExpectedPrivateIpAddress)) {
+    throw "Private DNS A record for $EventHubNamespaceName does not contain $ExpectedPrivateIpAddress."
+}
 
 Write-Host "Event Hub private endpoint verified: $PrivateEndpointName -> $ExpectedPrivateIpAddress"
