@@ -18,7 +18,8 @@
                                  "Infra Deployment Operator": deployments/* only),
                                - Contributor on the Event Hub namespace, the SignalR service,
                                  the game Function App, the demo VNet, and the DNS Private
-                                 Resolver, VPN public IP, and VPN gateway only,
+                                 Resolver, VPN public IP, VPN gateway, and Event Hub private
+                                 endpoint only,
                                - Private DNS Zone Contributor on the resource group,
                                - assign ONLY the "Azure Event Hubs Data Receiver" role, and
                                  only on the telemetry event hub (ABAC-conditioned).
@@ -50,6 +51,7 @@ param(
     [string]$DnsResolverName = 'iot-demo-dns-resolver',
     [string]$VpnPublicIpName = 'iot-demo-vpn-pip',
     [string]$VpnGatewayName = 'iot-demo-vpn',
+    [string]$EventHubPrivateEndpointName = 'iot-demo-eventhub-pe',
     [switch]$PreflightOnly
 )
 
@@ -77,6 +79,7 @@ $vnetScope = "$rgScope/providers/Microsoft.Network/virtualNetworks/$VirtualNetwo
 $dnsResolverScope = "$rgScope/providers/Microsoft.Network/dnsResolvers/$DnsResolverName"
 $vpnPublicIpScope = "$rgScope/providers/Microsoft.Network/publicIPAddresses/$VpnPublicIpName"
 $vpnGatewayScope = "$rgScope/providers/Microsoft.Network/virtualNetworkGateways/$VpnGatewayName"
+$eventHubPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$EventHubPrivateEndpointName"
 
 # --- preflight: fail before creating anything ---
 function Assert-CanAdministerRoles {
@@ -177,6 +180,7 @@ New-Assignment $deployerName 'Contributor' $vnetScope
 New-Assignment $deployerName 'Contributor' $dnsResolverScope
 New-Assignment $deployerName 'Contributor' $vpnPublicIpScope
 New-Assignment $deployerName 'Contributor' $vpnGatewayScope
+New-Assignment $deployerName 'Contributor' $eventHubPrivateEndpointScope
 New-Assignment $deployerName 'Private DNS Zone Contributor' $rgScope
 
 # May assign/remove only Event Hubs Data Receiver, and only at the hub.

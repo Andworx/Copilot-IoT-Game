@@ -57,6 +57,13 @@ param vpnClientProtocols array
 param vpnAuthenticationTypes array
 param vpnClientRootCertificates array
 
+param eventHubPrivateEndpointName string
+param eventHubPrivateEndpointNicName string
+param privateEndpointSubnetName string
+param eventHubPrivateDnsZoneGroupName string
+param eventHubPrivateDnsZoneConfigName string
+param eventHubPrivateDnsZoneName string
+
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
 
@@ -140,6 +147,22 @@ module vpnGateway 'modules/p2s-vpn-gateway.bicep' = {
   dependsOn: [vnet]
 }
 
+module eventHubPrivateEndpoint 'modules/eventhub-private-endpoint.bicep' = {
+  name: 'eventhub-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: eventHubPrivateEndpointName
+    customNetworkInterfaceName: eventHubPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    eventHubNamespaceId: resourceId('Microsoft.EventHub/namespaces', eventHubNamespaceName)
+    privateDnsZoneGroupName: eventHubPrivateDnsZoneGroupName
+    privateDnsZoneConfigName: eventHubPrivateDnsZoneConfigName
+    privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', eventHubPrivateDnsZoneName)
+    tags: {}
+  }
+  dependsOn: [eventHub, vnet, privateDns]
+}
+
 module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrincipalId)) {
   name: 'eventhub-receiver'
   dependsOn: [eventHub]
@@ -162,3 +185,4 @@ output dnsResolverInboundEndpointName string = dnsResolver.outputs.inboundEndpoi
 output dnsResolverInboundPrivateIpAddress string = dnsResolver.outputs.inboundPrivateIpAddress
 output vpnPublicIpName string = vpnGateway.outputs.publicIpName
 output vpnGatewayName string = vpnGateway.outputs.gatewayName
+output eventHubPrivateEndpointName string = eventHubPrivateEndpoint.outputs.privateEndpointName

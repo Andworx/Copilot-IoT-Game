@@ -133,6 +133,13 @@ param vpnClientRootCertificates = [
   }
 ]
 
+param eventHubPrivateEndpointName = 'iot-demo-eventhub-pe'
+param eventHubPrivateEndpointNicName = 'iot-demo-eventhub-pe-nic'
+param privateEndpointSubnetName = 'private-endpoint'
+param eventHubPrivateDnsZoneGroupName = 'default'
+param eventHubPrivateDnsZoneConfigName = 'privatelink-servicebus-windows-net'
+param eventHubPrivateDnsZoneName = 'privatelink.servicebus.windows.net'
+
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.
 param functionAppPrincipalId = readEnvironmentVariable('FUNCTION_APP_PRINCIPAL_ID', '')
