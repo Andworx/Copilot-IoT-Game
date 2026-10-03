@@ -23,6 +23,9 @@ var runtimeNames = [
   'DATAVERSE_CLIENT_SECRET'
   'AzureSignalRConnectionString'
   'GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID'
+  'PREFERENCE_TOKEN_SECRET'
+  'MARKETING_SENDER_ADDRESS'
+  'FOLLOW_UP_MARKETING_HTML'
   'APPLICATIONINSIGHTS_CONNECTION_STRING'
 ]
 var inheritedSettings = toObject(filter(runtimeNames, name => contains(sourceSettings, name)), name => name, name => sourceSettings[name])

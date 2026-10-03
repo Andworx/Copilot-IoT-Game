@@ -22,6 +22,7 @@ The same artifact runs with `API_SURFACE=public` on the existing app and `API_SU
 | `/api/set-mode` | POST | staff Entra | Sets the active device, broadcasts `deviceChanged` |
 | `/api/directline-token` | GET | anonymous | Exchanges the server-side `DIRECTLINE_SECRET` for a short-lived Direct Line token (503 until the secret is set) |
 | `/api/claim-prize` | POST | anonymous | Validates a QR claim token, claims the instant prize, creates/reuses Contact, creates the Grand Prize Entry, and generates/reuses the campaign check-in code when contact info is shared |
+| `/api/preferences` | GET, POST | anonymous (signed token) | Preference center (#133): GET reads the contact's state; POST opts in (double opt-in), confirms, opts out, requests removal or a data copy. Public app only. `claim-prize` also accepts `marketingOptIn` to start double opt-in. |
 | `/api/grand-prize/check-in` | POST | staff Entra | Validates an emailed check-in code, marks eligible PrizeEngine Grand Prize Entry rows checked in, and returns a staff-facing status |
 | `/api/grand-prize/drawing-slices` | GET | staff Entra | Returns the active campaign, registered/checked-in counts, and weighted checked-in wheel slices for the staff display |
 | `/api/grand-prize/drawing-state` | GET | staff Entra | Returns the latest committed drawing state/result so a presentation screen can recover after reload or a missed SignalR event |
@@ -72,6 +73,9 @@ Required app setting for activity-based email delivery:
 | Setting | Purpose |
 |---|---|
 | `GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID` | Dataverse systemuser GUID for the sender mailbox used in Email activity parties. If omitted, the claim still succeeds and returns `emailActivity.status = not_configured`. |
+| `PREFERENCE_TOKEN_SECRET` | Random secret (32+ characters) that signs preference-center links. Required on both the public and staff apps; rotating it revokes every outstanding link. |
+| `MARKETING_SENDER_ADDRESS` | Physical sender address printed on marketing content. If unset, the follow-up email is always the neutral thank-you. |
+| `FOLLOW_UP_MARKETING_HTML` | HTML block added to the follow-up email for contacts with a confirmed marketing opt-in. If unset, the follow-up is always the neutral thank-you. |
 
 The imported PrizeEngine solution must keep activities enabled for `andy_grandprizeentry`.
 The fresh 2026-09-27 unpack confirms `HasRelatedActivities=True`, and live Dataverse
@@ -303,3 +307,7 @@ both fields using the solution's pairs: Active `(statecode=0,statuscode=1)` and
 Inactive `(statecode=1,statuscode=2)`. Random mode selection continues to use
 `isEnabled`, excluding inactive profiles. `andy_isgamedevice` remains a separate
 classification flag. No new column or connector schema change is required.
+
+## Daily consent job
+
+`consent-maintenance` (timer, 14:00 UTC, staff app only) sends the post-event follow-up emails (checked-in entries, from the campaign's `andy_followupsendtime` for 3 days) and erases game-created contacts with no confirmed marketing opt-in 90 days after the drawing. See `docs/PREFERENCE_CENTER_DESIGN.md`.

@@ -1,9 +1,10 @@
 import { randomInt } from "node:crypto";
 import { ConfidentialClientApplication } from "@azure/msal-node";
 import QRCode from "qrcode";
+import { buildPreferenceLink, signPreferenceToken } from "./preferenceToken";
 
 const DATAVERSE_URL = (process.env.DATAVERSE_URL ?? "").replace(/\/$/, "");
-const GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID = process.env.GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID ?? "";
+export const GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID = process.env.GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID ?? "";
 
 let msalClient: ConfidentialClientApplication | null = null;
 let cachedToken: { value: string; expiresAt: number } | null = null;
@@ -42,7 +43,7 @@ async function getAccessToken(): Promise<string> {
 /** Doesn't throw on non-ok -- callers that need to inspect the status (e.g. a 412 from
  * an If-Match conditional update) use this directly; dataverseFetch wraps it for the
  * common "throw on anything unexpected" case. */
-async function dataverseFetchRaw(path: string, init: RequestInit = {}): Promise<Response> {
+export async function dataverseFetchRaw(path: string, init: RequestInit = {}): Promise<Response> {
   const token = await getAccessToken();
   return fetch(`${DATAVERSE_URL}/api/data/v9.2/${path}`, {
     ...init,
@@ -57,7 +58,7 @@ async function dataverseFetchRaw(path: string, init: RequestInit = {}): Promise<
   });
 }
 
-async function dataverseFetch(path: string, init: RequestInit = {}): Promise<Response> {
+export async function dataverseFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const response = await dataverseFetchRaw(path, init);
   if (!response.ok) {
     const body = await response.text();
@@ -79,11 +80,11 @@ export async function createTelemetryEvent(record: Record<string, unknown>): Pro
 
 /** GUID-shaped strings only -- claim tokens and ids get interpolated into OData
  * $filter strings, so this is the injection guard for that. */
-function isGuidLike(value: string): boolean {
+export function isGuidLike(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 }
 
-function escapeODataString(value: string): string {
+export function escapeODataString(value: string): string {
   return value.replace(/'/g, "''");
 }
 
@@ -317,10 +318,10 @@ const PRIZE_TYPES_SET = "andy_prizetypeses";
 const PRIZES_SET = "andy_prizeses";
 const PRIZE_CLAIMS_SET = "andy_prizeclaims";
 const IOT_GAME_WINS_SET = "andy_iotgamewins";
-const CONTEST_CAMPAIGNS_SET = "andy_contestcampaigns";
+export const CONTEST_CAMPAIGNS_SET = "andy_contestcampaigns";
 const CONTEST_SOURCES_SET = "andy_contestsources";
 const CONTEST_SOURCE_CAPS_SET = "andy_contestsourcecaps";
-const GRAND_PRIZE_ENTRIES_SET = "andy_grandprizeentries";
+export const GRAND_PRIZE_ENTRIES_SET = "andy_grandprizeentries";
 
 // Navigation properties -- confirmed against the unpacked Dataverse relationship XML,
 // not assumed from logical column names.
@@ -331,11 +332,11 @@ const PRIZE_CLAIM_CONTEST_SOURCE_NAV = "andy_Contest_Source"; // on andy_prizecl
 const IOT_GAME_WIN_PRIZE_CLAIM_NAV = "andy_prize_claim"; // on andy_iotgamewin, -> andy_prizeclaim
 const IOT_GAME_WIN_DEVICE_PROFILE_NAV = "andy_device_profile"; // on andy_iotgamewin, -> andy_deviceprofile
 const GRAND_PRIZE_ENTRY_CAMPAIGN_NAV = "andy_CampaignName"; // on andy_grandprizeentry, -> andy_contestcampaign
-const GRAND_PRIZE_ENTRY_CONTACT_NAV = "andy_Contact"; // on andy_grandprizeentry, -> contact
+export const GRAND_PRIZE_ENTRY_CONTACT_NAV = "andy_Contact"; // on andy_grandprizeentry, -> contact
 const GRAND_PRIZE_ENTRY_PRIZE_CLAIM_NAV = "andy_PrizeClaim"; // on andy_grandprizeentry, -> andy_prizeclaim
 const GRAND_PRIZE_ENTRY_SOURCE_CAP_NAV = "andy_SourceIdentifier"; // on andy_grandprizeentry, -> andy_contestsourcecap
 const GRAND_PRIZE_CHECK_IN_STATUS_NOT_CHECKED_IN = 100000000;
-const GRAND_PRIZE_CHECK_IN_STATUS_CHECKED_IN = 100000001;
+export const GRAND_PRIZE_CHECK_IN_STATUS_CHECKED_IN = 100000001;
 const PRIZES_PRIZETYPE_NAV = "andy_PrizeType"; // on andy_Prizes, -> andy_PrizeTypes
 const IOT_CONTEST_SOURCE_IDENTIFIER = "iot";
 
@@ -678,7 +679,7 @@ export function buildContactCreatePayload(contestant: ContestantInfo): Record<st
   };
 }
 
-function parseDataverseIdFromEntityUrl(entityUrl: string | null): string | null {
+export function parseDataverseIdFromEntityUrl(entityUrl: string | null): string | null {
   return entityUrl?.match(/\(([0-9a-f-]{36})\)$/i)?.[1] ?? null;
 }
 
@@ -1084,7 +1085,7 @@ async function generateUniqueCheckInCode(campaignId: string, prefix: string | nu
   throw new Error("Unable to generate a unique grand-prize check-in code");
 }
 
-function escapeHtml(value: string): string {
+export function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -1117,8 +1118,16 @@ function campaignCheckInLocation(campaign: ActiveContestCampaign): string {
   return campaign.checkInLocation?.trim() || "the booth";
 }
 
-function campaignPreferenceUrl(campaign: ActiveContestCampaign): string {
-  return campaign.preferenceUrl?.trim() ?? "";
+/** Per-contact preference link: the campaign URL plus a signed token. Empty when either is unavailable. */
+function campaignPreferenceUrl(campaign: ActiveContestCampaign, contactId: string): string {
+  const base = campaign.preferenceUrl?.trim() ?? "";
+  if (!base) return "";
+  try {
+    return buildPreferenceLink(base, signPreferenceToken({ contactId, purpose: "manage" }));
+  } catch (error) {
+    console.error("Preference link unavailable; sending the email without it", error);
+    return "";
+  }
 }
 
 function campaignReminderLeadMinutes(campaign: ActiveContestCampaign): number {
@@ -1128,6 +1137,7 @@ function campaignReminderLeadMinutes(campaign: ActiveContestCampaign): number {
 }
 
 async function buildBrandedGrandPrizeCheckInEmail(input: {
+  contactId: string;
   contestant: ContestantInfo;
   campaign: ActiveContestCampaign;
   checkInCode: string;
@@ -1135,7 +1145,7 @@ async function buildBrandedGrandPrizeCheckInEmail(input: {
   const eventName = input.campaign.eventName ?? "Copilot IoT Game Grand Prize Drawing";
   const drawingTime = formatDrawingTime(input.campaign.drawingTime);
   const checkInLocation = campaignCheckInLocation(input.campaign);
-  const preferenceUrl = campaignPreferenceUrl(input.campaign);
+  const preferenceUrl = campaignPreferenceUrl(input.campaign, input.contactId);
   const checkInQrDataUrl = await createCheckInQrDataUrl(input.checkInCode);
   const preferenceLine = preferenceUrl
     ? `<p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#53657a;">If you no longer want to participate or receive event messages, update your preferences here: <a href="${escapeHtml(preferenceUrl)}">${escapeHtml(preferenceUrl)}</a>.</p>`
@@ -1318,9 +1328,11 @@ async function upsertContestantContact(contestant: ContestantInfo): Promise<stri
     return existingContact.contactid;
   }
 
+  // New contacts start with marketing off; only a confirmed opt-in (lib/consent.ts) turns it on.
+  // Existing contacts are never changed here, so earlier consent choices are not overwritten.
   const createResponse = await dataverseFetch("contacts", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ...payload, donotbulkemail: true }),
   });
   return parseDataverseIdFromEntityUrl(createResponse.headers.get("OData-EntityId"));
 }
@@ -1334,7 +1346,7 @@ async function upsertContestantContact(contestant: ContestantInfo): Promise<stri
 export async function claimGameWin(
   claimToken: string,
   contestant: ContestantInfo
-): Promise<{ prizeName: string; grandPrizeEntry: GrandPrizeEntryResult }> {
+): Promise<{ prizeName: string; grandPrizeEntry: GrandPrizeEntryResult; contactId: string | null }> {
   if (!isGuidLike(claimToken)) {
     throw new ClaimError("invalid_token", "claimToken is not a valid GUID");
   }
@@ -1389,5 +1401,5 @@ export async function claimGameWin(
     }
   }
 
-  return { prizeName: prize.typeName, grandPrizeEntry };
+  return { prizeName: prize.typeName, grandPrizeEntry, contactId };
 }
