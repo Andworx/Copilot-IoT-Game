@@ -25,6 +25,11 @@ param gameStorageAccountName = 'stawazcomiotgamefn'
 param gameStoragePackageContainerName = 'app-package-funcawazcomiotgame-0968767'
 param gameStoragePackageContainerUrl = 'https://stawazcomiotgamefn.blob.core.windows.net/app-package-funcawazcomiotgame-0968767'
 
+param gameAppInsightsName = 'func-aw-azcom-iot-game'
+param logAnalyticsWorkspaceResourceId = '/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-2e291b4a-5f03-4dcd-bb56-09643c729adc-EUS'
+param gameFailureAnomaliesAlertName = 'Failure Anomalies - func-aw-azcom-iot-game'
+param smartDetectionActionGroupId = '/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-demo/providers/microsoft.insights/actiongroups/application insights smart detection'
+
 param vnetName = 'iot-demo-vnet'
 param vnetTags = {
   'managed-by': 'bicep'

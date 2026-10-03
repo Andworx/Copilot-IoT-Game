@@ -7,7 +7,7 @@ Two workflows release this repo:
   `CopilotIoTGame`), and `power pages/prize wheel/` (site name `PrizeWheel`). It
   deploys automatically when a relevant change merges to `main`.
 - `.github/workflows/deploy-infra.yml` manages the Azure resources in `azure/infrastructure/` (Event Hub,
-  SignalR, private endpoints, the game Function App host/plan/storage, and the Function App's access to the hub). Every push to `main` automatically
+   SignalR, private endpoints, the game Function App host/plan/storage, game Application Insights and its active smart detection alert, and the Function App's access to the hub). The infra deployer needs its reviewed monitoring scopes from `Initialize-InfraIdentities.ps1` before the first monitoring deploy. Every push to `main` automatically
   compares Bicep with Azure and reports whether deployment approval is needed. Deployment is
   still a separate manual action. The separate staff app template is the owner-authorized
   exception: the application workflow provisions it automatically; see [staff wiring](STAFF_API_WIRING.md).
@@ -19,7 +19,7 @@ Other site folders, Dataverse solutions, flows, and the Pi firmware are outside 
 | | Application workflow | Infrastructure workflow |
 |---|---|---|
 | File | `deploy-apps.yml` | `deploy-infra.yml` |
-| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `azure/infrastructure/`: VNet/subnets, Event Hub, consumer groups, SignalR, private endpoints, game Function host/plan/storage, Function App Event Hub access |
+| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `azure/infrastructure/`: VNet/subnets, Event Hub, consumer groups, SignalR, private endpoints, game Function host/plan/storage, game Application Insights, active smart detection alert, Function App Event Hub access |
 | When it deploys | automatically on merge to `main` | checks Azure automatically on every push to `main`; `deploy` is a manual approval action allowed from `main` only |
 | GitHub environment | `production` | `infra-deploy` (reconciliation preview and deploy) |
 | Azure identity | `id-gha-copilot-iot-game-deploy` | `id-gha-infra-reader` and `id-gha-infra-deployer`, least privilege |
@@ -215,14 +215,14 @@ reload the Code App and verify `/api/prize-types`, `/api/device-profiles`, and
 
 `.github/workflows/deploy-infra.yml` manages the Azure resources this repo owns, defined in
 [`azure/infrastructure/`](../azure/infrastructure/README.md): the VNet and subnets, Event Hub namespace, the `iot-telemetry`
-hub and its consumer groups, SignalR service, private endpoints, the game Function host/plan/storage, and the game Function App's read access to the hub. It
+hub and its consumer groups, SignalR service, private endpoints, the game Function host/plan/storage, the game Application Insights component, its active smart detection alert, and the game Function App's read access to the hub. It
 is separate from `deploy-apps.yml` on purpose: infrastructure changes can stop telemetry for
 every device, so each relevant merge is compared with Azure and applied only after a separate
 manual approval.
 
-Everything else in the resource group (IoT Hub service, DPS, the legacy Function App/plan/storage,
-and App Insights) is currently **recorded but never deployed**. Its snapshots are checked as a
-post-deployment safety guard. The deploy identity has no write access to it. These resources will
+Everything else in the resource group (IoT Hub service, DPS, and the legacy Function App/plan/storage)
+is currently **recorded but never deployed**. Its snapshots are checked as a
+post-deployment safety guard. The deploy identity has no write access to it. The shared default Log Analytics workspace is referenced by the game Application Insights component but is not owned or deployed by this repo. These resources will
 move into Bicep one at a time as their deployment behavior is validated; see
 [`azure/infrastructure/README.md`](../azure/infrastructure/README.md).
 
