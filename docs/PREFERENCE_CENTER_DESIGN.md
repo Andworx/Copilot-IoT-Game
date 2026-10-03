@@ -32,7 +32,7 @@ Two rules the code relies on, both native:
   retention and instant removal touch only these, so CRM contacts that happen to play are
   suppressed but never deleted automatically (a Task goes to staff instead).
 
-**Contest Campaign:** new `andy_followup_send_time` (DateTime). Retention is 90 days after the
+**Contest Campaign:** new `andy_followupsendtime` (DateTime). Retention is 90 days after the
 existing `andy_drawingtime`; the number lives in the retention process configuration.
 Existing `andy_privacynoticeurl` holds the privacy notice; existing `andy_Preference_Url` is the
 base of the preference-page link.
@@ -63,13 +63,13 @@ No new tables, no relationship changes.
    current setting. Actions: opt in, opt out, request removal, request a copy of my data.
    Removal and copy requests create a **Task** on the Contact due in 30 days; removal also sets
    `donotemail=true` and `donotbulkemail=true` immediately.
-4. **Follow-up email** (daily timer, after `andy_followup_send_time`):
+4. **Follow-up email** (daily timer, after `andy_followupsendtime`):
    - Only to contacts whose Grand Prize Entry is **Checked In** and who are not `donotemail`.
    - Opted-in contacts: thanks plus marketing content.
    - Everyone else: a neutral thank-you for visiting the booth and playing, with only a link to
      manage or remove their data. No promotion and no invitation to opt in.
    - **Send window:** the job only considers campaigns where now is between
-     `andy_followup_send_time` and that time plus **3 days**. After that the campaign is ignored,
+     `andy_followupsendtime` and that time plus **3 days**. After that the campaign is ignored,
      so entries that were skipped (not checked in, `donotemail`, removed) are not re-checked
      forever. The 3 days is a job setting, not a column.
    - **Sent once, draft first:** for each due entry the job creates the email activity as a
@@ -118,7 +118,7 @@ Repo convention: build in the maker portal / admin center, then `pac solution ex
 `pac solution unpack` the `PrizeEngine` solution. Nothing here is created from the repo.
 
 ### 1. Schema (one column)
-- **Contest Campaign** (`andy_contestcampaign`): add `andy_followup_send_time`, display name
+- **Contest Campaign** (`andy_contestcampaign`): add `andy_followupsendtime`, display name
   "Follow-up send time", Date and Time, time-zone independent, optional, auditing on. Add it to the
   main form and the active view.
 - No new Contact columns, no new tables, no relationship changes.
@@ -127,7 +127,7 @@ Repo convention: build in the maker portal / admin center, then `pac solution ex
 - Power Platform admin center, environment Settings, Audit settings: turn on **Start auditing**
   (user-access auditing is not needed).
 - Contact table: enable auditing on the table; enable on columns `donotemail` and `donotbulkemail`.
-- Optionally enable on `andy_contestcampaign.andy_followup_send_time`.
+- Optionally enable on `andy_contestcampaign.andy_followupsendtime`.
 
 ### 3. Activities and notes
 - Confirm **Notes** and **Activities (Email, Task)** are enabled on `contact` (default) and
@@ -162,7 +162,7 @@ the environment's `EntityDefinitions` metadata (the existing entry email binding
 the top of `azure/functions/game/src/lib/consent.ts` if any differ.
 
 ### 7. Campaign data
-- Set `andy_followup_send_time` on the active campaign (the job acts from that time for 3 days).
+- Set `andy_followupsendtime` on the active campaign (the job acts from that time for 3 days).
 - Set `andy_preference_url` to the preference page URL (the prize wheel site; the page reads
   `?pref=`), and `andy_privacynoticeurl` once the notice exists. Without the preference URL no
   preference link, confirmation or follow-up email is sent.

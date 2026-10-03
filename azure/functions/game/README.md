@@ -310,4 +310,4 @@ classification flag. No new column or connector schema change is required.
 
 ## Daily consent job
 
-`consent-maintenance` (timer, 14:00 UTC, staff app only) sends the post-event follow-up emails (checked-in entries, from the campaign's `andy_followup_send_time` for 3 days) and erases game-created contacts with no confirmed marketing opt-in 90 days after the drawing. See `docs/PREFERENCE_CENTER_DESIGN.md`.
+`consent-maintenance` (timer, 14:00 UTC, staff app only) sends the post-event follow-up emails (checked-in entries, from the campaign's `andy_followupsendtime` for 3 days) and erases game-created contacts with no confirmed marketing opt-in 90 days after the drawing. See `docs/PREFERENCE_CENTER_DESIGN.md`.

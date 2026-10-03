@@ -36,7 +36,7 @@ async function listFollowUpCampaigns(now: Date): Promise<FollowUpCampaign[]> {
   const { from, to } = followUpWindow(now);
   const response = await dataverseFetch(
     `${CONTEST_CAMPAIGNS_SET}?$select=andy_contestcampaignid,andy_eventname,andy_preference_url,andy_privacynoticeurl` +
-      `&$filter=statecode eq 0 and andy_followup_send_time ge ${from} and andy_followup_send_time le ${to}`
+      `&$filter=statecode eq 0 and andy_followupsendtime ge ${from} and andy_followupsendtime le ${to}`
   );
   const body = (await response.json()) as {
     value: Array<{ andy_contestcampaignid: string; andy_eventname?: string | null; andy_preference_url?: string | null; andy_privacynoticeurl?: string | null }>;

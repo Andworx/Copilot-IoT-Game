@@ -63,6 +63,14 @@
                       </cell>
                     </row>
                     <row>
+                      <cell id="{604535b5-5400-4b22-a243-0376057d71fa}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Check In Location" languagecode="1033" />
+                        </labels>
+                        <control id="andy_check_in_location" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="andy_check_in_location" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
                       <cell id="{aec47cba-b8f1-4e4b-a633-c8c5c7ed5fc0}">
                         <labels>
                           <label description="Max Entries Per Contact" languagecode="1033" />
@@ -145,6 +153,33 @@
                     <row />
                     <row />
                     <row />
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+        <tab name="tab_2" id="eb19378e-cd18-40ce-a8c1-ebba265d5710" IsUserDefined="0" locklevel="0" showlabel="true">
+          <labels>
+            <label description="Marketing Info" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section name="tab_2_section_1" id="feb78ffa-9f23-4d53-8403-5ad9fe70ae47" IsUserDefined="0" locklevel="0" showlabel="true" showbar="false" layout="varwidth" celllabelalignment="Left" celllabelposition="Left" columns="1" labelwidth="115">
+                  <labels>
+                    <label description="New Section" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row />
+                    <row>
+                      <cell id="{6065db0e-6494-4b78-bbde-faf75c9bf3bf}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Follow-up Send Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_followupsendtime" classid="{5B773807-9FB2-42DB-97C3-7A91EFF8ADFF}" datafieldname="andy_followupsendtime" disabled="false" />
+                      </cell>
+                    </row>
                   </rows>
                 </section>
               </sections>
