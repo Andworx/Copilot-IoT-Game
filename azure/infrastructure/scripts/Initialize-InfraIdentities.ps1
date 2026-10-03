@@ -18,6 +18,7 @@
                                  "Infra Deployment Operator": deployments/* only),
                                                              - Contributor on the Event Hub namespace, the SignalR service,
                                                                  the game Function App, game Function plan, game Function storage,
+                                                                 game Application Insights, game failure anomalies alert,
                                                                  the demo VNet, DNS Private Resolver, VPN public IP, VPN gateway,
                                                                  SignalR private endpoint, game Function private endpoint, game
                                                                  storage blob private endpoint, and IoT Hub private endpoint only,
@@ -50,6 +51,8 @@ param(
     [string]$GameFunctionApp = 'func-aw-azcom-iot-game',
     [string]$GameFunctionPlanName = 'ASP-rgawazcomiotcopilot-ec55',
     [string]$GameFunctionStorageAccountName = 'stawazcomiotgamefn',
+    [string]$GameAppInsightsName = 'func-aw-azcom-iot-game',
+    [string]$GameFailureAnomaliesAlertName = 'Failure Anomalies - func-aw-azcom-iot-game',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
     [string]$DnsResolverName = 'iot-demo-dns-resolver',
     [string]$VpnPublicIpName = 'iot-demo-vpn-pip',
@@ -88,6 +91,8 @@ $signalrScope = "$rgScope/providers/Microsoft.SignalRService/SignalR/$SignalRNam
 $appScope = "$rgScope/providers/Microsoft.Web/sites/$GameFunctionApp"
 $gameFunctionPlanScope = "$rgScope/providers/Microsoft.Web/serverfarms/$GameFunctionPlanName"
 $gameFunctionStorageScope = "$rgScope/providers/Microsoft.Storage/storageAccounts/$GameFunctionStorageAccountName"
+$gameAppInsightsScope = "$rgScope/providers/Microsoft.Insights/components/$GameAppInsightsName"
+$gameFailureAnomaliesAlertScope = "$rgScope/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/$GameFailureAnomaliesAlertName"
 $vnetScope = "$rgScope/providers/Microsoft.Network/virtualNetworks/$VirtualNetworkName"
 $dnsResolverScope = "$rgScope/providers/Microsoft.Network/dnsResolvers/$DnsResolverName"
 $vpnPublicIpScope = "$rgScope/providers/Microsoft.Network/publicIPAddresses/$VpnPublicIpName"
@@ -194,6 +199,8 @@ New-Assignment $deployerName 'Contributor' $signalrScope
 New-Assignment $deployerName 'Contributor' $appScope
 New-Assignment $deployerName 'Contributor' $gameFunctionPlanScope
 New-Assignment $deployerName 'Contributor' $gameFunctionStorageScope
+New-Assignment $deployerName 'Contributor' $gameAppInsightsScope
+New-Assignment $deployerName 'Contributor' $gameFailureAnomaliesAlertScope
 New-Assignment $deployerName 'Contributor' $vnetScope
 New-Assignment $deployerName 'Contributor' $dnsResolverScope
 New-Assignment $deployerName 'Contributor' $vpnPublicIpScope

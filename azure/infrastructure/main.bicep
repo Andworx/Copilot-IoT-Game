@@ -4,7 +4,7 @@
 //   Tier 1/2 (in this file): VNet/subnets, private DNS and resolver, Event Hub
 //   namespace/hub/consumer groups, SignalR service, and read access for the game Function
 //   App's managed identity.
-//   Tier 3 (NOT here, by design): IoT Hub, DPS, Function Apps, plans, storage, App Insights.
+//   Tier 3 (NOT here, by design): IoT Hub, DPS, retired Function Apps, plans and storage.
 //   They are captured under azure/infrastructure/reference/ and only drift-checked.
 //
 // Deploy with an incremental deployment only. Preview first:
@@ -35,6 +35,11 @@ param gameFunctionAppTags object = {}
 param gameStorageAccountName string
 param gameStoragePackageContainerName string
 param gameStoragePackageContainerUrl string
+
+param gameAppInsightsName string
+param logAnalyticsWorkspaceResourceId string
+param gameFailureAnomaliesAlertName string
+param smartDetectionActionGroupId string
 
 param vnetName string
 param vnetAddressPrefixes array
@@ -131,6 +136,26 @@ module gameFunctionHosting 'modules/game-function-hosting.bicep' = {
     integrationSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, 'function-integration')
   }
   dependsOn: [vnet]
+}
+
+module gameAppInsights 'modules/app-insights.bicep' = {
+  name: 'game-app-insights'
+  params: {
+    name: gameAppInsightsName
+    location: location
+    workspaceResourceId: logAnalyticsWorkspaceResourceId
+    tags: tags
+  }
+}
+
+module gameFailureAnomaliesAlert 'modules/smart-detector-alert.bicep' = {
+  name: 'game-failure-anomalies-alert'
+  params: {
+    name: gameFailureAnomaliesAlertName
+    scopeResourceId: gameAppInsights.outputs.id
+    actionGroupId: smartDetectionActionGroupId
+    tags: tags
+  }
 }
 
 module vnet 'modules/vnet.bicep' = {
@@ -273,6 +298,8 @@ output eventHubName string = eventHub.outputs.eventHubName
 output signalRName string = signalR.outputs.name
 output gameFunctionAppName string = gameFunctionHosting.outputs.functionAppName
 output gameStorageAccountName string = gameFunctionHosting.outputs.storageAccountName
+output gameAppInsightsName string = gameAppInsights.outputs.name
+output gameFailureAnomaliesAlertName string = gameFailureAnomaliesAlert.outputs.name
 output vnetName string = vnet.outputs.name
 output dnsResolverName string = dnsResolver.outputs.resolverName
 output dnsResolverInboundEndpointName string = dnsResolver.outputs.inboundEndpointName

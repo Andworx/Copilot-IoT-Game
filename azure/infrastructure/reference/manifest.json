@@ -36,20 +36,6 @@
       "type": "Microsoft.Storage/storageAccounts",
       "resource": "stfuncawiotcopilot",
       "query": "{sku: sku, kind: kind, location: location, minimumTlsVersion: properties.minimumTlsVersion, allowBlobPublicAccess: properties.allowBlobPublicAccess, allowSharedKeyAccess: properties.allowSharedKeyAccess, supportsHttpsTrafficOnly: properties.supportsHttpsTrafficOnly, defaultAction: properties.networkAcls.defaultAction}"
-    },
-    {
-      "name": "appinsights-game",
-      "why": "Telemetry for the game Function App.",
-      "type": "Microsoft.Insights/components",
-      "resource": "func-aw-azcom-iot-game",
-      "query": "{kind: kind, location: location, applicationType: properties.Application_Type, retentionInDays: properties.RetentionInDays, ingestionMode: properties.IngestionMode}"
-    },
-    {
-      "name": "appinsights-legacy",
-      "why": "Telemetry for the legacy Function App.",
-      "type": "Microsoft.Insights/components",
-      "resource": "func-aw-iot-copilot",
-      "query": "{kind: kind, location: location, applicationType: properties.Application_Type, retentionInDays: properties.RetentionInDays, ingestionMode: properties.IngestionMode}"
     }
   ]
 }
