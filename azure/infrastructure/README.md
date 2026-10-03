@@ -42,7 +42,7 @@ There are currently no diagnostic settings, metric alerts, scheduled-query alert
 - The hub is shared with other devices and the sibling `copilot-iot-service` project.
 
 So the hub service is captured and drift-checked, and the deploy identity has **no write access** to
-it, enforced by role assignments rather than by convention. The IoT Hub private endpoint is deployable separately from the hub service. The telemetry feature does not
+it, enforced by role assignments rather than by convention. The deploy identity only has the custom IoT Hub private endpoint approval action on the hub, which Azure requires when ARM deploys the private endpoint. The IoT Hub private endpoint is deployable separately from the hub service. The telemetry feature does not
 need to change it: the existing catch-all route (`route-iotpanel`) already delivers every
 device message to `iot-telemetry`.
 
@@ -149,7 +149,9 @@ separately validated hardening step.
     game failure anomalies Smart Detector alert, `iot-demo-vnet`,
     `iot-demo-dns-resolver`, the VPN public IP, VPN gateway, SignalR private endpoint, game
     Function private endpoint, game storage blob private endpoint, and IoT Hub private endpoint
-    **only**; and permission to assign only the Event Hubs Data
+    **only**; the custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`;
+    Reader on the shared Smart Detection action group in `rg-aw-azcom-demo`;
+    and permission to assign only the Event Hubs Data
      Receiver role, only on the hub.
 2. Create the GitHub environments `infra-readonly` (no protection) and `infra-deploy`
    (deployment branches: `main`; add a required reviewer if the plan supports it: the org's Free
