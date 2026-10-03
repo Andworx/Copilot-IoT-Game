@@ -16,6 +16,15 @@ param consumerGroups = [
 param signalRName = 'signalr-aw-iot-copilot'
 param signalRSkuName = 'Standard_S1'
 
+param gameFunctionPlanName = 'ASP-rgawazcomiotcopilot-ec55'
+param gameFunctionAppName = 'func-aw-azcom-iot-game'
+param gameFunctionAppTags = {
+  'hidden-link: /app-insights-resource-id': '/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/microsoft.insights/components/func-aw-azcom-iot-game'
+}
+param gameStorageAccountName = 'stawazcomiotgamefn'
+param gameStoragePackageContainerName = 'app-package-funcawazcomiotgame-0968767'
+param gameStoragePackageContainerUrl = 'https://stawazcomiotgamefn.blob.core.windows.net/app-package-funcawazcomiotgame-0968767'
+
 param vnetName = 'iot-demo-vnet'
 param vnetTags = {
   'managed-by': 'bicep'
@@ -140,14 +149,12 @@ param signalRPrivateDnsZoneGroupName = 'default'
 param signalRPrivateDnsZoneConfigName = 'privatelink-service-signalr-net'
 param signalRPrivateDnsZoneName = 'privatelink.service.signalr.net'
 
-param gameFunctionAppName = 'func-aw-azcom-iot-game'
 param gameFunctionPrivateEndpointName = 'iot-demo-game-function-pe'
 param gameFunctionPrivateEndpointNicName = 'iot-demo-game-function-pe-nic'
 param gameFunctionPrivateDnsZoneGroupName = 'default'
 param gameFunctionPrivateDnsZoneConfigName = 'privatelink-azurewebsites-net'
 param gameFunctionPrivateDnsZoneName = 'privatelink.azurewebsites.net'
 
-param gameStorageAccountName = 'stawazcomiotgamefn'
 param gameStorageBlobPrivateEndpointName = 'iot-demo-game-storage-blob-pe'
 param gameStorageBlobPrivateEndpointNicName = 'iot-demo-game-storage-blob-pe-nic'
 param gameStorageBlobPrivateDnsZoneGroupName = 'default'

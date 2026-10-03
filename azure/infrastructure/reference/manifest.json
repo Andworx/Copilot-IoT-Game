@@ -17,13 +17,6 @@
       "query": "{sku: sku, location: location, allocationPolicy: properties.allocationPolicy, linkedHubs: properties.iotHubs[].{name: name, location: location, allocationWeight: allocationWeight}}"
     },
     {
-      "name": "functionapp-game",
-      "why": "The game Function App (Flex Consumption). Managed as a whole app, never by template: a Microsoft.Web/sites resource replaces all app settings, including secrets.",
-      "type": "Microsoft.Web/sites",
-      "resource": "func-aw-azcom-iot-game",
-      "query": "{kind: kind, location: location, identity: identity.type, httpsOnly: properties.httpsOnly, serverFarmId: properties.serverFarmId, publicNetworkAccess: properties.publicNetworkAccess, functionAppConfig: properties.functionAppConfig}"
-    },
-    {
       "name": "functionapp-legacy",
       "why": "The sibling copilot-iot-service Function App (consumption). Owned by that repo.",
       "type": "Microsoft.Web/sites",
@@ -31,25 +24,11 @@
       "query": "{kind: kind, location: location, identity: identity, httpsOnly: properties.httpsOnly, serverFarmId: properties.serverFarmId, publicNetworkAccess: properties.publicNetworkAccess}"
     },
     {
-      "name": "plan-game",
-      "why": "Flex Consumption plan for the game Function App.",
-      "type": "Microsoft.Web/serverFarms",
-      "resource": "ASP-rgawazcomiotcopilot-ec55",
-      "query": "{sku: sku, kind: kind, location: location, reserved: properties.reserved}"
-    },
-    {
       "name": "plan-legacy",
       "why": "Consumption plan for the legacy Function App.",
       "type": "Microsoft.Web/serverFarms",
       "resource": "EastUSPlan",
       "query": "{sku: sku, kind: kind, location: location, reserved: properties.reserved}"
-    },
-    {
-      "name": "storage-game",
-      "why": "Backing storage and deployment package store for the game Function App.",
-      "type": "Microsoft.Storage/storageAccounts",
-      "resource": "stawazcomiotgamefn",
-      "query": "{sku: sku, kind: kind, location: location, minimumTlsVersion: properties.minimumTlsVersion, allowBlobPublicAccess: properties.allowBlobPublicAccess, allowSharedKeyAccess: properties.allowSharedKeyAccess, supportsHttpsTrafficOnly: properties.supportsHttpsTrafficOnly, defaultAction: properties.networkAcls.defaultAction}"
     },
     {
       "name": "storage-legacy",

@@ -29,6 +29,13 @@ param consumerGroups array
 param signalRName string
 param signalRSkuName string
 
+param gameFunctionPlanName string
+param gameFunctionAppName string
+param gameFunctionAppTags object = {}
+param gameStorageAccountName string
+param gameStoragePackageContainerName string
+param gameStoragePackageContainerUrl string
+
 param vnetName string
 param vnetAddressPrefixes array
 param vnetSubnets array
@@ -64,14 +71,12 @@ param signalRPrivateDnsZoneGroupName string
 param signalRPrivateDnsZoneConfigName string
 param signalRPrivateDnsZoneName string
 
-param gameFunctionAppName string
 param gameFunctionPrivateEndpointName string
 param gameFunctionPrivateEndpointNicName string
 param gameFunctionPrivateDnsZoneGroupName string
 param gameFunctionPrivateDnsZoneConfigName string
 param gameFunctionPrivateDnsZoneName string
 
-param gameStorageAccountName string
 param gameStorageBlobPrivateEndpointName string
 param gameStorageBlobPrivateEndpointNicName string
 param gameStorageBlobPrivateDnsZoneGroupName string
@@ -111,6 +116,21 @@ module signalR 'modules/signalr.bicep' = {
     skuName: signalRSkuName
     tags: tags
   }
+}
+
+module gameFunctionHosting 'modules/game-function-hosting.bicep' = {
+  name: 'game-function-hosting'
+  params: {
+    location: location
+    planName: gameFunctionPlanName
+    storageAccountName: gameStorageAccountName
+    packageContainerName: gameStoragePackageContainerName
+    packageContainerUrl: gameStoragePackageContainerUrl
+    functionAppName: gameFunctionAppName
+    functionAppTags: gameFunctionAppTags
+    integrationSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, 'function-integration')
+  }
+  dependsOn: [vnet]
 }
 
 module vnet 'modules/vnet.bicep' = {
@@ -190,7 +210,7 @@ module gameFunctionPrivateEndpoint 'modules/game-function-private-endpoint.bicep
     privateEndpointName: gameFunctionPrivateEndpointName
     customNetworkInterfaceName: gameFunctionPrivateEndpointNicName
     subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
-    functionAppId: resourceId('Microsoft.Web/sites', gameFunctionAppName)
+    functionAppId: gameFunctionHosting.outputs.functionAppId
     privateDnsZoneGroupName: gameFunctionPrivateDnsZoneGroupName
     privateDnsZoneConfigName: gameFunctionPrivateDnsZoneConfigName
     privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', gameFunctionPrivateDnsZoneName)
@@ -206,7 +226,7 @@ module gameStorageBlobPrivateEndpoint 'modules/game-storage-blob-private-endpoin
     privateEndpointName: gameStorageBlobPrivateEndpointName
     customNetworkInterfaceName: gameStorageBlobPrivateEndpointNicName
     subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
-    storageAccountId: resourceId('Microsoft.Storage/storageAccounts', gameStorageAccountName)
+    storageAccountId: gameFunctionHosting.outputs.storageAccountId
     privateDnsZoneGroupName: gameStorageBlobPrivateDnsZoneGroupName
     privateDnsZoneConfigName: gameStorageBlobPrivateDnsZoneConfigName
     privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', gameStorageBlobPrivateDnsZoneName)
@@ -251,6 +271,8 @@ module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrinci
 output eventHubFullyQualifiedNamespace string = eventHub.outputs.fullyQualifiedNamespace
 output eventHubName string = eventHub.outputs.eventHubName
 output signalRName string = signalR.outputs.name
+output gameFunctionAppName string = gameFunctionHosting.outputs.functionAppName
+output gameStorageAccountName string = gameFunctionHosting.outputs.storageAccountName
 output vnetName string = vnet.outputs.name
 output dnsResolverName string = dnsResolver.outputs.resolverName
 output dnsResolverInboundEndpointName string = dnsResolver.outputs.inboundEndpointName
