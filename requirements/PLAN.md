@@ -18,11 +18,11 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 4 | 0 | 1 | 5 |
-| Integration (Azure Functions) | 8 | 5 | 1 | 0 | 14 |
+| Integration (Azure Functions) | 9 | 5 | 1 | 0 | 15 |
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 1 | 1 | 0 | 2 |
-| Totals | 20 | 34 | 9 | 2 | 65 |
+| Totals | 21 | 34 | 9 | 2 | 66 |
 
 ## Dataverse
 
@@ -119,7 +119,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `azure/infrastructure/`: Bicep for the Event Hub namespace/hub/consumer groups, SignalR, and Function App read access; `deploy-infra.yml` (what-if, drift, gated deploy) | Infrastructure as code | ✅ Done | Verified 2026-09-19 through the workflow on `main`: `what-if` showed one Create (`gamefunc`), `deploy` created it, gave the game Function App a managed identity with Event Hubs Data Receiver on the hub only, and merged the three telemetry settings (all existing settings intact); `drift` then passed clean. The IoT Hub route and all Tier 3 resources were untouched. See `docs/CI_CD.md`. |
 | Adopt the game storage blob private endpoint and DNS zone group into `main.bicep` | Infrastructure as code | ✅ Done | Issue #207 / PR #229 — existing live endpoint configuration is represented in the template; post-merge reconciliation passed after IAM bootstrap update; full E2E validation passed 2026-10-02. |
 | Adopt the IoT Hub private endpoint and dual DNS zone group into `main.bicep` | Infrastructure as code | ✅ Done | Issue #208 — preserved `iot-demo-iothub-pe`, NIC `iot-demo-iothub-pe-nic`, primary IP `10.20.1.4`, auxiliary IPs `10.20.1.5-.7`, and Azure Devices plus Service Bus private DNS records; post-merge reconciliation and E2E validation passed 2026-10-03. |
-| Adopt the game Function App host, Flex Consumption plan, storage account, and package container into `main.bicep` | Infrastructure as code | ⬜ Verify | Issue #209 — preserve `func-aw-azcom-iot-game`, plan `ASP-rgawazcomiotcopilot-ec55`, storage `stawazcomiotgamefn`, package container `app-package-funcawazcomiotgame-0968767`, managed identity, deployment storage, VNet integration, CORS, TLS/FTPS settings, and app setting names without recording secret values. Pending PR, deployment reconciliation, and live E2E validation. |
+| Adopt the game Function App host, Flex Consumption plan, storage account, and package container into `main.bicep` | Infrastructure as code | ✅ Done | Issue #209 — preserved `func-aw-azcom-iot-game`, plan `ASP-rgawazcomiotcopilot-ec55`, storage `stawazcomiotgamefn`, package container `app-package-funcawazcomiotgame-0968767`, managed identity, deployment storage, VNet integration, CORS, TLS/FTPS settings, and app setting names without recording secret values. Post-merge reconciliation and E2E validation passed 2026-10-03. |
+| Consolidate staff Function infrastructure ownership | Infrastructure as code | ⬜ Verify | Issue #210 — `staff-api.bicep` remains the single owner for `func-aw-azcom-iot-staff`, its plan, storage, package container, VNet integration, monitoring inheritance, and staff auth settings. Guardrails prevent these resources from being co-owned by `main.bicep`/reference snapshots while preserving automatic staff deployment bootstrap and authenticated Code App calls. Pending PR, main release preview, and live staff/API validation. |
 | Tier 3 reference snapshots + drift check for IoT Hub, DPS, Function Apps, plans, storage, App Insights | Infrastructure reference | ✅ Done | Verified in CI: the read-only reader identity's `snapshots` job passes against live, and the deploy job's post-check caught the one intended change (the Function App's new identity). |
 | Retire legacy `func-aw-iot-copilot` | Azure Function (`Andworx/copilot-iot-service`) | ⬜ Verify | Owner confirmed 2026-09-29 that the original dashboard app is no longer used. Remove its Event Hub dependency during private-access cutover, validate the current game, then retire its dedicated app/plan/storage/monitoring resources using [the retirement runbook](../docs/LEGACY_FUNCTION_RETIREMENT.md). |
 | `POST /api/grand-prize/check-in` | Azure Function endpoint (`azure/functions/game/`) | ⬜ TODO | Issue #131 / epic #120 — validate active campaign, Contact, emailed check-in code, current check-in status, and eligibility; mark matching Grand Prize Entry rows checked in with `andy_checkinstatus = Checked In` and `andy_checkintime`; return clear staff-facing statuses for invalid, expired, already-used, invalidated, and ineligible codes. |

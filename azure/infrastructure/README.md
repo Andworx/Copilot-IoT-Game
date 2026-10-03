@@ -10,9 +10,9 @@ panel Pi â”€â–º IoT Hub â”€â–º route â”€â–º Event Hub
                                 iot-telemetry  iot-game
 ```
 
-## Staff API release exception
+## Staff API ownership exception
 
-The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They create only the staff app, plan and dedicated storage and join the existing integration subnet. They do not replay `main.bicep` or adopt the manually built network. The historical reference-only rows below describe the two existing apps, not this new third app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).
+The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They are the single owner for the staff app, plan, dedicated storage, package container, VNet integration and staff auth settings. They do not replay `main.bicep` or adopt the manually built network. The deployment script refuses to run if the staff app, plan or storage names are added to `main.prod.bicepparam` or the reference manifest, so the staff resources cannot quietly become co-owned by the portable infrastructure stack. The historical reference-only rows below describe the legacy app, not this staff app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).
 
 ## What is managed how
 

@@ -1,6 +1,13 @@
 # Offline orchestration checks. The local az function prevents all cloud calls.
 $ErrorActionPreference = 'Stop'
 $config = Get-Content (Join-Path $PSScriptRoot '../staff-api.prod.json') -Raw | ConvertFrom-Json
+$staffResourceNames = @($config.functionAppName, "$($config.functionAppName)-plan", $config.storageAccountName)
+foreach ($file in @('../main.prod.bicepparam', '../reference/manifest.json')) {
+    $content = Get-Content (Join-Path $PSScriptRoot $file) -Raw
+    foreach ($name in $staffResourceNames) {
+        if ($content -match [regex]::Escape($name)) { throw "Staff ownership conflict in ${file}: $name" }
+    }
+}
 $staffTestState = @{ scenario=''; calls=[Collections.Generic.List[string]]::new() }
 function az {
     $command = $args -join ' '
