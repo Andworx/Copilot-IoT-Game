@@ -142,21 +142,27 @@ function DeviceScene({ deviceSlug }: SuccessMomentProps): ReactNode {
     case "ev-charger":
       return (
         <g className="sm-ev">
+          <path className="sm-cable" d="M146 132C172 132 160 184 186 188" />
           <rect className="sm-body" x="84" y="56" width="62" height="152" rx="10" />
           <rect className="sm-screen" x="94" y="68" width="42" height="34" rx="4" />
           <text className="sm-sub" x="115" y="90" textAnchor="middle">FULL</text>
           <path className="sm-bolt" d="M120 118L103 144H116L110 168L132 138H119Z" />
-          <path className="sm-cable" d="M146 132C172 132 160 184 186 188" />
-          <rect className="sm-battery" x="176" y="64" width="104" height="38" rx="6" />
-          <rect className="sm-cell c1" x="184" y="72" width="16" height="22" rx="2" />
-          <rect className="sm-cell c2" x="204" y="72" width="16" height="22" rx="2" />
-          <rect className="sm-cell c3" x="224" y="72" width="16" height="22" rx="2" />
-          <rect className="sm-cell c4" x="244" y="72" width="16" height="22" rx="2" />
-          <path className="sm-cap" d="M280 76V90" />
-          <path className="sm-carbody" d="M170 208V186Q170 176 182 174L204 150H252L274 174Q292 176 292 190V208Z" />
-          <path className="sm-window" d="M210 154H248L262 172H196Z" />
-          <circle className="sm-wheel" cx="200" cy="208" r="13" />
-          <circle className="sm-wheel" cx="266" cy="208" r="13" />
+          <clipPath id="sm-road-clip"><rect x="0" y="30" width="320" height="200" /></clipPath>
+          <g clipPath="url(#sm-road-clip)">
+            <g className="sm-car">
+            <rect className="sm-battery" x="176" y="64" width="104" height="38" rx="6" />
+            <rect className="sm-cell c1" x="184" y="72" width="16" height="22" rx="2" />
+            <rect className="sm-cell c2" x="204" y="72" width="16" height="22" rx="2" />
+            <rect className="sm-cell c3" x="224" y="72" width="16" height="22" rx="2" />
+            <rect className="sm-cell c4" x="244" y="72" width="16" height="22" rx="2" />
+            <path className="sm-cap" d="M280 76V90" />
+            <path className="sm-carbody" d="M170 208V186Q170 176 182 174L204 150H252L274 174Q292 176 292 190V208Z" />
+            <path className="sm-window" d="M210 154H248L262 172H196Z" />
+            <circle className="sm-wheel" cx="200" cy="208" r="13" />
+            <circle className="sm-wheel" cx="266" cy="208" r="13" />
+            </g>
+            <path className="sm-speed" d="M60 176H112 M72 190H122 M50 204H104" />
+          </g>
         </g>
       );
     case "elevator":
@@ -175,7 +181,12 @@ function DeviceScene({ deviceSlug }: SuccessMomentProps): ReactNode {
               <rect className="sm-door right" x="160" y="104" width="48" height="100" />
             </g>
           </g>
-          <path className="sm-spark sm-s1" d="M148 92L160 80L172 92" />
+          <text className="sm-congrats" x="160" y="118" textAnchor="middle" textLength="88" lengthAdjust="spacingAndGlyphs">CONGRATULATIONS!</text>
+          <g className="sm-confetti">
+            {[[100, 70, "a"], [220, 84, "b"], [86, 150, "c"], [234, 140, "d"], [120, 52, "b"], [204, 56, "a"], [96, 110, "d"], [226, 112, "c"]].map(([x, y, k], i) => (
+              <rect key={i} className={`sm-bit ${k}`} x={x} y={y} width="6" height="9" rx="1" style={{ animationDelay: `${3.5 + i * 0.07}s` }} />
+            ))}
+          </g>
         </g>
       );
     case "traffic-signal":
