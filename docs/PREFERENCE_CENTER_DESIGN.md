@@ -25,6 +25,13 @@ the retention period before launch; this is a design record, not legal advice.
 
 Turn on Dataverse auditing for both fields.
 
+Two rules the code relies on, both native:
+- **Opted in** means `donotbulkemail=false` **and** a Contact Note titled "Marketing opt-in
+  confirmed". A bare `false` (the Dataverse default) is never treated as consent.
+- **Game-created contact** means Created By is the Function's application user. Automatic
+  retention and instant removal touch only these, so CRM contacts that happen to play are
+  suppressed but never deleted automatically (a Task goes to staff instead).
+
 **Contest Campaign:** new `andy_followup_send_time` (DateTime). Retention is 90 days after the
 existing `andy_drawingtime`; the number lives in the retention process configuration.
 Existing `andy_privacynoticeurl` holds the privacy notice; existing `andy_Preference_Url` is the
@@ -105,17 +112,74 @@ Unsubscribe link (preference page), sender identity, and a physical address.
 3. Prize wheel: consent checkbox and preference page.
 4. Follow-up timer, removal and retention routine, docs and plan items.
 
-## Schema setup (maker portal, then export)
+## Dataverse updates (portal checklist)
 
-Repo convention is to build columns in the maker portal and bring them into source control
-with `pac solution export` and `pac solution unpack` (the `PrizeEngine` solution). Nothing is
-created from this repo.
+Repo convention: build in the maker portal / admin center, then `pac solution export` and
+`pac solution unpack` the `PrizeEngine` solution. Nothing here is created from the repo.
 
-1. Contest Campaign: add `andy_followup_send_time`, display name "Follow-up send time",
-   DateTime (date and time, time-zone independent), optional, auditing on.
-2. Contact: turn on auditing for the table and for `donotemail` and `donotbulkemail`
-   (no new Contact columns).
-3. Environment: confirm auditing is enabled (Power Platform admin center, Settings, Audit).
-4. Add Follow-up send time to the Contest Campaign main form and a view.
-5. Export and unpack `PrizeEngine`; commit the Entity.xml and form changes.
-6. Set the `andy_privacynoticeurl` value on the active campaign once the notice exists.
+### 1. Schema (one column)
+- **Contest Campaign** (`andy_contestcampaign`): add `andy_followup_send_time`, display name
+  "Follow-up send time", Date and Time, time-zone independent, optional, auditing on. Add it to the
+  main form and the active view.
+- No new Contact columns, no new tables, no relationship changes.
+
+### 2. Auditing
+- Power Platform admin center, environment Settings, Audit settings: turn on **Start auditing**
+  (user-access auditing is not needed).
+- Contact table: enable auditing on the table; enable on columns `donotemail` and `donotbulkemail`.
+- Optionally enable on `andy_contestcampaign.andy_followup_send_time`.
+
+### 3. Activities and notes
+- Confirm **Notes** and **Activities (Email, Task)** are enabled on `contact` (default) and
+  `andy_grandprizeentry` (needed for the entry notes and the entry-regarding emails).
+
+### 4. Security role for the Function's application user
+Grant the application user used by `DATAVERSE_CLIENT_ID` (organization level unless noted):
+- Contact: Read, Write, **Delete**, Append, Append To
+- Grand Prize Entry: Read, Write, Append, Append To
+- Contest Campaign: Read
+- Note (Annotation): Create, Read, Append
+- Task: Create, Read, Append, Append To
+- Email: Create, Read, Write, Delete, Append, Append To; plus the **Send Email as Another User**
+  privilege if the sender is not the application user
+- User (System User): Read (to look up the application user's id)
+- Prize Claim: Read, Write (already granted)
+
+### 5. Data fixes before launch
+- **Existing game contacts:** in Advanced Find, Contacts where Created By = the Function's
+  application user and Do Not Allow Bulk Emails = Allow: bulk edit to **Do Not Allow**. Anyone
+  already there has not given marketing consent. Do not edit CRM contacts.
+- Confirm `andy_grandprizeentry.andy_contact` and `andy_participantname` are optional (the
+  removal routine clears both).
+- Check `andy_iotgamewin` for inline contestant name or email columns still holding personal data
+  from before #125; those are not cleared by the routine.
+
+### 6. Email navigation properties (verify once)
+The code binds notes, tasks and emails with these navigation property names. Confirm them against
+the environment's `EntityDefinitions` metadata (the existing entry email binding is known to work):
+`objectid_contact`, `objectid_andy_grandprizeentry`, `regardingobjectid_contact_email`,
+`regardingobjectid_contact_task`, `regardingobjectid_andy_grandprizeentry`. Adjust the constants at
+the top of `azure/functions/game/src/lib/consent.ts` if any differ.
+
+### 7. Campaign data
+- Set `andy_followup_send_time` on the active campaign (the job acts from that time for 3 days).
+- Set `andy_preference_url` to the preference page URL (the prize wheel site; the page reads
+  `?pref=`), and `andy_privacynoticeurl` once the notice exists. Without the preference URL no
+  preference link, confirmation or follow-up email is sent.
+
+### 8. Function App settings (both the public and staff apps)
+- `PREFERENCE_TOKEN_SECRET`: random string of 32+ characters (same value on both apps; the staff
+  app inherits it from the public app at the next staff-api release).
+- `MARKETING_SENDER_ADDRESS` and `FOLLOW_UP_MARKETING_HTML`: set both to enable the marketing
+  version of the follow-up; leave unset and everyone gets the neutral thank-you.
+- `GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID` already exists and is reused.
+
+### 9. After deployment
+- Test sequence: claim with the marketing box ticked, confirm via the email link, check the Contact
+  note and audit history, opt out, request removal on a game-created test contact, confirm the entry
+  keeps its record with a "Contact removed" note.
+- Set the plan items for #133 to Verify until those checks pass.
+
+## Still to build
+The prize wheel page (consent checkbox on the share step sending `marketingOptIn`, and the
+preference page reading `?pref=`) is not part of this change.

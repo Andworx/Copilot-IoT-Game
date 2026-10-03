@@ -1,6 +1,7 @@
 import { registerHttp } from "../lib/apiSurface";
 import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { claimGameWin, ClaimError } from "../lib/dataverse";
+import { requestMarketingOptIn } from "../lib/consent";
 
 interface ClaimPrizeRequestBody {
   claimToken: string;
@@ -9,6 +10,8 @@ interface ClaimPrizeRequestBody {
   contestantName?: string;
   contestantEmail?: string;
   sharedInfo?: boolean;
+  /** Unticked-by-default checkbox, separate from sharing info to enter the drawing. Starts double opt-in. */
+  marketingOptIn?: boolean;
 }
 
 const CLAIM_ERROR_STATUS: Record<ClaimError["code"], number> = {
@@ -51,7 +54,18 @@ export async function claimPrize(
       email: typeof body.contestantEmail === "string" ? body.contestantEmail : undefined,
       sharedInfo: !!body.sharedInfo,
     });
-    return { jsonBody: result };
+    const { contactId, ...publicResult } = result;
+    // Marketing consent is a separate, optional choice: it never affects the claim, and a failure here must not fail it.
+    let marketingConfirmation: "sent" | "skipped" | "error" | undefined;
+    if (body.marketingOptIn === true && body.sharedInfo && contactId) {
+      try {
+        marketingConfirmation = await requestMarketingOptIn(contactId, "claim-page");
+      } catch (error) {
+        context.error("marketing opt-in request failed", error);
+        marketingConfirmation = "error";
+      }
+    }
+    return { jsonBody: { ...publicResult, ...(marketingConfirmation ? { marketingConfirmation } : {}) } };
   } catch (error) {
     if (error instanceof ClaimError) {
       return {

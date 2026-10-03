@@ -7,7 +7,7 @@ const staffOnly = new Set([
   "grand-prize-drawing-state", "grand-prize-drawing-slices",
 ]);
 const shared = new Set(["kiosk-state", "device-profiles", "create-win", "claim-prize"]);
-const publicOnly = new Set(["negotiate", "pick-random-mode", "prizes", "directline-token"]);
+const publicOnly = new Set(["negotiate", "pick-random-mode", "prizes", "directline-token", "preferences"]);
 
 export function apiSurface(value = process.env.API_SURFACE): "public" | "staff" {
   if (value === "public") return "public";

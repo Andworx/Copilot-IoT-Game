@@ -17,3 +17,5 @@ import "./functions/bulkCreatePrizes";
 import "./functions/prizeCount";
 import "./functions/telemetry";
 import "./functions/directlineToken";
+import "./functions/preferences";
+import "./functions/consentMaintenance";
