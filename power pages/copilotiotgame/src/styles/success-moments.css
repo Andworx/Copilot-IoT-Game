@@ -30,150 +30,175 @@
   align-self: center;
 }
 
+/* Same hologram stage as the drone takeoff: grid, glowing pad, shadow, then the device scene. */
 .success-moment {
+  --sm-ink: color-mix(in srgb, var(--device-accent) 55%, #e7fbff);
+  --sm-deep: color-mix(in srgb, var(--device-accent) 14%, #07131a);
   width: 100%;
   max-width: 340px;
   margin: 0;
   color: var(--device-accent);
+  font: 12px/1.3 var(--font-mono);
 }
 
-.success-moment svg {
-  display: block;
-  width: 100%;
-  filter: drop-shadow(0 0 18px var(--device-accent-glow));
-}
+.success-moment figcaption { letter-spacing: 0.15em; }
+.success-moment > span { color: #cce6e9; }
+.success-moment svg { display: block; width: 100%; overflow: visible; }
+.success-moment svg > g { filter: drop-shadow(0 0 14px var(--device-accent-glow)); }
 
-.success-grid,
-.success-outline,
-.success-primary,
-.success-spark {
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
+.sm-grid { fill: none; stroke: color-mix(in srgb, var(--device-accent) 28%, #0b1a20); }
+.sm-pad { fill: var(--sm-deep); stroke: var(--device-accent); stroke-width: 2; }
+.sm-pad-ring { fill: none; stroke: var(--device-accent); stroke-width: 1.5; opacity: 0.5; stroke-dasharray: 4 6; animation: sm-pad-spin 6s linear infinite; }
+.sm-shadow { fill: #0009; transform-origin: 160px 223px; animation: sm-shadow 3s ease-in-out both; }
 
-.success-grid {
-  stroke: color-mix(in srgb, var(--device-accent) 24%, transparent);
-  stroke-width: 1.5;
-}
+.success-moment text { font-family: var(--font-mono); fill: var(--sm-ink); font-size: 8.5px; letter-spacing: 0.06em; }
+.success-moment .sm-readout { font-size: 34px; font-weight: 700; fill: var(--color-accent); letter-spacing: 0; }
+.success-moment .sm-readout.small { font-size: 22px; }
+.success-moment .sm-sub.in-range { fill: var(--color-accent); }
 
-.success-outline {
-  stroke: color-mix(in srgb, var(--device-accent) 62%, #d8f6ff);
-  stroke-width: 6;
+.sm-body { fill: var(--sm-deep); stroke: var(--sm-ink); stroke-width: 3; }
+.sm-bezel { fill: color-mix(in srgb, var(--device-accent) 10%, #0a171d); stroke: color-mix(in srgb, var(--device-accent) 60%, transparent); stroke-width: 2; }
+.sm-screen { fill: #04100f; stroke: var(--device-accent); stroke-width: 2; }
+.sm-halo { fill: color-mix(in srgb, var(--device-accent) 10%, transparent); stroke: none; animation: sm-breathe 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.sm-track { fill: none; stroke: color-mix(in srgb, var(--device-accent) 22%, transparent); stroke-width: 9; }
+.sm-ticks, .sm-spark, .sm-keyhole, .sm-flake, .sm-bars, .sm-cap, .sm-link, .sm-grip, .sm-check, .sm-wavearc, .sm-cross, .sm-sweep {
+  fill: none; stroke-linecap: round; stroke-linejoin: round;
 }
+.sm-ticks { stroke: color-mix(in srgb, var(--device-accent) 45%, transparent); stroke-width: 2; }
+.sm-spark { stroke: var(--color-accent); stroke-width: 4; animation: sm-spark 1.6s ease-in-out infinite alternate; }
+.sm-spark.sm-s2 { animation-delay: .3s; }
+.sm-spark.sm-s3 { animation-delay: .6s; }
+.sm-led, .sm-led-dot { fill: var(--color-accent); stroke: color-mix(in srgb, var(--color-accent) 60%, #fff); stroke-width: 2; }
+.sm-led { animation: sm-pop .7s ease-out 2.4s both; transform-box: fill-box; transform-origin: center; }
+.sm-led-dot { animation: sm-blink 1.2s ease-in-out infinite; }
+.sm-check { stroke: #05140f; stroke-width: 3.5; }
+.sm-check.big { stroke: var(--color-accent); stroke-width: 10; stroke-dasharray: 100; animation: sm-draw 1.2s ease-out both; }
+.sm-stamp { transform-box: fill-box; transform-origin: center; animation: sm-pop .6s cubic-bezier(.3, 1.6, .5, 1) 2.6s both; }
+.sm-stamp .sm-led { animation: none; }
 
-.success-primary {
-  stroke: var(--device-accent);
-  stroke-width: 8;
-}
+/* Thermostat: arc fills to target, readout holds */
+.sm-arc { fill: none; stroke: var(--color-accent); stroke-width: 9; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; animation: sm-arc-fill 2.6s cubic-bezier(.3, 0, .2, 1) .2s forwards; filter: drop-shadow(0 0 6px var(--color-accent-glow)); }
 
-.success-spark,
-.success-ring {
-  stroke: var(--color-accent);
-  stroke-width: 5;
-}
+/* Smart lock: shackle lifts and swings clear */
+.sm-shackle { fill: none; stroke: var(--sm-ink); stroke-width: 12; stroke-linecap: round; transform-origin: 188px 112px; animation: sm-unlock 1.4s cubic-bezier(.3, 1.3, .4, 1) .5s both; }
+.sm-keyhole { stroke: #05140f; stroke-width: 4; }
+.sm-pulse { fill: none; stroke: var(--color-accent); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: sm-ripple 2.4s ease-out 2s infinite; opacity: 0; }
+.sm-pulse.late { animation-delay: 3.2s; }
 
-.success-ring {
-  fill: color-mix(in srgb, var(--device-accent) 8%, transparent);
-}
+/* Cold chain: jittery trace draws, then settles inside the band */
+.sm-band { fill: color-mix(in srgb, var(--color-accent) 16%, transparent); stroke: color-mix(in srgb, var(--color-accent) 40%, transparent); stroke-dasharray: 5 4; }
+.sm-trace { fill: none; stroke: var(--color-accent); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; animation: sm-draw 2.8s ease-in-out .2s forwards; }
+.sm-trace-dot { fill: var(--color-accent); animation: sm-pop .5s ease-out 3s both, sm-blink 1.2s ease-in-out 3.5s infinite; transform-box: fill-box; transform-origin: center; }
+.sm-flake { stroke: var(--sm-ink); stroke-width: 2; }
 
-.success-ring.inner {
-  fill: color-mix(in srgb, var(--color-accent) 10%, transparent);
-}
+/* Water pump: impeller spins, water flows and fills the tank */
+.sm-pipe { fill: none; stroke: var(--sm-ink); stroke-width: 18; opacity: 0.35; }
+.sm-flow { fill: none; stroke: var(--color-accent); stroke-width: 6; stroke-dasharray: 8 12; animation: sm-flow .7s linear infinite; }
+.sm-impeller { transform-origin: 160px 146px; animation: sm-spin 1.1s linear infinite; }
+.sm-impeller path { stroke: var(--color-accent); stroke-width: 9; stroke-linecap: round; fill: none; }
+.sm-water { fill: color-mix(in srgb, var(--device-accent) 70%, #0a2a40); transform-origin: 248px 168px; animation: sm-fill 3s ease-out .2s both; }
+.sm-wave { fill: var(--color-accent); opacity: .5; animation: sm-fill-wave 3s ease-out .2s both; }
+.sm-drop { fill: var(--color-accent); transform-origin: 240px 58px; animation: sm-drop 1.6s ease-in infinite; }
 
-.success-fill {
-  fill: var(--color-accent);
-  stroke: color-mix(in srgb, var(--color-accent) 65%, #ffffff);
-  stroke-width: 3;
-}
+/* Field radio: signal arcs radiate outward */
+.sm-wavearc { stroke: var(--color-accent); stroke-width: 4; opacity: 0; animation: sm-wave 2s ease-out infinite; }
+.sm-wavearc.w2 { animation-delay: .35s; }
+.sm-wavearc.w3 { animation-delay: .7s; }
+.sm-bars { stroke: var(--color-accent); stroke-width: 4; animation: sm-blink 1.6s ease-in-out infinite; }
 
-.success-moment [data-success-device],
-.success-primary,
-.success-fill,
-.success-spark,
-.success-ring {
-  transform-box: fill-box;
-  transform-origin: center;
-}
+/* EV charger: cells light in sequence, bolt pulses */
+.sm-bolt { fill: var(--color-accent); stroke: color-mix(in srgb, var(--color-accent) 60%, #fff); stroke-width: 2; animation: sm-bolt 1.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.sm-cable { fill: none; stroke: var(--sm-ink); stroke-width: 6; stroke-linecap: round; }
+.sm-battery { fill: var(--sm-deep); stroke: var(--sm-ink); stroke-width: 3; }
+.sm-cap { stroke: var(--sm-ink); stroke-width: 5; }
+.sm-cell { fill: var(--color-accent); opacity: 0; animation: sm-cell .5s ease-out forwards; }
+.sm-cell.c1 { animation-delay: .6s; }
+.sm-cell.c2 { animation-delay: 1.2s; }
+.sm-cell.c3 { animation-delay: 1.8s; }
+.sm-cell.c4 { animation-delay: 2.4s; }
+.sm-carbody { fill: var(--sm-deep); stroke: var(--sm-ink); stroke-width: 3; stroke-linejoin: round; }
+.sm-window { fill: color-mix(in srgb, var(--device-accent) 25%, #0a2330); stroke: var(--device-accent); stroke-width: 1.5; }
+.sm-wheel { fill: #0a1418; stroke: var(--sm-ink); stroke-width: 3; }
 
-.success-moment .success-ring {
-  animation: success-ring-pulse 2.8s ease-in-out infinite;
-}
+/* Elevator: cabin rises, then doors part */
+.sm-shaft { fill: #050e12; stroke: color-mix(in srgb, var(--device-accent) 40%, transparent); stroke-width: 2; }
+.sm-cabin { animation: sm-lift-rise 2.6s cubic-bezier(.3, 0, .2, 1) both; }
+.sm-cab-inner { fill: var(--color-accent); opacity: .85; }
+.sm-door { fill: color-mix(in srgb, var(--device-accent) 40%, #1a2a30); stroke: var(--sm-ink); stroke-width: 2; }
+.sm-door.left { animation: sm-door-left .9s ease-in-out 2.7s both; }
+.sm-door.right { animation: sm-door-right .9s ease-in-out 2.7s both; }
 
-.success-moment .success-fill {
-  animation: success-pop 1.6s ease-out both;
-}
+/* Traffic signal: red, amber, then green holds */
+.sm-lamp { stroke: #0a1418; stroke-width: 2; opacity: .2; }
+.sm-lamp.red { fill: #ef4444; animation: sm-lamp-red 3s linear both; }
+.sm-lamp.amber { fill: #f59e0b; animation: sm-lamp-amber 3s linear both; }
+.sm-lamp.green { fill: #4ade80; animation: sm-lamp-green 3s linear both; }
+.sm-green-halo { fill: none; stroke: #4ade80; stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; animation: sm-ripple 2s ease-out 3s infinite; }
+.sm-cross { stroke: color-mix(in srgb, var(--device-accent) 50%, transparent); stroke-width: 4; }
 
-.success-moment .success-spark {
-  animation: success-spark 1.8s ease-in-out infinite alternate;
-}
+/* Patient monitor: ECG sweeps and loops, heart beats */
+.sm-trace.pulse { stroke-width: 3; animation: sm-ecg 2.6s linear infinite; }
+.sm-heart { fill: #ff5577; transform-box: fill-box; transform-origin: center; animation: sm-beat 1s ease-in-out infinite; }
 
-.success-water .wave-two,
-.success-patient .pulse,
-.success-radio .spark-one,
-.success-radio .spark-two,
-.success-ev .cable,
-.success-robot .arm-one,
-.success-robot .arm-two {
-  animation: success-line-flow 2.2s ease-in-out infinite;
-}
+/* Retail kiosk: paper feeds out of the slot like the home-page receipt printer */
+.sm-slot { fill: #04100f; stroke: var(--sm-ink); stroke-width: 2; }
+.sm-receipt { animation: sm-print 2.6s steps(16, end) .2s both; }
+.sm-paper { fill: #ede8df; stroke: none; }
+.success-moment .sm-paper-text text { fill: #302b32; font-size: 8px; letter-spacing: 0; }
+.success-moment .sm-paper-text .head { font-weight: 700; font-size: 8.5px; }
+.sm-dash { stroke: #8c8186; stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
 
-.success-elevator .car {
-  animation: success-elevator-rise 2.8s cubic-bezier(.3, 0, .2, 1) both;
-}
+/* Robot arm: swings from raised to ready, then holds */
+.sm-sweep { stroke: color-mix(in srgb, var(--color-accent) 50%, transparent); stroke-width: 2; stroke-dasharray: 3 7; animation: sm-pad-spin 3s linear infinite; }
+.sm-link { stroke: var(--sm-ink); stroke-width: 12; }
+.sm-grip { stroke: var(--sm-ink); stroke-width: 5; }
+.sm-cube { fill: var(--color-accent); stroke: color-mix(in srgb, var(--color-accent) 60%, #fff); stroke-width: 2; }
+.sm-arm-one { transform-origin: 105px 182px; animation: sm-arm-one 3s cubic-bezier(.3, 0, .2, 1) both; }
+.sm-arm-two { transform-origin: 165px 120px; animation: sm-arm-two 3s cubic-bezier(.3, 0, .2, 1) both; }
 
-.success-traffic .red { fill: #ef4444; opacity: 0.35; }
-.success-traffic .amber { fill: #f59e0b; opacity: 0.62; }
-.success-traffic .green { fill: var(--color-accent); animation: success-green-light 1.4s ease-in-out infinite alternate; }
-
-.success-retail .receipt {
-  animation: success-receipt-print 2.2s ease-out both;
-}
-
-.success-lock .unlock {
-  animation: success-unlock 2.4s ease-in-out infinite alternate;
-}
-
-@keyframes success-ring-pulse {
-  50% { opacity: 0.45; transform: scale(1.04); }
-}
-
-@keyframes success-pop {
-  0% { opacity: 0; transform: scale(0.7); }
-  70% { opacity: 1; transform: scale(1.08); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-@keyframes success-spark {
-  to { opacity: 0.45; transform: translateY(-5px); }
-}
-
-@keyframes success-line-flow {
-  50% { opacity: 0.45; transform: translateY(-4px); }
-}
-
-@keyframes success-elevator-rise {
-  0% { transform: translateY(28px); opacity: 0.45; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes success-green-light {
-  to { filter: brightness(1.5); }
-}
-
-@keyframes success-receipt-print {
-  0% { transform: translateY(-30px) scaleY(0.45); opacity: 0.4; }
-  100% { transform: translateY(0) scaleY(1); opacity: 1; }
-}
-
-@keyframes success-unlock {
-  to { transform: translateX(8px) translateY(-6px); }
-}
+@keyframes sm-pad-spin { to { stroke-dashoffset: -40; } }
+@keyframes sm-shadow { 0% { transform: scale(.6); opacity: .3; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes sm-breathe { 50% { opacity: .45; transform: scale(1.05); } }
+@keyframes sm-spark { to { opacity: .35; transform: translateY(-5px); } }
+@keyframes sm-pop { 0% { opacity: 0; transform: scale(.4); } 70% { opacity: 1; transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes sm-blink { 50% { opacity: .4; } }
+@keyframes sm-draw { to { stroke-dashoffset: 0; } }
+@keyframes sm-arc-fill { to { stroke-dashoffset: 28; } }
+@keyframes sm-unlock { 0% { transform: translateY(0) rotate(0); } 100% { transform: translateY(-16px) rotate(-32deg); } }
+@keyframes sm-ripple { 0% { opacity: .8; transform: scale(.6); } 100% { opacity: 0; transform: scale(2.4); } }
+@keyframes sm-flow { to { stroke-dashoffset: -20; } }
+@keyframes sm-spin { to { transform: rotate(360deg); } }
+@keyframes sm-fill { 0% { transform: scaleY(0); } 100% { transform: scaleY(.85); } }
+@keyframes sm-fill-wave { 0% { transform: translateY(98px); } 100% { transform: translateY(15px); } }
+@keyframes sm-drop { 0% { opacity: 0; transform: translateY(-6px) scale(.5); } 30% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: translateY(40px) scale(.8); } }
+@keyframes sm-wave { 0% { opacity: 0; transform: translate(-6px, 6px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(6px, -6px); } }
+@keyframes sm-bolt { 50% { transform: scale(1.18); filter: brightness(1.4); } }
+@keyframes sm-cell { to { opacity: 1; } }
+@keyframes sm-lift-rise { 0% { transform: translateY(78px); } 100% { transform: translateY(-40px); } }
+@keyframes sm-door-left { to { transform: translateX(-40px); } }
+@keyframes sm-door-right { to { transform: translateX(40px); } }
+@keyframes sm-lamp-red { 0%, 25% { opacity: 1; filter: drop-shadow(0 0 8px #ef4444); } 30%, 100% { opacity: .2; filter: none; } }
+@keyframes sm-lamp-amber { 0%, 25% { opacity: .2; } 30%, 55% { opacity: 1; filter: drop-shadow(0 0 8px #f59e0b); } 60%, 100% { opacity: .2; filter: none; } }
+@keyframes sm-lamp-green { 0%, 58% { opacity: .2; } 65%, 100% { opacity: 1; filter: drop-shadow(0 0 12px #4ade80); } }
+@keyframes sm-ecg { 0% { stroke-dashoffset: 100; opacity: 1; } 80% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: .25; } }
+@keyframes sm-beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1); } 45% { transform: scale(1.18); } }
+@keyframes sm-print { 0% { transform: translateY(-136px); } 100% { transform: translateY(0); } }
+@keyframes sm-arm-one { 0% { transform: rotate(-38deg); } 100% { transform: rotate(0); } }
+@keyframes sm-arm-two { 0% { transform: rotate(48deg); } 100% { transform: rotate(0); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .success-moment * {
-    animation: none !important;
-  }
+  .success-moment * { animation: none !important; }
+  .sm-arc { stroke-dashoffset: 28; }
+  .sm-trace, .sm-check.big { stroke-dashoffset: 0; }
+  .sm-cell { opacity: 1; }
+  .sm-water { transform: scaleY(.85); }
+  .sm-wave { transform: translateY(15px); }
+  .sm-wavearc { opacity: .7; }
+  .sm-shackle { transform: translateY(-16px) rotate(-32deg); }
+  .sm-cabin { transform: translateY(-40px); }
+  .sm-door.left { transform: translateX(-40px); }
+  .sm-door.right { transform: translateX(40px); }
+  .sm-lamp.green { opacity: 1; }
 }
 
 @media (max-width: 600px) {
