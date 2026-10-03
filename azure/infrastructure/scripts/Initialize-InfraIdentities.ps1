@@ -17,15 +17,15 @@
                                - create deployments in the resource group (custom role
                                  "Infra Deployment Operator": deployments/* only),
                                                              - Contributor on the Event Hub namespace, the SignalR service,
-                                                                 the game Function App, the demo VNet, DNS Private Resolver,
-                                                                 VPN public IP, VPN gateway, SignalR private endpoint, game
-                                                                 Function private endpoint, game storage blob private endpoint,
-                                                                 and IoT Hub private endpoint only,
+                                                                 the game Function App, game Function plan, game Function storage,
+                                                                 the demo VNet, DNS Private Resolver, VPN public IP, VPN gateway,
+                                                                 SignalR private endpoint, game Function private endpoint, game
+                                                                 storage blob private endpoint, and IoT Hub private endpoint only,
                                - Private DNS Zone Contributor on the resource group,
                                - assign ONLY the "Azure Event Hubs Data Receiver" role, and
                                  only on the telemetry event hub (ABAC-conditioned).
                              It has no write access to the IoT Hub, DPS, the legacy Function
-                             App, storage, or anything else, so a bad template or workflow
+                             App, unrelated storage, or anything else, so a bad template or workflow
                              physically cannot change them.
 
     It does not create the GitHub environments or variables; the output lists them. Supports
@@ -48,6 +48,8 @@ param(
     [string]$EventHubName = 'iot-telemetry',
     [string]$SignalRName = 'signalr-aw-iot-copilot',
     [string]$GameFunctionApp = 'func-aw-azcom-iot-game',
+    [string]$GameFunctionPlanName = 'ASP-rgawazcomiotcopilot-ec55',
+    [string]$GameFunctionStorageAccountName = 'stawazcomiotgamefn',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
     [string]$DnsResolverName = 'iot-demo-dns-resolver',
     [string]$VpnPublicIpName = 'iot-demo-vpn-pip',
@@ -66,11 +68,16 @@ $receiverRoleId = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'          # Azure Event 
 $rbacAdminRoleId = 'f58310d9-a9f6-439a-9e8d-f62e7b41a168'          # Role Based Access Control Administrator
 $deployRoleName = 'Infra Deployment Operator'
 
-function Invoke-Step($description, [scriptblock]$action) {
-    if ($PSCmdlet.ShouldProcess($ResourceGroup, $description)) {
-        & $action
-        if ($LASTEXITCODE -ne 0) { throw "Failed: $description" }
+function Invoke-Step {
+    param($description, [scriptblock]$action)
+
+    if ($WhatIfPreference) {
+        Write-Host "WhatIf: $description"
+        return
     }
+
+    & $action
+    if ($LASTEXITCODE -ne 0) { throw "Failed: $description" }
 }
 
 $sub = az account show --query id -o tsv
@@ -79,6 +86,8 @@ $nsScope = "$rgScope/providers/Microsoft.EventHub/namespaces/$EventHubNamespace"
 $hubScope = "$nsScope/eventhubs/$EventHubName"
 $signalrScope = "$rgScope/providers/Microsoft.SignalRService/SignalR/$SignalRName"
 $appScope = "$rgScope/providers/Microsoft.Web/sites/$GameFunctionApp"
+$gameFunctionPlanScope = "$rgScope/providers/Microsoft.Web/serverfarms/$GameFunctionPlanName"
+$gameFunctionStorageScope = "$rgScope/providers/Microsoft.Storage/storageAccounts/$GameFunctionStorageAccountName"
 $vnetScope = "$rgScope/providers/Microsoft.Network/virtualNetworks/$VirtualNetworkName"
 $dnsResolverScope = "$rgScope/providers/Microsoft.Network/dnsResolvers/$DnsResolverName"
 $vpnPublicIpScope = "$rgScope/providers/Microsoft.Network/publicIPAddresses/$VpnPublicIpName"
@@ -183,6 +192,8 @@ New-Assignment $deployerName $deployRoleName $rgScope
 New-Assignment $deployerName 'Contributor' $nsScope
 New-Assignment $deployerName 'Contributor' $signalrScope
 New-Assignment $deployerName 'Contributor' $appScope
+New-Assignment $deployerName 'Contributor' $gameFunctionPlanScope
+New-Assignment $deployerName 'Contributor' $gameFunctionStorageScope
 New-Assignment $deployerName 'Contributor' $vnetScope
 New-Assignment $deployerName 'Contributor' $dnsResolverScope
 New-Assignment $deployerName 'Contributor' $vpnPublicIpScope
