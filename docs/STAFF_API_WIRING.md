@@ -58,6 +58,16 @@ Target subscription `2e291b4a-5f03-4dcd-bb56-09643c729adc`, resource group
 `rg-aw-azcom-iot-copilot`, East US. Non-secret inputs live in
 [`azure/infrastructure/staff-api.prod.json`](../azure/infrastructure/staff-api.prod.json).
 
+`azure/infrastructure/staff-api.bicep`, deployed only by `deploy-apps.yml` through
+`Deploy-StaffApi.ps1`, is the single owner for the staff Function App, its Flex
+Consumption plan, dedicated storage account, package container, VNet integration,
+system-assigned identity, app settings merge, and staff API auth settings. Do not
+add these resources to `main.bicep`, `main.prod.bicepparam`, or the Tier 3 reference
+manifest. The staff deployment script now fails before Azure validation if the staff
+app, plan, or storage account names appear in the main production parameter file or
+reference manifest, which prevents duplicate Bicep ownership while preserving the
+automatic app-release bootstrap.
+
 | Resource | Configuration |
 |---|---|
 | `func-aw-azcom-iot-staff` | New Linux Flex Consumption, Node 22, public HTTPS, no private endpoint |
