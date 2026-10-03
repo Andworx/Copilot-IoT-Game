@@ -20,12 +20,11 @@
                                                                  the game Function App, game Function plan, game Function storage,
                                                                  game Application Insights, game failure anomalies alert,
                                                                  the demo VNet, DNS Private Resolver, VPN public IP, VPN gateway,
-                                                                                                                                 SignalR private endpoint, game Function private endpoint, game
-                                                                                                                                 storage blob private endpoint, and IoT Hub private endpoint only,
+                                                                 SignalR private endpoint, game Function private endpoint, game
+                                                                 storage blob private endpoint, and IoT Hub private endpoint only,
+                                                             - create and manage action groups in the resource group,
                                                              - approve the IoT Hub private endpoint connection on the existing
                                                                  IoT Hub, without general IoT Hub write access,
-                                                             - read the shared Application Insights Smart Detection action group
-                                                                 used by the game failure anomalies alert,
                                - Private DNS Zone Contributor on the resource group,
                                - assign ONLY the "Azure Event Hubs Data Receiver" role, and
                                  only on the telemetry event hub (ABAC-conditioned).
@@ -57,8 +56,8 @@ param(
     [string]$GameFunctionStorageAccountName = 'stawazcomiotgamefn',
     [string]$GameAppInsightsName = 'func-aw-azcom-iot-game',
     [string]$GameFailureAnomaliesAlertName = 'Failure Anomalies - func-aw-azcom-iot-game',
+    [string]$SmartDetectionActionGroupName = 'application insights smart detection',
     [string]$IoTHubName = 'iothub-aw-iot-copilot',
-    [string]$SmartDetectionActionGroupId = '/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-demo/providers/microsoft.insights/actiongroups/application insights smart detection',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
     [string]$DnsResolverName = 'iot-demo-dns-resolver',
     [string]$VpnPublicIpName = 'iot-demo-vpn-pip',
@@ -76,6 +75,7 @@ $deployerName = 'id-gha-infra-deployer'
 $receiverRoleId = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'          # Azure Event Hubs Data Receiver
 $rbacAdminRoleId = 'f58310d9-a9f6-439a-9e8d-f62e7b41a168'          # Role Based Access Control Administrator
 $deployRoleName = 'Infra Deployment Operator'
+$actionGroupRoleName = 'Action Group Operator'
 $iotHubPrivateEndpointApproverRoleName = 'IoT Hub Private Endpoint Connection Approver'
 
 function Invoke-Step {
@@ -101,7 +101,6 @@ $gameFunctionStorageScope = "$rgScope/providers/Microsoft.Storage/storageAccount
 $gameAppInsightsScope = "$rgScope/providers/Microsoft.Insights/components/$GameAppInsightsName"
 $gameFailureAnomaliesAlertScope = "$rgScope/providers/Microsoft.AlertsManagement/smartDetectorAlertRules/$GameFailureAnomaliesAlertName"
 $iotHubScope = "$rgScope/providers/Microsoft.Devices/IotHubs/$IoTHubName"
-$smartDetectionActionGroupScope = $SmartDetectionActionGroupId
 $vnetScope = "$rgScope/providers/Microsoft.Network/virtualNetworks/$VirtualNetworkName"
 $dnsResolverScope = "$rgScope/providers/Microsoft.Network/dnsResolvers/$DnsResolverName"
 $vpnPublicIpScope = "$rgScope/providers/Microsoft.Network/publicIPAddresses/$VpnPublicIpName"
@@ -128,7 +127,6 @@ if ($WhatIfPreference) {
     Write-Host 'WhatIf: skipping the permission preflight.'
 } else {
     Assert-CanAdministerRoles $rgScope $ResourceGroup
-    Assert-CanAdministerRoles $smartDetectionActionGroupScope 'shared Smart Detection action group'
 }
 if ($PreflightOnly) { exit 0 }
 
@@ -157,7 +155,7 @@ function New-CustomRole($name, $description, $actions) {
     # Creates the role. If it exists: does nothing when it already matches, otherwise updates it,
     # so re-running applies permission changes. `az role definition update` needs the same shape
     # `az role definition list` returns (roleName/permissions), not the create-only shape.
-    $existing = az role definition list --name $name --scope $rgScope -o json | ConvertFrom-Json | Select-Object -First 1
+    $existing = az role definition list --name $name -o json | ConvertFrom-Json | Where-Object { $_.roleName -eq $name } | Select-Object -First 1
     $roleFile = [System.IO.Path]::GetTempFileName()
     try {
         if ($existing) {
@@ -193,15 +191,23 @@ function New-CustomRole($name, $description, $actions) {
 New-CustomRole $deployRoleName 'Create and read resource group deployments (what-if/deploy). No resource write access by itself.' @(
     'Microsoft.Resources/deployments/*', 'Microsoft.Resources/subscriptions/resourceGroups/read')
 
+New-CustomRole $actionGroupRoleName 'Create, update and read action groups in the infrastructure resource group.' @(
+    'Microsoft.Insights/actionGroups/*', 'Microsoft.Resources/subscriptions/resourceGroups/read')
+
 New-CustomRole $iotHubPrivateEndpointApproverRoleName 'Approve private endpoint connections for the existing IoT Hub. No IoT Hub write access.' @(
     'Microsoft.Devices/IotHubs/read', 'Microsoft.Devices/IotHubs/PrivateEndpointConnectionsApproval/action')
 
 function New-Assignment($identityName, $role, $scope, $extra = @()) {
     $principal = az identity show -g $ResourceGroup -n $identityName --query principalId -o tsv 2>$null
     if (-not $principal -and -not $WhatIfPreference) { throw "identity $identityName not found" }
+    $roleArgument = $role
+    if ($role -in @($deployRoleName, $actionGroupRoleName, $iotHubPrivateEndpointApproverRoleName)) {
+        $roleArgument = az role definition list --name $role --query "[?roleName=='$role'].id | [0]" -o tsv
+        if (-not $roleArgument -and -not $WhatIfPreference) { throw "custom role $role not found" }
+    }
     Invoke-Step "assign '$role' to $identityName on $($scope.Split('/')[-1])" {
         az role assignment create --assignee-object-id $principal --assignee-principal-type ServicePrincipal `
-            --role $role --scope $scope @extra --only-show-errors --output none
+            --role $roleArgument --scope $scope @extra --only-show-errors --output none
     }
 }
 
@@ -218,8 +224,8 @@ New-Assignment $deployerName 'Contributor' $gameFunctionPlanScope
 New-Assignment $deployerName 'Contributor' $gameFunctionStorageScope
 New-Assignment $deployerName 'Contributor' $gameAppInsightsScope
 New-Assignment $deployerName 'Contributor' $gameFailureAnomaliesAlertScope
+New-Assignment $deployerName $actionGroupRoleName $rgScope
 New-Assignment $deployerName $iotHubPrivateEndpointApproverRoleName $iotHubScope
-New-Assignment $deployerName 'Reader' $smartDetectionActionGroupScope
 New-Assignment $deployerName 'Contributor' $vnetScope
 New-Assignment $deployerName 'Contributor' $dnsResolverScope
 New-Assignment $deployerName 'Contributor' $vpnPublicIpScope

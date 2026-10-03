@@ -7,7 +7,7 @@ Two workflows release this repo:
   `CopilotIoTGame`), and `power pages/prize wheel/` (site name `PrizeWheel`). It
   deploys automatically when a relevant change merges to `main`.
 - `.github/workflows/deploy-infra.yml` manages the Azure resources in `azure/infrastructure/` (Event Hub,
-   SignalR, private endpoints, the game Function App host/plan/storage, game Application Insights and its active smart detection alert, and the Function App's access to the hub). The infra deployer needs its reviewed monitoring scopes from `Initialize-InfraIdentities.ps1` before the first monitoring deploy. Every push to `main` automatically
+   SignalR, private endpoints, the game Function App host/plan/storage, game Application Insights, the local Smart Detection action group, the active smart detection alert, and the Function App's access to the hub). The infra deployer needs its reviewed monitoring scopes from `Initialize-InfraIdentities.ps1` before the first monitoring deploy. Every push to `main` automatically
   compares Bicep with Azure and reports whether deployment approval is needed. Deployment is
   still a separate manual action. The separate staff app template is the owner-authorized
   exception: the application workflow provisions it automatically; see [staff wiring](STAFF_API_WIRING.md).
@@ -19,7 +19,7 @@ Other site folders, Dataverse solutions, flows, and the Pi firmware are outside 
 | | Application workflow | Infrastructure workflow |
 |---|---|---|
 | File | `deploy-apps.yml` | `deploy-infra.yml` |
-| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `azure/infrastructure/`: VNet/subnets, Event Hub, consumer groups, SignalR, private endpoints, game Function host/plan/storage, game Application Insights, active smart detection alert, Function App Event Hub access |
+| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `azure/infrastructure/`: VNet/subnets, Event Hub, consumer groups, SignalR, private endpoints, game Function host/plan/storage, game Application Insights, local Smart Detection action group, active smart detection alert, Function App Event Hub access |
 | When it deploys | automatically on merge to `main` | checks Azure automatically on every push to `main`; `deploy` is a manual approval action allowed from `main` only |
 | GitHub environment | `production` | `infra-deploy` (reconciliation preview and deploy) |
 | Azure identity | `id-gha-copilot-iot-game-deploy` | `id-gha-infra-reader` and `id-gha-infra-deployer`, least privilege |
@@ -215,14 +215,14 @@ reload the Code App and verify `/api/prize-types`, `/api/device-profiles`, and
 
 `.github/workflows/deploy-infra.yml` manages the Azure resources this repo owns, defined in
 [`azure/infrastructure/`](../azure/infrastructure/README.md): the VNet and subnets, Event Hub namespace, the `iot-telemetry`
-hub and its consumer groups, SignalR service, private endpoints, the game Function host/plan/storage, the game Application Insights component, its active smart detection alert, and the game Function App's read access to the hub. It
+hub and its consumer groups, SignalR service, private endpoints, the game Function host/plan/storage, the game Application Insights component, local Smart Detection action group, active smart detection alert, and the game Function App's read access to the hub. It
 is separate from `deploy-apps.yml` on purpose: infrastructure changes can stop telemetry for
 every device, so each relevant merge is compared with Azure and applied only after a separate
 manual approval.
 
 Everything else in the resource group (IoT Hub service, DPS, and the legacy Function App/plan/storage)
 is currently **recorded but never deployed**. Its snapshots are checked as a
-post-deployment safety guard. The deploy identity has no write access to it, except for the custom IoT Hub private endpoint approval action required to deploy the IoT Hub private endpoint. The shared default Log Analytics workspace is referenced by the game Application Insights component but is not owned or deployed by this repo. The shared Smart Detection action group in `rg-aw-azcom-demo` is also referenced only; the infra deployer has Reader on that action group so ARM can bind the alert to it. These resources will
+post-deployment safety guard. The deploy identity has no write access to it, except for the custom IoT Hub private endpoint approval action required to deploy the IoT Hub private endpoint. The shared default Log Analytics workspace is referenced by the game Application Insights component but is not owned or deployed by this repo. The Smart Detection action group is now local to `rg-aw-azcom-iot-copilot`; the old demo resource group action group is not part of the target design. These resources will
 move into Bicep one at a time as their deployment behavior is validated; see
 [`azure/infrastructure/README.md`](../azure/infrastructure/README.md).
 
@@ -264,7 +264,7 @@ branch rule. The existing `production` environment and its identity
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
 | `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Retained for reference inspection while resources are migrated from snapshots into Bicep. | no active workflow job |
-| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader and Private DNS Zone Contributor on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, `ASP-rgawazcomiotcopilot-ec55`, `stawazcomiotgamefn`, `iot-demo-vnet`, `iot-demo-dns-resolver`, `iot-demo-vpn-pip`, `iot-demo-vpn`, `iot-demo-signalr-pe`, `iot-demo-game-function-pe`, `iot-demo-game-storage-blob-pe`, and `iot-demo-iothub-pe` only; custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`; Reader on the shared Smart Detection action group in `rg-aw-azcom-demo`; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader, Private DNS Zone Contributor, and custom Action Group Operator on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, `ASP-rgawazcomiotcopilot-ec55`, `stawazcomiotgamefn`, `iot-demo-vnet`, `iot-demo-dns-resolver`, `iot-demo-vpn-pip`, `iot-demo-vpn`, `iot-demo-signalr-pe`, `iot-demo-game-function-pe`, `iot-demo-game-storage-blob-pe`, and `iot-demo-iothub-pe` only; custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
