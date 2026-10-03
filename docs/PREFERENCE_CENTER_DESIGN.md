@@ -180,6 +180,12 @@ the top of `azure/functions/game/src/lib/consent.ts` if any differ.
   keeps its record with a "Contact removed" note.
 - Set the plan items for #133 to Verify until those checks pass.
 
-## Still to build
-The prize wheel page (consent checkbox on the share step sending `marketingOptIn`, and the
-preference page reading `?pref=`) is not part of this change.
+## Prize wheel (built)
+- Share step: unticked "send me news and offers" checkbox (enabled once an email is typed) that
+  sends `marketingOptIn`; the result step says when a confirmation email was sent.
+- `?pref=<token>` opens the preference page instead of the spin flow. Managing needs a `manage`
+  token, confirming needs the emailed `confirm` token; removal asks for a second tap.
+- Build setting `VITE_PRIVACY_NOTICE_URL` shows the privacy-notice link on both screens. Until it is
+  set the link is hidden.
+- The campaign's `andy_preference_url` must point at the prize wheel site root so emailed links
+  open the page (for example `https://<prize wheel site>/`).
