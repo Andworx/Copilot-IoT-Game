@@ -222,7 +222,7 @@ manual approval.
 
 Everything else in the resource group (IoT Hub service, DPS, and the legacy Function App/plan/storage)
 is currently **recorded but never deployed**. Its snapshots are checked as a
-post-deployment safety guard. The deploy identity has no write access to it. The shared default Log Analytics workspace is referenced by the game Application Insights component but is not owned or deployed by this repo. These resources will
+post-deployment safety guard. The deploy identity has no write access to it, except for the custom IoT Hub private endpoint approval action required to deploy the IoT Hub private endpoint. The shared default Log Analytics workspace is referenced by the game Application Insights component but is not owned or deployed by this repo. The shared Smart Detection action group in `rg-aw-azcom-demo` is also referenced only; the infra deployer has Reader on that action group so ARM can bind the alert to it. These resources will
 move into Bicep one at a time as their deployment behavior is validated; see
 [`azure/infrastructure/README.md`](../azure/infrastructure/README.md).
 
@@ -264,7 +264,7 @@ branch rule. The existing `production` environment and its identity
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
 | `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Retained for reference inspection while resources are migrated from snapshots into Bicep. | no active workflow job |
-| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader and Private DNS Zone Contributor on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, `ASP-rgawazcomiotcopilot-ec55`, `stawazcomiotgamefn`, `iot-demo-vnet`, `iot-demo-dns-resolver`, `iot-demo-vpn-pip`, `iot-demo-vpn`, `iot-demo-signalr-pe`, `iot-demo-game-function-pe`, and `iot-demo-game-storage-blob-pe` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader and Private DNS Zone Contributor on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, `ASP-rgawazcomiotcopilot-ec55`, `stawazcomiotgamefn`, `iot-demo-vnet`, `iot-demo-dns-resolver`, `iot-demo-vpn-pip`, `iot-demo-vpn`, `iot-demo-signalr-pe`, `iot-demo-game-function-pe`, `iot-demo-game-storage-blob-pe`, and `iot-demo-iothub-pe` only; custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`; Reader on the shared Smart Detection action group in `rg-aw-azcom-demo`; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
