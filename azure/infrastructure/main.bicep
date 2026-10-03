@@ -39,7 +39,8 @@ param gameStoragePackageContainerUrl string
 param gameAppInsightsName string
 param logAnalyticsWorkspaceResourceId string
 param gameFailureAnomaliesAlertName string
-param smartDetectionActionGroupId string
+param smartDetectionActionGroupName string
+param smartDetectionActionGroupShortName string
 
 param vnetName string
 param vnetAddressPrefixes array
@@ -148,12 +149,21 @@ module gameAppInsights 'modules/app-insights.bicep' = {
   }
 }
 
+module smartDetectionActionGroup 'modules/action-group.bicep' = {
+  name: 'smart-detection-action-group'
+  params: {
+    name: smartDetectionActionGroupName
+    groupShortName: smartDetectionActionGroupShortName
+    tags: tags
+  }
+}
+
 module gameFailureAnomaliesAlert 'modules/smart-detector-alert.bicep' = {
   name: 'game-failure-anomalies-alert'
   params: {
     name: gameFailureAnomaliesAlertName
     scopeResourceId: gameAppInsights.outputs.id
-    actionGroupId: smartDetectionActionGroupId
+    actionGroupId: smartDetectionActionGroup.outputs.id
     tags: tags
   }
 }
@@ -299,6 +309,7 @@ output signalRName string = signalR.outputs.name
 output gameFunctionAppName string = gameFunctionHosting.outputs.functionAppName
 output gameStorageAccountName string = gameFunctionHosting.outputs.storageAccountName
 output gameAppInsightsName string = gameAppInsights.outputs.name
+output smartDetectionActionGroupName string = smartDetectionActionGroup.outputs.name
 output gameFailureAnomaliesAlertName string = gameFailureAnomaliesAlert.outputs.name
 output vnetName string = vnet.outputs.name
 output dnsResolverName string = dnsResolver.outputs.resolverName

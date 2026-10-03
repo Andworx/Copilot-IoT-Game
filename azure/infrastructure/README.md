@@ -18,17 +18,17 @@ The owner requested automatic creation of the new staff backend. `staff-api.bice
 
 | Tier | Resources | How | Why |
 |---|---|---|---|
-| **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; DNS Private Resolver and inbound endpoint; Point-to-Site VPN gateway and public IP; Event Hub namespace, the `iot-telemetry` hub and its consumer groups; SignalR service and private endpoint; game Function App host, plan, storage account, package container, Application Insights component, game Function private endpoint, game storage blob private endpoint, IoT Hub private endpoint; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
+| **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; DNS Private Resolver and inbound endpoint; Point-to-Site VPN gateway and public IP; Event Hub namespace, the `iot-telemetry` hub and its consumer groups; SignalR service and private endpoint; game Function App host, plan, storage account, package container, Application Insights component, Smart Detection action group, game Function private endpoint, game storage blob private endpoint, IoT Hub private endpoint; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
 | **Function App settings** | `IoTHubEventHubConnectionString__fullyQualifiedNamespace`, `IOT_EVENTHUB_NAME`, `IOT_EVENTHUB_CONSUMER_GROUP` | `scripts/Set-FunctionAppSettings.ps1` (merge) | A `Microsoft.Web/sites` resource replaces the whole app-settings collection and would wipe secrets such as `DATAVERSE_CLIENT_SECRET`. The merge only touches the three names above. |
 | **3: reference only** | IoT Hub, DPS, the legacy Function App, legacy plan, and legacy storage account | `reference/snapshots/*.json`, checked by `scripts/Invoke-ReferenceSnapshot.ps1` | See below. |
 
 ## Monitoring ownership
 
-`main.bicep` owns the active game Application Insights component `func-aw-azcom-iot-game` and its active `Failure Anomalies - func-aw-azcom-iot-game` Smart Detector alert. The alert keeps using the existing shared `Application Insights Smart Detection` action group in `rg-aw-azcom-demo`.
+`main.bicep` owns the active game Application Insights component `func-aw-azcom-iot-game`, the local `application insights smart detection` action group, and the active `Failure Anomalies - func-aw-azcom-iot-game` Smart Detector alert.
 
 The Application Insights component stays connected to the existing default Log Analytics workspace in `DefaultResourceGroup-EUS`. That workspace is shared/default Azure platform state outside this resource group, so this repo references it by resource ID but does not deploy or modify it.
 
-There are currently no diagnostic settings, metric alerts, scheduled-query alerts, activity-log alerts or local action groups in the `rg-aw-azcom-iot-copilot` target design. The retired `func-aw-iot-copilot` Application Insights component and its retired `Failure Anomalies - func-aw-iot-copilot` alert are intentionally excluded from the deployable and reference target state.
+There are currently no diagnostic settings, metric alerts, scheduled-query alerts or activity-log alerts in the `rg-aw-azcom-iot-copilot` target design. The retired `func-aw-iot-copilot` Application Insights component, its retired `Failure Anomalies - func-aw-iot-copilot` alert, and the old demo resource group action group are intentionally excluded from the deployable and reference target state.
 
 ## Why the IoT Hub is never deployed from here
 
@@ -53,6 +53,7 @@ azure/infrastructure/
 â”œâ”€â”€ main.bicep                     # tier 1+2 entry point (resource group scope)
 â”œâ”€â”€ main.prod.bicepparam           # values that reproduce live
 â”œâ”€â”€ modules/
+â”‚   â”œâ”€â”€ action-group.bicep          # local Smart Detection action group
 â”‚   â”œâ”€â”€ eventhub.bicep             # namespace, hub, consumer groups
 â”‚   â”œâ”€â”€ game-function-hosting.bicep # game Function host, plan, storage and package container
 â”‚   â”œâ”€â”€ game-function-private-endpoint.bicep
@@ -149,8 +150,7 @@ separately validated hardening step.
     game failure anomalies Smart Detector alert, `iot-demo-vnet`,
     `iot-demo-dns-resolver`, the VPN public IP, VPN gateway, SignalR private endpoint, game
     Function private endpoint, game storage blob private endpoint, and IoT Hub private endpoint
-    **only**; the custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`;
-    Reader on the shared Smart Detection action group in `rg-aw-azcom-demo`;
+    **only**; a custom action-group operator role on the resource group; the custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`;
     and permission to assign only the Event Hubs Data
      Receiver role, only on the hub.
 2. Create the GitHub environments `infra-readonly` (no protection) and `infra-deploy`
