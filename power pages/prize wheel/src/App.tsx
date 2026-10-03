@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toWheelPrizes } from "./data/prizes";
 import type { Prize } from "./types/prize";
+import { SolutionDiagram } from "./components/SolutionDiagram";
 import { PrizeWheel } from "./components/PrizeWheel";
 import { API_BASE_URL } from "./lib/apiConfig";
 
@@ -83,7 +84,7 @@ function App() {
   }
 
   const exploreButton = (
-    <button type="button" className="btn-secondary explore-solution" onClick={() => setShowSolution(true)}>
+    <button type="button" className="btn-secondary explore-solution" onClick={() => { setShowSolution(true); window.scrollTo(0, 0); }}>
       Explore this solution
     </button>
   );
@@ -94,31 +95,10 @@ function App() {
         <div className="handset-screen">
           <div className="phone-step solution-step">
             <span className="eyebrow">Solution tour</span>
-            <h3>How the IoT game pays out prizes</h3>
-            <div className="solution-flow" aria-label="IoT game solution flow">
-              <article>
-                <span>01</span>
-                <strong>Restore the device</strong>
-                <p>The physical game box sends switch telemetry through Azure IoT Hub.</p>
-              </article>
-              <article>
-                <span>02</span>
-                <strong>Show the kiosk win</strong>
-                <p>Power Pages renders the live device state and receives updates from the Function App.</p>
-              </article>
-              <article>
-                <span>03</span>
-                <strong>Scan the claim QR</strong>
-                <p>The kiosk-created token opens this phone page without giving the player staff access.</p>
-              </article>
-              <article>
-                <span>04</span>
-                <strong>Claim from Dataverse</strong>
-                <p>The API selects and reserves one stocked prize type, then falls back only when stock is empty.</p>
-              </article>
-            </div>
+            <h3>How it all connects</h3>
+            <SolutionDiagram />
             <div className="phone-actions">
-              <button type="button" className="btn-primary" onClick={() => setShowSolution(false)}>
+              <button type="button" className="btn-primary" onClick={() => { setShowSolution(false); window.scrollTo(0, 0); }}>
                 Back to spin
               </button>
             </div>
