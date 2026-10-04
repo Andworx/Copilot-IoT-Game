@@ -46,6 +46,27 @@ it, enforced by role assignments rather than by convention. The deploy identity 
 need to change it: the existing catch-all route (`route-iotpanel`) already delivers every
 device message to `iot-telemetry`.
 
+## IoT Hub adoption guardrails
+
+Issue #213 starts the final adoption path for the IoT Hub service configuration. Until the
+owner approves that deployment, the hub stays in Tier 3 reference snapshots and the deploy
+identity remains unable to change it. The first implementation step is to keep the current
+working route observable, then add the missing deployment permissions and template coverage in
+separate reviewed changes.
+
+The deployable model must preserve the live S1 hub, built-in endpoint, route
+`route-iotpanel`, `$fallback` route, enrichments, cloud-to-device delivery settings and the
+identity-based Event Hub custom endpoint `endpoint-iotpanel`. The route must be recreated with
+the IoT Hub system-assigned identity and an Event Hubs Data Sender role assignment, never with
+an exported connection string.
+
+Device identities, module identities, twins and DPS enrollments are not ARM state. They remain
+outside this issue and must be backed up or migrated by the separate DPS/device procedure in
+issue #214. The hub is still shared with the sibling `copilot-iot-service` project, so the
+first deployment approval must include an explicit sibling-project impact check and
+before/after proof that physical device telemetry still reaches Event Hub, the game Function,
+SignalR and Dataverse.
+
 ## Files
 
 ```
