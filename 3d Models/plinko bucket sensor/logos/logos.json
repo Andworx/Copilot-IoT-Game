@@ -1,0 +1,18 @@
+{
+  "description": "Logos for the swappable Plinko sensor covers. Sources are repo-relative SVGs; build_logo_layers.py splits each into flat colour layers for multi-colour inlay printing.",
+  "maxColors": 3,
+  "logos": [
+    { "name": "microsoft", "title": "Microsoft", "family": "microsoft", "source": "3d Models/plinko bucket sensor/logos/src/microsoft.svg", "maxColors": 4 },
+    { "name": "power-platform", "title": "Power Platform", "family": "power-platform", "source": "power apps/game-box-control/public/logos/PowerPlatform_scalable.svg" },
+    { "name": "power-apps", "title": "Power Apps", "family": "power-platform", "source": "power apps/game-box-control/public/logos/PowerApps_scalable.svg" },
+    { "name": "power-automate", "title": "Power Automate", "family": "power-platform", "source": "power apps/game-box-control/public/logos/PowerAutomate_scalable.svg" },
+    { "name": "power-pages", "title": "Power Pages", "family": "power-platform", "source": "power apps/game-box-control/public/logos/PowerPages_scalable.svg" },
+    { "name": "dataverse", "title": "Dataverse", "family": "power-platform", "source": "power apps/game-box-control/public/logos/Dataverse_scalable.svg" },
+    { "name": "ai-builder", "title": "AI Builder", "family": "power-platform", "source": "power apps/game-box-control/public/logos/AIBuilder_scalable.svg" },
+    { "name": "copilot", "title": "Copilot", "family": "power-platform", "source": "power pages/copilotiotgame/src/assets/system-map/copilot.svg" },
+    { "name": "azure", "title": "Azure", "family": "azure", "source": "power pages/copilotiotgame/src/assets/system-map/azure-tier.svg" },
+    { "name": "azure-functions", "title": "Azure Functions", "family": "azure", "source": "power pages/copilotiotgame/src/assets/system-map/functions.svg" },
+    { "name": "azure-iot-hub", "title": "Azure IoT Hub", "family": "azure", "source": "power pages/copilotiotgame/src/assets/system-map/iothub.svg" },
+    { "name": "azure-signalr", "title": "Azure SignalR", "family": "azure", "source": "power pages/copilotiotgame/src/assets/system-map/signalr.svg" }
+  ]
+}
