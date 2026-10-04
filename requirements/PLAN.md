@@ -14,7 +14,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 5 | 5 | 3 | 0 | 13 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
-| Power Pages | 5 | 12 | 1 | 0 | 18 |
+| Power Pages | 4 | 13 | 1 | 0 | 18 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 5 | 0 | 1 | 6 |
@@ -22,7 +22,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 1 | 1 | 0 | 2 |
-| Totals | 23 | 34 | 10 | 2 | 69 |
+| Totals | 22 | 35 | 10 | 2 | 69 |
 
 ## Dataverse
 
@@ -68,7 +68,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `copilotiotgame`: `KioskInfoPage` + `KioskDevicePage`, all 12 playable modes, 10s reset timer (800×480 viewport) | Code Site pages | ⬜ Verify | Issues #43/#44 — mode cards now mirror the 12 Pi restore sequences and expose ordered restore steps. Verify with local build and live page after deployment. |
 | `copilotiotgame`: `/play-spin` page, QR generation on kiosk win, wheel animation | Code Site page | ✅ Done | GAME_MODE_PLAN.md §7, Phase 6 — except real QR encoding (placeholder pattern) and the real claim call (depends on the Integration claim endpoint below) |
 | `copilotiotgame`: all 12 playable device pages + content | Code Site content | ⬜ Verify | Issue #43 — added `industrial-robot-arm` and synchronized unique restore sequences across page data and Pi logic maps. |
-| `copilotiotgame`: root `SignalRContext` + `useDeviceSync` — fetch current state on load, navigate on `deviceChanged` | Code Site — SPA change | ✅ Done | GAME_MODE_PLAN.md §4a, Phase 2c — confirmed 2026-09-08: a live tab moved from `/kiosk/info` to `/kiosk/smart-lock` via an external `set-mode` call, no reload |
+| `copilotiotgame`: root `SignalRContext` + `useDeviceSync` — fetch current state on load, navigate on `deviceChanged` | Code Site — SPA change | ⬜ Verify | GAME_MODE_PLAN.md §4a, Phase 2c — confirmed 2026-09-08: a live tab moved from `/kiosk/info` to `/kiosk/smart-lock` via an external `set-mode` call, no reload. Issue #245 adds a 5-second `/api/kiosk-state` refresh fallback so the kiosk follows staff-selected modes if the SignalR `deviceChanged` event is missed; local Code Site build passes, needs production deployment and live kiosk validation. |
 | `copilotiotgame`: Game Mode OFF branch on `KioskDevicePage` + new `SuccessPopup` component; same-mode reset after every completion (both Game Mode states) | Code Site — SPA change (`power pages/copilotiotgame`) | ✅ Done | `/power-platform-architect` mode-control plan (2026-09-09), updated 2026-09-29 for issues #173/#175 — Game Mode ON keeps today's QR/phone-spin/claim flow unchanged; OFF skips `create-win` entirely (no `andy_gamewin` row, per decision to leave OFF completions unlogged) and shows a client-only success popup instead. Completion now clears the overlay and remains on the current mode so players can review what happened; `andy_deviceprofile.andy_wintext` supplies the overlay message when populated, with `deviceProfiles.ts` as fallback. Intro copy and Copilot topic metadata are not used by the runtime flow. The shared device-profiles API now retries without `andy_wintext` when the target environment schema lags the Function deployment, so Game Box Control mode loading is not blocked by optional copy metadata. |
 | `copilotiotgame`: unique completion visuals and DV-only win text for all kiosk modes | Code Site — SPA change (`power pages/copilotiotgame`) | ⬜ Verify | Issue #218 — preserves the existing Drone Ground Control takeoff visual, adds unique success visuals for the other 11 demos, and removes restored switch/cable action text from both Game Mode ON and OFF completion overlays. Local Code Site contract check and build pass; production/live kiosk validation follows the normal PR deployment. |
 | Retire `restore-and-spin`; repoint `deploy-apps.yml` to build/deploy `copilotiotgame` | Code Site — CI/CD fix | ⬜ Verify | 2026-09-12 — `deploy-apps.yml` had never been repointed after `copilotiotgame` replaced `restore-and-spin` (2026-09-10), so every merge touching the old app's path re-deployed it over the live `CopilotIoTGame` site, silently reverting Game Mode support and the real QR to the old no-Game-Mode/fake-QR prototype. Fixed the workflow, deleted `power pages/restore-and-spin/`, updated docs/instructions referencing it. Verify: after the next deploy, confirm the live site actually serves `copilotiotgame`'s bundle and both Game Mode states behave correctly against the real backend 2026-09-19 — live site confirmed serving `copilotiotgame`'s UI after the deploy-target fix below; Game Mode ON/OFF behaviour against the real backend still to check |
