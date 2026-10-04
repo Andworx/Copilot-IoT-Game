@@ -5,6 +5,8 @@ import { API_BASE_URL } from "../lib/apiConfig";
 
 interface KioskState { deviceSlug: string | null; }
 
+const KIOSK_STATE_REFRESH_MS = 5000;
+
 /** Follow device routes on startup/recovery; keep intentional map exploration local. */
 export function useDeviceSync() {
   const navigate = useNavigate();
@@ -22,8 +24,10 @@ export function useDeviceSync() {
     let disposed = false;
     let eventVersion = 0;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let refreshTimer: ReturnType<typeof setInterval> | undefined;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let controller: AbortController | undefined;
+    let refreshing = false;
     function apply(data: KioskState, snapshot = false) {
       // Keep phone/prize routes outside live kiosk navigation.
       if (pathRef.current !== "/" && !pathRef.current.startsWith("/kiosk/")) return;
@@ -39,6 +43,8 @@ export function useDeviceSync() {
       apply(data);
     };
     async function refresh() {
+      if (refreshing) return;
+      refreshing = true;
       const version = eventVersion;
       controller = new AbortController();
       timeout = setTimeout(() => controller?.abort(), 10000);
@@ -52,15 +58,18 @@ export function useDeviceSync() {
         if (!disposed) retryTimer = setTimeout(() => { void refresh(); }, 5000);
       } finally {
         clearTimeout(timeout);
+        refreshing = false;
       }
     }
     connection?.on("deviceChanged", changed);
     void refresh();
+    refreshTimer = setInterval(() => { void refresh(); }, KIOSK_STATE_REFRESH_MS);
     return () => {
       disposed = true;
       controller?.abort();
       clearTimeout(timeout);
       clearTimeout(retryTimer);
+      clearInterval(refreshTimer);
       connection?.off("deviceChanged", changed);
     };
   }, [connection, connectionRevision]);
