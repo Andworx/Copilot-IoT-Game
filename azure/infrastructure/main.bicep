@@ -70,6 +70,12 @@ param vpnClientProtocols array
 param vpnAuthenticationTypes array
 param vpnClientRootCertificates array
 
+param eventHubPrivateEndpointName string
+param eventHubPrivateEndpointNicName string
+param eventHubPrivateDnsZoneGroupName string
+param eventHubPrivateDnsZoneConfigName string
+param eventHubPrivateDnsZoneName string
+
 param signalRPrivateEndpointName string
 param signalRPrivateEndpointNicName string
 param privateEndpointSubnetName string
@@ -222,6 +228,22 @@ module vpnGateway 'modules/p2s-vpn-gateway.bicep' = {
   dependsOn: [vnet]
 }
 
+module eventHubPrivateEndpoint 'modules/eventhub-private-endpoint.bicep' = {
+  name: 'eventhub-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: eventHubPrivateEndpointName
+    customNetworkInterfaceName: eventHubPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    eventHubNamespaceId: resourceId('Microsoft.EventHub/namespaces', eventHubNamespaceName)
+    privateDnsZoneGroupName: eventHubPrivateDnsZoneGroupName
+    privateDnsZoneConfigName: eventHubPrivateDnsZoneConfigName
+    privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', eventHubPrivateDnsZoneName)
+    tags: {}
+  }
+  dependsOn: [eventHub, vnet, privateDns]
+}
+
 module signalRPrivateEndpoint 'modules/signalr-private-endpoint.bicep' = {
   name: 'signalr-private-endpoint'
   params: {
@@ -317,6 +339,7 @@ output dnsResolverInboundEndpointName string = dnsResolver.outputs.inboundEndpoi
 output dnsResolverInboundPrivateIpAddress string = dnsResolver.outputs.inboundPrivateIpAddress
 output vpnPublicIpName string = vpnGateway.outputs.publicIpName
 output vpnGatewayName string = vpnGateway.outputs.gatewayName
+output eventHubPrivateEndpointName string = eventHubPrivateEndpoint.outputs.privateEndpointName
 output signalRPrivateEndpointName string = signalRPrivateEndpoint.outputs.privateEndpointName
 output gameFunctionPrivateEndpointName string = gameFunctionPrivateEndpoint.outputs.privateEndpointName
 output gameStorageBlobPrivateEndpointName string = gameStorageBlobPrivateEndpoint.outputs.privateEndpointName

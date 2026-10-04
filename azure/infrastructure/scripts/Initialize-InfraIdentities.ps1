@@ -20,8 +20,9 @@
                                                                  the game Function App, game Function plan, game Function storage,
                                                                  game Application Insights, game failure anomalies alert,
                                                                  the demo VNet, DNS Private Resolver, VPN public IP, VPN gateway,
-                                                                 SignalR private endpoint, game Function private endpoint, game
-                                                                 storage blob private endpoint, and IoT Hub private endpoint only,
+                                                                 Event Hub private endpoint, SignalR private endpoint, game Function
+                                                                 private endpoint, game storage blob private endpoint, and IoT Hub
+                                                                 private endpoint only,
                                                              - create and manage action groups in the resource group,
                                                              - approve the IoT Hub private endpoint connection on the existing
                                                                  IoT Hub, without general IoT Hub write access,
@@ -62,6 +63,7 @@ param(
     [string]$DnsResolverName = 'iot-demo-dns-resolver',
     [string]$VpnPublicIpName = 'iot-demo-vpn-pip',
     [string]$VpnGatewayName = 'iot-demo-vpn',
+    [string]$EventHubPrivateEndpointName = 'iot-demo-eventhub-pe',
     [string]$SignalRPrivateEndpointName = 'iot-demo-signalr-pe',
     [string]$GameFunctionPrivateEndpointName = 'iot-demo-game-function-pe',
     [string]$GameStorageBlobPrivateEndpointName = 'iot-demo-game-storage-blob-pe',
@@ -105,6 +107,7 @@ $vnetScope = "$rgScope/providers/Microsoft.Network/virtualNetworks/$VirtualNetwo
 $dnsResolverScope = "$rgScope/providers/Microsoft.Network/dnsResolvers/$DnsResolverName"
 $vpnPublicIpScope = "$rgScope/providers/Microsoft.Network/publicIPAddresses/$VpnPublicIpName"
 $vpnGatewayScope = "$rgScope/providers/Microsoft.Network/virtualNetworkGateways/$VpnGatewayName"
+$eventHubPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$EventHubPrivateEndpointName"
 $signalRPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$SignalRPrivateEndpointName"
 $gameFunctionPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$GameFunctionPrivateEndpointName"
 $gameStorageBlobPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$GameStorageBlobPrivateEndpointName"
@@ -230,6 +233,7 @@ New-Assignment $deployerName 'Contributor' $vnetScope
 New-Assignment $deployerName 'Contributor' $dnsResolverScope
 New-Assignment $deployerName 'Contributor' $vpnPublicIpScope
 New-Assignment $deployerName 'Contributor' $vpnGatewayScope
+New-Assignment $deployerName 'Contributor' $eventHubPrivateEndpointScope
 New-Assignment $deployerName 'Contributor' $signalRPrivateEndpointScope
 New-Assignment $deployerName 'Contributor' $gameFunctionPrivateEndpointScope
 New-Assignment $deployerName 'Contributor' $gameStorageBlobPrivateEndpointScope

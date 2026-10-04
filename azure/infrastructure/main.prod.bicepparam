@@ -148,6 +148,12 @@ param vpnClientRootCertificates = [
   }
 ]
 
+param eventHubPrivateEndpointName = 'iot-demo-eventhub-pe'
+param eventHubPrivateEndpointNicName = 'iot-demo-eventhub-pe-nic'
+param eventHubPrivateDnsZoneGroupName = 'default'
+param eventHubPrivateDnsZoneConfigName = 'privatelink-servicebus-windows-net'
+param eventHubPrivateDnsZoneName = 'privatelink.servicebus.windows.net'
+
 param signalRPrivateEndpointName = 'iot-demo-signalr-pe'
 param signalRPrivateEndpointNicName = 'iot-demo-signalr-pe-nic'
 param privateEndpointSubnetName = 'private-endpoint'

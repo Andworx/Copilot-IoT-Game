@@ -95,6 +95,11 @@ jobs:
             --no-pretty-print -o json > whatif.json
           python3 azure/infrastructure/scripts/Test-WhatIfChanges.py whatif.json \
             --ignore-path properties.privateEndpointConnections \
+            --ignore-path properties.isIPv6EnabledPrivateEndpoint \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].etag' \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].id' \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].properties.provisioningState' \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].type' \
             --ignore-path properties.blockUpgradeOfMigratedLegacyGateways \
             --ignore-path properties.enableHighBandwidthVpnGateway \
             --ignore-path 'properties.ipConfigurations[0].type' \
@@ -159,6 +164,9 @@ jobs:
       - name: Verify Event Hub private-access prerequisites
         shell: pwsh
         run: ./azure/infrastructure/scripts/Test-EventHubPrivateAccess.ps1
+      - name: Verify Event Hub private endpoint
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-EventHubPrivateEndpoint.ps1
       - name: Verify DNS Private Resolver
         shell: pwsh
         run: ./azure/infrastructure/scripts/Test-DnsPrivateResolver.ps1
