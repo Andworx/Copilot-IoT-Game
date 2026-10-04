@@ -21,6 +21,19 @@ param(
 $ErrorActionPreference = 'Stop'
 $config = Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
 if ($config.functionAppName -eq $config.sourceFunctionAppName) { throw 'Staff and source apps must be distinct.' }
+$staffPlanName = "$($config.functionAppName)-plan"
+$staffResourceNames = @($config.functionAppName, $staffPlanName, $config.storageAccountName)
+foreach ($file in @(
+        @{ Path = (Join-Path $PSScriptRoot '../main.prod.bicepparam'); Label = 'main production parameters' },
+        @{ Path = (Join-Path $PSScriptRoot '../reference/manifest.json'); Label = 'reference manifest' })) {
+    if (-not (Test-Path -LiteralPath $file.Path)) { continue }
+    $content = Get-Content -LiteralPath $file.Path -Raw
+    foreach ($name in $staffResourceNames) {
+        if ($content -match [regex]::Escape($name)) {
+            throw "Staff resource '$name' appears in $($file.Label). staff-api.bicep is the owner; remove duplicate Bicep/reference ownership before deploying."
+        }
+    }
+}
 function Read-Az([string[]]$Arguments) {
     $result = & az @Arguments --only-show-errors -o json
     if ($LASTEXITCODE -ne 0) { throw 'Azure metadata read failed. Verify deployment permissions.' }
@@ -37,7 +50,7 @@ if ('Microsoft.App/environments' -notin @($subnet.properties.delegations.propert
 $resources = @(Read-Az @('resource', 'list', '--resource-group', $config.resourceGroup))
 $source = $resources | Where-Object { $_.type -eq 'Microsoft.Web/sites' -and $_.name -eq $config.sourceFunctionAppName }
 if (-not $source) { throw 'Source game Function App was not found in the configured resource group.' }
-$ownedNames = @($config.functionAppName, "$($config.functionAppName)-plan", $config.storageAccountName)
+$ownedNames = $staffResourceNames
 foreach ($resource in $resources | Where-Object { $_.name -in $ownedNames }) {
     if ($resource.tags.component -ne 'staff-api' -or $resource.tags.managedBy -ne 'deploy-apps') {
         throw "Refusing to adopt existing unowned resource: $($resource.name). Review its ownership first."

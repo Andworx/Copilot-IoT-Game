@@ -10,17 +10,25 @@ panel Pi â”€â–º IoT Hub â”€â–º route â”€â–º Event Hub
                                 iot-telemetry  iot-game
 ```
 
-## Staff API release exception
+## Staff API ownership exception
 
-The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They create only the staff app, plan and dedicated storage and join the existing integration subnet. They do not replay `main.bicep` or adopt the manually built network. The historical reference-only rows below describe the two existing apps, not this new third app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).
+The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They are the single owner for the staff app, plan, dedicated storage, package container, VNet integration and staff auth settings. They do not replay `main.bicep` or adopt the manually built network. The deployment script refuses to run if the staff app, plan or storage names are added to `main.prod.bicepparam` or the reference manifest, so the staff resources cannot quietly become co-owned by the portable infrastructure stack. The historical reference-only rows below describe the legacy app, not this staff app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).
 
 ## What is managed how
 
 | Tier | Resources | How | Why |
 |---|---|---|---|
-| **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; DNS Private Resolver and inbound endpoint; Point-to-Site VPN gateway and public IP; Event Hub namespace, the `iot-telemetry` hub, consumer groups, private endpoint and DNS zone group; SignalR service; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
+| **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; DNS Private Resolver and inbound endpoint; Point-to-Site VPN gateway and public IP; Event Hub namespace, the `iot-telemetry` hub and its consumer groups, and the Event Hub private endpoint; SignalR service and private endpoint; game Function App host, plan, storage account, package container, Application Insights component, Smart Detection action group, game Function private endpoint, game storage blob private endpoint, IoT Hub private endpoint; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
 | **Function App settings** | `IoTHubEventHubConnectionString__fullyQualifiedNamespace`, `IOT_EVENTHUB_NAME`, `IOT_EVENTHUB_CONSUMER_GROUP` | `scripts/Set-FunctionAppSettings.ps1` (merge) | A `Microsoft.Web/sites` resource replaces the whole app-settings collection and would wipe secrets such as `DATAVERSE_CLIENT_SECRET`. The merge only touches the three names above. |
-| **3: reference only** | IoT Hub, DPS, both Function Apps, both plans, both storage accounts, both App Insights | `reference/snapshots/*.json`, checked by `scripts/Invoke-ReferenceSnapshot.ps1` | See below. |
+| **3: reference only** | IoT Hub, DPS, the legacy Function App, legacy plan, and legacy storage account | `reference/snapshots/*.json`, checked by `scripts/Invoke-ReferenceSnapshot.ps1` | See below. |
+
+## Monitoring ownership
+
+`main.bicep` owns the active game Application Insights component `func-aw-azcom-iot-game`, the local `application insights smart detection` action group, and the active `Failure Anomalies - func-aw-azcom-iot-game` Smart Detector alert.
+
+The Application Insights component stays connected to the existing default Log Analytics workspace in `DefaultResourceGroup-EUS`. That workspace is shared/default Azure platform state outside this resource group, so this repo references it by resource ID but does not deploy or modify it.
+
+There are currently no diagnostic settings, metric alerts, scheduled-query alerts or activity-log alerts in the `rg-aw-azcom-iot-copilot` target design. The retired `func-aw-iot-copilot` Application Insights component, its retired `Failure Anomalies - func-aw-iot-copilot` alert, and the old demo resource group action group are intentionally excluded from the deployable and reference target state.
 
 ## Why the IoT Hub is never deployed from here
 
@@ -33,8 +41,8 @@ The owner requested automatic creation of the new staff backend. `staff-api.bice
   break devices.
 - The hub is shared with other devices and the sibling `copilot-iot-service` project.
 
-So the hub is captured and drift-checked, and the deploy identity has **no write access** to
-it, enforced by role assignments rather than by convention. The telemetry feature does not
+So the hub service is captured and drift-checked, and the deploy identity has **no write access** to
+it, enforced by role assignments rather than by convention. The deploy identity only has the custom IoT Hub private endpoint approval action on the hub, which Azure requires when ARM deploys the private endpoint. The IoT Hub private endpoint is deployable separately from the hub service. The telemetry feature does not
 need to change it: the existing catch-all route (`route-iotpanel`) already delivers every
 device message to `iot-telemetry`.
 
@@ -45,8 +53,14 @@ azure/infrastructure/
 â”œâ”€â”€ main.bicep                     # tier 1+2 entry point (resource group scope)
 â”œâ”€â”€ main.prod.bicepparam           # values that reproduce live
 â”œâ”€â”€ modules/
+â”‚   â”œâ”€â”€ action-group.bicep          # local Smart Detection action group
 â”‚   â”œâ”€â”€ eventhub.bicep             # namespace, hub, consumer groups
 â”‚   â”œâ”€â”€ eventhub-private-endpoint.bicep
+â”‚   â”œâ”€â”€ game-function-hosting.bicep # game Function host, plan, storage and package container
+â”‚   â”œâ”€â”€ game-function-private-endpoint.bicep
+â”‚   â”œâ”€â”€ game-storage-blob-private-endpoint.bicep
+â”‚   â”œâ”€â”€ iothub-private-endpoint.bicep
+â”‚   â”œâ”€â”€ signalr-private-endpoint.bicep
 â”‚   â”œâ”€â”€ signalr.bicep
 â”‚   â””â”€â”€ eventhub-receiver.bicep    # Event Hubs Data Receiver for the Function App identity
 â”œâ”€â”€ reference/
@@ -132,8 +146,13 @@ separately validated hardening step.
      resources are moved from snapshots into Bicep. It cannot run ARM what-if because ARM checks
      that the caller could write each resource in the template.
    - `id-gha-infra-deployer`: deployments-only custom role; Private DNS Zone Contributor on
-     the resource group; Contributor on the Event Hub namespace and private endpoint, the SignalR
-     service, the game Function App, `iot-demo-vnet`, and `iot-demo-dns-resolver` **only**; and permission to assign only the Event Hubs Data
+    the resource group; Contributor on the Event Hub namespace, the SignalR service, the game
+    Function App, game Function plan, game Function storage account, game Application Insights component,
+    game failure anomalies Smart Detector alert, `iot-demo-vnet`,
+    `iot-demo-dns-resolver`, the VPN public IP, VPN gateway, Event Hub private endpoint, SignalR private endpoint, game
+    Function private endpoint, game storage blob private endpoint, and IoT Hub private endpoint
+    **only**; a custom action-group operator role on the resource group; the custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`;
+    and permission to assign only the Event Hubs Data
      Receiver role, only on the hub.
 2. Create the GitHub environments `infra-readonly` (no protection) and `infra-deploy`
    (deployment branches: `main`; add a required reviewer if the plan supports it: the org's Free
@@ -164,7 +183,7 @@ separately validated hardening step.
 ## Captured network baseline
 
 The remaining manually built private endpoints are recorded separately in
-[azure/infrastructure/network](network/README.md); the Event Hub endpoint is now deployable. The Infrastructure workflow has a
+[azure/infrastructure/network](network/README.md); the Event Hub, SignalR, game Function, game storage blob, and IoT Hub endpoints are now deployable. The game Function App host, its Flex Consumption plan, and its deployment storage account are also deployable, while app settings are still merged separately to avoid replacing secrets. The Infrastructure workflow has a
 `network-what-if` action; this is preview-only and never runs the older service
 main.bicep. Actual live gateway settings (Generation2, BGP on) and the singular
 `private-endpoint` subnet name supersede earlier planning notes.
@@ -183,7 +202,7 @@ group into the owned template at a time, using this loop for every step:
 5. Validate VPN, private DNS, telemetry, the Power Page and the agent before continuing.
 
 Adopt the network in dependency order: VNet and subnets; private DNS zones and links; DNS resolver
-and inbound endpoint (complete); VPN public IP and gateway (complete); Event Hub private endpoint and DNS zone group
+and inbound endpoint (complete); VPN public IP and gateway (complete); Event Hub, SignalR, game Function, and game storage blob private endpoints and DNS zone groups
 (adopted); then the remaining private endpoints one at a time. After the network is reproducible, adopt the remaining service plans, storage, Function Apps,
 monitoring, IoT Hub and DPS. IoT Hub and DPS come last because device enrollment state is outside ARM
 and the existing IoT Hub route contains a redacted credential that cannot be reconstructed from an

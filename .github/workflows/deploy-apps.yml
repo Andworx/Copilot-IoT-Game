@@ -12,6 +12,8 @@ on:
       - '!power pages/copilotiotgame/.powerpages-site/**'
       - 'power pages/prize wheel/**'
       - '!power pages/prize wheel/.powerpages-site/**'
+      - 'power pages/plinko/**'
+      - '!power pages/plinko/.powerpages-site/**'
       - '.github/workflows/deploy-apps.yml'
       - 'azure/infrastructure/staff-api.bicep'
       - 'azure/infrastructure/modules/staff-resources.bicep'
@@ -150,9 +152,38 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  build-plinko:
+    name: Build Plinko Code Site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: power pages/plinko/package-lock.json
+      - name: Build
+        working-directory: power pages/plinko
+        env:
+          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
+          VITE_PRIZE_WHEEL_URL: ${{ vars.PRIZE_WHEEL_URL || 'https://andworxprizewheel.powerappsportals.com' }}
+        run: |
+          npm ci
+          npm run build
+          test -f dist/index.html
+      - uses: actions/upload-artifact@v7
+        with:
+          name: power-pages-plinko
+          path: |
+            power pages/plinko/dist/
+            power pages/plinko/powerpages.config.json
+          if-no-files-found: error
+          retention-days: 14
+
   build:
     name: Build apps
-    needs: [build-function, build-code-app, build-kiosk, build-prize-wheel]
+    needs: [build-function, build-code-app, build-kiosk, build-prize-wheel, build-plinko]
     runs-on: ubuntu-latest
     steps:
       - run: echo 'All application builds passed.'
@@ -257,6 +288,7 @@ jobs:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.STAFF_API_CUTOVER_READY == 'true'
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
           - kind: code-app
@@ -268,6 +300,9 @@ jobs:
           - kind: prize-wheel
             label: Prize Wheel Code Site
             artifact: power-pages-prize-wheel
+          - kind: plinko
+            label: Plinko Code Site
+            artifact: power-pages-plinko
     runs-on: windows-latest
     timeout-minutes: 20
     environment: production
@@ -279,6 +314,7 @@ jobs:
       POWER_PLATFORM_SOLUTION_NAME: ${{ vars.POWER_PLATFORM_SOLUTION_NAME || 'CopilotIoTGame' }}
       KIOSK_WEBSITE_ID: ${{ vars.POWER_PAGES_WEBSITE_ID || '4938f099-b8dd-485f-a5c2-3c4ad4b7e02a' }}
       PRIZE_WHEEL_WEBSITE_ID: ${{ vars.POWER_PRIZE_WHEEL_WEBSITE_ID || '5dadde98-1e91-4a34-8182-1b0a87466e58' }}
+      PLINKO_WEBSITE_ID: ${{ vars.POWER_PLINKO_WEBSITE_ID }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -311,7 +347,13 @@ jobs:
         if: matrix.kind != 'code-app'
         shell: pwsh
         run: |
-          $websiteId = if ('${{ matrix.kind }}' -eq 'kiosk') { $env:KIOSK_WEBSITE_ID } else { $env:PRIZE_WHEEL_WEBSITE_ID }
+          $websiteId = switch ('${{ matrix.kind }}') {
+            'kiosk' { $env:KIOSK_WEBSITE_ID }
+            'prize-wheel' { $env:PRIZE_WHEEL_WEBSITE_ID }
+            'plinko' { $env:PLINKO_WEBSITE_ID }
+            default { throw 'Unknown Power Pages Code Site kind.' }
+          }
+          if ([string]::IsNullOrWhiteSpace($websiteId)) { throw 'Missing GitHub deployment setting: POWER_PLINKO_WEBSITE_ID. Create and activate the Plinko Code Site, then set this variable before deployment.' }
           ./azure/infrastructure/scripts/Deploy-CodeSite.ps1 -ArtifactPath 'artifact' -WebsiteId $websiteId -SiteLabel '${{ matrix.kind }}'
       - name: Clear PAC credentials
         if: always()

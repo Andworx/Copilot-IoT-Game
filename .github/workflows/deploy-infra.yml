@@ -10,7 +10,8 @@ name: Infrastructure
 #                  `main`, only through the `infra-deploy` environment (which only accepts `main`).
 #
 # The deploy identity has narrowly scoped write access to the adopted resources, including the VNet,
-# private DNS zones, DNS resolver, and VPN. It cannot modify the IoT Hub, DPS, or the legacy Function App
+# private DNS zones, DNS resolver, VPN, game Function host, plan, storage, and private endpoints.
+# It cannot modify the IoT Hub, DPS, or the legacy Function App
 # (azure/infrastructure/scripts/Initialize-InfraIdentities.ps1).
 
 on:
@@ -102,9 +103,20 @@ jobs:
             --ignore-path properties.blockUpgradeOfMigratedLegacyGateways \
             --ignore-path properties.enableHighBandwidthVpnGateway \
             --ignore-path 'properties.ipConfigurations[0].type' \
+            --ignore-path properties.isIPv6EnabledPrivateEndpoint \
             --ignore-path properties.isMigratedLegacySKU \
             --ignore-path properties.isMigrateToCSES \
             --ignore-path properties.packetCaptureDiagnosticState \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].etag' \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].id' \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].properties.provisioningState' \
+            --ignore-path 'properties.privateDnsZoneConfigs[0].type' \
+            --ignore-path 'properties.privateDnsZoneConfigs[1].etag' \
+            --ignore-path 'properties.privateDnsZoneConfigs[1].id' \
+            --ignore-path 'properties.privateDnsZoneConfigs[1].properties.provisioningState' \
+            --ignore-path 'properties.privateDnsZoneConfigs[1].type' \
+            --ignore-path properties.siteConfig.localMySqlEnabled \
+            --ignore-path properties.siteConfig.netFrameworkVersion \
             --ignore-path properties.virtualNetworkGatewayMigrationStatus \
             --ignore-path properties.vpnClientConfiguration.vpnClientConnectionHealth \
             --ignore-path 'properties.vpnClientConfiguration.vpnClientRootCertificates[0].id' \
@@ -161,6 +173,24 @@ jobs:
       - name: Verify Point-to-Site VPN gateway
         shell: pwsh
         run: ./azure/infrastructure/scripts/Test-P2sVpnGateway.ps1
+      - name: Verify SignalR private endpoint
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-SignalRPrivateEndpoint.ps1
+      - name: Verify game Function private endpoint
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-GameFunctionPrivateEndpoint.ps1
+      - name: Verify game Function hosting
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-GameFunctionHosting.ps1
+      - name: Verify game monitoring
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-GameMonitoring.ps1
+      - name: Verify game storage blob private endpoint
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-GameStorageBlobPrivateEndpoint.ps1
+      - name: Verify IoT Hub private endpoint
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-IoTHubPrivateEndpoint.ps1
       - name: Reference resources still match their snapshots
         shell: pwsh
         run: ./azure/infrastructure/scripts/Invoke-ReferenceSnapshot.ps1 -Mode Check

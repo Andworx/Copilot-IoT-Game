@@ -4,7 +4,7 @@
 //   Tier 1/2 (in this file): VNet/subnets, private DNS and resolver, Event Hub
 //   namespace/hub/consumer groups, SignalR service, and read access for the game Function
 //   App's managed identity.
-//   Tier 3 (NOT here, by design): IoT Hub, DPS, Function Apps, plans, storage, App Insights.
+//   Tier 3 (NOT here, by design): IoT Hub, DPS, retired Function Apps, plans and storage.
 //   They are captured under azure/infrastructure/reference/ and only drift-checked.
 //
 // Deploy with an incremental deployment only. Preview first:
@@ -28,6 +28,19 @@ param consumerGroups array
 
 param signalRName string
 param signalRSkuName string
+
+param gameFunctionPlanName string
+param gameFunctionAppName string
+param gameFunctionAppTags object = {}
+param gameStorageAccountName string
+param gameStoragePackageContainerName string
+param gameStoragePackageContainerUrl string
+
+param gameAppInsightsName string
+param logAnalyticsWorkspaceResourceId string
+param gameFailureAnomaliesAlertName string
+param smartDetectionActionGroupName string
+param smartDetectionActionGroupShortName string
 
 param vnetName string
 param vnetAddressPrefixes array
@@ -59,10 +72,34 @@ param vpnClientRootCertificates array
 
 param eventHubPrivateEndpointName string
 param eventHubPrivateEndpointNicName string
-param privateEndpointSubnetName string
 param eventHubPrivateDnsZoneGroupName string
 param eventHubPrivateDnsZoneConfigName string
 param eventHubPrivateDnsZoneName string
+
+param signalRPrivateEndpointName string
+param signalRPrivateEndpointNicName string
+param privateEndpointSubnetName string
+param signalRPrivateDnsZoneGroupName string
+param signalRPrivateDnsZoneConfigName string
+param signalRPrivateDnsZoneName string
+
+param gameFunctionPrivateEndpointName string
+param gameFunctionPrivateEndpointNicName string
+param gameFunctionPrivateDnsZoneGroupName string
+param gameFunctionPrivateDnsZoneConfigName string
+param gameFunctionPrivateDnsZoneName string
+
+param gameStorageBlobPrivateEndpointName string
+param gameStorageBlobPrivateEndpointNicName string
+param gameStorageBlobPrivateDnsZoneGroupName string
+param gameStorageBlobPrivateDnsZoneConfigName string
+param gameStorageBlobPrivateDnsZoneName string
+
+param iotHubName string
+param iotHubPrivateEndpointName string
+param iotHubPrivateEndpointNicName string
+param iotHubPrivateDnsZoneGroupName string
+param iotHubPrivateDnsZoneConfigNames array
 
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
@@ -89,6 +126,50 @@ module signalR 'modules/signalr.bicep' = {
     name: signalRName
     location: location
     skuName: signalRSkuName
+    tags: tags
+  }
+}
+
+module gameFunctionHosting 'modules/game-function-hosting.bicep' = {
+  name: 'game-function-hosting'
+  params: {
+    location: location
+    planName: gameFunctionPlanName
+    storageAccountName: gameStorageAccountName
+    packageContainerName: gameStoragePackageContainerName
+    packageContainerUrl: gameStoragePackageContainerUrl
+    functionAppName: gameFunctionAppName
+    functionAppTags: gameFunctionAppTags
+    integrationSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, 'function-integration')
+  }
+  dependsOn: [vnet]
+}
+
+module gameAppInsights 'modules/app-insights.bicep' = {
+  name: 'game-app-insights'
+  params: {
+    name: gameAppInsightsName
+    location: location
+    workspaceResourceId: logAnalyticsWorkspaceResourceId
+    tags: tags
+  }
+}
+
+module smartDetectionActionGroup 'modules/action-group.bicep' = {
+  name: 'smart-detection-action-group'
+  params: {
+    name: smartDetectionActionGroupName
+    groupShortName: smartDetectionActionGroupShortName
+    tags: tags
+  }
+}
+
+module gameFailureAnomaliesAlert 'modules/smart-detector-alert.bicep' = {
+  name: 'game-failure-anomalies-alert'
+  params: {
+    name: gameFailureAnomaliesAlertName
+    scopeResourceId: gameAppInsights.outputs.id
+    actionGroupId: smartDetectionActionGroup.outputs.id
     tags: tags
   }
 }
@@ -163,6 +244,74 @@ module eventHubPrivateEndpoint 'modules/eventhub-private-endpoint.bicep' = {
   dependsOn: [eventHub, vnet, privateDns]
 }
 
+module signalRPrivateEndpoint 'modules/signalr-private-endpoint.bicep' = {
+  name: 'signalr-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: signalRPrivateEndpointName
+    customNetworkInterfaceName: signalRPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    signalRId: resourceId('Microsoft.SignalRService/SignalR', signalRName)
+    privateDnsZoneGroupName: signalRPrivateDnsZoneGroupName
+    privateDnsZoneConfigName: signalRPrivateDnsZoneConfigName
+    privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', signalRPrivateDnsZoneName)
+    tags: {}
+  }
+  dependsOn: [signalR, vnet, privateDns]
+}
+
+module gameFunctionPrivateEndpoint 'modules/game-function-private-endpoint.bicep' = {
+  name: 'game-function-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: gameFunctionPrivateEndpointName
+    customNetworkInterfaceName: gameFunctionPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    functionAppId: gameFunctionHosting.outputs.functionAppId
+    privateDnsZoneGroupName: gameFunctionPrivateDnsZoneGroupName
+    privateDnsZoneConfigName: gameFunctionPrivateDnsZoneConfigName
+    privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', gameFunctionPrivateDnsZoneName)
+    tags: {}
+  }
+  dependsOn: [vnet, privateDns]
+}
+
+module gameStorageBlobPrivateEndpoint 'modules/game-storage-blob-private-endpoint.bicep' = {
+  name: 'game-storage-blob-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: gameStorageBlobPrivateEndpointName
+    customNetworkInterfaceName: gameStorageBlobPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    storageAccountId: gameFunctionHosting.outputs.storageAccountId
+    privateDnsZoneGroupName: gameStorageBlobPrivateDnsZoneGroupName
+    privateDnsZoneConfigName: gameStorageBlobPrivateDnsZoneConfigName
+    privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', gameStorageBlobPrivateDnsZoneName)
+    tags: {}
+  }
+  dependsOn: [vnet, privateDns]
+}
+
+module iotHubPrivateEndpoint 'modules/iothub-private-endpoint.bicep' = {
+  name: 'iothub-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: iotHubPrivateEndpointName
+    customNetworkInterfaceName: iotHubPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    iotHubId: resourceId('Microsoft.Devices/IotHubs', iotHubName)
+    privateDnsZoneGroupName: iotHubPrivateDnsZoneGroupName
+    privateDnsZoneConfigs: [for config in iotHubPrivateDnsZoneConfigNames: {
+      name: config.configName
+      properties: {
+        privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', config.zoneName)
+      }
+    }]
+    tags: {}
+  }
+  dependsOn: [vnet, privateDns]
+}
+
 module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrincipalId)) {
   name: 'eventhub-receiver'
   dependsOn: [eventHub]
@@ -179,6 +328,11 @@ module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrinci
 output eventHubFullyQualifiedNamespace string = eventHub.outputs.fullyQualifiedNamespace
 output eventHubName string = eventHub.outputs.eventHubName
 output signalRName string = signalR.outputs.name
+output gameFunctionAppName string = gameFunctionHosting.outputs.functionAppName
+output gameStorageAccountName string = gameFunctionHosting.outputs.storageAccountName
+output gameAppInsightsName string = gameAppInsights.outputs.name
+output smartDetectionActionGroupName string = smartDetectionActionGroup.outputs.name
+output gameFailureAnomaliesAlertName string = gameFailureAnomaliesAlert.outputs.name
 output vnetName string = vnet.outputs.name
 output dnsResolverName string = dnsResolver.outputs.resolverName
 output dnsResolverInboundEndpointName string = dnsResolver.outputs.inboundEndpointName
@@ -186,3 +340,7 @@ output dnsResolverInboundPrivateIpAddress string = dnsResolver.outputs.inboundPr
 output vpnPublicIpName string = vpnGateway.outputs.publicIpName
 output vpnGatewayName string = vpnGateway.outputs.gatewayName
 output eventHubPrivateEndpointName string = eventHubPrivateEndpoint.outputs.privateEndpointName
+output signalRPrivateEndpointName string = signalRPrivateEndpoint.outputs.privateEndpointName
+output gameFunctionPrivateEndpointName string = gameFunctionPrivateEndpoint.outputs.privateEndpointName
+output gameStorageBlobPrivateEndpointName string = gameStorageBlobPrivateEndpoint.outputs.privateEndpointName
+output iotHubPrivateEndpointName string = iotHubPrivateEndpoint.outputs.privateEndpointName

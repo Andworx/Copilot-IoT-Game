@@ -7,7 +7,7 @@ Two workflows release this repo:
   `CopilotIoTGame`), and `power pages/prize wheel/` (site name `PrizeWheel`). It
   deploys automatically when a relevant change merges to `main`.
 - `.github/workflows/deploy-infra.yml` manages the Azure resources in `azure/infrastructure/` (Event Hub,
-  SignalR, and the Function App's access to the hub). Every push to `main` automatically
+   SignalR, private endpoints, the game Function App host/plan/storage, game Application Insights, the local Smart Detection action group, the active smart detection alert, and the Function App's access to the hub). The infra deployer needs its reviewed monitoring scopes from `Initialize-InfraIdentities.ps1` before the first monitoring deploy. Every push to `main` automatically
   compares Bicep with Azure and reports whether deployment approval is needed. Deployment is
   still a separate manual action. The separate staff app template is the owner-authorized
   exception: the application workflow provisions it automatically; see [staff wiring](STAFF_API_WIRING.md).
@@ -19,7 +19,7 @@ Other site folders, Dataverse solutions, flows, and the Pi firmware are outside 
 | | Application workflow | Infrastructure workflow |
 |---|---|---|
 | File | `deploy-apps.yml` | `deploy-infra.yml` |
-| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `azure/infrastructure/`: VNet/subnets, private DNS and resolver, P2S VPN, Event Hub and its private endpoint, consumer groups, SignalR, Function App Event Hub access |
+| Covers | Function App code, Game Box Control, kiosk Code Site, PrizeWheel Code Site | `azure/infrastructure/`: VNet/subnets, Event Hub and its private endpoint, consumer groups, SignalR, private endpoints, game Function host/plan/storage, game Application Insights, local Smart Detection action group, active smart detection alert, Function App Event Hub access |
 | When it deploys | automatically on merge to `main` | checks Azure automatically on every push to `main`; `deploy` is a manual approval action allowed from `main` only |
 | GitHub environment | `production` | `infra-deploy` (reconciliation preview and deploy) |
 | Azure identity | `id-gha-copilot-iot-game-deploy` | `id-gha-infra-reader` and `id-gha-infra-deployer`, least privilege |
@@ -91,7 +91,7 @@ user with permissions to upload the site and push the Code App; the backend's
 runtime identity, which only accesses game tables, is not sufficient. Rotate
 this secret when needed.
 
-The Code App uses a per-user OAuth custom connector; no Function keys are injected into its build. Staff resource names and Entra IDs come from `azure/infrastructure/staff-api.prod.json`. An IAM administrator must first run the reviewed [deployment access bootstrap](STAFF_API_WIRING.md#deployment-access); the existing deployment identity cannot provision these resources yet. Leave repository variable `STAFF_API_CUTOVER_READY` unset/false for the staff-only bootstrap release. Complete [STAFF_API_SETUP.md](STAFF_API_SETUP.md), commit the actual connector binding, then set the flag true for coordinated cutover. The workflow requires an unauthenticated staff request to return 401 before advancing. Remove legacy CODE_APP_*_FUNCTION_KEY secrets and rotate previously exposed keys after acceptance.
+The Code App uses a per-user OAuth custom connector; no Function keys are injected into its build. Staff resource names and Entra IDs come from `azure/infrastructure/staff-api.prod.json`. `staff-api.bicep`, invoked only by `deploy-apps.yml`, is the owner for the staff Function App, plan, storage, package container, VNet integration and staff auth settings; do not add those resources to `main.bicep` or the reference manifest. An IAM administrator must first run the reviewed [deployment access bootstrap](STAFF_API_WIRING.md#deployment-access); the existing deployment identity cannot provision these resources yet. Leave repository variable `STAFF_API_CUTOVER_READY` unset/false for the staff-only bootstrap release. Complete [STAFF_API_SETUP.md](STAFF_API_SETUP.md), commit the actual connector binding, then set the flag true for coordinated cutover. The workflow requires an unauthenticated staff request to return 401 before advancing. Remove legacy CODE_APP_*_FUNCTION_KEY secrets and rotate previously exposed keys after acceptance.
 
 The workflow authenticates PAC with `--url` instead of `--environment` for the
 service-principal profile. `--environment` causes PAC to query the Business
@@ -115,12 +115,13 @@ Configure Azure OIDC federation for the Azure deployment identity:
 - Assign Website Contributor scoped to the consolidated Function App (or a tested
   equivalent deployment role). No Azure publish-profile secret is used.
 
-The Function App must already exist with the Node 22 runtime. Current target:
-`func-aw-azcom-iot-game` in `rg-aw-azcom-iot-copilot`, hosted on Flex
-Consumption with dedicated storage account `stawazcomiotgamefn` and shared
-Serverless SignalR resource `signalr-aw-iot-copilot`. Preserve its runtime
-Dataverse/SignalR settings and storage configuration. This workflow does not
-provision resources or publish `local.settings.json`. The deploy job uses the
+The game Function App host, Flex Consumption plan, and deployment storage are
+declared by the infrastructure workflow. Current target: `func-aw-azcom-iot-game`
+in `rg-aw-azcom-iot-copilot`, hosted on plan `ASP-rgawazcomiotcopilot-ec55`
+with dedicated storage account `stawazcomiotgamefn` and shared Serverless
+SignalR resource `signalr-aw-iot-copilot`. Preserve its runtime
+Dataverse/SignalR settings and storage configuration. The application workflow
+does not provision infrastructure or publish `local.settings.json`. The deploy job uses the
 prebuilt zip package with `sku: flexconsumption` and `remote-build: false`; do
 not add the legacy `SCM_DO_BUILD_DURING_DEPLOYMENT` app setting to the Flex
 Consumption app. Configure CORS for the public Power Pages and Code App origins.
@@ -214,14 +215,14 @@ reload the Code App and verify `/api/prize-types`, `/api/device-profiles`, and
 
 `.github/workflows/deploy-infra.yml` manages the Azure resources this repo owns, defined in
 [`azure/infrastructure/`](../azure/infrastructure/README.md): the VNet and subnets, Event Hub namespace, the `iot-telemetry`
-hub and its consumer groups, SignalR service, and the game Function App's read access to the hub. It
+hub and its consumer groups, SignalR service, private endpoints, the game Function host/plan/storage, the game Application Insights component, local Smart Detection action group, active smart detection alert, and the game Function App's read access to the hub. It
 is separate from `deploy-apps.yml` on purpose: infrastructure changes can stop telemetry for
 every device, so each relevant merge is compared with Azure and applied only after a separate
 manual approval.
 
-Everything else in the resource group (IoT Hub, DPS, both Function Apps, plans, storage,
-App Insights) is currently **recorded but never deployed**. Its snapshots are checked as a
-post-deployment safety guard. The deploy identity has no write access to it. These resources will
+Everything else in the resource group (IoT Hub service, DPS, and the legacy Function App/plan/storage)
+is currently **recorded but never deployed**. Its snapshots are checked as a
+post-deployment safety guard. The deploy identity has no write access to it, except for the custom IoT Hub private endpoint approval action required to deploy the IoT Hub private endpoint. The shared default Log Analytics workspace is referenced by the game Application Insights component but is not owned or deployed by this repo. The Smart Detection action group is now local to `rg-aw-azcom-iot-copilot`; the old demo resource group action group is not part of the target design. These resources will
 move into Bicep one at a time as their deployment behavior is validated; see
 [`azure/infrastructure/README.md`](../azure/infrastructure/README.md).
 
@@ -263,18 +264,18 @@ branch rule. The existing `production` environment and its identity
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
 | `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Retained for reference inspection while resources are migrated from snapshots into Bicep. | no active workflow job |
-| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader and Private DNS Zone Contributor on the resource group; Contributor on the Event Hub namespace, `iot-demo-eventhub-pe`, SignalR service, `func-aw-azcom-iot-game`, `iot-demo-vnet`, `iot-demo-dns-resolver`, `iot-demo-vpn-pip`, and `iot-demo-vpn` only; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader, Private DNS Zone Contributor, and custom Action Group Operator on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, `ASP-rgawazcomiotcopilot-ec55`, `stawazcomiotgamefn`, `iot-demo-vnet`, `iot-demo-dns-resolver`, `iot-demo-vpn-pip`, `iot-demo-vpn`, `iot-demo-eventhub-pe`, `iot-demo-signalr-pe`, `iot-demo-game-function-pe`, `iot-demo-game-storage-blob-pe`, and `iot-demo-iothub-pe` only; custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
 (nothing deploys on merge), the environment only accepts `main` (so the Azure login is unavailable to any
 other branch), `main` itself is protected by PR review, and the deploy identity can only change the
-Event Hub, SignalR, the game Function App and the demo VNet. `what-if` shows exactly what a deploy would do. If the org
+adopted Event Hub, SignalR, game Function host/plan/storage, networking, private endpoint, and private DNS resources. `what-if` shows exactly what a deploy would do. If the org
 later moves to a plan with required reviewers, add one to `infra-deploy`; no workflow change is needed.
 
 Each identity's GitHub credential is bound to its environment name, so a job can only log in as
 the identity that matches its environment. The deploy job can never modify the IoT Hub, DPS,
-the legacy Function App, or storage, because the identity has no permission to.
+the legacy Function App, or unrelated storage accounts, because the identity has no permission to.
 
 ### One-time setup
 

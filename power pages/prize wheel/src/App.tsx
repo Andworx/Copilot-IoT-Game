@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { toWheelPrizes } from "./data/prizes";
 import type { Prize } from "./types/prize";
+import { PreferencePage } from "./components/PreferencePage";
+import { SolutionDiagram } from "./components/SolutionDiagram";
 import { PrizeWheel } from "./components/PrizeWheel";
-import { API_BASE_URL, SOLUTION_DIAGRAM_URL } from "./lib/apiConfig";
+import { API_BASE_URL, PRIVACY_NOTICE_URL } from "./lib/apiConfig";
 
 type Step = "share" | "wheel" | "result" | "error";
 
 interface ClaimResult {
   prizeName: string;
+  marketingConfirmation?: "sent" | "skipped" | "error";
 }
 
 /**
@@ -18,6 +21,8 @@ interface ClaimResult {
  * committed to.
  */
 function App() {
+  // `?pref=` opens the preference center from an email link instead of the spin flow.
+  const prefToken = new URLSearchParams(window.location.search).get("pref");
   const token = new URLSearchParams(window.location.search).get("token") ?? "";
   const [step, setStep] = useState<Step>(token ? "share" : "error");
   const [errorMessage, setErrorMessage] = useState("No claim token found in the link -- scan the QR on the kiosk win screen.");
@@ -27,6 +32,8 @@ function App() {
   const [email, setEmail] = useState("");
   const [claiming, setClaiming] = useState(false);
   const [claimResult, setClaimResult] = useState<ClaimResult | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/prizes`)
@@ -52,6 +59,7 @@ function App() {
           contestantName: sharedInfo && fullName ? fullName : undefined,
           contestantEmail: sharedInfo && email ? email : undefined,
           sharedInfo,
+          marketingOptIn: sharedInfo && !!email.trim() && marketingOptIn ? true : undefined,
         }),
       });
       const data = (await res.json()) as ClaimResult & { error?: string; message?: string };
@@ -81,7 +89,40 @@ function App() {
     setStep("result");
   }
 
-  const exploreButton = <a className="btn-secondary explore-solution" href={SOLUTION_DIAGRAM_URL}>Explore this solution</a>;
+  if (prefToken) {
+    return (
+      <div className="phone-page">
+        <div className="handset-screen">
+          <PreferencePage token={prefToken} />
+        </div>
+      </div>
+    );
+  }
+
+  const exploreButton = (
+    <button type="button" className="btn-secondary explore-solution" onClick={() => { setShowSolution(true); window.scrollTo(0, 0); }}>
+      Explore this solution
+    </button>
+  );
+
+  if (showSolution) {
+    return (
+      <div className="phone-page">
+        <div className="handset-screen">
+          <div className="phone-step solution-step">
+            <span className="eyebrow">Solution tour</span>
+            <h3>How it all connects</h3>
+            <SolutionDiagram />
+            <div className="phone-actions">
+              <button type="button" className="btn-primary" onClick={() => { setShowSolution(false); window.scrollTo(0, 0); }}>
+                Back to spin
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="phone-page">
@@ -116,6 +157,18 @@ function App() {
               <label htmlFor="emailInput">Email (optional)</label>
               <input id="emailInput" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="e.g. jordan@example.com" />
             </div>
+            <label className="consent-check">
+              <input type="checkbox" checked={marketingOptIn} disabled={!email.trim()} onChange={(e) => setMarketingOptIn(e.target.checked)} />
+              <span>
+                Also send me news and offers from Andworx. We will email you to confirm, and you can unsubscribe at any time.
+                {PRIVACY_NOTICE_URL && (
+                  <>
+                    {" "}
+                    <a href={PRIVACY_NOTICE_URL} target="_blank" rel="noreferrer">How we use your information</a>
+                  </>
+                )}
+              </span>
+            </label>
             <div className="phone-actions">
               <button type="button" className="btn-primary" disabled={claiming} onClick={() => handleContinue(true)}>
                 {claiming ? "One sec…" : "Share & continue"}
@@ -132,6 +185,7 @@ function App() {
           <div className="phone-step">
             <span className="eyebrow">Spin to win</span>
             <PrizeWheel prizes={wheelPrizes} winningPrizeName={claimResult.prizeName} onResult={handleSpinResult} />
+            <div className="phone-actions">{exploreButton}</div>
           </div>
         )}
 
@@ -143,6 +197,7 @@ function App() {
               <div className="prize-name">{claimResult.prizeName}</div>
             </div>
             <p>Show this screen to a staff member at the prize table to collect your prize.</p>
+            {claimResult.marketingConfirmation === "sent" && <p>We emailed you a link to confirm your subscription to news and offers.</p>}
             <div className="phone-actions">{exploreButton}</div>
           </div>
         )}

@@ -16,6 +16,21 @@ param consumerGroups = [
 param signalRName = 'signalr-aw-iot-copilot'
 param signalRSkuName = 'Standard_S1'
 
+param gameFunctionPlanName = 'ASP-rgawazcomiotcopilot-ec55'
+param gameFunctionAppName = 'func-aw-azcom-iot-game'
+param gameFunctionAppTags = {
+  'hidden-link: /app-insights-resource-id': '/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/microsoft.insights/components/func-aw-azcom-iot-game'
+}
+param gameStorageAccountName = 'stawazcomiotgamefn'
+param gameStoragePackageContainerName = 'app-package-funcawazcomiotgame-0968767'
+param gameStoragePackageContainerUrl = 'https://stawazcomiotgamefn.blob.core.windows.net/app-package-funcawazcomiotgame-0968767'
+
+param gameAppInsightsName = 'func-aw-azcom-iot-game'
+param logAnalyticsWorkspaceResourceId = '/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-2e291b4a-5f03-4dcd-bb56-09643c729adc-EUS'
+param gameFailureAnomaliesAlertName = 'Failure Anomalies - func-aw-azcom-iot-game'
+param smartDetectionActionGroupName = 'application insights smart detection'
+param smartDetectionActionGroupShortName = 'SmartDetect'
+
 param vnetName = 'iot-demo-vnet'
 param vnetTags = {
   'managed-by': 'bicep'
@@ -135,10 +150,43 @@ param vpnClientRootCertificates = [
 
 param eventHubPrivateEndpointName = 'iot-demo-eventhub-pe'
 param eventHubPrivateEndpointNicName = 'iot-demo-eventhub-pe-nic'
-param privateEndpointSubnetName = 'private-endpoint'
 param eventHubPrivateDnsZoneGroupName = 'default'
 param eventHubPrivateDnsZoneConfigName = 'privatelink-servicebus-windows-net'
 param eventHubPrivateDnsZoneName = 'privatelink.servicebus.windows.net'
+
+param signalRPrivateEndpointName = 'iot-demo-signalr-pe'
+param signalRPrivateEndpointNicName = 'iot-demo-signalr-pe-nic'
+param privateEndpointSubnetName = 'private-endpoint'
+param signalRPrivateDnsZoneGroupName = 'default'
+param signalRPrivateDnsZoneConfigName = 'privatelink-service-signalr-net'
+param signalRPrivateDnsZoneName = 'privatelink.service.signalr.net'
+
+param gameFunctionPrivateEndpointName = 'iot-demo-game-function-pe'
+param gameFunctionPrivateEndpointNicName = 'iot-demo-game-function-pe-nic'
+param gameFunctionPrivateDnsZoneGroupName = 'default'
+param gameFunctionPrivateDnsZoneConfigName = 'privatelink-azurewebsites-net'
+param gameFunctionPrivateDnsZoneName = 'privatelink.azurewebsites.net'
+
+param gameStorageBlobPrivateEndpointName = 'iot-demo-game-storage-blob-pe'
+param gameStorageBlobPrivateEndpointNicName = 'iot-demo-game-storage-blob-pe-nic'
+param gameStorageBlobPrivateDnsZoneGroupName = 'default'
+param gameStorageBlobPrivateDnsZoneConfigName = 'privatelink-blob-core-windows-net'
+param gameStorageBlobPrivateDnsZoneName = 'privatelink.blob.core.windows.net'
+
+param iotHubName = 'iothub-aw-iot-copilot'
+param iotHubPrivateEndpointName = 'iot-demo-iothub-pe'
+param iotHubPrivateEndpointNicName = 'iot-demo-iothub-pe-nic'
+param iotHubPrivateDnsZoneGroupName = 'default'
+param iotHubPrivateDnsZoneConfigNames = [
+  {
+    configName: 'privatelink-azure-devices-net'
+    zoneName: 'privatelink.azure-devices.net'
+  }
+  {
+    configName: 'privatelink-servicebus-windows-net'
+    zoneName: 'privatelink.servicebus.windows.net'
+  }
+]
 
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.
