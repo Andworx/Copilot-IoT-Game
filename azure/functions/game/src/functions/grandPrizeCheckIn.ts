@@ -27,7 +27,7 @@ export async function grandPrizeCheckIn(
 
   try {
     const result = await checkInGrandPrizeEntry(body.checkInCode);
-    return { status: result.status === "invalid" ? 404 : 200, jsonBody: result };
+    return { status: 200, jsonBody: result };
   } catch (error) {
     context.error("grand-prize/check-in failed", error);
     return { status: 500, jsonBody: { error: "Failed to check in grand-prize entry" } };
