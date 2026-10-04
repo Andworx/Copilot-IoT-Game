@@ -31,6 +31,7 @@ await page.route("**/api/**", async route => {
     body = { deviceSlug: activeMode, gameModeEnabled };
     if (holdSnapshots) await new Promise(resolve => pendingSnapshots.push(resolve));
   }
+  else if (path.endsWith("/device-profiles")) body = { profiles: [] };
   else if (path.endsWith("/create-win")) { wins++; body = { claimToken: "recovery-fixture" }; }
   else throw new Error(`Unexpected API: ${path}`);
   await route.fulfill({ contentType: "application/json", body: JSON.stringify(body) });
@@ -65,6 +66,19 @@ try {
   await page.locator('.panel-surface[data-live="true"]').waitFor();
   await page.getByRole("button", { name: "Connection and display options" }).click();
   assert.equal(await page.locator('.gear-status strong[data-state="connected"]').count(), 2);
+
+  // Intentional info-page exploration survives polling, then a missed mode broadcast recovers.
+  await page.getByRole("menuitem", { name: /Info/ }).click();
+  await page.waitForURL("**/kiosk/info");
+  activeMode = "thermostat";
+  await advance(5100);
+  assert.ok(page.url().endsWith("/kiosk/info"), "polling interrupted intentional info-page exploration");
+  await page.getByRole("button", { name: /Return to.*Thermostat/ }).click();
+  await page.waitForURL("**/kiosk/thermostat");
+  activeMode = "water-pump";
+  await advance(5100);
+  assert.ok(page.url().endsWith("/kiosk/water-pump"), "polling did not recover a missed mode broadcast");
+  await page.getByRole("button", { name: "Connection and display options" }).click();
 
   // Outage longer than the SDK's default four-attempt window must still recover.
   online = false;
@@ -115,10 +129,11 @@ try {
   reading(activeMode, restored);
   await page.getByAltText("Scan to claim your prize").waitFor();
   assert.equal(wins, 1);
+
   mkdirSync("test-results/connection-recovery", { recursive: true });
   await page.screenshot({ path: "test-results/connection-recovery/recovered.png" });
   assert.deepEqual(errors, []);
-  console.log("Recovery passed: initial failure, online restart, >4 reconnect attempts, stale deep link, wake mode/flag resync, snapshot race, and fresh-reading gate.");
+  console.log("Recovery passed: initial failure, online restart, >4 reconnect attempts, stale deep link, polling fallback with intentional Info exploration, wake mode/flag resync, snapshot race, and fresh-reading gate.");
 } finally {
   await browser.close();
 }
