@@ -18,11 +18,11 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 5 | 0 | 1 | 6 |
-| Integration (Azure Functions) | 11 | 4 | 2 | 0 | 17 |
+| Integration (Azure Functions) | 11 | 4 | 3 | 0 | 18 |
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 1 | 1 | 0 | 2 |
-| Totals | 22 | 35 | 10 | 2 | 69 |
+| Totals | 22 | 35 | 11 | 2 | 70 |
 
 ## Dataverse
 
@@ -123,6 +123,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Adopt the game Function App host, Flex Consumption plan, storage account, and package container into `main.bicep` | Infrastructure as code | ✅ Done | Issue #209 — preserved `func-aw-azcom-iot-game`, plan `ASP-rgawazcomiotcopilot-ec55`, storage `stawazcomiotgamefn`, package container `app-package-funcawazcomiotgame-0968767`, managed identity, deployment storage, VNet integration, CORS, TLS/FTPS settings, and app setting names without recording secret values. Post-merge reconciliation and E2E validation passed 2026-10-03. |
 | Consolidate staff Function infrastructure ownership | Infrastructure as code | ✅ Done | Issue #210 — `staff-api.bicep` remains the single owner for `func-aw-azcom-iot-staff`, its plan, storage, package container, VNet integration, monitoring inheritance, and staff auth settings. Guardrails prevent these resources from being co-owned by `main.bicep`/reference snapshots while preserving automatic staff deployment bootstrap and authenticated Code App calls. PR #233 merged; main Infrastructure and Build/deploy apps workflows passed; authenticated staff/API E2E validation passed 2026-10-03. |
 | Adopt monitoring, diagnostics, and alerts | Infrastructure as code | ✅ Done | Issue #212 — active game Application Insights `func-aw-azcom-iot-game`, local Smart Detection action group `application insights smart detection`, and `Failure Anomalies - func-aw-azcom-iot-game` Smart Detector alert are adopted into `main.bicep`. The shared default Log Analytics workspace is referenced but not owned; retired legacy App Insights/alerting and the old `rg-aw-azcom-demo` action group dependency are excluded from target state. PRs #237/#238 merged and deployed; final reconciliation passed 2026-10-03, live monitoring guard passed, and E2E was user-confirmed 2026-10-03. |
+| Adopt IoT Hub configuration and managed-identity routing | Infrastructure as code | ⬜ TODO | Issue #213 / epic #216 — begin from the live `iothub-aw-iot-copilot` reference snapshot, then add a guarded deployable IoT Hub module only after IAM bootstrap can manage the existing hub and recreate the Event Hubs Data Sender assignment. Preserve SKU, device-facing behavior, built-in endpoint, route `route-iotpanel`, fallback route, enrichments, cloud-to-device settings, and the identity-based `endpoint-iotpanel` custom endpoint. Device identities, twins, DPS enrollments, router keys, and sibling-project ownership remain separate migration/documentation work. |
 | Retire legacy `rg-aw-azcom-demo` resource group | Azure resource cleanup | ⬜ TODO | Issue #236 — after #212 deploy moves Smart Detection to the local action group in `rg-aw-azcom-iot-copilot`, inventory remaining resources and dependencies in the old demo resource group, migrate or retire anything still live, then delete or archive the group only after owner-approved validation. |
 | Tier 3 reference snapshots + drift check for IoT Hub, DPS, Function Apps, plans, and storage | Infrastructure reference | ✅ Done | Verified in CI: the read-only reader identity's `snapshots` job passes against live, and the deploy job's post-check caught the one intended change (the Function App's new identity). App Insights moved into deployable monitoring ownership under #212. |
 | Retire legacy `func-aw-iot-copilot` | Azure Function (`Andworx/copilot-iot-service`) | ⬜ Verify | Owner confirmed 2026-09-29 that the original dashboard app is no longer used. Remove its Event Hub dependency during private-access cutover, validate the current game, then retire its dedicated app/plan/storage/monitoring resources using [the retirement runbook](../docs/LEGACY_FUNCTION_RETIREMENT.md). |
