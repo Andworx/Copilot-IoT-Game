@@ -1,0 +1,134 @@
+[
+  {
+    "name": "microsoft",
+    "title": "Microsoft",
+    "family": "microsoft",
+    "colours": [
+      "#f25022",
+      "#7fba00",
+      "#00a4ef",
+      "#ffb900"
+    ],
+    "elements": 4
+  },
+  {
+    "name": "power-platform",
+    "title": "Power Platform",
+    "family": "power-platform",
+    "colours": [
+      "#27b288",
+      "#147981",
+      "#3eb08f"
+    ],
+    "elements": 3
+  },
+  {
+    "name": "power-apps",
+    "title": "Power Apps",
+    "family": "power-platform",
+    "colours": [
+      "#631965",
+      "#a03f94",
+      "#e089c6"
+    ],
+    "elements": 4
+  },
+  {
+    "name": "power-automate",
+    "title": "Power Automate",
+    "family": "power-platform",
+    "colours": [
+      "#1b45b4",
+      "#2a8df7",
+      "#63c3ff"
+    ],
+    "elements": 3
+  },
+  {
+    "name": "power-pages",
+    "title": "Power Pages",
+    "family": "power-platform",
+    "colours": [
+      "#5a46d2",
+      "#7f6ef5",
+      "#96a3ff"
+    ],
+    "elements": 3
+  },
+  {
+    "name": "dataverse",
+    "title": "Dataverse",
+    "family": "power-platform",
+    "colours": [
+      "#187162",
+      "#3eb180",
+      "#71d5aa"
+    ],
+    "elements": 5
+  },
+  {
+    "name": "ai-builder",
+    "title": "AI Builder",
+    "family": "power-platform",
+    "colours": [
+      "#3362dc",
+      "#3db0fe",
+      "#62c5fe"
+    ],
+    "elements": 5
+  },
+  {
+    "name": "copilot",
+    "title": "Copilot",
+    "family": "power-platform",
+    "colours": [
+      "#a657d8",
+      "#60bda2",
+      "#f9918b"
+    ],
+    "elements": 5
+  },
+  {
+    "name": "azure",
+    "title": "Azure",
+    "family": "azure",
+    "colours": [
+      "#0c5aa4",
+      "#0078d4",
+      "#32aeea"
+    ],
+    "elements": 3
+  },
+  {
+    "name": "azure-functions",
+    "title": "Azure Functions",
+    "family": "azure",
+    "colours": [
+      "#50e6ff",
+      "#1490df",
+      "#feb616"
+    ],
+    "elements": 5
+  },
+  {
+    "name": "azure-iot-hub",
+    "title": "Azure IoT Hub",
+    "family": "azure",
+    "colours": [
+      "#ffffff",
+      "#949494",
+      "#27b2d7"
+    ],
+    "elements": 9
+  },
+  {
+    "name": "azure-signalr",
+    "title": "Azure SignalR",
+    "family": "azure",
+    "colours": [
+      "#2f8ce2",
+      "#f2f2f2"
+    ],
+    "elements": 2
+  }
+]
