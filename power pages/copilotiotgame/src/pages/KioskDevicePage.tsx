@@ -15,7 +15,7 @@ import { API_BASE_URL } from "../lib/apiConfig";
 interface RuntimeDeviceProfile {
   deviceSlug: string;
   winText: string | null;
-  winTextInNonGameMode: string | null;
+  winTextInNonGameMode?: string | null;
 }
 
 /**
