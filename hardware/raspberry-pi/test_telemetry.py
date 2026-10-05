@@ -18,6 +18,10 @@ class FakeClient:
     def create_from_connection_string(cls, _conn_str):
         return cls()
 
+    @classmethod
+    def create_from_symmetric_key(cls, **_kwargs):
+        return cls()
+
     def connect(self):
         FakeClient.attempts += 1
         if FakeClient.attempts <= FakeClient.fail_times:
@@ -28,6 +32,26 @@ class FakeClient:
 
     def shutdown(self):
         pass
+
+
+class FakeProvisioningClient:
+    status = "assigned"
+    assigned_hub = "iothub-aw-iot-copilot.azure-devices.net"
+    device_id = "copilotiotpanel"
+    calls = []
+
+    @classmethod
+    def create_from_symmetric_key(cls, **kwargs):
+        cls.calls.append(kwargs)
+        return cls()
+
+    def register(self):
+        registration_state = type(
+            "RegistrationState",
+            (),
+            {"assigned_hub": self.assigned_hub, "device_id": self.device_id},
+        )()
+        return type("RegistrationResult", (), {"status": self.status, "registration_state": registration_state})()
 
 
 def make_client(fail_times):
@@ -80,6 +104,29 @@ class ReconnectTests(unittest.TestCase):
             client._retry_connection_if_due()
         self.assertEqual(FakeClient.attempts, 0)
         self.assertIsNone(client._client)
+
+    def test_dps_credentials_provision_then_connect_to_assigned_hub(self):
+        FakeClient.attempts = 0
+        FakeClient.fail_times = 0
+        FakeProvisioningClient.calls = []
+        env = {
+            "AZURE_IOT_DPS_ID_SCOPE": "0ne011EB47B",
+            "AZURE_IOT_DPS_REGISTRATION_ID": "copilotiotpanel",
+            "AZURE_IOT_DPS_SYMMETRIC_KEY": "device-key",
+        }
+        with mock.patch.dict(os.environ, env, clear=True), \
+                mock.patch.object(telemetry, "IoTHubDeviceClient", FakeClient), \
+                mock.patch.object(telemetry, "ProvisioningDeviceClient", FakeProvisioningClient), \
+                mock.patch.object(FakeClient, "create_from_symmetric_key", return_value=FakeClient()) as create_hub:
+            client = telemetry.TelemetryClient()
+
+        self.assertIsNotNone(client._client)
+        self.assertEqual(FakeProvisioningClient.calls[0]["registration_id"], "copilotiotpanel")
+        create_hub.assert_called_once_with(
+            symmetric_key="device-key",
+            hostname="iothub-aw-iot-copilot.azure-devices.net",
+            device_id="copilotiotpanel",
+        )
 
 
 if __name__ == "__main__":

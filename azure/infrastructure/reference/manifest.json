@@ -14,7 +14,7 @@
       "why": "Its enrollment group key derives device keys; recreating it forces devices to reprovision.",
       "type": "Microsoft.Devices/ProvisioningServices",
       "resource": "dps-aw-iot-copilot",
-      "query": "{sku: sku, location: location, allocationPolicy: properties.allocationPolicy, linkedHubs: properties.iotHubs[].{name: name, location: location, allocationWeight: allocationWeight}}"
+      "query": "{sku: sku, location: location, tags: tags, state: properties.state, provisioningState: properties.provisioningState, idScope: properties.idScope, allocationPolicy: properties.allocationPolicy, publicNetworkAccess: properties.publicNetworkAccess, ipFilterRules: properties.ipFilterRules, linkedHubs: properties.iotHubs[].{name: name, location: location, allocationWeight: allocationWeight, applyAllocationPolicy: applyAllocationPolicy, authenticationType: authenticationType}}"
     }
   ]
 }

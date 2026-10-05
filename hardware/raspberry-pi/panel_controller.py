@@ -55,6 +55,12 @@ class PanelController:
         self.mode_state_url = os.environ.get("MODE_STATE_URL")
         self.mode_state_file = Path(os.environ.get("MODE_STATE_FILE", "active_mode.json"))
         self._mode_source_warning_sent = False
+        if not self.mode_state_url and not os.environ.get("ACTIVE_DEVICE_SLUG") and not self.mode_state_file.exists():
+            log.warning(
+                "No MODE_STATE_URL, MODE_STATE_FILE, or ACTIVE_DEVICE_SLUG configured; "
+                "panel will fall back to %s and kiosk telemetry for other modes will be ignored.",
+                DEFAULT_MODE_SLUG,
+            )
         self._next_mode_poll = 0.0
 
         self._active_profile = None
