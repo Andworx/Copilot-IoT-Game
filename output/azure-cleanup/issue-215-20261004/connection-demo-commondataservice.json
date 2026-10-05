@@ -1,0 +1,51 @@
+{
+  "extendedLocation": null,
+  "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-demo/providers/Microsoft.Web/connections/commondataservice",
+  "identity": null,
+  "kind": "V1",
+  "location": "eastus",
+  "managedBy": null,
+  "name": "commondataservice",
+  "plan": null,
+  "properties": {
+    "api": {
+      "brandColor": "#637080",
+      "category": "Standard",
+      "description": "Provides access to the environment database in Microsoft Dataverse.",
+      "displayName": "Microsoft Dataverse",
+      "iconUri": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1818/1.0.1818.4788/commondataservice/icon-la.png",
+      "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/providers/Microsoft.Web/locations/eastus/managedApis/commondataservice",
+      "name": "commondataservice",
+      "type": "Microsoft.Web/locations/managedApis"
+    },
+    "authenticatedUser": {
+      "name": "ed.williams.labs@andworxlabs.com"
+    },
+    "changedTime": "2026-10-01T00:59:39.0608779Z",
+    "connectionId": "02ad08361ea64060901096e363569739",
+    "connectionState": "Enabled",
+    "createdTime": "2025-08-21T00:54:27.754134Z",
+    "customParameterValues": {},
+    "displayName": "Andworx_Labs_Dev",
+    "overallStatus": "Connected",
+    "parameterValueSet": {
+      "name": "Oauth",
+      "values": {
+        "token:grantType": {
+          "value": "code"
+        }
+      }
+    },
+    "statuses": [
+      {
+        "status": "Connected"
+      }
+    ],
+    "testLinks": [],
+    "testRequests": []
+  },
+  "resourceGroup": "rg-aw-azcom-iot-demo",
+  "sku": null,
+  "tags": null,
+  "type": "Microsoft.Web/connections"
+}

@@ -36,8 +36,22 @@ be folded into the normal game deployment.
 
 ## Retirement progress
 
-As of 2026-09-30, the private Event Hub path is carrying messages to the current
-game, `func-aw-iot-copilot` is stopped, and the retired `funcapp` consumer group
-has been deleted. The remaining consumer groups are `$Default` and `gamefunc`.
-The Function App and its dedicated supporting resources remain available for the
-retention and final-deletion steps above.
+As of 2026-10-04, the private Event Hub path is carrying messages to the current
+game, the retired `funcapp` consumer group has been deleted, and the dedicated
+legacy Function stack has been removed from Azure:
+
+- Function App `func-aw-iot-copilot`
+- Consumption plan `EastUSPlan`
+- Storage account `stfuncawiotcopilot`
+- Application Insights component `func-aw-iot-copilot`
+- Smart detector alert `Failure Anomalies - func-aw-iot-copilot`
+
+Rollback records were captured under `output/azure-cleanup/issue-215-20261004/`
+before deletion and redacted for secret-looking values. The linked Log Analytics
+workspace in `DefaultResourceGroup-EUS` was preserved.
+
+The obsolete Logic App design resources were also removed after repo and Azure
+inventory confirmed they were not part of the current path: `la-aw-com-iot-agent`,
+`la-aw-com-iot-demo`, and the `commondataservice`/`eventhubs*` API connections in
+`rg-aw-azcom-iot-demo`, plus the unused `eventhubs` API connection in
+`rg-aw-azcom-iot-copilot`.

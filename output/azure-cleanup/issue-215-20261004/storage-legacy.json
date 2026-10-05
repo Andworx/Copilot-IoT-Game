@@ -1,0 +1,68 @@
+{
+  "extendedLocation": null,
+  "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Storage/storageAccounts/stfuncawiotcopilot",
+  "identity": null,
+  "kind": "StorageV2",
+  "location": "eastus",
+  "managedBy": null,
+  "name": "stfuncawiotcopilot",
+  "plan": null,
+  "properties": {
+    "accessTier": "Hot",
+    "allowBlobPublicAccess": false,
+    "allowCrossTenantDelegationSas": false,
+    "allowCrossTenantReplication": false,
+    "creationTime": "2026-05-18T21:25:34.6372350Z",
+    "encryption": {
+      "keySource": "Microsoft.Storage",
+      "services": {
+        "blob": {
+          "enabled": true,
+          "keyType": "Account",
+          "lastEnabledTime": "2026-05-18T21:25:35.0556380Z"
+        },
+        "file": {
+          "enabled": true,
+          "keyType": "Account",
+          "lastEnabledTime": "2026-05-18T21:25:35.0556380Z"
+        }
+      }
+    },
+    "keyCreationTime": {
+      "key1": "2026-05-18T21:25:35.0455013Z",
+      "key2": "2026-05-18T21:25:35.0455013Z"
+    },
+    "minimumTlsVersion": "TLS1_0",
+    "networkAcls": {
+      "bypass": "None",
+      "defaultAction": "Allow",
+      "ipRules": [],
+      "ipv6Rules": [],
+      "virtualNetworkRules": []
+    },
+    "primaryEndpoints": {
+      "blob": "https://stfuncawiotcopilot.blob.core.windows.net/",
+      "dfs": "https://stfuncawiotcopilot.dfs.core.windows.net/",
+      "file": "https://stfuncawiotcopilot.file.core.windows.net/",
+      "queue": "https://stfuncawiotcopilot.queue.core.windows.net/",
+      "table": "https://stfuncawiotcopilot.table.core.windows.net/",
+      "web": "https://stfuncawiotcopilot.z13.web.core.windows.net/"
+    },
+    "primaryLocation": "eastus",
+    "privateEndpointConnections": [],
+    "provisioningState": "Succeeded",
+    "statusOfPrimary": "available",
+    "supportsHttpsTrafficOnly": true
+  },
+  "resourceGroup": "rg-aw-azcom-iot-copilot",
+  "sku": {
+    "capacity": null,
+    "family": null,
+    "model": null,
+    "name": "Standard_LRS",
+    "size": null,
+    "tier": "Standard"
+  },
+  "tags": {},
+  "type": "Microsoft.Storage/storageAccounts"
+}
