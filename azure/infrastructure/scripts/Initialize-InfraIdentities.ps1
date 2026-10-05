@@ -27,8 +27,8 @@
                                                              - approve the IoT Hub private endpoint connection on the existing
                                                                  IoT Hub, without general IoT Hub write access,
                                - Private DNS Zone Contributor on the resource group,
-                               - assign ONLY the "Azure Event Hubs Data Receiver" role, and
-                                 only on the telemetry event hub (ABAC-conditioned).
+                                                            - assign ONLY the "Azure Event Hubs Data Receiver" role on the telemetry event hub
+                                                                and "Azure Event Hubs Data Sender" on the Event Hub namespace (ABAC-conditioned).
                              It has no write access to the IoT Hub, DPS, the legacy Function
                              App, unrelated storage, or anything else, so a bad template or workflow
                              physically cannot change them.
@@ -75,6 +75,7 @@ $ErrorActionPreference = 'Stop'
 $readerName = 'id-gha-infra-reader'
 $deployerName = 'id-gha-infra-deployer'
 $receiverRoleId = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'          # Azure Event Hubs Data Receiver
+$senderRoleId = '2b629674-e913-4c01-ae53-ef4638d8f975'            # Azure Event Hubs Data Sender
 $rbacAdminRoleId = 'f58310d9-a9f6-439a-9e8d-f62e7b41a168'          # Role Based Access Control Administrator
 $deployRoleName = 'Infra Deployment Operator'
 $actionGroupRoleName = 'Action Group Operator'
@@ -240,9 +241,11 @@ New-Assignment $deployerName 'Contributor' $gameStorageBlobPrivateEndpointScope
 New-Assignment $deployerName 'Contributor' $iotHubPrivateEndpointScope
 New-Assignment $deployerName 'Private DNS Zone Contributor' $rgScope
 
-# May assign/remove only Event Hubs Data Receiver, and only at the hub.
-$condition = "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {$receiverRoleId})) AND " +
-             "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/delete'})) OR (@Resource[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {$receiverRoleId}))"
+# May assign/remove only Event Hubs Data Sender/Receiver roles, and only within the Event Hub namespace.
+$eventHubsDataRoleIds = "$receiverRoleId, $senderRoleId"
+$condition = "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {$eventHubsDataRoleIds})) AND " +
+             "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/delete'})) OR (@Resource[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {$eventHubsDataRoleIds}))"
+New-Assignment $deployerName $rbacAdminRoleId $nsScope @('--condition', $condition, '--condition-version', '2.0')
 New-Assignment $deployerName $rbacAdminRoleId $hubScope @('--condition', $condition, '--condition-version', '2.0')
 
 Write-Host @"

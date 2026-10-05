@@ -62,7 +62,8 @@ an exported connection string.
 
 Device identities, module identities, twins and DPS enrollments are not ARM state. They remain
 outside this issue and must be backed up or migrated by the separate DPS/device procedure in
-issue #214. The hub is still shared with the sibling `copilot-iot-service` project, so the
+issue #214. See the [DPS enrollment migration and device registration runbook](../../docs/DPS_ENROLLMENT_MIGRATION.md).
+The hub is still shared with the sibling `copilot-iot-service` project, so the
 first deployment approval must include an explicit sibling-project impact check and
 before/after proof that physical device telemetry still reaches Event Hub, the game Function,
 SignalR and Dataverse.

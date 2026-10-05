@@ -26,7 +26,8 @@ Other site folders, Dataverse solutions, flows, and the Pi firmware are outside 
 | Details | [Application workflow](#application-workflow-flow) and the sections below | [Infrastructure workflow](#infrastructure-workflow-deploy-infrayml) |
 
 Not deployed by CI: the IoT Hub and DPS (recorded and drift-checked only, and the infra
-identity cannot write to them), Dataverse solutions and Power Platform components (PAC), the
+identity cannot write to them), DPS enrollment keys and derived device keys (see
+[DPS enrollment migration and device registration](DPS_ENROLLMENT_MIGRATION.md)), Dataverse solutions and Power Platform components (PAC), the
 Copilot Studio agent, and the panel Pi firmware (`hardware/raspberry-pi/deploy.ps1`, copied over
 SSH and restarted by hand).
 
