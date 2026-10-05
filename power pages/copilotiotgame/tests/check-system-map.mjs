@@ -23,6 +23,20 @@ try {
  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),true);
  await page.screenshot({path:"test-results/system-map/kiosk.png"});
  assert.equal(await page.locator(".map-how summary").evaluate(el => el.getBoundingClientRect().bottom <= innerHeight),true);
+ await page.getByRole("button",{name:"Connection and display options"}).click();
+ await page.getByRole("menuitem",{name:"Full solution diagram"}).click();
+ await page.waitForURL("**/kiosk/solution");
+ await page.getByRole("heading",{name:"Copilot IoT Game Breakdown"}).waitFor();
+ assert.equal(await page.locator(".solution-map-page .map-node").count(),18);
+ await page.getByRole("button",{name:/Travel router VPN/}).waitFor();
+ await page.getByRole("button",{name:/VNet \+ private DNS/}).waitFor();
+ await page.getByRole("button",{name:/Staff Function API/}).waitFor();
+ await page.getByRole("button",{name:/Staff connector/}).waitFor();
+ assert.equal(await page.locator(".security-strip article").count(),4);
+ await page.getByRole("button",{name:"Connection and display options"}).click();
+ assert.match(await page.getByRole("menuitem",{name:"Full solution diagram"}).getAttribute("class") ?? "",/is-current/);
+ await page.getByRole("menuitem",{name:/Info/}).click();
+ await page.getByRole("heading",{name:"System Map"}).waitFor();
  for (const node of await page.locator(".map-node").all()) {
   await node.focus();
   assert.ok(await page.locator('.map-links path[data-active="true"]').count() > 0);
@@ -72,5 +86,5 @@ try {
  await touch.close();
  assert.deepEqual(writes,[]);
  assert.deepEqual(errors,[]);
- console.log("System Map passed: 12 nodes, links, keyboard/touch targets, dialogs, focus return, mode updates, resume, read-only navigation, 800x480 and narrow layouts.");
+ console.log("System Map passed: 12-node kiosk map, 18-node solution/network map, links, keyboard/touch targets, dialogs, focus return, mode updates, resume, read-only navigation, 800x480 and narrow layouts.");
 } finally { await browser.close(); }
