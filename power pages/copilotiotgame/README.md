@@ -13,6 +13,7 @@ this app adds Game Mode (win completion behaves differently depending on
 | Route | Renders | Notes |
 |---|---|---|
 | `/kiosk/info` | `KioskInfoPage` | Interactive System Map and How to Play; not a game device |
+| `/kiosk/solution` | `SolutionArchitecturePage` | Full secure-networking solution diagram for large-screen demos |
 | `/kiosk/:deviceSlug` | `KioskDevicePage` | One component, 12 data-driven instances (`src/data/deviceProfiles.ts`) |
 | `/play-spin` | `PlaySpinPage` | Placeholder, not built — the phone-facing spin flow lives in the standalone `power pages/prize wheel` app instead; the win QR links out there directly |
 
@@ -103,7 +104,7 @@ src/
 │   ├── HelpFixBar.tsx, WinOverlay.tsx, SuccessPopup.tsx, DemoGearMenu.tsx
 │   └── surfaces/                  # typed registry and twelve read-only mode instruments
 ├── pages/
-│   ├── KioskInfoPage.tsx, KioskDevicePage.tsx, PlaySpinPage.tsx (placeholder)
+│   ├── KioskInfoPage.tsx, KioskDevicePage.tsx, SolutionArchitecturePage.tsx, PlaySpinPage.tsx (placeholder)
 └── styles/theme.css          # shared tokens + all twelve skins
 ```
 
@@ -163,6 +164,12 @@ Hover or focus a component to highlight its links; click, tap or press Enter for
 role and interfaces. Narrow screens use a card grid; connection details remain available.
 The live-feed indicator reports only this browser SignalR connection. Diagram lines
 are architectural connections, not measurements of service health.
+
+`/kiosk/solution` reuses the same interactive map renderer with a separate full-solution
+dataset for large-screen demos. It expands the kiosk map with the travel-router VPN,
+VNet/private DNS setup, player phone, staff browser, Power Platform staff connector,
+separate staff Function API, PrizeWheel site, GitHub Actions deployment path, public API
+boundary, private IoT telemetry path, Dataverse, SignalR and Copilot Studio token-broker flow.
 
 Opening Info from the gear menu keeps the map open while staff change modes. Return
 follows the latest server-selected mode without issuing a mode write. A direct home/info
