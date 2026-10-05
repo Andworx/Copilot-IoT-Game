@@ -35,7 +35,13 @@ jobs:
           # Use PAT_PROJECT secret if available; fall back to GITHUB_TOKEN
           GH_TOKEN: ${{ secrets.PAT_PROJECT || secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{ github.event.issue.html_url }}
+          PROJECT_NUMBER: ${{ vars.COPILOT_IOT_GAME_PROJECT_NUMBER }}
         run: |
-          # Add issue to org-level project (number: YOUR_PROJECT_NUMBER)
+          if [ -z "${PROJECT_NUMBER}" ]; then
+            echo "Skipping project add: set repository variable COPILOT_IOT_GAME_PROJECT_NUMBER."
+            exit 0
+          fi
+
+          # Add issue to org-level project.
           # Note: Requires PAT_PROJECT secret with 'read:project' scope for org-level projects
-          gh project item-add YOUR_PROJECT_NUMBER --owner YOUR_ORG_NAME --url "$ISSUE_URL" || echo "Failed to add to project. See .github/PROJECT_BOARD_GUIDE.md for setup."
+          gh project item-add "$PROJECT_NUMBER" --owner Andworx --url "$ISSUE_URL" || echo "Failed to add to project. See .github/PROJECT_BOARD_GUIDE.md for setup."

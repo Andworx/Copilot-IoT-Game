@@ -138,10 +138,13 @@ export interface DeviceProfileSummary {
   deviceSlug: string;
   isEnabled: boolean;
   winText: string | null;
+  winTextInNonGameMode: string | null;
 }
 
-async function queryDeviceProfiles(includeWinText: boolean): Promise<DeviceProfileSummary[]> {
-  const select = "andy_deviceprofileid,andy_name,andy_deviceslug,statecode" + (includeWinText ? ",andy_wintext" : "");
+async function queryDeviceProfiles(includeWinText: boolean, includeWinTextInNonGameMode: boolean): Promise<DeviceProfileSummary[]> {
+  const select = "andy_deviceprofileid,andy_name,andy_deviceslug,statecode" +
+    (includeWinText ? ",andy_wintext" : "") +
+    (includeWinTextInNonGameMode ? ",andy_wintextinnongamemode" : "");
   const response = await dataverseFetch(`andy_deviceprofiles?$select=${select}&$orderby=andy_name`);
   const body = (await response.json()) as {
     value: Array<{
@@ -150,6 +153,7 @@ async function queryDeviceProfiles(includeWinText: boolean): Promise<DeviceProfi
       andy_deviceslug: string;
       statecode: number;
       andy_wintext?: string | null;
+      andy_wintextinnongamemode?: string | null;
     }>;
   };
   return body.value.map((row) => ({
@@ -159,16 +163,20 @@ async function queryDeviceProfiles(includeWinText: boolean): Promise<DeviceProfi
     // Built-in Status: only Active (0) profiles are enabled.
     isEnabled: row.statecode === 0,
     winText: row.andy_wintext?.trim() || null,
+    winTextInNonGameMode: row.andy_wintextinnongamemode?.trim() || null,
   }));
 }
 
 /** Lists all andy_deviceprofile rows, for the control app's device picker. */
 export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
   try {
-    return await queryDeviceProfiles(true);
+    return await queryDeviceProfiles(true, true);
   } catch (error) {
+    if (error instanceof Error && error.message.includes("andy_wintextinnongamemode")) {
+      return queryDeviceProfiles(true, false);
+    }
     if (error instanceof Error && error.message.includes("andy_wintext")) {
-      return queryDeviceProfiles(false);
+      return queryDeviceProfiles(false, false);
     }
     throw error;
   }

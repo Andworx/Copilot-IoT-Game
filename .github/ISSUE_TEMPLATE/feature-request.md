@@ -2,7 +2,7 @@
 name: Feature Request
 about: Suggest a new feature or enhancement
 title: "feat: "
-labels: ["YOUR_PROJECT_LABEL", "type:feature", "status:backlog"]
+labels: ["project:copilot-iot-game", "type:feature", "status:backlog"]
 ---
 
 ## User story
@@ -42,4 +42,4 @@ labels: ["YOUR_PROJECT_LABEL", "type:feature", "status:backlog"]
 <!-- Any mockups, diagrams, dependencies, or other context -->
 
 ## Labels
-<!-- After creating this issue, keep `YOUR_PROJECT_LABEL` for project board tracking, keep `type:feature`, and add one or more relevant `area:*` labels. -->
+<!-- After creating this issue, keep `project:copilot-iot-game` for project board tracking, keep `type:feature`, and add one or more relevant `area:*` labels. -->

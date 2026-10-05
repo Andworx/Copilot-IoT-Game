@@ -48,9 +48,10 @@ real win into the wrong path):
   congratulations screen instead.
 
 Both states clear the completion overlay after the reset timer elapses, then remain on
-the same mode so players can review the completed scenario. If `andy_deviceprofile.andy_wintext`
-is populated, that Dataverse text is shown as the completion message; otherwise the page
-falls back to the built-in `deviceProfiles.ts` message.
+the same mode so players can review the completed scenario. In Game Mode ON,
+`andy_deviceprofile.andy_wintext` is shown as the completion message when populated. In
+Game Mode OFF, `andy_deviceprofile.andy_wintextinnongamemode` is preferred, then the page
+falls back to `andy_wintext`, then to the built-in `deviceProfiles.ts` message.
 
 ## Live panel state
 

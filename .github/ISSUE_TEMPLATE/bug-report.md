@@ -2,7 +2,7 @@
 name: Bug Report
 about: Report a reproducible bug or unexpected behaviour
 title: "fix: "
-labels: ["YOUR_PROJECT_LABEL", "type:bug", "status:backlog"]
+labels: ["project:copilot-iot-game", "type:bug", "status:backlog"]
 ---
 
 ## Describe the bug
@@ -52,4 +52,4 @@ labels: ["YOUR_PROJECT_LABEL", "type:bug", "status:backlog"]
 <!-- Any other context about the problem -->
 
 ## Labels
-<!-- After creating this issue, keep `YOUR_PROJECT_LABEL` for project board tracking, keep `type:bug`, and add one or more relevant `area:*` labels. -->
+<!-- After creating this issue, keep `project:copilot-iot-game` for project board tracking, keep `type:bug`, and add one or more relevant `area:*` labels. -->

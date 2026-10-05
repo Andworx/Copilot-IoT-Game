@@ -47,5 +47,5 @@ Fixes #
 **About this PR template:**
 - When merged, the linked issue will automatically move to **Done** and close
 - If this PR is reverted/closed, the issue will move back to **In Progress**
-- For project board tracking, ensure the linked issue has the `YOUR_PROJECT_LABEL` label
+- For project board tracking, ensure the linked issue has the `project:copilot-iot-game` label
 - See [PROJECT_BOARD_GUIDE.md](.github/PROJECT_BOARD_GUIDE.md) for workflow details

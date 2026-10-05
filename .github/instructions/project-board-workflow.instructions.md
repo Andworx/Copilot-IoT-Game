@@ -1,12 +1,12 @@
 ---
-description: "Use when creating new work items, features, or tasks for YOUR_PROJECT_NAME. Ensures all requests are tracked as GitHub issues and added to the project board."
+description: "Use when creating new work items, features, or tasks for Copilot IoT Game. Ensures all requests are tracked as GitHub issues and added to the project board."
 ---
 
 # Project Board Workflow — Issue Creation & Tracking
 
 ## Overview
 
-All work on YOUR_PROJECT_NAME must be tracked as GitHub issues and automatically added to the project board at **https://github.com/orgs/YOUR_ORG_NAME/projects/YOUR_PROJECT_NUMBER**.
+All work on Copilot IoT Game must be tracked as GitHub issues and automatically added to the GitHub Projects v2 board configured by repository variable `COPILOT_IOT_GAME_PROJECT_NUMBER`.
 
 This instruction ensures:
 - ✅ Every user request or task becomes a trackable issue
@@ -43,7 +43,7 @@ When a user makes a request in this chat, clarify:
 
 **Use the "Tracked Work Item" template:**
 
-1. Go to: https://github.com/YOUR_ORG_NAME/YOUR_PROJECT_ID/issues/new?template=tracked-work.md
+1. Go to: https://github.com/Andworx/Copilot-IoT-Game/issues/new?template=tracked-work.md
 2. Fill in:
    - **Title**: Brief, descriptive title (max ~50 chars)
    - **Description**: Clear context and requirements
@@ -52,7 +52,7 @@ When a user makes a request in this chat, clarify:
    - **Related Issues**: Link any related issues/PRs
 
 3. **Add labels when creating:**
-   - ✅ **REQUIRED**: `YOUR_PROJECT_LABEL` — enables project board tracking
+   - ✅ **REQUIRED**: `project:copilot-iot-game` — enables project board tracking
     - ✅ **TYPE**: One `type:*` label (epic/feature/task/bug/chore/docs/refactor/security/test)
    - ✅ **AREA**: One or more of:
      - `area:dataverse` (Dataverse schema changes)
@@ -78,8 +78,8 @@ Once the issue is created, provide:
 **Example response:**
 ```
 ✅ Created issue #123: "Add document sync to capture flow"
-📋 Track it on the board: https://github.com/orgs/YOUR_ORG_NAME/projects/YOUR_PROJECT_NUMBER
-🔗 Issue: https://github.com/YOUR_ORG_NAME/YOUR_PROJECT_ID/issues/123
+📋 Track it on the board configured by `COPILOT_IOT_GAME_PROJECT_NUMBER`
+🔗 Issue: https://github.com/Andworx/Copilot-IoT-Game/issues/123
 
 Next steps:
 1. Create a feature branch: git checkout -b feat/doc-sync
@@ -119,9 +119,9 @@ Three GitHub Actions workflows handle the board state automatically:
 | Workflow | Trigger | Action |
 |----------|---------|--------|
 | `label-sync.yml` | Manual run or `.github/labels.json` updates | Creates/updates repository labels from canonical taxonomy |
-| `project-auto-add.yml` | Issue labeled `YOUR_PROJECT_LABEL` | Auto-adds to board and normalizes status label to `status:backlog` |
+| `project-auto-add.yml` | Issue labeled `project:copilot-iot-game` | Auto-adds to board and normalizes status label to `status:backlog` |
 | `project-auto-move.yml` | PR opened/closed | Moves issue: Backlog→In Review (open), In Review→Done (merged), In Review→In Progress (closed unmerged); syncs `status:*` label |
-| `project-sync.yml` | PR opened | If linked issue missing `YOUR_PROJECT_LABEL` label, adds it automatically |
+| `project-sync.yml` | PR opened | If linked issue missing `project:copilot-iot-game` label, adds it automatically |
 
 **No manual board management needed** — automations handle all status transitions.
 
@@ -137,7 +137,7 @@ Three GitHub Actions workflows handle the board state automatically:
 
 ❌ **DON'T:**
 - Create multiple small issues for a single cohesive task (combine them)
-- Forget to add `YOUR_PROJECT_LABEL` label (won't appear on board)
+- Forget to add `project:copilot-iot-game` label (won't appear on board)
 - Create issues for non-code work (discussions, meta-tasks)
 - Leave issues unlinked to PRs (breaks automation)
 - Manually move items on the board (let automation handle it)
@@ -146,14 +146,14 @@ Three GitHub Actions workflows handle the board state automatically:
 
 | Problem | Cause | Solution |
 |---------|-------|----------|
-| Issue doesn't appear on board | Missing `YOUR_PROJECT_LABEL` label | Add the label to the issue |
+| Issue doesn't appear on board | Missing `project:copilot-iot-game` label | Add the label to the issue |
 | Issue stays in Backlog after PR opened | PR doesn't link to issue | Re-open PR with `Fixes #123` in body |
 | Issue doesn't auto-close after merge | PR not merged properly or link broken | Manually close issue, or re-link in new PR |
 | Workflow not triggering | Actions may be disabled | Check repo Settings → Actions → enabled |
 
 ## References
 
-- **Project Board**: https://github.com/orgs/YOUR_ORG_NAME/projects/YOUR_PROJECT_NUMBER
-- **Issue Template**: https://github.com/YOUR_ORG_NAME/YOUR_PROJECT_ID/issues/new?template=tracked-work.md
+- **Project Board**: GitHub Projects v2 board configured by `COPILOT_IOT_GAME_PROJECT_NUMBER`
+- **Issue Template**: https://github.com/Andworx/Copilot-IoT-Game/issues/new?template=tracked-work.md
 - **CONTRIBUTING.md**: Branch naming, commit conventions, PR workflow
 - **PROJECT_BOARD_GUIDE.md**: User guide for the project board
