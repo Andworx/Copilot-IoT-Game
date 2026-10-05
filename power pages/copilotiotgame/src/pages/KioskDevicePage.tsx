@@ -15,6 +15,7 @@ import { API_BASE_URL } from "../lib/apiConfig";
 interface RuntimeDeviceProfile {
   deviceSlug: string;
   winText: string | null;
+  winTextInNonGameMode: string | null;
 }
 
 /**
@@ -156,7 +157,8 @@ export function KioskDevicePage() {
 
   const lamps = device.computeLamps(state, win);
 
-  const completionMessage = runtimeProfile?.winText || device.winMessage;
+  const gameModeCompletionMessage = runtimeProfile?.winText || device.winMessage;
+  const nonGameModeCompletionMessage = runtimeProfile?.winTextInNonGameMode || gameModeCompletionMessage;
 
   // Fires when the win/success overlay's own dwell timer elapses, in both Game Mode
   // states. Clears local overlay state, but keeps the kiosk on this same mode so the
@@ -213,7 +215,7 @@ export function KioskDevicePage() {
       {win && gameModeEnabled && claimToken && (
         <WinOverlay
           deviceSlug={device.slug}
-          winMessage={completionMessage}
+          winMessage={gameModeCompletionMessage}
           claimToken={claimToken}
           onReset={handleCompletionReset}
         />
@@ -222,7 +224,7 @@ export function KioskDevicePage() {
       {win && gameModeEnabled === false && showSuccessPopup && (
         <SuccessPopup
           deviceSlug={device.slug}
-          winMessage={completionMessage}
+          winMessage={nonGameModeCompletionMessage}
           onReset={handleCompletionReset}
         />
       )}

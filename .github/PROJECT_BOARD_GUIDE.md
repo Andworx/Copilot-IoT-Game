@@ -1,13 +1,13 @@
-# YOUR_PROJECT_NAME Project Board Guide
+# Copilot IoT Game Project Board Guide
 
-This guide explains how to use the GitHub Project Board to track work on the YOUR_PROJECT_NAME solution.
+This guide explains how to use the GitHub Project Board to track work on the Copilot IoT Game solution.
 
 ## Quick Start
 
 ### Adding Work to the Project Board
 
 1. **Create an issue** using the "Tracked Work Item" template (in Issues → New Issue)
-2. **Add the label** `YOUR_PROJECT_LABEL` to the issue
+2. **Add the label** `project:copilot-iot-game` to the issue
 3. **The issue automatically appears** on the project board in the "Backlog" column
 
 ### Reporting Template-Origin Defects From Downstream Repos
@@ -42,7 +42,7 @@ Otherwise classify as **consumer-code-origin** and track it in the consumer repo
 
 | Status | Trigger | Meaning |
 |--------|---------|---------|
-| **Backlog** | Issue created with `YOUR_PROJECT_LABEL` label | Ready to start, not yet assigned |
+| **Backlog** | Issue created with `project:copilot-iot-game` label | Ready to start, not yet assigned |
 | **In Progress** | You start working on the issue | You've claimed the work and begun implementation |
 | **In Review** | Open a PR linked to the issue | Waiting for code review and approval |
 | **Done** | PR is merged | Work is complete, issue auto-closes |
@@ -55,7 +55,7 @@ Otherwise classify as **consumer-code-origin** and track it in the consumer repo
 
 Use the **"Tracked Work Item"** template when creating issues. This template:
 - Pre-fills relevant area labels (`area:dataverse`, `area:flows`, etc.)
-- Reminds you to add the `YOUR_PROJECT_LABEL` label
+- Reminds you to add the `project:copilot-iot-game` label
 - References branch naming and commit conventions from [CONTRIBUTING.md](../CONTRIBUTING.md)
 - Includes placeholders for acceptance criteria
 
@@ -64,7 +64,7 @@ Use the **"Tracked Work Item"** template when creating issues. This template:
 2. Choose **"Tracked Work Item"** template
 3. Fill in the description and acceptance criteria
 4. When creating the issue, add labels:
-   - `YOUR_PROJECT_LABEL` (required — enables project board tracking)
+   - `project:copilot-iot-game` (required — enables project board tracking)
    - One or more `area:*` labels (e.g., `area:flows`, `area:dataverse`)
 
 **Result:** Issue appears in **Backlog** column on project board (auto-added by `project-auto-add.yml` workflow)
@@ -128,7 +128,7 @@ Once your PR is approved and merged:
 - **Files:** `.github/workflows/label-sync.yml`, `.github/labels.json`
 
 ### Workflow: `project-auto-add.yml`
-- **Trigger:** Issue labeled with `YOUR_PROJECT_LABEL`
+- **Trigger:** Issue labeled with `project:copilot-iot-game`
 - **Action:** Adds issue to project board, normalizes status labels to `status:backlog`
 - **File:** `.github/workflows/project-auto-add.yml`
 
@@ -142,7 +142,7 @@ Once your PR is approved and merged:
 
 ### Workflow: `project-sync.yml`
 - **Trigger:** PR opened
-- **Action:** If linked issue missing `YOUR_PROJECT_LABEL` label, auto-adds it
+- **Action:** If linked issue missing `project:copilot-iot-game` label, auto-adds it
 - **File:** `.github/workflows/project-sync.yml`
 
 ---
@@ -152,7 +152,7 @@ Once your PR is approved and merged:
 ### Project Label
 | Label | Usage | Color |
 |-------|-------|-------|
-| `YOUR_PROJECT_LABEL` | Issues tracked on this project board | 🔵 Blue |
+| `project:copilot-iot-game` | Issues tracked on this project board | 🔵 Blue |
 
 ### Status Labels (for filtering)
 | Label | Meaning | Color |
@@ -194,9 +194,9 @@ Once your PR is approved and merged:
 1. Go to your organisation on GitHub
 2. Click **Projects** → **New project**
 3. Choose **Board** layout
-4. Name it (e.g., `YOUR_PROJECT_NAME`)
-5. Note the project number from the URL (e.g., `https://github.com/orgs/YOUR_ORG_NAME/projects/2` → number is `2`)
-6. Set `YOUR_PROJECT_NUMBER` in `project.tokens.json` and re-run `Apply-ProjectTokens.ps1`
+4. Name it (e.g., `Copilot IoT Game`)
+5. Note the project number from the URL (e.g., `https://github.com/orgs/Andworx/projects/2` → number is `2`)
+6. Set repository variable `COPILOT_IOT_GAME_PROJECT_NUMBER` to the GitHub Projects v2 number
 
 ### 2. Create Required Labels
 
@@ -208,7 +208,7 @@ Labels are sourced from `.github/labels.json`. Use one of these options:
 If you need to create labels manually, use this baseline:
 
 **Project label** (required for board automation):
-- `YOUR_PROJECT_LABEL` (e.g., `project:my-project`) — Blue `#0075ca`
+- `project:copilot-iot-game` (e.g., `project:my-project`) — Blue `#0075ca`
 
 **Status labels:**
 - `status:backlog` — Purple `#7057ff`
@@ -285,12 +285,12 @@ If an issue doesn't move automatically:
 ✅ **DO:**
 - Use the "Tracked Work Item" template for all project work
 - Always link issues to PRs (use `Fixes #123` in PR body)
-- Add `YOUR_PROJECT_LABEL` label when creating issues
+- Add `project:copilot-iot-game` label when creating issues
 - Keep issue descriptions clear and include acceptance criteria
 - Reference related issues if applicable
 
 ❌ **DON'T:**
-- Create issues without labeling them `YOUR_PROJECT_LABEL` (they won't appear on the board)
+- Create issues without labeling them `project:copilot-iot-game` (they won't appear on the board)
 - Open PRs without linking to an issue (manual board management required)
 - Manually close issues before merging the PR (let automation handle it)
 - Move items backwards in the workflow (use PR revert/close instead)
@@ -300,7 +300,7 @@ If an issue doesn't move automatically:
 ## Troubleshooting
 
 ### Issue not appearing on project board
-**Cause:** Missing `YOUR_PROJECT_LABEL` label  
+**Cause:** Missing `project:copilot-iot-game` label
 **Fix:** Add the label to the issue
 
 ### PR opened but issue didn't move to "In Review"

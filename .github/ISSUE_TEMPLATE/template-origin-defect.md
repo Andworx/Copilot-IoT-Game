@@ -2,7 +2,7 @@
 name: Template-Origin Defect
 about: Report a defect that originates from this template baseline (not consumer code)
 title: "[TEMPLATE DEFECT] "
-labels: ["YOUR_PROJECT_LABEL", "type:bug", "area:automation", "status:backlog"]
+labels: ["project:copilot-iot-game", "type:bug", "area:automation", "status:backlog"]
 ---
 
 ## Summary
