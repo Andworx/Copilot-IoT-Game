@@ -372,7 +372,7 @@ leaves every other setting alone.
 | Reconciliation fails after a merge | Azure differs from `azure/infrastructure/`. Review the listed Create/Modify/Delete operations and run the manual `deploy` action if they are intended |
 | `deploy` job does not start | Not run from `main` (the environment only accepts `main`) |
 | Telemetry function does not start after `deploy` | Role assignments can take a few minutes to take effect; check the Function App's log stream, and confirm the three settings above exist |
-| Retired `func-aw-iot-copilot` still runs | It is no longer an Event Hub dependency. Retire its dedicated app/plan/storage/monitoring resources separately after the game telemetry validation window. |
+| Retired `func-aw-iot-copilot` still runs | It should not exist after issue #215 cleanup. If it reappears, confirm no rollback was intentionally performed, then rerun the cleanup validation in `docs/LEGACY_FUNCTION_RETIREMENT.md`. |
 
 ## Copilot, Claude, and Codex procedure
 

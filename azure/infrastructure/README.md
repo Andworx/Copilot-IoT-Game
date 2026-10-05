@@ -20,7 +20,7 @@ The owner requested automatic creation of the new staff backend. `staff-api.bice
 |---|---|---|---|
 | **1 + 2: deployed** | VNet and four subnets; five private DNS zones and their VNet links; DNS Private Resolver and inbound endpoint; Point-to-Site VPN gateway and public IP; Event Hub namespace, the `iot-telemetry` hub and its consumer groups, and the Event Hub private endpoint; SignalR service and private endpoint; game Function App host, plan, storage account, package container, Application Insights component, Smart Detection action group, game Function private endpoint, game storage blob private endpoint, IoT Hub private endpoint; and read access for the game Function App's managed identity | `main.bicep` (incremental), verified with `what-if` against live | Resources are adopted one unit at a time. A mismatch that cannot be applied safely (for example the Event Hub partition count) fails instead of recreating anything. |
 | **Function App settings** | `IoTHubEventHubConnectionString__fullyQualifiedNamespace`, `IOT_EVENTHUB_NAME`, `IOT_EVENTHUB_CONSUMER_GROUP` | `scripts/Set-FunctionAppSettings.ps1` (merge) | A `Microsoft.Web/sites` resource replaces the whole app-settings collection and would wipe secrets such as `DATAVERSE_CLIENT_SECRET`. The merge only touches the three names above. |
-| **3: reference only** | IoT Hub, DPS, the legacy Function App, legacy plan, and legacy storage account | `reference/snapshots/*.json`, checked by `scripts/Invoke-ReferenceSnapshot.ps1` | See below. |
+| **3: reference only** | IoT Hub and DPS | `reference/snapshots/*.json`, checked by `scripts/Invoke-ReferenceSnapshot.ps1` | See below. |
 
 ## Monitoring ownership
 
@@ -28,7 +28,7 @@ The owner requested automatic creation of the new staff backend. `staff-api.bice
 
 The Application Insights component stays connected to the existing default Log Analytics workspace in `DefaultResourceGroup-EUS`. That workspace is shared/default Azure platform state outside this resource group, so this repo references it by resource ID but does not deploy or modify it.
 
-There are currently no diagnostic settings, metric alerts, scheduled-query alerts or activity-log alerts in the `rg-aw-azcom-iot-copilot` target design. The retired `func-aw-iot-copilot` Application Insights component, its retired `Failure Anomalies - func-aw-iot-copilot` alert, and the old demo resource group action group are intentionally excluded from the deployable and reference target state.
+There are currently no diagnostic settings, metric alerts, scheduled-query alerts or activity-log alerts in the `rg-aw-azcom-iot-copilot` target design. The retired `func-aw-iot-copilot` Application Insights component and its retired `Failure Anomalies - func-aw-iot-copilot` alert were deleted on 2026-10-04. The old demo resource group action group remains outside the deployable and reference target state.
 
 ## Why the IoT Hub is never deployed from here
 
@@ -188,15 +188,16 @@ separately validated hardening step.
 - **Event Hub retention** is 1 hour or 1 day (Azure reports both). If the game Function App is
   down longer than that, readings are lost. Raising it is a one-line change in
   `main.prod.bicepparam` but a cost and behavior change, so it isn't done here.
-- **Retired app cleanup:** `func-aw-iot-copilot` is no longer used. It remains a
-  separately owned reference resource until the app, its dedicated `EastUSPlan`,
-  `stfuncawiotcopilot`, Application Insights component and failure alert are
-  deliberately removed. Keep the shared Log Analytics workspace. The legacy
-  `funcapp` consumer group has already been removed.
+- **Retired app cleanup:** `func-aw-iot-copilot`, its dedicated `EastUSPlan`,
+  `stfuncawiotcopilot`, Application Insights component and failure alert were
+  deleted on 2026-10-04 after rollback capture and private telemetry validation.
+  The shared Log Analytics workspace was preserved. The legacy `funcapp` consumer
+  group had already been removed.
 - **SignalR CORS is `*`** and the live tier is Standard S1. The Bicep now records
   Standard explicitly because Free does not support the existing private endpoint.
-- **Leftovers** from the earlier Logic App design: the `eventhubs` API connection and the
-  `la-*` deployments. Nothing here uses them.
+- **Leftovers** from the earlier Logic App design were removed on 2026-10-04:
+  the unused `eventhubs` API connection in this resource group, plus the old
+  `la-*` workflows and API connections in `rg-aw-azcom-iot-demo`.
 - The Function Apps' **application settings** (names only; values are never recorded): see
   `docs/CI_CD.md` and `azure/functions/game/README.md`. `DIRECTLINE_SECRET` and the Dataverse secret are set
   by hand.

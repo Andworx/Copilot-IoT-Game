@@ -1,0 +1,45 @@
+{
+  "extendedLocation": null,
+  "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-demo/providers/Microsoft.Web/connections/eventhubs-2",
+  "identity": null,
+  "kind": "V1",
+  "location": "eastus",
+  "managedBy": null,
+  "name": "eventhubs-2",
+  "plan": null,
+  "properties": {
+    "api": {
+      "brandColor": "#c4d5ff",
+      "category": "Standard",
+      "description": "Connect to Azure Event Hubs to send and receive events.",
+      "displayName": "Event Hubs",
+      "iconUri": "https://static.powerapps.com/resource/ppcr/releases/v1.0.1819/1.0.1819.4795/eventhubs/icon.png",
+      "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/providers/Microsoft.Web/locations/eastus/managedApis/eventhubs",
+      "name": "eventhubs",
+      "type": "Microsoft.Web/locations/managedApis"
+    },
+    "authenticatedUser": {},
+    "changedTime": "2025-08-23T12:26:54.3062374Z",
+    "connectionId": "3de1aed3202842aa8c4919722cf74fcb",
+    "connectionState": "Enabled",
+    "createdTime": "2025-08-23T12:26:54.3062374Z",
+    "customParameterValues": {},
+    "displayName": "eventhubs-agent",
+    "overallStatus": "Connected",
+    "parameterValueSet": {
+      "name": "connectionstringauth",
+      "values": {}
+    },
+    "statuses": [
+      {
+        "status": "Connected"
+      }
+    ],
+    "testLinks": [],
+    "testRequests": []
+  },
+  "resourceGroup": "rg-aw-azcom-iot-demo",
+  "sku": null,
+  "tags": null,
+  "type": "Microsoft.Web/connections"
+}

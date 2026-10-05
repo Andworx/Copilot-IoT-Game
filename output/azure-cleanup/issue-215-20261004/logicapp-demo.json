@@ -1,0 +1,489 @@
+{
+  "extendedLocation": null,
+  "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-demo/providers/Microsoft.Logic/workflows/la-aw-com-iot-demo",
+  "identity": null,
+  "kind": null,
+  "location": "eastus",
+  "managedBy": null,
+  "name": "la-aw-com-iot-demo",
+  "plan": null,
+  "properties": {
+    "accessEndpoint": "https://prod-85.eastus.logic.azure.com:443/workflows/a2326112e6e8406e8e6175f534660070",
+    "changedTime": "2025-08-21T12:14:36.7550256Z",
+    "createdTime": "2026-02-27T20:40:37.6641386Z",
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "actions": {
+        "Compose": {
+          "inputs": "@triggerBody()",
+          "runAfter": {},
+          "type": "Compose"
+        },
+        "Condition": {
+          "actions": {
+            "Add_a_new_row_-_game_started": {
+              "inputs": {
+                "body": {
+                  "andy_outcome": "game_started"
+                },
+                "headers": {
+                  "organization": "https://andworx-development.crm.dynamics.com",
+                  "prefer": "return=representation,odata.include-annotations=*"
+                },
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['commondataservice']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "path": "/api/data/v9.1/@{encodeURIComponent(encodeURIComponent('andy_clawmachinegamesessionses'))}"
+              },
+              "runAfter": {
+                "Condition_-_If_Previous_Win": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection"
+            },
+            "Condition_-_If_Previous_Win": {
+              "actions": {},
+              "else": {
+                "actions": {
+                  "Add_a_new_row_-_game_lost": {
+                    "inputs": {
+                      "body": {
+                        "andy_outcome": "game_lost"
+                      },
+                      "headers": {
+                        "organization": "https://andworx-development.crm.dynamics.com",
+                        "prefer": "return=representation,odata.include-annotations=*"
+                      },
+                      "host": {
+                        "connection": {
+                          "name": "@parameters('$connections')['commondataservice']['connectionId']"
+                        }
+                      },
+                      "method": "post",
+                      "path": "/api/data/v9.1/@{encodeURIComponent(encodeURIComponent('andy_clawmachinegamesessionses'))}"
+                    },
+                    "type": "ApiConnection"
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@length(body('List_rows_-_Current_Game_Session')?['value'])",
+                      0
+                    ]
+                  }
+                ]
+              },
+              "runAfter": {
+                "List_rows_-_Current_Game_Session": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If"
+            },
+            "List_rows_-_Current_Game_Session": {
+              "inputs": {
+                "headers": {
+                  "accept": "application/json;odata.metadata=full",
+                  "organization": "https://andworx-development.crm.dynamics.com",
+                  "prefer": "odata.include-annotations=*"
+                },
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['commondataservice']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/api/data/v9.1/@{encodeURIComponent(encodeURIComponent('andy_clawmachinegamesessionses'))}",
+                "queries": {
+                  "fetchXml": "<fetch top=\"1\">\n  <entity name=\"andy_clawmachinegamesessions\">\n    <filter>\n      <condition attribute=\"andy_outcome\" operator=\"eq\" value=\"game_started\" />\n    </filter>\n  </entity>\n</fetch>"
+                }
+              },
+              "type": "ApiConnection"
+            }
+          },
+          "else": {
+            "actions": {
+              "Add_a_new_row_-_game_won": {
+                "inputs": {
+                  "body": {
+                    "andy_outcome": "game_won"
+                  },
+                  "headers": {
+                    "organization": "https://andworx-development.crm.dynamics.com",
+                    "prefer": "return=representation,odata.include-annotations=*"
+                  },
+                  "host": {
+                    "connection": {
+                      "name": "@parameters('$connections')['commondataservice']['connectionId']"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/api/data/v9.1/@{encodeURIComponent(encodeURIComponent('andy_clawmachinegamesessionses'))}"
+                },
+                "type": "ApiConnection"
+              },
+              "HTTP": {
+                "inputs": {
+                  "body": {
+                    "gamesession": "@body('Add_a_new_row_-_game_won')?['andy_clawmachinegamesessionsid']",
+                    "message": "game won"
+                  },
+                  "headers": {
+                    "Content-Type": "application/json"
+                  },
+                  "method": "POST",
+                  "uri": "https://claw-func-app-dzg8cte4akeuf8f3.eastus-01.azurewebsites.net/api/ReceiveFromLogicApp?code=-OtX33fzq-kCV8WHH9Y7woWzA6TecrG1xCcpWZKPLTugAzFukbLXvQ=="
+                },
+                "runAfter": {
+                  "Add_a_new_row_-_game_won": [
+                    "Succeeded"
+                  ]
+                },
+                "runtimeConfiguration": {
+                  "contentTransfer": {
+                    "transferMode": "Chunked"
+                  }
+                },
+                "type": "Http"
+              }
+            }
+          },
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@body('Parse_JSON')?['Properties']?['event_type']",
+                  "game_started"
+                ]
+              }
+            ]
+          },
+          "runAfter": {
+            "Parse_JSON": [
+              "Succeeded"
+            ]
+          },
+          "type": "If"
+        },
+        "Parse_JSON": {
+          "inputs": {
+            "content": "@triggerBody()",
+            "schema": {
+              "properties": {
+                "ContentData": {
+                  "type": "string"
+                },
+                "Properties": {
+                  "properties": {
+                    "content-encoding": {
+                      "properties": {
+                        "Value": {
+                          "type": "string"
+                        },
+                        "ValueSize": {
+                          "type": "integer"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "content-type": {
+                      "properties": {
+                        "Value": {
+                          "type": "string"
+                        },
+                        "ValueSize": {
+                          "type": "integer"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "device_type": {
+                      "type": "string"
+                    },
+                    "event_type": {
+                      "type": "string"
+                    },
+                    "iothub-connection-auth-generation-id": {
+                      "type": "string"
+                    },
+                    "iothub-connection-auth-method": {
+                      "type": "string"
+                    },
+                    "iothub-connection-device-id": {
+                      "type": "string"
+                    },
+                    "iothub-enqueuedtime": {
+                      "type": "string"
+                    },
+                    "iothub-message-source": {
+                      "type": "string"
+                    },
+                    "message-id": {
+                      "properties": {
+                        "EncodeSize": {
+                          "type": "integer"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "x-opt-enqueued-time": {
+                      "type": "string"
+                    },
+                    "x-opt-offset": {
+                      "type": "string"
+                    },
+                    "x-opt-sequence-number": {
+                      "type": "integer"
+                    },
+                    "x-opt-sequence-number-epoch": {
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                },
+                "SystemProperties": {
+                  "properties": {
+                    "EnqueuedTimeUtc": {
+                      "type": "string"
+                    },
+                    "Offset": {
+                      "type": "string"
+                    },
+                    "PartitionKey": {},
+                    "SequenceNumber": {
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "runAfter": {
+            "Compose": [
+              "Succeeded"
+            ]
+          },
+          "type": "ParseJson"
+        }
+      },
+      "contentVersion": "1.0.0.0",
+      "outputs": {},
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "When_events_are_available_in_Event_Hub": {
+          "evaluatedRecurrence": {
+            "frequency": "Second",
+            "interval": 2
+          },
+          "inputs": {
+            "host": {
+              "connection": {
+                "name": "@parameters('$connections')['eventhubs']['connectionId']"
+              }
+            },
+            "method": "get",
+            "path": "/@{encodeURIComponent('andworxiotdemoeventhub')}/events/batch/head",
+            "queries": {
+              "consumerGroupName": "$Default",
+              "contentType": "application/octet-stream",
+              "maximumEventsCount": 1
+            }
+          },
+          "recurrence": {
+            "frequency": "Second",
+            "interval": 2
+          },
+          "splitOn": "@triggerBody()",
+          "type": "ApiConnection"
+        }
+      }
+    },
+    "endpointsConfiguration": {
+      "connector": {
+        "outgoingIpAddresses": [
+          {
+            "address": "40.71.249.139"
+          },
+          {
+            "address": "40.71.249.205"
+          },
+          {
+            "address": "40.114.40.132"
+          },
+          {
+            "address": "40.71.11.80/28"
+          },
+          {
+            "address": "40.71.15.160/27"
+          },
+          {
+            "address": "52.188.157.160"
+          },
+          {
+            "address": "20.88.153.176/28"
+          },
+          {
+            "address": "20.88.153.192/27"
+          },
+          {
+            "address": "52.151.221.184"
+          },
+          {
+            "address": "52.151.221.119"
+          }
+        ]
+      },
+      "workflow": {
+        "accessEndpointIpAddresses": [
+          {
+            "address": "4.156.26.80"
+          },
+          {
+            "address": "4.156.25.14"
+          },
+          {
+            "address": "4.156.25.189"
+          },
+          {
+            "address": "20.242.168.44"
+          },
+          {
+            "address": "4.156.241.183"
+          },
+          {
+            "address": "4.156.243.174"
+          },
+          {
+            "address": "4.156.242.86"
+          },
+          {
+            "address": "4.156.243.165"
+          },
+          {
+            "address": "52.224.145.162"
+          },
+          {
+            "address": "4.156.242.96"
+          },
+          {
+            "address": "4.156.243.173"
+          },
+          {
+            "address": "4.156.241.195"
+          },
+          {
+            "address": "4.156.242.97"
+          },
+          {
+            "address": "4.156.242.26"
+          },
+          {
+            "address": "4.156.242.13"
+          },
+          {
+            "address": "172.212.37.35"
+          }
+        ],
+        "outgoingIpAddresses": [
+          {
+            "address": "52.226.216.187"
+          },
+          {
+            "address": "40.76.148.50"
+          },
+          {
+            "address": "20.84.29.18"
+          },
+          {
+            "address": "40.76.174.39"
+          },
+          {
+            "address": "4.156.27.7"
+          },
+          {
+            "address": "4.156.28.117"
+          },
+          {
+            "address": "4.156.25.188"
+          },
+          {
+            "address": "20.242.168.24"
+          },
+          {
+            "address": "4.156.241.165"
+          },
+          {
+            "address": "4.156.243.170"
+          },
+          {
+            "address": "4.156.242.49"
+          },
+          {
+            "address": "4.156.243.164"
+          },
+          {
+            "address": "52.224.145.30"
+          },
+          {
+            "address": "4.156.242.92"
+          },
+          {
+            "address": "4.156.243.172"
+          },
+          {
+            "address": "4.156.241.191"
+          },
+          {
+            "address": "4.156.241.47"
+          },
+          {
+            "address": "4.156.241.229"
+          },
+          {
+            "address": "4.156.242.12"
+          },
+          {
+            "address": "172.212.32.196"
+          }
+        ]
+      }
+    },
+    "parameters": {
+      "$connections": {
+        "value": {
+          "commondataservice": {
+            "connectionId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-demo/providers/Microsoft.Web/connections/commondataservice",
+            "connectionName": "commondataservice",
+            "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/providers/Microsoft.Web/locations/eastus/managedApis/commondataservice"
+          },
+          "eventhubs": {
+            "connectionId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-demo/providers/Microsoft.Web/connections/eventhubs",
+            "connectionName": "eventhubs",
+            "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/providers/Microsoft.Web/locations/eastus/managedApis/eventhubs"
+          }
+        }
+      }
+    },
+    "provisioningState": "Succeeded",
+    "state": "Enabled",
+    "version": "08584293820478161739"
+  },
+  "resourceGroup": "rg-aw-azcom-iot-demo",
+  "sku": null,
+  "tags": null,
+  "type": "Microsoft.Logic/workflows"
+}
