@@ -63,6 +63,7 @@ Active references live in [`docs/`](docs/):
 
 - [`docs/GAME_MODE_PLAN.md`](docs/GAME_MODE_PLAN.md) — architecture, Dataverse schema, dial/win flow
 - [`docs/KIOSK_UI_SPEC.md`](docs/KIOSK_UI_SPEC.md) — visual/interaction spec for every screen
+- [`docs/INFRASTRUCTURE_WALKTHROUGH.md`](docs/INFRASTRUCTURE_WALKTHROUGH.md) — guided architecture walkthrough: step data format and how to add a dataset
 
 Completed migrations and superseded specs are kept in [`docs/archive/`](docs/archive/) for
 historical reference only — do not build against them:

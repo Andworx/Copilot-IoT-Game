@@ -14,7 +14,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 5 | 5 | 3 | 0 | 13 |
 | Flows | 0 | 0 | 1 | 0 | 1 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
-| Power Pages | 4 | 13 | 1 | 0 | 18 |
+| Power Pages | 4 | 14 | 1 | 0 | 19 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 5 | 0 | 1 | 6 |
@@ -22,7 +22,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 1 | 1 | 0 | 2 |
-| Totals | 22 | 35 | 11 | 2 | 70 |
+| Totals | 22 | 36 | 11 | 2 | 71 |
 
 ## Dataverse
 
@@ -79,6 +79,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `prize wheel`: Explore this solution entry point | Code Site page | ⬜ Verify | Issue #195 — added a responsive `Explore this solution` action that opens the shared `/kiosk/solution` diagram from the phone-facing prize flow. Needs live mobile validation after both Code Sites deploy. |
 | `prize wheel`: GitHub Actions Code Site deployment and claim reachability | Code Site + CI/CD | ⬜ Verify | Issues #196/#197 — `deploy-apps.yml` now builds `power pages/prize wheel`, uploads it through live-site metadata, and injects the current Function App URL so the deployed claim flow no longer depends on stale checked-in site metadata. Needs a production Actions run plus real QR claim smoke test. |
 | `plinko`: player-facing display Code Site and event-day operations UI | Code Site + model-driven views | ⬜ Verify | Issue #127 — `power pages/plinko` now builds as a standalone display with idle how-it-works flow, on-screen chase lights, `plinkoResult` win celebration, QR scan/skip flow, and Plinko-specific prize-wheel handoff copy. The Plinko solution now includes named event-day saved views. Needs Power Pages site creation/activation, `POWER_PLINKO_WEBSITE_ID` configuration, production deploy, and live SignalR/player-flow validation. |
+| Infrastructure guided walkthrough on `/kiosk/info` | Code Site | ⬜ Verify | Issue #258 — shared data-driven walkthrough engine (`data/walkthrough.ts`, `useWalkthrough`, `WalkthroughPanel`) with an 8-step Standard sequence; the timer and highlight state are page-local, so leaving the page or mode clears them. Local build, data-integrity check and browser test pass; production validation awaits release. Advanced view is issue #256. See `power pages/docs/INFRASTRUCTURE_WALKTHROUGH.md`. |
 | `copilotiotgame`: review each kiosk mode UI one by one | Code Site review | ⬜ TODO | Issue #70 — use the local preview/device routes to review all 12 modes individually and track any mode-specific fixes separately. |
 
 ## Plugins
