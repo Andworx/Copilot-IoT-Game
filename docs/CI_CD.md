@@ -14,6 +14,59 @@ Two workflows release this repo:
 
 Other site folders, Dataverse solutions, flows, and the Pi firmware are outside both workflows.
 
+## Destination VPN bootstrap
+
+The manual-only `.github/workflows/bootstrap-destination-vpn.yml` is an isolated
+first migration stage for issue #259. It does not deploy applications, run `main.bicep`,
+modify the source subscription or change existing GitHub release variables.
+
+Target: subscription `9e8c862e-9bba-4363-a21b-c45cabe8b637`, new resource group
+`rg-aw-azcom-iot-copilot`, `eastus`. The template creates only `iot-demo-vnet` with
+the four reserved subnets, `iot-demo-vpn-pip` and `iot-demo-vpn` (VpnGw1AZ).
+New creation uses the documented Generation1 pairing; the source-reported Generation2
+is retained on the source and is not replayed into this new gateway.
+
+### IAM prerequisite
+
+An IAM administrator must create the destination resource group in `eastus`, then use
+its Access control (IAM) page to assign **Contributor** to the existing user-assigned
+managed identity **id-gha-infra-deployer** on this destination group only. Its client ID
+is `74d02027-db4d-4128-a46c-184cd9399f9c`; the identity currently lives in the source
+subscription and authenticates through the existing `infra-deploy` OIDC environment.
+Do not grant Owner, grant source-resource permissions, or change `AZURE_SUBSCRIPTION_ID`.
+Contributor is sufficient for this network-only template; it creates no role assignments.
+
+### Preview, deploy and verify
+
+1. Merge the reviewed bootstrap PR into `main`. This bootstrap never deploys on merge.
+2. Run the workflow from `main` with `action=preview`:
+
+   ```powershell
+   gh workflow run bootstrap-destination-vpn.yml --ref main -f action=preview
+   ```
+
+3. Inspect ARM validation, the what-if summary and the retained preview artifact.
+   Any real network modification/deletion, ignored real network resource, unexpected
+   resource name or cross-scope target fails the run. No preview deploys resources.
+4. Acknowledge the additional ongoing gateway/public-IP charges and dispatch:
+
+   ```powershell
+   gh workflow run bootstrap-destination-vpn.yml --ref main -f action=deploy -f "confirmation=CREATE BILLABLE DESTINATION VPN"
+   ```
+
+5. Record the run URL and commit SHA. The workflow reports the new public IP and checks
+   gateway provisioning, SKU, protocol and public root certificate. Gateway provisioning
+   can take a substantial part of the workflow's two-hour timeout.
+6. Test with a destination VPN client profile and an existing approved client certificate.
+   Keep the router on the source VPN until this test passes. Do not connect both VPNs
+   concurrently because their VNet/client address plans overlap.
+
+Infrastructure provisioning alone does not establish a working private workload path.
+DNS resolver, private DNS, private endpoints and application migration follow separately.
+Keep this item at Verify after deployment until the real VPN test passes. Do not delete
+the source group until all dependent/shared workloads and their rollback paths have been
+validated and source retirement is separately approved.
+
 ## How the pieces fit
 
 | | Application workflow | Infrastructure workflow |

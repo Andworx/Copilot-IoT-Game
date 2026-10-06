@@ -10,6 +10,35 @@ panel Pi â”€â–º IoT Hub â”€â–º route â”€â–º Event Hub
                                 iot-telemetry  iot-game
 ```
 
+## Destination VPN bootstrap
+
+Issue #259 adds `vpn-bootstrap.bicep` and the manual-only
+`bootstrap-destination-vpn.yml` workflow for the first migration stage in subscription
+`9e8c862e-9bba-4363-a21b-c45cabe8b637`. It creates only the destination VNet with four
+subnets, Standard zone-redundant public IP and VpnGw1AZ gateway. It reuses the reviewed
+modules and selected non-secret values from `network/baseline.json`; source resource
+IDs are never included in the compiled template.
+
+New VpnGw1AZ creation uses the documented Generation1 pairing. The source gateway
+reports Generation2 and is not changed. OpenVPN, certificate authentication, public
+root certificate, BGP and the address plan are preserved. Client private keys remain
+on the router and outside git.
+
+An IAM administrator must first create `rg-aw-azcom-iot-copilot` in `eastus` in the
+destination and grant the existing `id-gha-infra-deployer` identity Contributor on that
+group only. No existing GitHub deployment variable is retargeted. Run `preview` from
+`main`, inspect the result, then run `deploy` with confirmation
+`CREATE BILLABLE DESTINATION VPN` to acknowledge additional gateway charges.
+
+The workflow rejects modifications/deletions of existing destination network resources
+and any resource outside the exact bootstrap allowlist. It verifies gateway provisioning
+and reports the new public IP, SHA and run URL. The router stays on the source VPN until
+a real destination connection passes; identical-address source and destination VPNs
+must not be connected concurrently. DNS resolver, private DNS, private endpoints,
+workloads, source cleanup and future release retargeting are separate stages.
+
+See [the destination bootstrap runbook](../../docs/CI_CD.md#destination-vpn-bootstrap).
+
 ## Staff API ownership exception
 
 The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They are the single owner for the staff app, plan, dedicated storage, package container, VNet integration and staff auth settings. They do not replay `main.bicep` or adopt the manually built network. The deployment script refuses to run if the staff app, plan or storage names are added to `main.prod.bicepparam` or the reference manifest, so the staff resources cannot quietly become co-owned by the portable infrastructure stack. The historical reference-only rows below describe the legacy app, not this staff app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).
