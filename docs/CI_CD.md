@@ -81,6 +81,8 @@ Run `action=dns-preview` to validate/preview only five private DNS zones, five d
 VNet links, `iot-demo-dns-resolver` and its static `iot-demo-dns-inbound` endpoint
 `10.20.3.4`. The workflow rejects modifications/deletions and any resource outside its
 exact DNS allowlist. It references the existing destination VNet without redeploying it.
+Azure what-if also reports the three existing VPN foundation resources as Ignore; only
+their exact destination IDs with Ignore/NoChange are accepted. Any mutation still fails.
 
 After reviewing the preview and acknowledging additional resolver charges, run
 `action=dns-deploy` with confirmation `CREATE BILLABLE DESTINATION DNS`. The workflow

@@ -116,10 +116,16 @@ jobs:
             $allowed += "microsoft.network/privatednszones/$($zone.name)"
             $allowed += "microsoft.network/privatednszones/$($zone.name)/virtualnetworklinks/7jkty3vvfilac"
           }
+          $retained = @('microsoft.network/virtualnetworks/iot-demo-vnet', 'microsoft.network/publicipaddresses/iot-demo-vpn-pip', 'microsoft.network/virtualnetworkgateways/iot-demo-vpn')
           foreach ($change in $preview.changes) {
             $id = $change.resourceId.ToLowerInvariant()
             if (-not $id.StartsWith($scope)) { throw "Unexpected DNS scope: $id" }
             $relative = $id.Substring($scope.Length)
+            if ($relative -in $retained) {
+              if ($change.changeType -notin @('Ignore', 'NoChange')) { throw "DNS bootstrap refuses $($change.changeType) on retained VPN foundation: $id." }
+              "- Retained $($change.changeType): $($change.resourceId)" >> $env:GITHUB_STEP_SUMMARY
+              continue
+            }
             if ($relative -notin $allowed) { throw "Unexpected DNS resource: $id" }
             $allowedChanges = @('Create', 'NoChange')
             if ($relative.StartsWith('microsoft.resources/deployments/')) { $allowedChanges += @('Deploy', 'Ignore') }
