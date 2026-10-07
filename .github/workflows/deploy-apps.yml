@@ -191,7 +191,7 @@ jobs:
   deploy-backends:
     name: Deploy and verify backends
     needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AZURE_MIGRATION_FREEZE != 'true'
     runs-on: windows-latest
     timeout-minutes: 20
     environment: production
@@ -285,7 +285,7 @@ jobs:
   deploy-frontends:
     name: Deploy ${{ matrix.label }}
     needs: [build, deploy-backends]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.STAFF_API_CUTOVER_READY == 'true'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.STAFF_API_CUTOVER_READY == 'true' && vars.AZURE_MIGRATION_FREEZE != 'true'
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -367,7 +367,7 @@ jobs:
   deploy:
     name: Deploy production apps
     needs: [deploy-backends, deploy-frontends]
-    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AZURE_MIGRATION_FREEZE != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Verify deployment fan-out

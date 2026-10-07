@@ -20,7 +20,7 @@ on:
         required: true
         default: dns-preview
         type: choice
-        options: [dns-preview, dns-deploy, validate-move, detach-revalidate]
+        options: [dns-preview, dns-deploy, validate-move, validate-stateful, detach-revalidate]
       confirmation:
         description: 'dns-deploy: CREATE BILLABLE DESTINATION DNS; detach-revalidate: DETACH REVALIDATE RESTORE SOURCE FUNCTIONS'
         required: false
@@ -94,14 +94,14 @@ jobs:
           CONFIRMATION: ${{ inputs.confirmation }}
         run: |
           if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Migration workflow runs from main only.' }
-          if ($env:REQUESTED_ACTION -notin @('dns-preview', 'dns-deploy', 'validate-move', 'detach-revalidate')) { throw 'Invalid migration action.' }
+          if ($env:REQUESTED_ACTION -notin @('dns-preview', 'dns-deploy', 'validate-move', 'validate-stateful', 'detach-revalidate')) { throw 'Invalid migration action.' }
           if ($env:REQUESTED_ACTION -eq 'dns-deploy' -and $env:CONFIRMATION -cne 'CREATE BILLABLE DESTINATION DNS') { throw 'Explicit acknowledgement of additional DNS resolver charges is required.' }
           if ($env:REQUESTED_ACTION -eq 'detach-revalidate' -and $env:CONFIRMATION -cne 'DETACH REVALIDATE RESTORE SOURCE FUNCTIONS') { throw 'Explicit temporary source interruption acknowledgement is required.' }
       - uses: azure/login@v3
         with:
           client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ (inputs.action == 'validate-move' || inputs.action == 'detach-revalidate') && '2e291b4a-5f03-4dcd-bb56-09643c729adc' || '9e8c862e-9bba-4363-a21b-c45cabe8b637' }}
+          subscription-id: ${{ (inputs.action == 'validate-move' || inputs.action == 'validate-stateful' || inputs.action == 'detach-revalidate') && '2e291b4a-5f03-4dcd-bb56-09643c729adc' || '9e8c862e-9bba-4363-a21b-c45cabe8b637' }}
       - name: Validate and preview destination DNS
         if: inputs.action == 'dns-preview' || inputs.action == 'dns-deploy'
         shell: pwsh
@@ -163,10 +163,17 @@ jobs:
           }
           'Destination DNS foundation provisioned: five zones/links and resolver inbound 10.20.3.4. VPN/client testing remains deferred by owner; source DNS/router are unchanged.' >> $env:GITHUB_STEP_SUMMARY
       - name: Validate service move without changing source resources
-        if: inputs.action == 'validate-move'
+        if: inputs.action == 'validate-move' || inputs.action == 'validate-stateful'
         shell: pwsh
+        env:
+          REQUESTED_ACTION: ${{ inputs.action }}
         run: |
           $manifest = Get-Content azure/infrastructure/service-move.json -Raw | ConvertFrom-Json
+          $candidates = @($manifest.resources)
+          if ($env:REQUESTED_ACTION -eq 'validate-stateful') {
+            $candidates = @($candidates | Where-Object { $_.type -notlike 'Microsoft.Web/*' })
+            if ($candidates.Count -ne 9) { throw 'Expected nine stateful/monitoring candidates, excluding old Function apps and plans.' }
+          }
           $sourceJson = az resource list --subscription $env:SOURCE_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --query '[].{id:id,name:name,type:type}' --only-show-errors -o json
           if ($LASTEXITCODE -ne 0) { throw 'Could not read source inventory.' }
           $source = @($sourceJson | ConvertFrom-Json)
@@ -174,7 +181,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Could not read destination inventory.' }
           $destination = @($destinationJson | ConvertFrom-Json)
           $ids = @()
-          foreach ($candidate in $manifest.resources) {
+          foreach ($candidate in $candidates) {
             $match = @($source | Where-Object { $_.name -eq $candidate.name -and $_.type -eq $candidate.type })
             if ($match.Count -ne 1) { throw "Expected one source resource: $($candidate.type)/$($candidate.name)." }
             if (@($destination | Where-Object { $_.name -eq $candidate.name -and $_.type -eq $candidate.type }).Count) { throw "Destination already contains move candidate: $($candidate.name)." }
