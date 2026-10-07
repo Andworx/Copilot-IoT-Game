@@ -319,6 +319,34 @@ and perform the separately verified application/router cutover. Do not delete th
 group merely because the nine-resource move passed: old apps, private endpoints, VPN and
 active identities may still be required. Physical testing remains deferred, not waived.
 
+### Restore destination service connectivity
+
+Post-move inspection found the existing source IoT Hub/Event Hubs private endpoints still
+reference the old subscription IDs. They remain in the source VNet for rollback and are
+not a destination connectivity path. The moved Event Hubs namespace has
+`publicNetworkAccess=Disabled`; the destination Functions cannot consume telemetry until
+its private endpoint and DNS record exist. The moved IoT Hub identity-based endpoint also
+retained the source subscription reference after the move.
+
+Run `service-connectivity-preview` to validate/create-only preview two new destination
+private endpoints: Event Hubs `namespace` and IoT Hub `iotHub`, each with destination
+private DNS zone groups on the existing VNet. Review the exact create-only diff; then run
+`service-connectivity-deploy` with
+`CREATE DESTINATION SERVICE PRIVATE ENDPOINTS`. It verifies approved target IDs, NIC IPs,
+and destination DNS records. Source endpoints remain untouched for rollback.
+
+The same action updates only IoT Hub `endpoint-iotpanel.subscriptionId` to the destination
+using the identity-based endpoint command. It first checks the endpoint name, identity
+authentication, URI, entity path and resource group, then verifies those fields plus the
+enabled `route-iotpanel` after the update. No key/connection string is supplied. The
+`function-rebuild.bicep` SignalR bridge reference is corrected to the destination resource
+ID so future rebuild deployments cannot reintroduce the old SignalR target.
+
+After connectivity repair, leave `MIGRATION_STAGING=true` until validation confirms
+Event Hub DNS/resolution, new Function outbound connectivity to SignalR, IoT Hub routing,
+DPS linkage, and physical telemetry. The old Functions and source endpoints still exist;
+do not enable a second telemetry consumer or maintenance timer yet.
+
 ## How the pieces fit
 
 | | Application workflow | Infrastructure workflow |

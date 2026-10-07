@@ -14,19 +14,22 @@ on:
       - 'azure/infrastructure/scripts/Grant-StatefulMoveAccess.ps1'
       - 'azure/infrastructure/scripts/Move-StatefulResources.ps1'
       - 'azure/infrastructure/scripts/Test-StatefulMove.ps1'
+      - 'azure/infrastructure/service-private-endpoints.bicep'
+      - 'azure/infrastructure/modules/eventhub-private-endpoint.bicep'
+      - 'azure/infrastructure/modules/iothub-private-endpoint.bicep'
       - 'azure/infrastructure/modules/private-dns.bicep'
       - 'azure/infrastructure/modules/dns-private-resolver.bicep'
       - 'azure/infrastructure/network/baseline.json'
   workflow_dispatch:
     inputs:
       action:
-        description: 'DNS foundation, move validation, or temporary Function detach/revalidate/restore'
+        description: 'DNS foundation, service private endpoints, stateful move, or temporary Function preflight'
         required: true
         default: dns-preview
         type: choice
-        options: [dns-preview, dns-deploy, validate-move, validate-stateful, detach-revalidate, move-stateful]
+        options: [dns-preview, dns-deploy, service-connectivity-preview, service-connectivity-deploy, validate-move, validate-stateful, detach-revalidate, move-stateful]
       confirmation:
-        description: 'DNS: CREATE BILLABLE DESTINATION DNS; detach: DETACH REVALIDATE RESTORE SOURCE FUNCTIONS; move: MOVE VALIDATED STATEFUL RESOURCES'
+        description: 'Confirmations: CREATE BILLABLE DESTINATION DNS; CREATE DESTINATION SERVICE PRIVATE ENDPOINTS; DETACH REVALIDATE RESTORE SOURCE FUNCTIONS; MOVE VALIDATED STATEFUL RESOURCES'
         required: false
         type: string
 
@@ -74,6 +77,24 @@ jobs:
           if ($forbidden.Count) { throw 'Network resources and deployment identities cannot be included in this move set.' }
           $role = Get-Content azure/infrastructure/roles/move-validator.json -Raw | ConvertFrom-Json
           if (@($role.Actions).Count -ne 2 -or 'Microsoft.Resources/subscriptions/resourceGroups/validateMoveResources/action' -notin $role.Actions -or 'Microsoft.Resources/subscriptions/resourceGroups/read' -notin $role.Actions) { throw 'Validator role is not validation-only.' }
+          az bicep build --file azure/infrastructure/service-private-endpoints.bicep --outfile "$env:RUNNER_TEMP/service-private-endpoints.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Service private-endpoint Bicep compilation failed.' }
+          $peJson = Get-Content "$env:RUNNER_TEMP/service-private-endpoints.json" -Raw
+          if ($peJson.Contains($env:SOURCE_SUBSCRIPTION)) { throw 'Destination service endpoint template references the source subscription.' }
+          $peTemplate = $peJson | ConvertFrom-Json -AsHashtable
+          $peAllowed = @('Microsoft.Resources/deployments','Microsoft.Network/privateEndpoints','Microsoft.Network/privateEndpoints/privateDnsZoneGroups')
+          function Test-PrivateEndpointTemplate($current) {
+            foreach ($resource in $current.resources) {
+              if ($resource.type -notin $peAllowed) { throw "Unexpected destination endpoint resource: $($resource.type)" }
+              if ($resource.ContainsKey('scope') -or $resource.ContainsKey('subscriptionId') -or $resource.ContainsKey('resourceGroup')) { throw 'Cross-scope endpoint resource is forbidden.' }
+              if ($resource.type -eq 'Microsoft.Resources/deployments') { Test-PrivateEndpointTemplate $resource.properties.template }
+            }
+          }
+          Test-PrivateEndpointTemplate $peTemplate
+          az bicep build --file azure/infrastructure/function-rebuild.bicep --outfile "$env:RUNNER_TEMP/function-rebuild.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Function rebuild Bicep compilation failed.' }
+          $rebuildSource = Get-Content azure/infrastructure/function-rebuild.bicep -Raw
+          if ($rebuildSource -match "signalRId:\s*resourceId\(sourceSubscriptionId") { throw 'Function rebuild SignalR bridge still references the source subscription.' }
           Write-Host 'PASS: isolated DNS template, 13 service candidates and validator-only role.'
       - name: Test temporary Function transaction offline
         shell: pwsh
@@ -103,8 +124,9 @@ jobs:
           CONFIRMATION: ${{ inputs.confirmation }}
         run: |
           if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Migration workflow runs from main only.' }
-          if ($env:REQUESTED_ACTION -notin @('dns-preview', 'dns-deploy', 'validate-move', 'validate-stateful', 'detach-revalidate', 'move-stateful')) { throw 'Invalid migration action.' }
+          if ($env:REQUESTED_ACTION -notin @('dns-preview', 'dns-deploy', 'service-connectivity-preview', 'service-connectivity-deploy', 'validate-move', 'validate-stateful', 'detach-revalidate', 'move-stateful')) { throw 'Invalid migration action.' }
           if ($env:REQUESTED_ACTION -eq 'dns-deploy' -and $env:CONFIRMATION -cne 'CREATE BILLABLE DESTINATION DNS') { throw 'Explicit acknowledgement of additional DNS resolver charges is required.' }
+          if ($env:REQUESTED_ACTION -eq 'service-connectivity-deploy' -and $env:CONFIRMATION -cne 'CREATE DESTINATION SERVICE PRIVATE ENDPOINTS') { throw 'Explicit acknowledgement of destination private endpoint charges is required.' }
           if ($env:REQUESTED_ACTION -eq 'detach-revalidate' -and $env:CONFIRMATION -cne 'DETACH REVALIDATE RESTORE SOURCE FUNCTIONS') { throw 'Explicit temporary source interruption acknowledgement is required.' }
           if ($env:REQUESTED_ACTION -eq 'move-stateful' -and ($env:CONFIRMATION -cne 'MOVE VALIDATED STATEFUL RESOURCES' -or $env:AZURE_MIGRATION_FREEZE -cne 'true')) { throw 'Stateful move requires exact acknowledgement and production release freeze.' }
       - uses: azure/login@v3
@@ -112,6 +134,102 @@ jobs:
           client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ (inputs.action == 'validate-move' || inputs.action == 'validate-stateful' || inputs.action == 'detach-revalidate' || inputs.action == 'move-stateful') && '2e291b4a-5f03-4dcd-bb56-09643c729adc' || '9e8c862e-9bba-4363-a21b-c45cabe8b637' }}
+      - name: Validate and preview destination service private endpoints
+        if: inputs.action == 'service-connectivity-preview' || inputs.action == 'service-connectivity-deploy'
+        shell: pwsh
+        run: |
+          $account = az account show --query id --only-show-errors -o tsv
+          if ($LASTEXITCODE -ne 0 -or $account -ne $env:DESTINATION_SUBSCRIPTION) { throw 'Wrong destination subscription.' }
+          $vnetId = "/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
+          foreach ($subnet in @('private-endpoint','function-integration')) {
+            $state = az network vnet subnet show --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --vnet-name iot-demo-vnet --name $subnet --query provisioningState --only-show-errors -o tsv
+            if ($LASTEXITCODE -ne 0 -or $state -ne 'Succeeded') { throw "Destination subnet $subnet is not ready." }
+          }
+          $eventId = "/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP/providers/Microsoft.EventHub/namespaces/evhns-aw-iot-copilot"
+          $hubId = "/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP/providers/Microsoft.Devices/IotHubs/iothub-aw-iot-copilot"
+          foreach ($id in @($eventId,$hubId)) { az resource show --ids $id --query id --only-show-errors -o tsv | Out-Null; if ($LASTEXITCODE -ne 0) { throw "Moved service target not found: $id" } }
+          foreach ($zone in @('privatelink.servicebus.windows.net','privatelink.azure-devices.net')) { az network private-dns zone show --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --name $zone --query name --only-show-errors -o tsv | Out-Null; if ($LASTEXITCODE -ne 0) { throw "Destination DNS zone missing: $zone" } }
+          az deployment group validate --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --name destination-service-private-endpoints --template-file azure/infrastructure/service-private-endpoints.bicep --only-show-errors -o none
+          if ($LASTEXITCODE -ne 0) { throw 'Private endpoint ARM validation failed.' }
+          az deployment group what-if --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --name destination-service-private-endpoints --template-file azure/infrastructure/service-private-endpoints.bicep --no-pretty-print --only-show-errors -o json > "$env:RUNNER_TEMP/service-private-endpoints-whatif.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Private endpoint what-if failed.' }
+          $preview = Get-Content "$env:RUNNER_TEMP/service-private-endpoints-whatif.json" -Raw | ConvertFrom-Json
+          if ($null -eq $preview.changes) { throw 'Missing private endpoint change list.' }
+          $scope = "/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP/providers/".ToLowerInvariant()
+          $allowed = @(
+            'microsoft.network/privateendpoints/iot-migration-eventhub-pe',
+            'microsoft.network/privateendpoints/iot-migration-eventhub-pe/privatednszonegroups/default',
+            'microsoft.network/privateendpoints/iot-migration-iothub-pe',
+            'microsoft.network/privateendpoints/iot-migration-iothub-pe/privatednszonegroups/default',
+            'microsoft.resources/deployments/destination-eventhub-pe',
+            'microsoft.resources/deployments/destination-iothub-pe'
+          )
+          foreach ($change in $preview.changes) {
+            $id = $change.resourceId.ToLowerInvariant()
+            if (-not $id.StartsWith($scope)) { throw "Unexpected endpoint scope: $id" }
+            $relative = $id.Substring($scope.Length)
+            if ($relative -notin $allowed) { throw "Unexpected private endpoint resource: $id" }
+            $allowedChanges = @('Create','NoChange')
+            if ($relative.StartsWith('microsoft.resources/deployments/')) { $allowedChanges += @('Deploy','Ignore') }
+            if ($change.changeType -notin $allowedChanges) { throw "Endpoint repair refuses $($change.changeType) on $id." }
+            "- $($change.changeType): $($change.resourceId)" >> $env:GITHUB_STEP_SUMMARY
+          }
+      - name: Deploy destination service private endpoints only
+        if: inputs.action == 'service-connectivity-deploy'
+        shell: pwsh
+        run: |
+          az deployment group create --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --name destination-service-private-endpoints --template-file azure/infrastructure/service-private-endpoints.bicep --mode Incremental --only-show-errors -o none
+          if ($LASTEXITCODE -ne 0) { throw 'Destination service endpoint deployment failed; source endpoints remain intact.' }
+      - name: Repair moved IoT Hub identity endpoint subscription reference
+        if: inputs.action == 'service-connectivity-deploy'
+        shell: pwsh
+        run: |
+          $account = az account show --query id --only-show-errors -o tsv
+          if ($LASTEXITCODE -ne 0 -or $account -ne $env:DESTINATION_SUBSCRIPTION) { throw 'IoT Hub repair is not authenticated to the destination subscription.' }
+          $beforeJson = az iot hub message-endpoint show --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --hub-name iothub-aw-iot-copilot --endpoint-name endpoint-iotpanel --only-show-errors -o json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read the moved IoT Hub endpoint; no update attempted.' }
+          $before = $beforeJson | ConvertFrom-Json
+          if ($before.authenticationType -ne 'identityBased' -or $before.endpointUri -ne 'sb://evhns-aw-iot-copilot.servicebus.windows.net' -or $before.entityPath -ne 'iot-telemetry' -or $before.resourceGroup -ne $env:MIGRATION_RESOURCE_GROUP) { throw 'Moved IoT Hub endpoint does not match the approved identity-based baseline.' }
+          if ($before.subscriptionId -eq $env:DESTINATION_SUBSCRIPTION) {
+            'IoT Hub identity endpoint already references the destination subscription.' >> $env:GITHUB_STEP_SUMMARY
+          } else {
+            if ($before.subscriptionId -ne $env:SOURCE_SUBSCRIPTION) { throw 'IoT Hub endpoint has an unexpected subscription; refusing update.' }
+            az iot hub message-endpoint update eventhub --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --hub-name iothub-aw-iot-copilot --endpoint-name endpoint-iotpanel --endpoint-resource-group $env:MIGRATION_RESOURCE_GROUP --endpoint-subscription-id $env:DESTINATION_SUBSCRIPTION --only-show-errors -o none
+            if ($LASTEXITCODE -ne 0) { throw 'IoT Hub endpoint subscription reference update failed.' }
+          }
+          $afterJson = az iot hub message-endpoint show --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --hub-name iothub-aw-iot-copilot --endpoint-name endpoint-iotpanel --only-show-errors -o json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not verify the moved IoT Hub endpoint.' }
+          $after = $afterJson | ConvertFrom-Json
+          if ($after.authenticationType -ne 'identityBased' -or $after.subscriptionId -ne $env:DESTINATION_SUBSCRIPTION -or $after.entityPath -ne 'iot-telemetry' -or $after.endpointUri -ne 'sb://evhns-aw-iot-copilot.servicebus.windows.net' -or $after.resourceGroup -ne $env:MIGRATION_RESOURCE_GROUP -or $after.connectionString) { throw 'IoT Hub endpoint post-update verification failed or key authentication appeared.' }
+          $routeJson = az iot hub route list --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --hub-name iothub-aw-iot-copilot --only-show-errors -o json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not verify the IoT telemetry route.' }
+          $route = @($routeJson | ConvertFrom-Json | Where-Object name -eq 'route-iotpanel')
+          if ($route.Count -ne 1 -or -not $route[0].isEnabled -or 'endpoint-iotpanel' -notin $route[0].endpointNames) { throw 'IoT Hub telemetry route changed or is disabled.' }
+          'IoT Hub endpoint remains identity-based with no connection string and references the destination Event Hubs subscription.' >> $env:GITHUB_STEP_SUMMARY
+      - name: Verify destination service endpoints and DNS
+        if: inputs.action == 'service-connectivity-deploy'
+        shell: pwsh
+        run: |
+          $expected = @(
+            @{name='iot-migration-eventhub-pe';target="/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP/providers/Microsoft.EventHub/namespaces/evhns-aw-iot-copilot"},
+            @{name='iot-migration-iothub-pe';target="/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP/providers/Microsoft.Devices/IotHubs/iothub-aw-iot-copilot"}
+          )
+          foreach ($item in $expected) {
+            $peJson = az network private-endpoint show --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --name $item.name --only-show-errors -o json
+            if ($LASTEXITCODE -ne 0) { throw "Destination endpoint missing: $($item.name)" }
+            $pe = $peJson | ConvertFrom-Json
+            if ($pe.provisioningState -ne 'Succeeded' -or $pe.privateLinkServiceConnections[0].privateLinkServiceId -ine $item.target -or $pe.privateLinkServiceConnections[0].privateLinkServiceConnectionState.status -ne 'Approved') { throw "Destination endpoint invalid: $($item.name)" }
+            if (@($pe.networkInterfaces).Count -ne 1 -or -not $pe.networkInterfaces[0].id) { throw "Destination endpoint NIC missing: $($item.name)" }
+            $ips = az network nic show --subscription $env:DESTINATION_SUBSCRIPTION --ids $pe.networkInterfaces[0].id --query "ipConfigurations[].privateIPAddress" --only-show-errors -o json
+            if ($LASTEXITCODE -ne 0 -or @($ips | ConvertFrom-Json).Count -eq 0) { throw "Destination endpoint IP missing: $($item.name)" }
+          }
+          foreach ($zone in @('privatelink.servicebus.windows.net','privatelink.azure-devices.net')) {
+            $recordsJson = az network private-dns record-set a list --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --zone-name $zone --only-show-errors -o json
+            if ($LASTEXITCODE -ne 0) { throw "Could not list destination DNS records for $zone" }
+            $records = @($recordsJson | ConvertFrom-Json)
+            if (-not $records.Count) { throw "No endpoint A records registered in $zone" }
+          }
+          'Destination Event Hubs and IoT Hub private endpoints are approved; source endpoints remain for rollback.' >> $env:GITHUB_STEP_SUMMARY
       - name: Validate and preview destination DNS
         if: inputs.action == 'dns-preview' || inputs.action == 'dns-deploy'
         shell: pwsh
