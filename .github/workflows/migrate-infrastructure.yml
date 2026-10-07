@@ -175,20 +175,22 @@ jobs:
             'microsoft.insights/actiongroups/application insights smart detection',
             'microsoft.alertsmanagement/smartdetectoralertrules/failure anomalies - func-aw-azcom-iot-game'
           )
+          $violations = [System.Collections.Generic.List[string]]::new()
           foreach ($change in $preview.changes) {
             $id = $change.resourceId.ToLowerInvariant()
-            if (-not $id.StartsWith($scope)) { throw "Unexpected endpoint scope: $id" }
-            $relative = $id.Substring($scope.Length)
             "- $($change.changeType): $($change.resourceId)" >> $env:GITHUB_STEP_SUMMARY
+            if (-not $id.StartsWith($scope)) { $violations.Add("Unexpected endpoint scope: $id"); continue }
+            $relative = $id.Substring($scope.Length)
             if ($relative -in $retained) {
-              if ($change.changeType -notin @('Ignore','NoChange')) { throw "Endpoint repair refuses $($change.changeType) on retained resource $id." }
+              if ($change.changeType -notin @('Ignore','NoChange')) { $violations.Add("Endpoint repair refuses $($change.changeType) on retained resource $id.") }
               continue
             }
-            if ($relative -notin $allowed) { throw "Unexpected private endpoint resource: $id" }
+            if ($relative -notin $allowed) { $violations.Add("Unexpected private endpoint resource: $id"); continue }
             $allowedChanges = @('Create','NoChange')
             if ($relative.StartsWith('microsoft.resources/deployments/')) { $allowedChanges += @('Deploy','Ignore') }
-            if ($change.changeType -notin $allowedChanges) { throw "Endpoint repair refuses $($change.changeType) on $id." }
+            if ($change.changeType -notin $allowedChanges) { $violations.Add("Endpoint repair refuses $($change.changeType) on $id.") }
           }
+          if ($violations.Count) { throw "Endpoint preview refused changes: $($violations -join '; ')" }
       - name: Deploy destination service private endpoints only
         if: inputs.action == 'service-connectivity-deploy'
         shell: pwsh
