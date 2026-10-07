@@ -255,6 +255,70 @@ source infrastructure. Never delete the source group while it still contains sta
 resources, needed storage or the active GitHub identities. No whole-group delete is in
 this staging workflow, even when the owner permits replacement of stateless apps.
 
+## Stateful resource move execution
+
+The owner requested execution of the remaining migration on 2026-10-07 after the
+nine-resource stateful validation passed and the new Functions were staged successfully
+in run `37641397303`, SHA `278e470e3cdd0cd1c92d0c6ac2f67fc408460a33`.
+
+`action=move-stateful` in `migrate-infrastructure.yml` requires confirmation
+`MOVE VALIDATED STATEFUL RESOURCES`, main and `AZURE_MIGRATION_FREEZE=true`. The action
+has an exact nine-resource allowlist: IoT Hub, DPS, Event Hub namespace, SignalR, two old
+storage accounts and active Application Insights/action group/Smart Detector alert.
+It does not move old Function apps/plans, network resources or deployment identities,
+and does not recreate or delete stored/device/enrollment state.
+
+### Administrator handoff
+
+The existing infra identity needs source `moveResources/action` and destination role
+assignment access in addition to its existing validator/destination Contributor grants.
+Run the reviewed handoff as an IAM administrator:
+
+```powershell
+./azure/infrastructure/scripts/Grant-StatefulMoveAccess.ps1 -WhatIf
+./azure/infrastructure/scripts/Grant-StatefulMoveAccess.ps1
+```
+
+This creates/assigns the source read/validate/move-only role from `roles/stateful-mover.json`;
+it grants no source Contributor, resource delete/config write or secret read. Destination
+RBAC Administrator is assigned with condition version 2.0 permitting assignments/removal
+only of Event Hubs Data Sender/Receiver roles. The handoff validates identity IDs and
+existing grants rather than silently broadening them. It performs no resource move.
+
+### Execute and verify
+
+The mover checks permissions and staged-app flags, verifies live source/destination
+inventory and refuses any destination name/type collision. It saves a non-secret snapshot
+of exact IDs, IoT Hub/staged Function identities and source Event Hubs Sender/Receiver
+assignments. Temporary destination-RG data-role grants prove restricted role-write access
+before moving and provide continuity while the namespace changes subscription.
+
+It repeats ARM `validateMoveResources`, records the request before executing the move,
+calls `az resource move` once, and verifies all nine resources exist only at their
+destination IDs. It rereads the moved IoT Hub identity, restores the original data roles
+at their translated namespace/hub scopes and grants the new public Function Receiver
+on `iot-telemetry`. It removes only temporary assignments it created after scoped
+restoration succeeds. The old reader grant is retained until cutover disables the old
+app; staged Functions remain background-disabled to prevent duplicate consumers/timers.
+
+Artifacts include `stateful-move-snapshot.json`, request/validation diagnostics, a
+pre-operation journal and `stateful-move-result.json`. A failed/uncertain move must not
+be repeated blindly: inspect both inventories and the journal. Temporary data access
+is retained after an uncertain move or incomplete scoped restoration. Cleanup failures
+fail the run even if resources moved; do not interpret a failed run as proof that nothing
+moved. No automated rollback deletes/recreates services or moves them back.
+
+The same freeze now suppresses old infrastructure reconciliation and apply jobs as well
+as normal app releases, preventing old desired-state templates from interfering while
+resource ownership changes. Keep the freeze until destination ownership/templates and
+release identity/URLs are verified.
+
+After this action, verify private endpoint target IDs, IoT Hub route subscription fields,
+DPS linkage, storage/checkpoints and telemetry, then replace source-owned GitHub identities
+and perform the separately verified application/router cutover. Do not delete the source
+group merely because the nine-resource move passed: old apps, private endpoints, VPN and
+active identities may still be required. Physical testing remains deferred, not waived.
+
 ## How the pieces fit
 
 | | Application workflow | Infrastructure workflow |
