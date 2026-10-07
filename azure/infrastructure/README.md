@@ -99,6 +99,29 @@ IoT Hub/DPS enrollment/device state, checkpoints and deployment identity/OIDC ac
 must be preserved or verified before any source group retirement. See
 [parallel rebuild and cutover](../../docs/CI_CD.md#parallel-function-rebuild-and-cutover).
 
+## Stateful move execution
+
+`move-stateful` runs `scripts/Move-StatefulResources.ps1` from GitHub main with the
+release freeze and exact acknowledgement `MOVE VALIDATED STATEFUL RESOURCES`. It moves
+only the nine non-Web entries in `service-move.json`, never the old apps/plans, network
+or deployment identities. Device/enrollment state and storage contents remain on the
+existing services; no service is recreated or deleted by this action.
+
+An administrator runs `scripts/Grant-StatefulMoveAccess.ps1` to grant the read/validate/
+move-only source role and destination RBAC administration conditioned to Event Hubs
+Sender/Receiver roles. `-WhatIf` previews the IAM handoff. The mover checks permissions,
+captures inventory/data assignments, proves temporary destination data-role grants,
+revalidates, moves once, verifies all nine destination IDs and restores scoped data
+roles for the existing readers/IoT Hub and staged public Function. Temporary broad
+data-role grants are removed only before a rejected move or after scoped restoration.
+An uncertain move retains access and writes a result journal instead of retrying or
+deleting anything. Six offline move/RBAC scenarios run in credential-free CI.
+
+`AZURE_MIGRATION_FREEZE=true` also freezes old infrastructure reconcile/apply/preview
+jobs during the move. This action does not activate the new Functions, replace GitHub
+identities, retarget clients, delete old private endpoints or retire the source group.
+Those dependencies must be resolved and verified after the stateful move.
+
 ## Staff API ownership exception
 
 The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They are the single owner for the staff app, plan, dedicated storage, package container, VNet integration and staff auth settings. They do not replay `main.bicep` or adopt the manually built network. The deployment script refuses to run if the staff app, plan or storage names are added to `main.prod.bicepparam` or the reference manifest, so the staff resources cannot quietly become co-owned by the portable infrastructure stack. The historical reference-only rows below describe the legacy app, not this staff app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).

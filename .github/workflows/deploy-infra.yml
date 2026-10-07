@@ -74,7 +74,7 @@ jobs:
   # as the narrowly scoped deployer identity.
   reconcile:
     name: Reconcile Bicep with Azure (changes nothing)
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.action == 'what-if')
+    if: vars.AZURE_MIGRATION_FREEZE != 'true' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.action == 'what-if'))
     needs: validate
     runs-on: ubuntu-latest
     environment: infra-deploy
@@ -125,7 +125,7 @@ jobs:
 
   deploy:
     name: Deploy
-    if: github.event_name == 'workflow_dispatch' && inputs.action == 'deploy' && github.ref == 'refs/heads/main'
+    if: vars.AZURE_MIGRATION_FREEZE != 'true' && github.event_name == 'workflow_dispatch' && inputs.action == 'deploy' && github.ref == 'refs/heads/main'
     needs: validate
     runs-on: ubuntu-latest
     environment: infra-deploy
@@ -197,7 +197,7 @@ jobs:
 
   network-what-if:
     name: Network baseline preview (no changes)
-    if: github.event_name == 'workflow_dispatch' && inputs.action == 'network-what-if' && github.ref == 'refs/heads/main'
+    if: vars.AZURE_MIGRATION_FREEZE != 'true' && github.event_name == 'workflow_dispatch' && inputs.action == 'network-what-if' && github.ref == 'refs/heads/main'
     needs: validate
     runs-on: ubuntu-latest
     environment: infra-deploy

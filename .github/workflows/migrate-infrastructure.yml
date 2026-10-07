@@ -10,6 +10,10 @@ on:
       - 'azure/infrastructure/roles/function-network-preflight.json'
       - 'azure/infrastructure/scripts/Invoke-FunctionMovePreflight.ps1'
       - 'azure/infrastructure/scripts/Test-FunctionMovePreflight.ps1'
+      - 'azure/infrastructure/roles/stateful-mover.json'
+      - 'azure/infrastructure/scripts/Grant-StatefulMoveAccess.ps1'
+      - 'azure/infrastructure/scripts/Move-StatefulResources.ps1'
+      - 'azure/infrastructure/scripts/Test-StatefulMove.ps1'
       - 'azure/infrastructure/modules/private-dns.bicep'
       - 'azure/infrastructure/modules/dns-private-resolver.bicep'
       - 'azure/infrastructure/network/baseline.json'
@@ -20,9 +24,9 @@ on:
         required: true
         default: dns-preview
         type: choice
-        options: [dns-preview, dns-deploy, validate-move, validate-stateful, detach-revalidate]
+        options: [dns-preview, dns-deploy, validate-move, validate-stateful, detach-revalidate, move-stateful]
       confirmation:
-        description: 'dns-deploy: CREATE BILLABLE DESTINATION DNS; detach-revalidate: DETACH REVALIDATE RESTORE SOURCE FUNCTIONS'
+        description: 'DNS: CREATE BILLABLE DESTINATION DNS; detach: DETACH REVALIDATE RESTORE SOURCE FUNCTIONS; move: MOVE VALIDATED STATEFUL RESOURCES'
         required: false
         type: string
 
@@ -74,14 +78,19 @@ jobs:
       - name: Test temporary Function transaction offline
         shell: pwsh
         run: ./azure/infrastructure/scripts/Test-FunctionMovePreflight.ps1
+      - name: Test stateful move and RBAC offline
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-StatefulMove.ps1
 
   migration:
     name: Destination DNS or source Function preflight
     if: github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 120
     environment: infra-deploy
+    env:
+      AZURE_MIGRATION_FREEZE: ${{ vars.AZURE_MIGRATION_FREEZE || 'false' }}
     permissions:
       contents: read
       id-token: write
@@ -94,14 +103,15 @@ jobs:
           CONFIRMATION: ${{ inputs.confirmation }}
         run: |
           if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Migration workflow runs from main only.' }
-          if ($env:REQUESTED_ACTION -notin @('dns-preview', 'dns-deploy', 'validate-move', 'validate-stateful', 'detach-revalidate')) { throw 'Invalid migration action.' }
+          if ($env:REQUESTED_ACTION -notin @('dns-preview', 'dns-deploy', 'validate-move', 'validate-stateful', 'detach-revalidate', 'move-stateful')) { throw 'Invalid migration action.' }
           if ($env:REQUESTED_ACTION -eq 'dns-deploy' -and $env:CONFIRMATION -cne 'CREATE BILLABLE DESTINATION DNS') { throw 'Explicit acknowledgement of additional DNS resolver charges is required.' }
           if ($env:REQUESTED_ACTION -eq 'detach-revalidate' -and $env:CONFIRMATION -cne 'DETACH REVALIDATE RESTORE SOURCE FUNCTIONS') { throw 'Explicit temporary source interruption acknowledgement is required.' }
+          if ($env:REQUESTED_ACTION -eq 'move-stateful' -and ($env:CONFIRMATION -cne 'MOVE VALIDATED STATEFUL RESOURCES' -or $env:AZURE_MIGRATION_FREEZE -cne 'true')) { throw 'Stateful move requires exact acknowledgement and production release freeze.' }
       - uses: azure/login@v3
         with:
           client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ (inputs.action == 'validate-move' || inputs.action == 'validate-stateful' || inputs.action == 'detach-revalidate') && '2e291b4a-5f03-4dcd-bb56-09643c729adc' || '9e8c862e-9bba-4363-a21b-c45cabe8b637' }}
+          subscription-id: ${{ (inputs.action == 'validate-move' || inputs.action == 'validate-stateful' || inputs.action == 'detach-revalidate' || inputs.action == 'move-stateful') && '2e291b4a-5f03-4dcd-bb56-09643c729adc' || '9e8c862e-9bba-4363-a21b-c45cabe8b637' }}
       - name: Validate and preview destination DNS
         if: inputs.action == 'dns-preview' || inputs.action == 'dns-deploy'
         shell: pwsh
@@ -200,6 +210,12 @@ jobs:
         env:
           CONFIRMATION: ${{ inputs.confirmation }}
         run: ./azure/infrastructure/scripts/Invoke-FunctionMovePreflight.ps1 -OutputDirectory $env:RUNNER_TEMP -Confirmation $env:CONFIRMATION
+      - name: Move validated stateful resources and restore data access
+        if: inputs.action == 'move-stateful'
+        shell: pwsh
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: ./azure/infrastructure/scripts/Move-StatefulResources.ps1 -OutputDirectory $env:RUNNER_TEMP -Confirmation $env:CONFIRMATION
       - name: Restore source Function integrations from snapshot
         if: always() && inputs.action == 'detach-revalidate'
         shell: pwsh
@@ -223,4 +239,9 @@ jobs:
             ${{ runner.temp }}/function-integration-snapshot.json
             ${{ runner.temp }}/function-preflight-result.json
             ${{ runner.temp }}/function-recovery-result.json
+            ${{ runner.temp }}/stateful-move-snapshot.json
+            ${{ runner.temp }}/stateful-move-request.json
+            ${{ runner.temp }}/stateful-move-validation.txt
+            ${{ runner.temp }}/stateful-move-started.json
+            ${{ runner.temp }}/stateful-move-result.json
           if-no-files-found: ignore
