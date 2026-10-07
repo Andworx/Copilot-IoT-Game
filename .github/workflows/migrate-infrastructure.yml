@@ -165,6 +165,14 @@ jobs:
             'microsoft.resources/deployments/destination-iothub-pe'
           )
           $retained = @(
+            'microsoft.devices/iothubs/iothub-aw-iot-copilot',
+            'microsoft.devices/provisioningservices/dps-aw-iot-copilot',
+            'microsoft.eventhub/namespaces/evhns-aw-iot-copilot',
+            'microsoft.signalrservice/signalr/signalr-aw-iot-copilot',
+            'microsoft.storage/storageaccounts/stawazcomiotgamefn',
+            'microsoft.storage/storageaccounts/stawazcomiotstafffn',
+            'microsoft.insights/components/func-aw-azcom-iot-game',
+            'microsoft.insights/actiongroups/application insights smart detection',
             'microsoft.alertsmanagement/smartdetectoralertrules/failure anomalies - func-aw-azcom-iot-game'
           )
           foreach ($change in $preview.changes) {
