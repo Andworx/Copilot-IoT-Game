@@ -87,7 +87,7 @@ module signalRBridge 'modules/signalr-private-endpoint.bicep' = {
     privateEndpointName: 'iot-rebuild-signalr-pe'
     customNetworkInterfaceName: 'iot-rebuild-signalr-pe-nic'
     subnetId: '${vnet.id}/subnets/private-endpoint'
-    signalRId: resourceId(sourceSubscriptionId, sourceGroupName, 'Microsoft.SignalRService/SignalR', 'signalr-aw-iot-copilot')
+    signalRId: resourceId('Microsoft.SignalRService/SignalR', 'signalr-aw-iot-copilot')
     privateDnsZoneGroupName: 'default'
     privateDnsZoneConfigName: 'privatelink-service-signalr-net'
     privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', 'privatelink.service.signalr.net')
