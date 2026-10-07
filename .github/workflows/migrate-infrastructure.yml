@@ -7,19 +7,22 @@ on:
       - 'azure/infrastructure/dns-bootstrap.bicep'
       - 'azure/infrastructure/service-move.json'
       - 'azure/infrastructure/roles/move-validator.json'
+      - 'azure/infrastructure/roles/function-network-preflight.json'
+      - 'azure/infrastructure/scripts/Invoke-FunctionMovePreflight.ps1'
+      - 'azure/infrastructure/scripts/Test-FunctionMovePreflight.ps1'
       - 'azure/infrastructure/modules/private-dns.bicep'
       - 'azure/infrastructure/modules/dns-private-resolver.bicep'
       - 'azure/infrastructure/network/baseline.json'
   workflow_dispatch:
     inputs:
       action:
-        description: 'DNS foundation or validation-only service move check; no source mutation'
+        description: 'DNS foundation, move validation, or temporary Function detach/revalidate/restore'
         required: true
         default: dns-preview
         type: choice
-        options: [dns-preview, dns-deploy, validate-move]
+        options: [dns-preview, dns-deploy, validate-move, detach-revalidate]
       confirmation:
-        description: 'For dns-deploy, acknowledge resolver charges: CREATE BILLABLE DESTINATION DNS'
+        description: 'dns-deploy: CREATE BILLABLE DESTINATION DNS; detach-revalidate: DETACH REVALIDATE RESTORE SOURCE FUNCTIONS'
         required: false
         type: string
 
@@ -68,9 +71,12 @@ jobs:
           $role = Get-Content azure/infrastructure/roles/move-validator.json -Raw | ConvertFrom-Json
           if (@($role.Actions).Count -ne 2 -or 'Microsoft.Resources/subscriptions/resourceGroups/validateMoveResources/action' -notin $role.Actions -or 'Microsoft.Resources/subscriptions/resourceGroups/read' -notin $role.Actions) { throw 'Validator role is not validation-only.' }
           Write-Host 'PASS: isolated DNS template, 13 service candidates and validator-only role.'
+      - name: Test temporary Function transaction offline
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-FunctionMovePreflight.ps1
 
   migration:
-    name: Destination DNS or service move validation
+    name: Destination DNS or source Function preflight
     if: github.event_name == 'workflow_dispatch'
     needs: validate
     runs-on: ubuntu-latest
@@ -88,15 +94,16 @@ jobs:
           CONFIRMATION: ${{ inputs.confirmation }}
         run: |
           if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Migration workflow runs from main only.' }
-          if ($env:REQUESTED_ACTION -notin @('dns-preview', 'dns-deploy', 'validate-move')) { throw 'Invalid migration action.' }
+          if ($env:REQUESTED_ACTION -notin @('dns-preview', 'dns-deploy', 'validate-move', 'detach-revalidate')) { throw 'Invalid migration action.' }
           if ($env:REQUESTED_ACTION -eq 'dns-deploy' -and $env:CONFIRMATION -cne 'CREATE BILLABLE DESTINATION DNS') { throw 'Explicit acknowledgement of additional DNS resolver charges is required.' }
+          if ($env:REQUESTED_ACTION -eq 'detach-revalidate' -and $env:CONFIRMATION -cne 'DETACH REVALIDATE RESTORE SOURCE FUNCTIONS') { throw 'Explicit temporary source interruption acknowledgement is required.' }
       - uses: azure/login@v3
         with:
           client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ inputs.action == 'validate-move' && '2e291b4a-5f03-4dcd-bb56-09643c729adc' || '9e8c862e-9bba-4363-a21b-c45cabe8b637' }}
+          subscription-id: ${{ (inputs.action == 'validate-move' || inputs.action == 'detach-revalidate') && '2e291b4a-5f03-4dcd-bb56-09643c729adc' || '9e8c862e-9bba-4363-a21b-c45cabe8b637' }}
       - name: Validate and preview destination DNS
-        if: inputs.action != 'validate-move'
+        if: inputs.action == 'dns-preview' || inputs.action == 'dns-deploy'
         shell: pwsh
         run: |
           $account = az account show --query id --only-show-errors -o tsv
@@ -180,6 +187,18 @@ jobs:
           az resource invoke-action --subscription $env:SOURCE_SUBSCRIPTION --ids $sourceScope --action validateMoveResources --request-body "@$env:RUNNER_TEMP/move-request.json" --only-show-errors -o json 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/move-validation.txt"
           if ($LASTEXITCODE -ne 0) { throw 'ARM move validation failed. Inspect provider errors and validator-role access; do not detach networking or retry a move.' }
           'ARM move validation passed. No resources were moved, deleted, detached or reconfigured. A separate reviewed move action and explicit outage acceptance are still required.' >> $env:GITHUB_STEP_SUMMARY
+      - name: Temporarily detach Functions, revalidate, and restore
+        if: inputs.action == 'detach-revalidate'
+        shell: pwsh
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: ./azure/infrastructure/scripts/Invoke-FunctionMovePreflight.ps1 -OutputDirectory $env:RUNNER_TEMP -Confirmation $env:CONFIRMATION
+      - name: Restore source Function integrations from snapshot
+        if: always() && inputs.action == 'detach-revalidate'
+        shell: pwsh
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: ./azure/infrastructure/scripts/Invoke-FunctionMovePreflight.ps1 -OutputDirectory $env:RUNNER_TEMP -Confirmation $env:CONFIRMATION -RestoreOnly
       - name: Record run and commit
         if: always()
         shell: pwsh
@@ -194,4 +213,7 @@ jobs:
             ${{ runner.temp }}/dns-whatif.json
             ${{ runner.temp }}/move-request.json
             ${{ runner.temp }}/move-validation.txt
+            ${{ runner.temp }}/function-integration-snapshot.json
+            ${{ runner.temp }}/function-preflight-result.json
+            ${{ runner.temp }}/function-recovery-result.json
           if-no-files-found: ignore

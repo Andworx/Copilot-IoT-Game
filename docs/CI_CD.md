@@ -124,11 +124,62 @@ preserved in the workflow log/artifact. Existing source Function VNet integratio
 private endpoints may intentionally cause validation to fail: those errors identify the
 preparation required for the next reviewed step, not a reason to detach anything now.
 
+### Temporary Function detach and revalidate
+
+The owner accepted temporary source connectivity interruption on 2026-10-07 after
+validation run `37620596640` reported Microsoft.Web code `52044` for both source apps.
+`action=detach-revalidate` requires exact confirmation
+`DETACH REVALIDATE RESTORE SOURCE FUNCTIONS`. No actual resource move is included.
+
+An IAM administrator creates `azure/infrastructure/roles/function-network-preflight.json`
+and assigns it on the source Function Apps only. It grants `Microsoft.Web/sites/read`
+and `Microsoft.Web/sites/write`, not config/secret read, resource deletion or move
+execution. The existing infra identity already has Contributor on the public app; it
+has no staff-app write role, so at minimum the staff-app assignment is required. Do not
+grant source resource-group Contributor. Existing source VNet Contributor supplies
+subnet join permission needed by restoration; the script checks it before detaching.
+
+```powershell
+$source = '2e291b4a-5f03-4dcd-bb56-09643c729adc'
+$groupScope = "/subscriptions/$source/resourceGroups/rg-aw-azcom-iot-copilot"
+$principal = '7377b3c8-b72c-4fd0-bf5e-204f07923d60'
+az role definition create --subscription $source --role-definition azure/infrastructure/roles/function-network-preflight.json --only-show-errors -o none
+if ($LASTEXITCODE -ne 0) { throw 'Network preflight role creation failed; inspect any existing definition.' }
+foreach ($app in @('func-aw-azcom-iot-game', 'func-aw-azcom-iot-staff')) {
+   az role assignment create --subscription $source --scope "$groupScope/providers/Microsoft.Web/sites/$app" --assignee-object-id $principal --assignee-principal-type ServicePrincipal --role 'IoT Function Network Preflight' --only-show-errors -o none
+   if ($LASTEXITCODE -ne 0) { throw "Network preflight assignment failed for $app." }
+}
+```
+
+The main-only transaction checks source login, the validation/destination/group permissions,
+site-write on both apps, subnet join, Running state, exact original subnet and the complete
+move inventory before mutation. It saves `function-integration-snapshot.json`, containing
+only names, IDs and original subnet IDs. Each REST PATCH contains only
+`properties.virtualNetworkSubnetId`; app settings, runtime/deployment config, identities,
+private endpoints, IoT Hub/DPS and stored data are not modified by this script.
+
+After detaching both integrations, it repeats `validateMoveResources`. Regardless of
+success or failure, `finally` restores attempted apps in reverse order and verifies their
+original subnet IDs. The `always()` cleanup step performs restore-only verification or
+recovery from the validated snapshot. Other provider errors can still make the run fail
+even when restoration succeeds; check `function-preflight-result.json` and
+`function-recovery-result.json`, not just the run conclusion. Never interpret a passing
+preflight as a resource move.
+
+For recovery, retained artifacts contain the snapshot and provider diagnostics, no secrets.
+Forced runner termination can prevent both cleanup and artifact upload; operators must
+then read both source site states and restore only the integration property to the known
+original subnet:
+`/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/function-integration`.
+Use the same Web sites PATCH API `2024-04-01` and verify the result. Do not replay a full
+site/config resource or overwrite an unexpected concurrent subnet change. Source
+deployment workflows must remain paused during the temporary transaction.
+
 ### Actual move gate
 
-The workflow has no actual move, source deletion, private endpoint detachment or Function
-configuration action. Before introducing those actions, review the validator errors and
-agree an outage/rollback window. Both Functions must lose source VNet integration for
+The workflow still has no actual move, source deletion or private endpoint detachment
+action. Review further provider errors and separately authorize those actions and their
+outage/rollback window. Both Functions must lose source VNet integration for
 App Service moves; unsupported private endpoint connections must be removed/recreated.
 This can interrupt private telemetry even when the public APIs remain reachable.
 

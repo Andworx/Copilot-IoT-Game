@@ -53,9 +53,24 @@ private endpoints and Function VNet integration deliberately remain attached dur
 first validation so Azure reports the actual blockers before any outage is accepted.
 
 `roles/move-validator.json` grants only source resource-group read and move validation.
-An IAM administrator must create/assign it; the workflow never changes IAM. The actual
-service move, networking detachment/restoration, RBAC restoration, identity replacement,
-release retargeting and source retirement require separate reviewed stages.
+An IAM administrator must create/assign it; the workflow never changes IAM.
+
+The separately acknowledged `detach-revalidate` action runs
+`scripts/Invoke-FunctionMovePreflight.ps1` for the two source Function Apps only. It
+checks all permissions and initial state before any detach, captures non-secret original
+subnet IDs, patches only `virtualNetworkSubnetId`, revalidates the same 13 candidates,
+and restores integrations in `finally` even when validation succeeds. An `always()`
+restore-only workflow step retries/verifies cleanup from the snapshot. Nine offline
+transaction/recovery scenarios run in credential-free CI. No app settings are read or
+rewritten, and no resource is moved/deleted by this action.
+
+The narrow `roles/function-network-preflight.json` role is assigned only on the two
+source apps. The public app already has Contributor; the staff app needs site-write
+permission before the action can start. The role grants site metadata read/write, not
+config/secret read, deletion, IAM or move execution. A site-write role can update other
+site properties; the reviewed script restricts its request body to the integration field.
+Actual service moves, private endpoint deletion, RBAC restoration, identity replacement,
+release retargeting and source retirement remain separate reviewed stages.
 
 The owner deferred physical VPN testing until the remaining infrastructure is migrated.
 This changes the order, not acceptance: VPN/private DNS and complete application/physical
