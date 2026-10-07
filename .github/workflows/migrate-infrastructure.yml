@@ -164,15 +164,22 @@ jobs:
             'microsoft.resources/deployments/destination-eventhub-pe',
             'microsoft.resources/deployments/destination-iothub-pe'
           )
+          $retained = @(
+            'microsoft.alertsmanagement/smartdetectoralertrules/failure anomalies - func-aw-azcom-iot-game'
+          )
           foreach ($change in $preview.changes) {
             $id = $change.resourceId.ToLowerInvariant()
             if (-not $id.StartsWith($scope)) { throw "Unexpected endpoint scope: $id" }
             $relative = $id.Substring($scope.Length)
+            "- $($change.changeType): $($change.resourceId)" >> $env:GITHUB_STEP_SUMMARY
+            if ($relative -in $retained) {
+              if ($change.changeType -notin @('Ignore','NoChange')) { throw "Endpoint repair refuses $($change.changeType) on retained resource $id." }
+              continue
+            }
             if ($relative -notin $allowed) { throw "Unexpected private endpoint resource: $id" }
             $allowedChanges = @('Create','NoChange')
             if ($relative.StartsWith('microsoft.resources/deployments/')) { $allowedChanges += @('Deploy','Ignore') }
             if ($change.changeType -notin $allowedChanges) { throw "Endpoint repair refuses $($change.changeType) on $id." }
-            "- $($change.changeType): $($change.resourceId)" >> $env:GITHUB_STEP_SUMMARY
           }
       - name: Deploy destination service private endpoints only
         if: inputs.action == 'service-connectivity-deploy'
