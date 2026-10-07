@@ -1,0 +1,21 @@
+{
+  "description": "Validation-only ARM move candidates. Network and user-assigned identities are recreated separately; no source mutation is performed by the validation workflow.",
+  "sourceSubscriptionId": "2e291b4a-5f03-4dcd-bb56-09643c729adc",
+  "destinationSubscriptionId": "9e8c862e-9bba-4363-a21b-c45cabe8b637",
+  "resourceGroup": "rg-aw-azcom-iot-copilot",
+  "resources": [
+    { "name": "iothub-aw-iot-copilot", "type": "Microsoft.Devices/IotHubs" },
+    { "name": "dps-aw-iot-copilot", "type": "Microsoft.Devices/ProvisioningServices" },
+    { "name": "evhns-aw-iot-copilot", "type": "Microsoft.EventHub/namespaces" },
+    { "name": "signalr-aw-iot-copilot", "type": "Microsoft.SignalRService/SignalR" },
+    { "name": "stawazcomiotgamefn", "type": "Microsoft.Storage/storageAccounts" },
+    { "name": "stawazcomiotstafffn", "type": "Microsoft.Storage/storageAccounts" },
+    { "name": "ASP-rgawazcomiotcopilot-ec55", "type": "Microsoft.Web/serverFarms" },
+    { "name": "func-aw-azcom-iot-staff-plan", "type": "Microsoft.Web/serverFarms" },
+    { "name": "func-aw-azcom-iot-game", "type": "Microsoft.Web/sites" },
+    { "name": "func-aw-azcom-iot-staff", "type": "Microsoft.Web/sites" },
+    { "name": "func-aw-azcom-iot-game", "type": "Microsoft.Insights/components" },
+    { "name": "application insights smart detection", "type": "Microsoft.Insights/actionGroups" },
+    { "name": "Failure Anomalies - func-aw-azcom-iot-game", "type": "Microsoft.AlertsManagement/smartDetectorAlertRules" }
+  ]
+}

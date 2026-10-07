@@ -39,6 +39,29 @@ workloads, source cleanup and future release retargeting are separate stages.
 
 See [the destination bootstrap runbook](../../docs/CI_CD.md#destination-vpn-bootstrap).
 
+## Remaining subscription migration
+
+Issue #261 adds `dns-bootstrap.bicep` and the manual-only `migrate-infrastructure.yml`
+workflow. Its DNS actions create five private DNS zones, destination VNet links and the
+DNS resolver/inbound endpoint at `10.20.3.4`. The destination VNet is an existing
+reference; this stage never replays VPN resources or changes source DNS/router settings.
+
+Its separate `validate-move` action builds a request from `service-move.json`, checks
+all 13 exact source candidates against live inventory and rejects destination name/type
+collisions. It calls only ARM `validateMoveResources`, not `moveResources`. The source
+private endpoints and Function VNet integration deliberately remain attached during this
+first validation so Azure reports the actual blockers before any outage is accepted.
+
+`roles/move-validator.json` grants only source resource-group read and move validation.
+An IAM administrator must create/assign it; the workflow never changes IAM. The actual
+service move, networking detachment/restoration, RBAC restoration, identity replacement,
+release retargeting and source retirement require separate reviewed stages.
+
+The owner deferred physical VPN testing until the remaining infrastructure is migrated.
+This changes the order, not acceptance: VPN/private DNS and complete application/physical
+telemetry tests still precede router cutover and source retirement. See
+[remaining migration](../../docs/CI_CD.md#remaining-infrastructure-migration).
+
 ## Staff API ownership exception
 
 The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They are the single owner for the staff app, plan, dedicated storage, package container, VNet integration and staff auth settings. They do not replay `main.bicep` or adopt the manually built network. The deployment script refuses to run if the staff app, plan or storage names are added to `main.prod.bicepparam` or the reference manifest, so the staff resources cannot quietly become co-owned by the portable infrastructure stack. The historical reference-only rows below describe the legacy app, not this staff app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).

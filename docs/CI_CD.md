@@ -67,6 +67,82 @@ Keep this item at Verify after deployment until the real VPN test passes. Do not
 the source group until all dependent/shared workloads and their rollback paths have been
 validated and source retirement is separately approved.
 
+## Remaining infrastructure migration
+
+Issue #261 continues from the provisioned VPN with `.github/workflows/migrate-infrastructure.yml`.
+It is manual-only and main-only; existing app/infrastructure release variables are not
+retargeted. The owner deferred a physical VPN connection test until after the remaining
+infrastructure move. VPN and end-to-end acceptance are still required before router
+cutover or source retirement.
+
+### Destination DNS foundation
+
+Run `action=dns-preview` to validate/preview only five private DNS zones, five destination
+VNet links, `iot-demo-dns-resolver` and its static `iot-demo-dns-inbound` endpoint
+`10.20.3.4`. The workflow rejects modifications/deletions and any resource outside its
+exact DNS allowlist. It references the existing destination VNet without redeploying it.
+
+After reviewing the preview and acknowledging additional resolver charges, run
+`action=dns-deploy` with confirmation `CREATE BILLABLE DESTINATION DNS`. The workflow
+checks the endpoint and each VNet link. It does not change source DNS, the router, private
+endpoint records or any workload. Empty destination zones gain service records only when
+the destination private endpoints are created in a later stage.
+
+### Service move validation and IAM
+
+`service-move.json` lists the exact 13 ARM service move candidates: IoT Hub, DPS,
+Event Hub namespace, SignalR, both Function Apps/plans/storage accounts, Application
+Insights, action group and Smart Detector alert. Network resources and user-assigned
+deployment identities are not in this move set. An actual move preserves service names,
+storage contents and non-ARM device/enrollment state where Azure permits it; validation
+is not a promise that every dependency is currently movable.
+
+The existing infra OIDC identity lacks the specific source permission
+`Microsoft.Resources/subscriptions/resourceGroups/validateMoveResources/action`.
+An IAM administrator must create the custom role from
+`azure/infrastructure/roles/move-validator.json` and assign it on the source group only:
+
+```powershell
+$source = '2e291b4a-5f03-4dcd-bb56-09643c729adc'
+$scope = "/subscriptions/$source/resourceGroups/rg-aw-azcom-iot-copilot"
+$principal = '7377b3c8-b72c-4fd0-bf5e-204f07923d60'
+az role definition create --subscription $source --role-definition azure/infrastructure/roles/move-validator.json --only-show-errors -o none
+if ($LASTEXITCODE -ne 0) { throw 'Validator role creation failed; inspect any existing role rather than overwriting it.' }
+az role assignment create --subscription $source --scope $scope --assignee-object-id $principal --assignee-principal-type ServicePrincipal --role 'IoT Migration Move Validator' --only-show-errors -o none
+if ($LASTEXITCODE -ne 0) { throw 'Validator role assignment failed.' }
+```
+
+This grants no move execution, resource write/delete or secret-read permission. Existing
+Reader access supplies source inventory reads; destination Contributor remains scoped to
+the destination group. Do not add source Contributor just to run validation.
+
+Then dispatch `action=validate-move`. It reads inventory, rejects missing candidates or
+destination collisions, and calls only `validateMoveResources`. Provider errors are
+preserved in the workflow log/artifact. Existing source Function VNet integration and
+private endpoints may intentionally cause validation to fail: those errors identify the
+preparation required for the next reviewed step, not a reason to detach anything now.
+
+### Actual move gate
+
+The workflow has no actual move, source deletion, private endpoint detachment or Function
+configuration action. Before introducing those actions, review the validator errors and
+agree an outage/rollback window. Both Functions must lose source VNet integration for
+App Service moves; unsupported private endpoint connections must be removed/recreated.
+This can interrupt private telemetry even when the public APIs remain reachable.
+
+Preserve Function settings, storage/deployment packages and Event Hub checkpoints through
+ARM moves instead of an incomplete fresh `main.bicep` deployment. Capture RBAC assignments
+and restore Event Hubs Sender/Receiver permissions at their destination scopes. Check IoT
+Hub route subscription metadata and DPS linked-hub configuration without overwriting
+device/enrollment state. The shared Log Analytics workspace outside this group needs an
+explicit retain/move decision; it is not included in the 13-resource manifest.
+
+User-assigned deployment identities cannot move: replace them and their OIDC/RBAC before
+deleting the source group that currently owns them. Recreate private endpoints/DNS records
+and restore both Functions' destination integration. Only then retarget release variables
+and run the deferred VPN, DNS, API, staff auth, physical telemetry and player-claim tests.
+Do not delete the source group or rotate device/enrollment keys as part of preflight.
+
 ## How the pieces fit
 
 | | Application workflow | Infrastructure workflow |
