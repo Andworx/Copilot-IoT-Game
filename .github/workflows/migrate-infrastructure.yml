@@ -1,0 +1,191 @@
+name: Migrate remaining infrastructure
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/migrate-infrastructure.yml'
+      - 'azure/infrastructure/dns-bootstrap.bicep'
+      - 'azure/infrastructure/service-move.json'
+      - 'azure/infrastructure/roles/move-validator.json'
+      - 'azure/infrastructure/modules/private-dns.bicep'
+      - 'azure/infrastructure/modules/dns-private-resolver.bicep'
+      - 'azure/infrastructure/network/baseline.json'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'DNS foundation or validation-only service move check; no source mutation'
+        required: true
+        default: dns-preview
+        type: choice
+        options: [dns-preview, dns-deploy, validate-move]
+      confirmation:
+        description: 'For dns-deploy, acknowledge resolver charges: CREATE BILLABLE DESTINATION DNS'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: destination-infrastructure-migration
+  cancel-in-progress: false
+
+env:
+  SOURCE_SUBSCRIPTION: 2e291b4a-5f03-4dcd-bb56-09643c729adc
+  DESTINATION_SUBSCRIPTION: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+  MIGRATION_RESOURCE_GROUP: rg-aw-azcom-iot-copilot
+
+jobs:
+  validate:
+    name: Validate DNS and move boundary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compile DNS and validate scope
+        shell: pwsh
+        run: |
+          az bicep build --file azure/infrastructure/dns-bootstrap.bicep --outfile "$env:RUNNER_TEMP/dns-bootstrap.json"
+          if ($LASTEXITCODE -ne 0) { throw 'DNS Bicep compilation failed.' }
+          $json = Get-Content "$env:RUNNER_TEMP/dns-bootstrap.json" -Raw
+          if ($json.Contains($env:SOURCE_SUBSCRIPTION)) { throw 'DNS template references the source subscription.' }
+          $template = $json | ConvertFrom-Json -AsHashtable
+          $allowed = @('Microsoft.Resources/deployments', 'Microsoft.Network/privateDnsZones', 'Microsoft.Network/privateDnsZones/virtualNetworkLinks', 'Microsoft.Network/dnsResolvers', 'Microsoft.Network/dnsResolvers/inboundEndpoints')
+          function Test-DnsTemplate($current) {
+            foreach ($resource in $current.resources) {
+              if ($resource.type -notin $allowed) { throw "Unexpected writable resource: $($resource.type)" }
+              if ($resource.ContainsKey('scope') -or $resource.ContainsKey('subscriptionId') -or $resource.ContainsKey('resourceGroup')) { throw 'Cross-scope resource is forbidden.' }
+              if ($resource.type -eq 'Microsoft.Resources/deployments') { Test-DnsTemplate $resource.properties.template }
+            }
+          }
+          Test-DnsTemplate $template
+          $manifest = Get-Content azure/infrastructure/service-move.json -Raw | ConvertFrom-Json
+          if ($manifest.sourceSubscriptionId -ne $env:SOURCE_SUBSCRIPTION -or $manifest.destinationSubscriptionId -ne $env:DESTINATION_SUBSCRIPTION -or $manifest.resourceGroup -ne $env:MIGRATION_RESOURCE_GROUP) { throw 'Unexpected migration scope.' }
+          if (@($manifest.resources).Count -ne 13) { throw 'Expected exactly 13 reviewed service move candidates.' }
+          $unique = @($manifest.resources | ForEach-Object { "$($_.type)/$($_.name)" } | Sort-Object -Unique)
+          if ($unique.Count -ne 13) { throw 'Duplicate move candidate.' }
+          $forbidden = @($manifest.resources | Where-Object { $_.type -like 'Microsoft.Network/*' -or $_.type -like 'Microsoft.ManagedIdentity/*' })
+          if ($forbidden.Count) { throw 'Network resources and deployment identities cannot be included in this move set.' }
+          $role = Get-Content azure/infrastructure/roles/move-validator.json -Raw | ConvertFrom-Json
+          if (@($role.Actions).Count -ne 2 -or 'Microsoft.Resources/subscriptions/resourceGroups/validateMoveResources/action' -notin $role.Actions -or 'Microsoft.Resources/subscriptions/resourceGroups/read' -notin $role.Actions) { throw 'Validator role is not validation-only.' }
+          Write-Host 'PASS: isolated DNS template, 13 service candidates and validator-only role.'
+
+  migration:
+    name: Destination DNS or service move validation
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: infra-deploy
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Require main and acknowledgement
+        shell: pwsh
+        env:
+          REQUESTED_ACTION: ${{ inputs.action }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Migration workflow runs from main only.' }
+          if ($env:REQUESTED_ACTION -notin @('dns-preview', 'dns-deploy', 'validate-move')) { throw 'Invalid migration action.' }
+          if ($env:REQUESTED_ACTION -eq 'dns-deploy' -and $env:CONFIRMATION -cne 'CREATE BILLABLE DESTINATION DNS') { throw 'Explicit acknowledgement of additional DNS resolver charges is required.' }
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ inputs.action == 'validate-move' && '2e291b4a-5f03-4dcd-bb56-09643c729adc' || '9e8c862e-9bba-4363-a21b-c45cabe8b637' }}
+      - name: Validate and preview destination DNS
+        if: inputs.action != 'validate-move'
+        shell: pwsh
+        run: |
+          $account = az account show --query id --only-show-errors -o tsv
+          if ($LASTEXITCODE -ne 0 -or $account -ne $env:DESTINATION_SUBSCRIPTION) { throw 'Wrong destination subscription.' }
+          $vnetState = az network vnet show --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --name iot-demo-vnet --query provisioningState --only-show-errors -o tsv
+          if ($LASTEXITCODE -ne 0 -or $vnetState -ne 'Succeeded') { throw 'Destination VNet must already be successfully provisioned.' }
+          az deployment group validate --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --name destination-dns-bootstrap --template-file azure/infrastructure/dns-bootstrap.bicep --only-show-errors -o none
+          if ($LASTEXITCODE -ne 0) { throw 'Destination DNS ARM validation failed.' }
+          az deployment group what-if --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --name destination-dns-bootstrap --template-file azure/infrastructure/dns-bootstrap.bicep --no-pretty-print --only-show-errors -o json > "$env:RUNNER_TEMP/dns-whatif.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Destination DNS preview failed.' }
+          $preview = Get-Content "$env:RUNNER_TEMP/dns-whatif.json" -Raw | ConvertFrom-Json
+          if ($null -eq $preview.changes) { throw 'Missing DNS preview changes.' }
+          $scope = "/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP/providers/".ToLowerInvariant()
+          $baseline = Get-Content azure/infrastructure/network/baseline.json -Raw | ConvertFrom-Json
+          $allowed = @('microsoft.network/dnsresolvers/iot-demo-dns-resolver', 'microsoft.network/dnsresolvers/iot-demo-dns-resolver/inboundendpoints/iot-demo-dns-inbound', 'microsoft.resources/deployments/destination-private-dns', 'microsoft.resources/deployments/destination-dns-resolver')
+          foreach ($zone in $baseline.zones) {
+            $allowed += "microsoft.network/privatednszones/$($zone.name)"
+            $allowed += "microsoft.network/privatednszones/$($zone.name)/virtualnetworklinks/7jkty3vvfilac"
+          }
+          foreach ($change in $preview.changes) {
+            $id = $change.resourceId.ToLowerInvariant()
+            if (-not $id.StartsWith($scope)) { throw "Unexpected DNS scope: $id" }
+            $relative = $id.Substring($scope.Length)
+            if ($relative -notin $allowed) { throw "Unexpected DNS resource: $id" }
+            $allowedChanges = @('Create', 'NoChange')
+            if ($relative.StartsWith('microsoft.resources/deployments/')) { $allowedChanges += @('Deploy', 'Ignore') }
+            if ($change.changeType -notin $allowedChanges) { throw "DNS bootstrap refuses $($change.changeType) on $id." }
+            "- $($change.changeType): $($change.resourceId)" >> $env:GITHUB_STEP_SUMMARY
+          }
+      - name: Deploy destination DNS only
+        if: inputs.action == 'dns-deploy'
+        shell: pwsh
+        run: |
+          az deployment group create --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --name destination-dns-bootstrap --template-file azure/infrastructure/dns-bootstrap.bicep --mode Incremental --only-show-errors -o none
+          if ($LASTEXITCODE -ne 0) { throw 'Destination DNS deployment failed. Source DNS and router remain untouched.' }
+      - name: Verify destination DNS foundation
+        if: inputs.action == 'dns-deploy'
+        shell: pwsh
+        run: |
+          $scope = "/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP"
+          $resolverJson = az resource show --ids "$scope/providers/Microsoft.Network/dnsResolvers/iot-demo-dns-resolver/inboundEndpoints/iot-demo-dns-inbound" --api-version 2022-07-01 --only-show-errors -o json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read the destination resolver endpoint.' }
+          $endpoint = $resolverJson | ConvertFrom-Json
+          if ($endpoint.properties.provisioningState -ne 'Succeeded' -or $endpoint.properties.ipConfigurations[0].privateIpAddress -ne '10.20.3.4') { throw 'DNS resolver endpoint differs from the approved foundation.' }
+          $baseline = Get-Content azure/infrastructure/network/baseline.json -Raw | ConvertFrom-Json
+          foreach ($zone in $baseline.zones) {
+            $linkJson = az resource show --ids "$scope/providers/Microsoft.Network/privateDnsZones/$($zone.name)/virtualNetworkLinks/7jkty3vvfilac" --api-version 2020-06-01 --only-show-errors -o json
+            if ($LASTEXITCODE -ne 0) { throw "Could not read DNS link for $($zone.name)." }
+            $link = $linkJson | ConvertFrom-Json
+            if ($link.properties.provisioningState -ne 'Succeeded' -or $link.properties.registrationEnabled -ne $false -or $link.properties.virtualNetwork.id -ine "$scope/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet") { throw "DNS link differs for $($zone.name)." }
+          }
+          'Destination DNS foundation provisioned: five zones/links and resolver inbound 10.20.3.4. VPN/client testing remains deferred by owner; source DNS/router are unchanged.' >> $env:GITHUB_STEP_SUMMARY
+      - name: Validate service move without changing source resources
+        if: inputs.action == 'validate-move'
+        shell: pwsh
+        run: |
+          $manifest = Get-Content azure/infrastructure/service-move.json -Raw | ConvertFrom-Json
+          $sourceJson = az resource list --subscription $env:SOURCE_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --query '[].{id:id,name:name,type:type}' --only-show-errors -o json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read source inventory.' }
+          $source = @($sourceJson | ConvertFrom-Json)
+          $destinationJson = az resource list --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:MIGRATION_RESOURCE_GROUP --query '[].{id:id,name:name,type:type}' --only-show-errors -o json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read destination inventory.' }
+          $destination = @($destinationJson | ConvertFrom-Json)
+          $ids = @()
+          foreach ($candidate in $manifest.resources) {
+            $match = @($source | Where-Object { $_.name -eq $candidate.name -and $_.type -eq $candidate.type })
+            if ($match.Count -ne 1) { throw "Expected one source resource: $($candidate.type)/$($candidate.name)." }
+            if (@($destination | Where-Object { $_.name -eq $candidate.name -and $_.type -eq $candidate.type }).Count) { throw "Destination already contains move candidate: $($candidate.name)." }
+            $ids += $match[0].id
+            "- Move validation candidate: $($match[0].id)" >> $env:GITHUB_STEP_SUMMARY
+          }
+          $sourceScope = "/subscriptions/$env:SOURCE_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP"
+          $destinationScope = "/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:MIGRATION_RESOURCE_GROUP"
+          @{resources = $ids; targetResourceGroup = $destinationScope} | ConvertTo-Json -Depth 5 | Set-Content "$env:RUNNER_TEMP/move-request.json" -Encoding utf8
+          az resource invoke-action --subscription $env:SOURCE_SUBSCRIPTION --ids $sourceScope --action validateMoveResources --request-body "@$env:RUNNER_TEMP/move-request.json" --only-show-errors -o json 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/move-validation.txt"
+          if ($LASTEXITCODE -ne 0) { throw 'ARM move validation failed. Inspect provider errors and validator-role access; do not detach networking or retry a move.' }
+          'ARM move validation passed. No resources were moved, deleted, detached or reconfigured. A separate reviewed move action and explicit outage acceptance are still required.' >> $env:GITHUB_STEP_SUMMARY
+      - name: Record run and commit
+        if: always()
+        shell: pwsh
+        run: |
+          "Commit: $env:GITHUB_SHA" >> $env:GITHUB_STEP_SUMMARY
+          "Run: https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID" >> $env:GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: migration-preview-and-validation
+          path: |
+            ${{ runner.temp }}/dns-whatif.json
+            ${{ runner.temp }}/move-request.json
+            ${{ runner.temp }}/move-validation.txt
+          if-no-files-found: ignore
