@@ -1,0 +1,197 @@
+name: Rebuild destination Functions
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/rebuild-destination-functions.yml'
+      - 'azure/infrastructure/function-rebuild.bicep'
+      - 'azure/infrastructure/modules/rebuild-function.bicep'
+      - 'azure/infrastructure/modules/signalr-private-endpoint.bicep'
+      - 'azure/functions/game/**'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Preview or stage new destination Functions; no source app deletion or cutover'
+        required: true
+        default: preview
+        type: choice
+        options: [preview, stage]
+      confirmation:
+        description: 'For stage acknowledge new hosting/storage/private-endpoint charges: STAGE BILLABLE DESTINATION FUNCTIONS'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: destination-function-rebuild
+  cancel-in-progress: false
+
+env:
+  DESTINATION_SUBSCRIPTION: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+  DESTINATION_RESOURCE_GROUP: rg-aw-azcom-iot-copilot
+
+jobs:
+  build:
+    name: Validate and package destination Functions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: azure/functions/game/package-lock.json
+      - name: Compile and check rebuild boundary
+        shell: pwsh
+        run: |
+          az bicep build --file azure/infrastructure/function-rebuild.bicep --outfile "$env:RUNNER_TEMP/function-rebuild.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Function rebuild Bicep compilation failed.' }
+          $template = Get-Content "$env:RUNNER_TEMP/function-rebuild.json" -Raw | ConvertFrom-Json -AsHashtable
+          $allowed = @('Microsoft.Resources/deployments', 'Microsoft.Web/sites', 'Microsoft.Web/serverfarms', 'Microsoft.Storage/storageAccounts', 'Microsoft.Storage/storageAccounts/blobServices', 'Microsoft.Storage/storageAccounts/blobServices/containers', 'Microsoft.Network/privateEndpoints', 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups')
+          function Test-RebuildTemplate($current) {
+            foreach ($resource in $current.resources) {
+              if ($resource.type -notin $allowed -or $resource.ContainsKey('scope') -or $resource.ContainsKey('subscriptionId') -or $resource.ContainsKey('resourceGroup')) { throw 'Unexpected writable rebuild resource or cross-scope target.' }
+              if ($resource.type -eq 'Microsoft.Resources/deployments') { Test-RebuildTemplate $resource.properties.template }
+            }
+          }
+          Test-RebuildTemplate $template
+          foreach ($outputName in $template.outputs.Keys) {
+            if ($outputName -notin @('publicFunctionAppName', 'staffFunctionAppName', 'signalRBridgeName')) { throw 'Unexpected rebuild output.' }
+          }
+          Write-Host 'PASS: destination-only resources, server-side settings copy, non-secret outputs.'
+      - name: Build and test existing Function code
+        working-directory: azure/functions/game
+        run: |
+          npm ci
+          npm run build
+          npm test
+          npm prune --omit=dev
+      - name: Package runtime-only artifact
+        run: |
+          mkdir -p function-package
+          cp azure/functions/game/host.json azure/functions/game/package.json azure/functions/game/package-lock.json function-package/
+          cp -r azure/functions/game/dist azure/functions/game/node_modules function-package/
+          test -f function-package/dist/src/index.js
+          cd function-package
+          zip -qr ../function-rebuild.zip .
+      - uses: actions/upload-artifact@v7
+        with:
+          name: destination-function-package
+          path: function-rebuild.zip
+          if-no-files-found: error
+
+  rebuild:
+    name: Preview or stage isolated destination Functions
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: infra-deploy
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Require main and staged-rebuild acknowledgement
+        shell: pwsh
+        env:
+          REQUESTED_ACTION: ${{ inputs.action }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Rebuild runs from main only.' }
+          if ($env:REQUESTED_ACTION -notin @('preview', 'stage')) { throw 'Invalid rebuild action.' }
+          if ($env:REQUESTED_ACTION -eq 'stage' -and $env:CONFIRMATION -cne 'STAGE BILLABLE DESTINATION FUNCTIONS') { throw 'Explicit new hosting/storage/private-endpoint charge acknowledgement is required.' }
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+      - name: Validate and preview without exposing settings
+        shell: pwsh
+        run: |
+          $subscription = az account show --query id --only-show-errors -o tsv
+          if ($LASTEXITCODE -ne 0 -or $subscription -ne $env:DESTINATION_SUBSCRIPTION) { throw 'Rebuild login is not the pinned destination.' }
+          az deployment group validate --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name destination-function-rebuild --template-file azure/infrastructure/function-rebuild.bicep --only-show-errors -o none
+          if ($LASTEXITCODE -ne 0) { throw 'Function rebuild ARM validation failed.' }
+          az deployment group what-if --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name destination-function-rebuild --template-file azure/infrastructure/function-rebuild.bicep --result-format ResourceIdOnly --no-pretty-print --only-show-errors -o json > "$env:RUNNER_TEMP/function-rebuild-preview.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Function rebuild preview failed.' }
+          $preview = Get-Content "$env:RUNNER_TEMP/function-rebuild-preview.json" -Raw | ConvertFrom-Json
+          if ($null -eq $preview.changes) { throw 'Missing rebuild preview changes.' }
+          $scope = "/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:DESTINATION_RESOURCE_GROUP/providers/".ToLowerInvariant()
+          $allowed = @('microsoft.resources/deployments/rebuild-public-function', 'microsoft.resources/deployments/rebuild-staff-function', 'microsoft.resources/deployments/rebuild-signalr-bridge', 'microsoft.network/privateendpoints/iot-rebuild-signalr-pe', 'microsoft.network/privateendpoints/iot-rebuild-signalr-pe/privatednszonegroups/default')
+          foreach ($app in @('func-aw-iot-game-v2', 'func-aw-iot-staff-v2')) { $allowed += "microsoft.web/sites/$app"; $allowed += "microsoft.web/serverfarms/$app-plan" }
+          foreach ($storage in @('stawazcomiotgamev2', 'stawazcomiotstaffv2')) { $allowed += "microsoft.storage/storageaccounts/$storage"; $allowed += "microsoft.storage/storageaccounts/$storage/blobservices/default"; $allowed += "microsoft.storage/storageaccounts/$storage/blobservices/default/containers/function-packages" }
+          $retained = @('microsoft.network/virtualnetworks/iot-demo-vnet', 'microsoft.network/publicipaddresses/iot-demo-vpn-pip', 'microsoft.network/virtualnetworkgateways/iot-demo-vpn', 'microsoft.network/dnsresolvers/iot-demo-dns-resolver', 'microsoft.network/dnsresolvers/iot-demo-dns-resolver/inboundendpoints/iot-demo-dns-inbound')
+          $baseline = Get-Content azure/infrastructure/network/baseline.json -Raw | ConvertFrom-Json
+          foreach ($zone in $baseline.zones) { $retained += "microsoft.network/privatednszones/$($zone.name)"; $retained += "microsoft.network/privatednszones/$($zone.name)/virtualnetworklinks/7jkty3vvfilac" }
+          foreach ($change in $preview.changes) {
+            $id = $change.resourceId.ToLowerInvariant()
+            if (-not $id.StartsWith($scope)) { throw 'Unexpected writable preview scope.' }
+            $relative = $id.Substring($scope.Length)
+            if ($relative -in $retained) {
+              if ($change.changeType -notin @('Ignore', 'NoChange')) { throw "Rebuild would alter retained destination infrastructure: $id." }
+              continue
+            }
+            if ($relative -notin $allowed) { throw "Unexpected rebuild resource: $id." }
+            $allowedChanges = @('Create', 'NoChange')
+            if ($relative.StartsWith('microsoft.resources/deployments/')) { $allowedChanges += @('Deploy', 'Ignore') }
+            if ($change.changeType -notin $allowedChanges) { throw "Rebuild refuses $($change.changeType) on $id." }
+            "- $($change.changeType): $($change.resourceId)" >> $env:GITHUB_STEP_SUMMARY
+          }
+      - name: Provision staged destination hosting
+        if: inputs.action == 'stage'
+        shell: pwsh
+        run: |
+          az deployment group create --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name destination-function-rebuild --template-file azure/infrastructure/function-rebuild.bicep --mode Incremental --only-show-errors -o none
+          if ($LASTEXITCODE -ne 0) { throw 'Destination Function provisioning failed; source apps remain intact.' }
+      - uses: actions/download-artifact@v8
+        if: inputs.action == 'stage'
+        with:
+          name: destination-function-package
+          path: function-artifact
+      - name: Deploy public Function artifact
+        if: inputs.action == 'stage'
+        uses: Azure/functions-action@v1
+        with:
+          app-name: func-aw-iot-game-v2
+          package: function-artifact/function-rebuild.zip
+          sku: flexconsumption
+          remote-build: false
+      - name: Deploy staff Function artifact
+        if: inputs.action == 'stage'
+        uses: Azure/functions-action@v1
+        with:
+          app-name: func-aw-iot-staff-v2
+          package: function-artifact/function-rebuild.zip
+          sku: flexconsumption
+          remote-build: false
+      - name: Verify staged responses and disabled background work
+        if: inputs.action == 'stage'
+        shell: pwsh
+        run: |
+          foreach ($app in @('func-aw-iot-game-v2', 'func-aw-iot-staff-v2')) {
+            $disabledJson = az functionapp config appsettings list --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name $app --query "[?name=='MIGRATION_STAGING'].{name:name,value:value}" --only-show-errors -o json
+            if ($LASTEXITCODE -ne 0) { throw 'Could not verify staged trigger flags.' }
+            $disabled = @($disabledJson | ConvertFrom-Json)
+            if ($disabled.Count -ne 1 -or @($disabled | Where-Object value -ne 'true').Count) { throw 'Staged background work must remain disabled.' }
+            $registeredJson = az functionapp function list --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name $app --query '[].name' --only-show-errors -o json
+            if ($LASTEXITCODE -ne 0) { throw 'Could not verify actual staged registrations.' }
+            $registered = @($registeredJson | ConvertFrom-Json)
+            if (@($registered | Where-Object { $_ -like '*/iot-telemetry' -or $_ -like '*/consent-maintenance' }).Count) { throw 'Staged background function was registered.' }
+          }
+          $public = Invoke-WebRequest 'https://func-aw-iot-game-v2.azurewebsites.net/api/kiosk-state' -SkipHttpErrorCheck -TimeoutSec 60
+          if ($public.StatusCode -ne 200) { throw "Destination public API returned $($public.StatusCode)." }
+          $staff = Invoke-WebRequest 'https://func-aw-iot-staff-v2.azurewebsites.net/api/kiosk-state' -SkipHttpErrorCheck -TimeoutSec 60
+          if ($staff.StatusCode -ne 401) { throw 'Destination staff API did not reject unauthenticated requests.' }
+          'Staged public API returns 200 and staff API returns 401. Telemetry and maintenance timers remain disabled; source apps, consumers, router, release variables and existing URLs are unchanged.' >> $env:GITHUB_STEP_SUMMARY
+          'Public staging URL: https://func-aw-iot-game-v2.azurewebsites.net' >> $env:GITHUB_STEP_SUMMARY
+          'Staff staging URL: https://func-aw-iot-staff-v2.azurewebsites.net' >> $env:GITHUB_STEP_SUMMARY
+      - name: Record run and commit
+        if: always()
+        shell: pwsh
+        run: |
+          "Commit: $env:GITHUB_SHA" >> $env:GITHUB_STEP_SUMMARY
+          "Run: https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID" >> $env:GITHUB_STEP_SUMMARY

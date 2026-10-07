@@ -77,6 +77,28 @@ This changes the order, not acceptance: VPN/private DNS and complete application
 telemetry tests still precede router cutover and source retirement. See
 [remaining migration](../../docs/CI_CD.md#remaining-infrastructure-migration).
 
+## Parallel Function rebuild
+
+The revised path uses `function-rebuild.bicep`, `modules/rebuild-function.bicep` and the
+manual-only `rebuild-destination-functions.yml` workflow. It stages fresh destination
+apps `func-aw-iot-game-v2` and `func-aw-iot-staff-v2`, new dedicated storage/FC1 plans,
+and a destination SignalR private connection to the existing shared service. Source
+app settings are read inside ARM and passed through secure child parameters, never
+printed or exported to a runner. Preview uses ResourceIdOnly to avoid resolved values.
+
+`MIGRATION_STAGING=true` omits telemetry/timer registrations from the staged artifact;
+new HTTP paths are checked before cutover. Source apps, data, old URLs and release
+variables stay intact. `AZURE_MIGRATION_FREEZE=true` skips only normal production app
+release jobs while keeping all build checks active. The isolated staging workflow does
+not consult that freeze flag and requires its own billable-stage acknowledgement.
+
+`validate-stateful` in the migration workflow validates the nine non-Web candidates,
+excluding the four old apps/plans that will be retired after the new apps are ready.
+It performs no resource move/deletion or source-network detachment. Stateful data,
+IoT Hub/DPS enrollment/device state, checkpoints and deployment identity/OIDC access
+must be preserved or verified before any source group retirement. See
+[parallel rebuild and cutover](../../docs/CI_CD.md#parallel-function-rebuild-and-cutover).
+
 ## Staff API ownership exception
 
 The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They are the single owner for the staff app, plan, dedicated storage, package container, VNet integration and staff auth settings. They do not replay `main.bicep` or adopt the manually built network. The deployment script refuses to run if the staff app, plan or storage names are added to `main.prod.bicepparam` or the reference manifest, so the staff resources cannot quietly become co-owned by the portable infrastructure stack. The historical reference-only rows below describe the legacy app, not this staff app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).

@@ -11,6 +11,14 @@ isn't actually built yet, so this lives here instead, in this repo.
 
 ## API separation
 
+During parallel subscription migration, destination apps use `MIGRATION_STAGING=true`.
+HTTP route/auth boundaries remain unchanged, but neither `iot-telemetry` nor
+`consent-maintenance` is registered. This prevents a second Event Hub reader and duplicate
+email/retention work while the source apps stay active. Missing/false retains the normal
+behavior; any other value fails closed. Azure's per-function Disabled settings cannot be
+used for these hyphenated function names on Linux. Enable background registrations only
+as part of a reviewed consumer/timer cutover, not during staging.
+
 The same artifact runs with `API_SURFACE=public` on the existing app and `API_SURFACE=staff` on the new app. Staff-only routes are not registered on the public app. Every staff request, including shared read/test operations, passes Entra validation before its handler runs. Only the public app registers the telemetry trigger. See [manual setup and rollout](../../../docs/STAFF_API_SETUP.md). This source change is not yet a live cutover.
 
 ## Endpoints

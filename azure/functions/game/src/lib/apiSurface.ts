@@ -15,6 +15,12 @@ export function apiSurface(value = process.env.API_SURFACE): "public" | "staff" 
   throw new Error("API_SURFACE must be public or staff.");
 }
 
+export function backgroundWorkEnabled(value = process.env.MIGRATION_STAGING): boolean {
+  if (value === undefined || value === "false") return true;
+  if (value === "true") return false;
+  throw new Error("MIGRATION_STAGING must be true or false.");
+}
+
 export function routeEnabled(name: string, surface: "public" | "staff"): boolean {
   if (!staffOnly.has(name) && !shared.has(name) && !publicOnly.has(name)) {
     throw new Error(`HTTP route needs an explicit API boundary: ${name}`);

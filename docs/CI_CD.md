@@ -196,6 +196,65 @@ and restore both Functions' destination integration. Only then retarget release 
 and run the deferred VPN, DNS, API, staff auth, physical telemetry and player-claim tests.
 Do not delete the source group or rotate device/enrollment keys as part of preflight.
 
+## Parallel Function rebuild and cutover
+
+The owner requested a faster move/rebuild path after preflight `37627593468` could not
+confirm public-app detachment using a null PATCH. The script stopped before touching
+the staff app; both source apps are Running on their original subnet. Do not retry
+detachment as part of this parallel rebuild.
+
+`rebuild-destination-functions.yml` stages these destination resources only:
+
+- public app `func-aw-iot-game-v2`, its FC1 plan and storage `stawazcomiotgamev2`
+- staff app `func-aw-iot-staff-v2`, its FC1 plan and storage `stawazcomiotstaffv2`
+- package containers and the `iot-rebuild-signalr-pe` destination private connection
+   to the existing source SignalR service
+
+The new URLs deliberately differ from the source so the old apps do not need deleting
+to free names. CORS and an allowlisted runtime-setting set are inherited from the public
+source app inside ARM. Dataverse/SignalR/Direct Line/preference secrets are not printed,
+returned as deployment outputs, passed in runner arguments or saved as artifacts.
+The two source settings-storage connection strings are not copied: staging uses its own
+new host/package storage. Staff Entra tenant/audience/connector IDs come from the reviewed
+non-secret staff configuration. Keep shared-key deployment storage consistent with the
+current Flex model; this stage does not change production storage authentication.
+
+Before merging registration-gate code, set repository variable `AZURE_MIGRATION_FREEZE`
+to `true` with owner approval. Normal `deploy-apps.yml` still builds/tests every app but
+skips backend/frontend/production deployment jobs. This prevents an automatic source
+release during migration; it does not retarget any existing URL or identity. Keep that
+freeze until cutover configuration and all source dependencies are resolved.
+
+The staging workflow builds the same locked Node 22 runtime-only ZIP and runs backend
+tests. Its main-only `preview` performs ARM validation and ResourceIdOnly what-if; only
+the exact new names may be created. Existing destination network/DNS resources may be
+Ignore/NoChange only. Any modifications, deletions, source-scope target or unexpected
+resource stops the run. `stage` also requires confirmation
+`STAGE BILLABLE DESTINATION FUNCTIONS` for additional hosting/storage/endpoint charges.
+
+Staged apps use `MIGRATION_STAGING=true`. Telemetry and maintenance are not registered,
+because Linux cannot disable these hyphenated function names via per-function Disabled
+settings. The workflow checks the flag and actual registrations, public kiosk-state 200,
+and staff unauthenticated kiosk-state 401. These checks do not mutate player/prize data.
+No source apps, private endpoints, stored data or deployment identities are deleted.
+
+Run `validate-stateful` in `migrate-infrastructure.yml` to validate the nine non-Web
+candidates from `service-move.json`: IoT Hub, DPS, Event Hub, SignalR, the two old storage
+accounts and active monitoring. This reuses the existing validator-only IAM and preserves
+names/device/enrollment/storage state through move planning. It performs no move or
+private endpoint detachment. Inspect provider errors before the next reviewed move stage.
+
+Before actual cutover, preserve device/enrollment keys/state and storage/checkpoints;
+move supported stateful services, recreate private endpoints and restore RBAC; repoint
+the SignalR bridge if its resource ID changes; replace the source-owned GitHub managed
+identities and OIDC permissions; update API/connector/Pi URLs and normal release ownership.
+Enable destination telemetry/timers only after stopping their source counterparts so no
+consumer group or maintenance job runs twice. Complete the deferred VPN, DNS, authenticated
+staff, physical telemetry and claim tests. Then retire the two old apps/plans and unused
+source infrastructure. Never delete the source group while it still contains stateful
+resources, needed storage or the active GitHub identities. No whole-group delete is in
+this staging workflow, even when the owner permits replacement of stateless apps.
+
 ## How the pieces fit
 
 | | Application workflow | Infrastructure workflow |
