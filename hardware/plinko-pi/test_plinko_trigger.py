@@ -6,7 +6,7 @@ Run from hardware/plinko-pi:
 import unittest
 from datetime import datetime, timezone
 
-from plinko_trigger import LandingDetector
+from plinko_trigger import BoardMonitor, LandingDetector
 
 
 class Clock:
@@ -53,6 +53,47 @@ class LandingDetectorTests(unittest.TestCase):
         self.assertIsNone(detector.sample(True, "plinko-1", 3, 2, 5, "test"))
         clock.advance(0.2)
         self.assertIsNotNone(detector.sample(True, "plinko-1", 3, 2, 5, "test"))
+
+
+class BoardMonitorTests(unittest.TestCase):
+    def _monitor(self, clock):
+        return BoardMonitor(
+            [17, 27, 22],
+            debounce_ms=200,
+            lockout_ms=1000,
+            now=lambda: clock.value,
+            utcnow=lambda: datetime(2026, 10, 2, 12, 0, tzinfo=timezone.utc),
+        )
+
+    def _land(self, monitor, clock, pins):
+        monitor.sample(pins, "plinko-1", 2, "test")
+        clock.advance(0.2)
+        return monitor.sample(pins, "plinko-1", 2, "test")
+
+    def test_pin_maps_to_bucket_number_and_count(self):
+        clock = Clock()
+        event = self._land(self._monitor(clock), clock, {27})
+        self.assertEqual(event.to_payload()["bucket"], 2)
+        self.assertEqual(event.to_payload()["bucketCount"], 3)
+
+    def test_neighbour_blocked_right_after_landing_is_ignored(self):
+        clock = Clock()
+        monitor = self._monitor(clock)
+        self.assertIsNotNone(self._land(monitor, clock, {27}))
+        clock.advance(0.1)
+        self.assertIsNone(monitor.sample({27, 22}, "plinko-1", 2, "test"))
+        clock.advance(0.2)
+        self.assertIsNone(monitor.sample({27, 22}, "plinko-1", 2, "test"))
+
+    def test_next_landing_reported_after_lockout(self):
+        clock = Clock()
+        monitor = self._monitor(clock)
+        self.assertIsNotNone(self._land(monitor, clock, {27}))
+        clock.advance(0.1)
+        monitor.sample(set(), "plinko-1", 2, "test")
+        clock.advance(1.0)
+        event = self._land(monitor, clock, {22})
+        self.assertEqual(event.to_payload()["bucket"], 3)
 
 
 if __name__ == "__main__":

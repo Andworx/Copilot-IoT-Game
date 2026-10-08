@@ -21,13 +21,22 @@ reliably press a micro switch, so a beam detects the puck instead.
 
 | Part | Material | Notes |
 |---|---|---|
-| **Body** | PLA | Sits on the bucket floor. Two M3 screws from behind the backboard go into heat-set inserts in the rear face. Each end has a tower holding one half of an Adafruit 2167 IR break-beam pair (emitter left, receiver right). The tower tops slope so a puck landing on one rolls into the bucket. |
+| **Body** | PLA | Sits on the bucket floor. Two M3 screws from behind the backboard go into heat-set inserts in the rear face. Each end has a tower holding one Adafruit 2167 housing **standing upright** (emitter left, receiver right), pushed in from the rear. The tower tops slope so a puck landing on one rolls into the bucket. |
 | **Cover** | PLA, multi-colour | Swappable, held by four pairs of 6 × 2 mm disc magnets and located by two pins. One cover per logo (below); the logo is a 0.6 mm colour inlay in the face. |
 
-- **IR pockets:** they open to the rear face. Slide the emitter and receiver in from
-  behind; the backboard holds them, and their wires go straight out the back. The
-  receiver looks through a 5 mm-long, 2.5 mm aperture that rejects IR reflected off
-  the acrylic and backboard.
+- **Sensor fit (measured and test-printed 2026-10-08):** housing 7.96 (along the beam) x 9.80 x
+  19.97 mm. A 3.277 mm lens hole sits 4.22 mm from the lens end; the lens tip is 10.86 mm from the
+  housing's rear. A lip around the lens end, 8.97 mm from the rear, stands 1.01 mm proud on the lens
+  side. The lens end points up and the wires leave the bottom; the wire end sits on the top surface,
+  16 mm below the beam. The housing is pushed in from the rear: the lens runs in a slot open to the
+  rear face, and the pocket reaches 1.01 mm further toward the bucket over the top `ir_lip_h` (10 mm).
+  `exports/stl/fit_test.stl` (receiver end only) fit.
+- **Wire raceway:** each housing's wires drop from its bottom end into a 4 × 4 mm channel in the rear
+  face. The channel runs the full width to the centre, where the backboard hole is, so all five
+  conductors per bucket leave in one place. The backboard closes the channel.
+- **Magnets:** four pockets in the body's front face (and four in the cover) take the cover.
+- **IR pockets:** they open to the rear face; slide the housings in from behind. The receiver looks
+  through a 5 mm-long, 2.5 mm aperture that rejects IR reflected off the acrylic.
 - **No moving parts.** The beam is blocked while a puck is in the bucket and clears
   when it's removed. The Pi counts a landing only after the beam has stayed blocked
   for about 150–250 ms, which filters out pucks bouncing through.
@@ -62,7 +71,7 @@ To add a logo, add its SVG to `logos.json` and re-run `export_parts.ps1`. For a
 single-colour cover, run it with `-LogoStyle cutout`: the logo is cut through and the
 body colour shows in it.
 
-Status: **concept / unverified.** The bucket numbers are rough, and the IR housing
+Status: **sensor fit verified with `fit_test.stl`; the board numbers below are still placeholders (board not yet measured).** The bucket numbers are rough, and the IR housing
 orientation is an assumption. Do not batch-print until one insert passes a fit and
 detection test on the board.
 
@@ -81,13 +90,12 @@ Measured from the left divider (X) and the bucket floor (Z); the export prints t
 
 | Hole | X | Z |
 |---|---|---|
-| Emitter wires | 3.1 | 33 |
-| Receiver wires | 98.5 | 33 |
+| Wire exit (all sensor wires) | 50.8 | 20 |
 | M3 screws | 4.65 and 96.95 | 12.5 |
 
 ## Hardware per bucket
 
-- 1 × Adafruit 2167 IR break-beam pair (3 mm)
+- 1 × Adafruit 2167 IR break-beam pair (3 mm); its 5 conductors share one raceway
 - 2 × M3 heat-set inserts (M3 × 5.7) + 2 × M3 screws through the backboard
 - 8 × 6 × 2 mm disc magnets (4 in the body, 4 in each cover). Glue them in and keep the
   polarity consistent so every cover fits every body

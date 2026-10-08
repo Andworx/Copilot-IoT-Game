@@ -27,8 +27,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "ssh mkdir failed (exit $LASTEXITCODE)" }
 
     Write-Host "Copying files to ${PiHost}:${RemotePath} ..."
-    scp -r (Join-Path $staging "*") "${PiHost}:${RemotePath}/"
-    if ($LASTEXITCODE -ne 0) { throw "scp failed (exit $LASTEXITCODE)" }
+    Get-ChildItem -LiteralPath $staging | ForEach-Object {
+        scp -r $_.FullName "${PiHost}:${RemotePath}/"
+        if ($LASTEXITCODE -ne 0) { throw "scp failed on $($_.Name) (exit $LASTEXITCODE)" }
+    }
 }
 finally {
     Remove-Item -Recurse -Force $staging -ErrorAction SilentlyContinue

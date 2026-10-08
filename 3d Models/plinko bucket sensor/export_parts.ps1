@@ -31,6 +31,11 @@ $Previews = @(
 )
 
 function Invoke-OpenScad([string[]]$Arguments, [switch]$ShowEcho, [switch]$AllowEmpty) {
+    # Windows PowerShell 5.1 and PowerShell 7 before 7.3 drop the quotes in -D part="body", so OpenSCAD
+    # sees an undefined variable and silently exports the assembly. Escape them in that legacy mode.
+    if ($PSVersionTable.PSVersion -lt [version]'7.3' -or $PSNativeCommandArgumentPassing -eq 'Legacy') {
+        $Arguments = $Arguments | ForEach-Object { $_ -replace '"', '\"' }
+    }
     $Output = & $OpenScad @Arguments 2>&1 | ForEach-Object { "$_" }
     if ($LASTEXITCODE -ne 0 -and $AllowEmpty -and ($Output -match 'top level object is empty')) { return $false }
     if ($LASTEXITCODE -ne 0) { $Output | Write-Host; throw "OpenSCAD failed: $($Arguments -join ' ')" }
@@ -40,6 +45,8 @@ function Invoke-OpenScad([string[]]$Arguments, [switch]$ShowEcho, [switch]$Allow
 
 Write-Host "== body"
 Invoke-OpenScad @("-o", (Join-Path $StlDir "body.stl"), "-D", "part=`"body`"", $Source) -ShowEcho
+Write-Host "== fit test (receiver end only)"
+Invoke-OpenScad @("-o", (Join-Path $StlDir "fit_test.stl"), "-D", "part=`"fit_test`"", $Source)
 
 # Each cover gets its own folder: the base plus one STL per logo colour. Load them
 # together in Bambu Studio as one object with multiple parts and assign a filament
