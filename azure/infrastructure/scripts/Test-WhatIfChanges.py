@@ -23,6 +23,13 @@ def delta_is_actionable(item: dict, ignored_paths: set[str], parent: str = "") -
     if item.get("propertyChangeType") == "NoEffect" or path in ignored_paths:
         return False
 
+    # What-if cannot evaluate reference() at preview time (for example a role assignment's
+    # principalId taken from a resource's managed identity), so it reports the raw expression
+    # as the new value. That is a preview limitation, not a difference in Azure.
+    after = item.get("after")
+    if not item.get("children") and isinstance(after, str) and after.startswith("[reference("):
+        return False
+
     children = item.get("children") or []
     if children:
         return any(delta_is_actionable(child, ignored_paths, path) for child in children)
