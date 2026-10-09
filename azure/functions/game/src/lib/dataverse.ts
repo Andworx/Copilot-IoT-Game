@@ -414,29 +414,6 @@ export async function listAllPrizeTypes(): Promise<Array<{ id: string; name: str
   return body.value.map((row) => ({ id: row.andy_prizetypesid, name: row.andy_prizetypename }));
 }
 
-/** Count of untaken andy_Prizes rows still available to be claimed -- for Game Box
- * Control's at-a-glance stock indicator. Uses $count=true with $top=1 rather than
- * fetching every row: Dataverse returns the total-matching-rows count in the
- * "@odata.count" annotation regardless of how many rows are actually returned, so
- * this stays cheap even once the prize pool grows into the hundreds. */
-export async function countAvailablePrizes(): Promise<number> {
-  const response = await dataverseFetch(
-    `${PRIZES_SET}?$select=andy_prizesid&$filter=andy_prizetaken eq false&$count=true&$top=1`
-  );
-  const body = (await response.json()) as { "@odata.count"?: number };
-  return body["@odata.count"] ?? 0;
-}
-
-/** Count of every andy_Prizes row regardless of taken status -- the total size of
- * the prize pool ever created, shown alongside countAvailablePrizes() on the Prize
- * Management screen so staff can see both "still up for grabs" and "created total"
- * at a glance. Same cheap $count=true/$top=1 pattern, no filter. */
-export async function countAllPrizes(): Promise<number> {
-  const response = await dataverseFetch(`${PRIZES_SET}?$select=andy_prizesid&$count=true&$top=1`);
-  const body = (await response.json()) as { "@odata.count"?: number };
-  return body["@odata.count"] ?? 0;
-}
-
 async function countPrizesForType(typeId: string, availableOnly: boolean): Promise<number> {
   const filters = [`_andy_prizetype_value eq ${typeId}`];
   if (availableOnly) filters.push("andy_prizetaken eq false");
@@ -462,6 +439,18 @@ export async function countPrizesByType(): Promise<
       return { typeId: type.id, typeName: type.name, total, available };
     })
   );
+}
+
+/** Overall Prize Management totals, summed from the per-type counts so they cover only
+ * active prize types -- inactive types stay out of both the breakdown and the totals. */
+export function summarizePrizeCounts(
+  byType: Array<{ typeId: string; typeName: string; total: number; available: number }>
+): { total: number; available: number; byType: typeof byType } {
+  return {
+    total: byType.reduce((sum, t) => sum + t.total, 0),
+    available: byType.reduce((sum, t) => sum + t.available, 0),
+    byType,
+  };
 }
 
 /** Creates `quantity` andy_Prizes instance rows bound to one andy_PrizeTypes row, for

@@ -8,6 +8,7 @@ import {
   buildPrizeClaimCreatePayload,
   normalizeContestantEmail,
   selectGrandPrizeWinningSlice,
+  summarizePrizeCounts,
 } from "../src/lib/dataverse";
 
 describe("normalizeContestantEmail", () => {
@@ -189,5 +190,19 @@ describe("selectGrandPrizeWinningSlice", () => {
     assert.equal(selectGrandPrizeWinningSlice(slices, -1), null);
     assert.equal(selectGrandPrizeWinningSlice(slices, 3), null);
     assert.equal(selectGrandPrizeWinningSlice([], 0), null);
+  });
+});
+describe("summarizePrizeCounts", () => {
+  it("totals only the per-type rows it is given (active types)", () => {
+    const byType = [
+      { typeId: "a", typeName: "Candy", total: 104, available: 64 },
+      { typeId: "b", typeName: "Pin or Sticker", total: 118, available: 118 },
+      { typeId: "c", typeName: "Empty", total: 0, available: 0 },
+    ];
+    assert.deepEqual(summarizePrizeCounts(byType), { total: 222, available: 182, byType });
+  });
+
+  it("returns zeros when there are no active types", () => {
+    assert.deepEqual(summarizePrizeCounts([]), { total: 0, available: 0, byType: [] });
   });
 });
