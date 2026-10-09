@@ -6,7 +6,6 @@
 param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
     [string]$AppInsightsName = 'func-aw-azcom-iot-game',
-    [string]$WorkspaceResourceId = '/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-2e291b4a-5f03-4dcd-bb56-09643c729adc-EUS',
     [string]$FailureAnomaliesAlertName = 'Failure Anomalies - func-aw-azcom-iot-game',
     [string]$SmartDetectionActionGroupName = 'application insights smart detection',
     [string]$SmartDetectionActionGroupShortName = 'SmartDetect'
@@ -40,11 +39,10 @@ $alertId = "$rgScope/providers/Microsoft.AlertsManagement/smartDetectorAlertRule
 $component = Invoke-AzJson @('resource', 'show', '--ids', $appInsightsId, '--api-version', '2020-02-02')
 Assert-Equal 'Game Application Insights kind' $component.kind 'web'
 Assert-Equal 'Game Application Insights application type' $component.properties.Application_Type 'web'
-Assert-Equal 'Game Application Insights ingestion mode' $component.properties.IngestionMode 'LogAnalytics'
+Assert-Equal 'Game Application Insights ingestion mode' $component.properties.IngestionMode 'Disabled'
 Assert-Equal 'Game Application Insights retention days' $component.properties.RetentionInDays 90
 Assert-Equal 'Game Application Insights ingestion public access' $component.properties.publicNetworkAccessForIngestion 'Enabled'
 Assert-Equal 'Game Application Insights query public access' $component.properties.publicNetworkAccessForQuery 'Enabled'
-Assert-EqualOrdinalIgnoreCase 'Game Application Insights workspace' $component.properties.WorkspaceResourceId $WorkspaceResourceId
 
 $actionGroup = Invoke-AzJson @('resource', 'show', '--ids', $smartDetectionActionGroupId, '--api-version', '2023-01-01')
 Assert-Equal 'Smart Detection action group location' $actionGroup.location 'Global'

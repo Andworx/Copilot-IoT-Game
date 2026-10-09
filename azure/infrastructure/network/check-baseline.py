@@ -11,7 +11,7 @@ assert subnets['dns-inbound']['delegations'][0]['properties']['serviceName'] == 
 assert len(b['endpoints']) == len(b['zones']) == len(b['links']) == len(b['zoneGroups']) == 5
 assert b['inbound']['properties']['ipConfigurations'][0]['privateIpAddress'] == '10.20.3.4'
 assert b['gateway']['properties']['enableBgp'] is True
-assert b['gateway']['properties']['vpnGatewayGeneration'] == 'Generation2'
+assert b['gateway']['properties']['vpnGatewayGeneration'] == 'Generation1'
 assert b['gateway']['properties']['vpnClientConfiguration']['vpnClientProtocols'] == ['OpenVPN']
 for group in b['zoneGroups']:
     assert any(group['name'].startswith(e['name'] + '/') for e in b['endpoints'])

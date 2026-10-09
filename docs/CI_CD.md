@@ -33,7 +33,9 @@ its Access control (IAM) page to assign **Contributor** to the existing user-ass
 managed identity **id-gha-infra-deployer** on this destination group only. Its client ID
 is `74d02027-db4d-4128-a46c-184cd9399f9c`; the identity currently lives in the source
 subscription and authenticates through the existing `infra-deploy` OIDC environment.
-Do not grant Owner, grant source-resource permissions, or change `AZURE_SUBSCRIPTION_ID`.
+Do not grant Owner or grant source-resource permissions. The current infrastructure
+and app workflows pin the destination subscription rather than using a shared
+`AZURE_SUBSCRIPTION_ID` variable.
 Contributor is sufficient for this network-only template; it creates no role assignments.
 
 ### Preview, deploy and verify
@@ -69,11 +71,16 @@ validated and source retirement is separately approved.
 
 ## Remaining infrastructure migration
 
-Issue #261 continues from the provisioned VPN with `.github/workflows/migrate-infrastructure.yml`.
-It is manual-only and main-only; existing app/infrastructure release variables are not
-retargeted. The owner deferred a physical VPN connection test until after the remaining
-infrastructure move. VPN and end-to-end acceptance are still required before router
-cutover or source retirement.
+**Historical runbook:** migration `workflow_dispatch` actions were removed on
+2026-10-08 after the source resource group was deleted and destination connectivity
+was provisioned. The following sections preserve the operation record only; their
+`gh workflow run ... migrate-infrastructure.yml` commands are no longer available.
+Use `deploy-infra.yml` for destination infrastructure and `deploy-apps.yml` for the
+coordinated application release after destination OIDC identities are provisioned.
+
+Issue #261 continued from the provisioned VPN through the now-retired migration workflow.
+The destination subscription and API targets are pinned in the active deployment workflows.
+The physical VPN connection test remains pending before final network acceptance.
 
 ### Destination DNS foundation
 
@@ -196,14 +203,18 @@ and restore both Functions' destination integration. Only then retarget release 
 and run the deferred VPN, DNS, API, staff auth, physical telemetry and player-claim tests.
 Do not delete the source group or rotate device/enrollment keys as part of preflight.
 
-## Parallel Function rebuild and cutover
+## Historical Function rebuild and cutover
+
+This describes the migration staging workflow, not the current release path. Its
+manual dispatch was removed after source-group deletion. Current destination Functions
+are deployed through the standard `deploy-apps.yml` release described above.
 
 The owner requested a faster move/rebuild path after preflight `37627593468` could not
 confirm public-app detachment using a null PATCH. The script stopped before touching
 the staff app; both source apps are Running on their original subnet. Do not retry
 detachment as part of this parallel rebuild.
 
-`rebuild-destination-functions.yml` stages these destination resources only:
+Historical staging provisioned these destination resources:
 
 - public app `func-aw-iot-game-v2`, its FC1 plan and storage `stawazcomiotgamev2`
 - staff app `func-aw-iot-staff-v2`, its FC1 plan and storage `stawazcomiotstaffv2`
@@ -238,8 +249,8 @@ settings. The workflow checks the flag and actual registrations, public kiosk-st
 and staff unauthenticated kiosk-state 401. These checks do not mutate player/prize data.
 No source apps, private endpoints, stored data or deployment identities are deleted.
 
-Run `validate-stateful` in `migrate-infrastructure.yml` to validate the nine non-Web
-candidates from `service-move.json`: IoT Hub, DPS, Event Hub, SignalR, the two old storage
+The retired workflow's `validate-stateful` action validated the nine non-Web candidates
+from `service-move.json`: IoT Hub, DPS, Event Hub, SignalR, the two former storage
 accounts and active monitoring. This reuses the existing validator-only IAM and preserves
 names/device/enrollment/storage state through move planning. It performs no move or
 private endpoint detachment. Inspect provider errors before the next reviewed move stage.
@@ -261,8 +272,8 @@ The owner requested execution of the remaining migration on 2026-10-07 after the
 nine-resource stateful validation passed and the new Functions were staged successfully
 in run `37641397303`, SHA `278e470e3cdd0cd1c92d0c6ac2f67fc408460a33`.
 
-`action=move-stateful` in `migrate-infrastructure.yml` requires confirmation
-`MOVE VALIDATED STATEFUL RESOURCES`, main and `AZURE_MIGRATION_FREEZE=true`. The action
+The historical `move-stateful` action required confirmation
+`MOVE VALIDATED STATEFUL RESOURCES`, main and `AZURE_MIGRATION_FREEZE=true`. It
 has an exact nine-resource allowlist: IoT Hub, DPS, Event Hub namespace, SignalR, two old
 storage accounts and active Application Insights/action group/Smart Detector alert.
 It does not move old Function apps/plans, network resources or deployment identities,
@@ -339,8 +350,7 @@ The same action updates only IoT Hub `endpoint-iotpanel.subscriptionId` to the d
 using the identity-based endpoint command. It first checks the endpoint name, identity
 authentication, URI, entity path and resource group, then verifies those fields plus the
 enabled `route-iotpanel` after the update. No key/connection string is supplied. The
-`function-rebuild.bicep` SignalR bridge reference is corrected to the destination resource
-ID so future rebuild deployments cannot reintroduce the old SignalR target.
+deployed SignalR bridge targets the moved destination SignalR resource.
 
 After connectivity repair, leave `MIGRATION_STAGING=true` until validation confirms
 Event Hub DNS/resolution, new Function outbound connectivity to SignalR, IoT Hub routing,
@@ -402,15 +412,13 @@ Create a GitHub environment named `production`. Restrict deployment branches to
 `main` with PR reviews and the `Build apps` status check.
 
 Set these **repository Actions variables** (Settings > Secrets and variables >
-Actions > Variables). Keep `AZURE_FUNCTIONAPP_NAME` repository-scoped so the build
-and deploy jobs use the same API host; do not override it at environment scope.
+Actions > Variables). The destination subscription and Function app names are pinned
+in workflow files; do not restore source targets through repository variables.
 
 | Variable | Value/purpose |
 |---|---|
-| `AZURE_FUNCTIONAPP_NAME` | `func-aw-azcom-iot-game` for the consolidated IoT resource group deployment |
-| `AZURE_CLIENT_ID` | Deployment identity/application client ID |
+| `AZURE_CLIENT_ID` | Destination-scoped app deployment identity/application client ID |
 | `AZURE_TENANT_ID` | Azure tenant ID |
-| `AZURE_SUBSCRIPTION_ID` | Subscription containing the Function App |
 | `POWER_PLATFORM_ENVIRONMENT_URL` | Target Dataverse HTTPS URL, not the public website URL |
 | `POWER_PLATFORM_TENANT_ID` | Target Power Platform tenant ID |
 | `POWER_PLATFORM_CLIENT_ID` | Power Platform deployment application ID |
@@ -446,20 +454,24 @@ Configure Azure OIDC federation for the Azure deployment identity:
 - Issuer: `https://token.actions.githubusercontent.com`
 - Subject: `repo:Andworx@226577816/Copilot-IoT-Game@1350685991:environment:production`
 - Audience: `api://AzureADTokenExchange`
-- Assign Website Contributor scoped to the consolidated Function App (or a tested
+- Assign Website Contributor scoped to the destination Function App (or a tested
   equivalent deployment role). No Azure publish-profile secret is used.
 
-The game Function App host, Flex Consumption plan, and deployment storage are
-declared by the infrastructure workflow. Current target: `func-aw-azcom-iot-game`
-in `rg-aw-azcom-iot-copilot`, hosted on plan `ASP-rgawazcomiotcopilot-ec55`
-with dedicated storage account `stawazcomiotgamefn` and shared Serverless
-SignalR resource `signalr-aw-iot-copilot`. Preserve its runtime
-Dataverse/SignalR settings and storage configuration. The application workflow
-does not provision infrastructure or publish `local.settings.json`. The deploy job uses the
-prebuilt zip package with `sku: flexconsumption` and `remote-build: false`; do
-not add the legacy `SCM_DO_BUILD_DURING_DEPLOYMENT` app setting to the Flex
-Consumption app. Configure CORS for the public Power Pages and Code App origins.
-Power Pages keeps its existing `VITE_API_BASE_URL`. The Code App uses the connector, with no direct Azure URL or client-bundled credentials.
+The destination public Function is `func-aw-iot-game-v2` with plan
+`func-aw-iot-game-v2-plan` and storage `stawazcomiotgamev2`. The staff Function is
+`func-aw-iot-staff-v2` with storage `stawazcomiotstaffv2`; both use the shared
+SignalR service `signalr-aw-iot-copilot`. The application workflow deploys the
+prebuilt zip with `sku: flexconsumption` and `remote-build: false`; it does not
+provision infrastructure or publish `local.settings.json`. Do not add
+`SCM_DO_BUILD_DURING_DEPLOYMENT`. Kiosk, PrizeWheel, and Plinko builds target
+`https://func-aw-iot-game-v2.azurewebsites.net`; the Code App staff connector
+targets `https://func-aw-iot-staff-v2.azurewebsites.net/api`.
+
+The source-owned OIDC identities were deleted with the source resource group.
+Before clearing `AZURE_MIGRATION_FREEZE`, provision destination-scoped identities,
+replace `AZURE_CLIENT_ID` and `AZURE_INFRA_DEPLOYER_CLIENT_ID`, and configure their
+GitHub federation and least-privilege destination roles. Keep background processing
+staged until the coordinated app release succeeds.
 
 The Power Platform environment must have the intended Game Box Control Code App
 initialized with `power.config.json`; the workflow runs `pac code push
@@ -534,11 +546,11 @@ to the environment's Code App `connect-src` allowlist in the Power Platform
 admin center:
 
 ```text
-https://func-aw-azcom-iot-game.azurewebsites.net
+https://func-aw-iot-game-v2.azurewebsites.net
 ```
 
-This is separate from the GitHub Actions `AZURE_FUNCTIONAPP_NAME` variable and
-cannot be configured by `pac code push`. If the allowlist still contains only
+This is a Power Platform environment policy and cannot be configured by
+`pac code push`. If the allowlist still contains only
 the retired `func-aw-azcom-copilot-iot-game.azurewebsites.net` origin, the
 browser blocks requests before they reach Azure Functions, even though the
 Function App and its CORS settings are healthy. After changing the policy,
@@ -554,10 +566,13 @@ is separate from `deploy-apps.yml` on purpose: infrastructure changes can stop t
 every device, so each relevant merge is compared with Azure and applied only after a separate
 manual approval.
 
-Everything else in the resource group (IoT Hub service, DPS, and the legacy Function App/plan/storage)
-is currently **recorded but never deployed**. Its snapshots are checked as a
-post-deployment safety guard. The deploy identity has no write access to it, except for the custom IoT Hub private endpoint approval action required to deploy the IoT Hub private endpoint. The shared default Log Analytics workspace is referenced by the game Application Insights component but is not owned or deployed by this repo. The Smart Detection action group is now local to `rg-aw-azcom-iot-copilot`; the old demo resource group action group is not part of the target design. These resources will
-move into Bicep one at a time as their deployment behavior is validated; see
+The IoT Hub service and DPS remain **reference-only** and are never deployed from
+this repo; their snapshots are checked as a post-deployment safety guard. The deploy
+identity has no general IoT Hub write access, except the private endpoint approval
+action. The former source Log Analytics workspace is gone; destination Application
+Insights ingestion remains disabled until a destination-owned workspace is selected.
+The Smart Detection action group is local to `rg-aw-azcom-iot-copilot`; the old demo
+action group is outside the target design. See
 [`azure/infrastructure/README.md`](../azure/infrastructure/README.md).
 
 ### What triggers what
@@ -589,16 +604,17 @@ configuration still fails reconciliation. Unit tests cover this behavior.
 
 ### GitHub environments, Azure identities, and permissions
 
-The two environments below are **GitHub Actions environments**, not Azure or Power Platform
+the two environments below are **GitHub Actions environments**, not Azure or Power Platform
 environments: everything still targets the one tenant, one subscription, and one resource group
 (`rg-aw-azcom-iot-copilot`). They exist so each kind of job gets its own credential and its own
-branch rule. The existing `production` environment and its identity
-(`id-gha-copilot-iot-game-deploy`) are for the app workflow and are unchanged.
+branch rule. The `production` environment remains for the app workflow, but its source-owned
+Azure OIDC identity (`id-gha-copilot-iot-game-deploy`) was deleted with the source resource group
+and must be replaced before app releases resume.
 
 | GitHub environment | Azure identity | What that identity can do | Protection |
 |---|---|---|---|
 | `infra-readonly` | `id-gha-infra-reader` | Reader on the resource group and nothing else. Retained for reference inspection while resources are migrated from snapshots into Bicep. | no active workflow job |
-| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader, Private DNS Zone Contributor, and custom Action Group Operator on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-azcom-iot-game`, `ASP-rgawazcomiotcopilot-ec55`, `stawazcomiotgamefn`, `iot-demo-vnet`, `iot-demo-dns-resolver`, `iot-demo-vpn-pip`, `iot-demo-vpn`, `iot-demo-eventhub-pe`, `iot-demo-signalr-pe`, `iot-demo-game-function-pe`, `iot-demo-game-storage-blob-pe`, and `iot-demo-iothub-pe` only; custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
+| `infra-deploy` | `id-gha-infra-deployer` | Runs reconciliation previews and approved deploys. `Infra Deployment Operator` (deployments only), Reader, Private DNS Zone Contributor, and custom Action Group Operator on the resource group; Contributor on the Event Hub namespace, SignalR service, `func-aw-iot-game-v2`, `func-aw-iot-game-v2-plan`, `stawazcomiotgamev2`, `iot-demo-vnet`, `iot-demo-dns-resolver`, `iot-demo-vpn-pip`, `iot-demo-vpn`, `iot-migration-eventhub-pe`, `iot-rebuild-signalr-pe`, `iot-game-v2-pe`, `iot-game-v2-storage-blob-pe`, and `iot-migration-iothub-pe` only; custom IoT Hub private endpoint approval role on `iothub-aw-iot-copilot`; assign only the *Azure Event Hubs Data Receiver* role, only on the `iot-telemetry` hub (ABAC-restricted) | deployment branches limited to `main`; no required reviewer (not available on the Free plan) |
 
 The `infra-deploy` environment has **no required reviewer**: the org is on GitHub's Free plan, which
 does not offer that rule for private repositories. What gates a deploy instead: it is a manual action
@@ -614,9 +630,11 @@ the legacy Function App, or unrelated storage accounts, because the identity has
 ### One-time setup
 
 1. **Azure identities and roles.** Someone with Owner or User Access Administrator on the
-   resource group runs `azure/infrastructure/scripts/Initialize-InfraIdentities.ps1`. Try `-PreflightOnly` first
-   (it confirms the permission and changes nothing) or `-WhatIf`. The script is safe to re-run.
-   Contributor is not enough: it can create the identities but not the roles.
+   destination resource group runs `Initialize-DestinationDeploymentIdentities.ps1 -WhatIf`,
+   reviews the preview, then reruns without `-WhatIf`. It creates the production app UAMI,
+   GitHub federations, app-scoped Website Contributor grants, infra reader/deployer identities,
+   and staff provisioner access. It is safe to rerun and prints the three client IDs to enter
+   manually in GitHub. Contributor alone cannot create role assignments.
 2. **GitHub environments** (Settings > Environments):
    - `infra-readonly`: no protection rules.
    - `infra-deploy`: **Deployment branches: selected branches, `main`**. Add **Required
@@ -629,10 +647,11 @@ the legacy Function App, or unrelated storage accounts, because the identity has
    |---|---|
    | `AZURE_INFRA_READER_CLIENT_ID` | client ID of `id-gha-infra-reader` |
    | `AZURE_INFRA_DEPLOYER_CLIENT_ID` | client ID of `id-gha-infra-deployer` |
-   | `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID` | already set for the app workflow; shared |
+   | `AZURE_TENANT_ID` | Destination tenant ID |
 
-   The infra workflow uses no secrets. Get the client IDs with
-   `az identity show -g rg-aw-azcom-iot-copilot -n <identity> --query clientId -o tsv`.
+   The destination subscription is pinned in workflows; do not create or restore an
+   `AZURE_SUBSCRIPTION_ID` variable. The infra workflow uses no secrets. The bootstrap
+   script prints the client IDs after successful setup.
 4. **Workflow on `main`.** `workflow_dispatch` only works for a workflow file on the default
    branch, so merge the PR that adds it before running any of the manual actions.
 
@@ -701,7 +720,7 @@ leaves every other setting alone.
 | Symptom | Likely cause |
 |---|---|
 | `AADSTS700213` / no matching federated identity | The job's environment name does not match the identity's credential (`infra-readonly` / `infra-deploy`), or the environment does not exist |
-| `AuthorizationFailed` on `what-if` or `deploy` | The identity's role assignment is missing; re-run `Initialize-InfraIdentities.ps1` |
+| `AuthorizationFailed` on `what-if` or `deploy` | The destination identity's role assignment is missing; rerun `Initialize-DestinationDeploymentIdentities.ps1 -WhatIf`, inspect, then apply |
 | `Authorization failed for template resource ... /write` on reconciliation | The check was run as a read-only identity. ARM checks that the caller could write every resource in the template, even though what-if changes nothing, so reconciliation runs as the deployer identity |
 | Reconciliation fails after a merge | Azure differs from `azure/infrastructure/`. Review the listed Create/Modify/Delete operations and run the manual `deploy` action if they are intended |
 | `deploy` job does not start | Not run from `main` (the environment only accepts `main`) |

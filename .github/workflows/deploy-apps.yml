@@ -109,7 +109,7 @@ jobs:
       - name: Build
         working-directory: power pages/copilotiotgame
         env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
+          VITE_API_BASE_URL: https://func-aw-iot-game-v2.azurewebsites.net
         run: |
           npm ci
           npm run build
@@ -137,7 +137,7 @@ jobs:
       - name: Build
         working-directory: power pages/prize wheel
         env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
+          VITE_API_BASE_URL: https://func-aw-iot-game-v2.azurewebsites.net
           VITE_SOLUTION_DIAGRAM_URL: ${{ vars.SOLUTION_DIAGRAM_URL || 'https://copilotiotgame.powerappsportals.com/kiosk/solution' }}
         run: |
           npm ci
@@ -166,7 +166,7 @@ jobs:
       - name: Build
         working-directory: power pages/plinko
         env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
+          VITE_API_BASE_URL: https://func-aw-iot-game-v2.azurewebsites.net
           VITE_PRIZE_WHEEL_URL: ${{ vars.PRIZE_WHEEL_URL || 'https://andworxprizewheel.powerappsportals.com' }}
         run: |
           npm ci
@@ -201,8 +201,8 @@ jobs:
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      AZURE_FUNCTIONAPP_NAME: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
+      AZURE_SUBSCRIPTION_ID: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+      AZURE_FUNCTIONAPP_NAME: func-aw-iot-game-v2
       STAFF_API_CUTOVER_READY: ${{ vars.STAFF_API_CUTOVER_READY || 'false' }}
     steps:
       - uses: actions/checkout@v7
@@ -223,7 +223,6 @@ jobs:
           $config = Get-Content azure/infrastructure/staff-api.prod.json -Raw | ConvertFrom-Json
           if ($config.sourceFunctionAppName -ne $env:AZURE_FUNCTIONAPP_NAME) { throw 'Staff source app differs from configured public app.' }
           if ($config.tenantId -ne $env:AZURE_TENANT_ID) { throw 'Staff configuration belongs to another tenant.' }
-          "AZURE_STAFF_FUNCTIONAPP_NAME=$($config.functionAppName)" >> $env:GITHUB_ENV
           "AZURE_RESOURCE_GROUP=$($config.resourceGroup)" >> $env:GITHUB_ENV
       - uses: actions/download-artifact@v8
         with:
@@ -233,7 +232,7 @@ jobs:
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: 9e8c862e-9bba-4363-a21b-c45cabe8b637
       - name: Validate staff connector binding
         if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
@@ -246,7 +245,7 @@ jobs:
       - name: Deploy staff Function App
         uses: Azure/functions-action@v1
         with:
-          app-name: ${{ env.AZURE_STAFF_FUNCTIONAPP_NAME }}
+          app-name: func-aw-iot-staff-v2
           package: function-artifact/function-app.zip
           sku: flexconsumption
           remote-build: false
@@ -277,11 +276,10 @@ jobs:
         if: env.STAFF_API_CUTOVER_READY == 'true'
         uses: Azure/functions-action@v1
         with:
-          app-name: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: function-artifact/function-app.zip
           sku: flexconsumption
           remote-build: false
-
   deploy-frontends:
     name: Deploy ${{ matrix.label }}
     needs: [build, deploy-backends]
@@ -369,6 +367,16 @@ jobs:
     needs: [deploy-backends, deploy-frontends]
     if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AZURE_MIGRATION_FREEZE != 'true'
     runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+      AZURE_RESOURCE_GROUP: rg-aw-azcom-iot-copilot
+      STAFF_API_CUTOVER_READY: ${{ vars.STAFF_API_CUTOVER_READY || 'false' }}
     steps:
       - name: Verify deployment fan-out
         env:
@@ -379,3 +387,17 @@ jobs:
           test "$BACKEND_RESULT" = success
           if test "$CUTOVER_READY" = true; then test "$FRONTEND_RESULT" = success; fi
           echo 'All required application deployments passed.'
+      - uses: azure/login@v3
+        if: env.STAFF_API_CUTOVER_READY == 'true'
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+      - name: Enable destination telemetry and maintenance
+        if: env.STAFF_API_CUTOVER_READY == 'true'
+        shell: pwsh
+        run: |
+          foreach ($app in @('func-aw-iot-game-v2', 'func-aw-iot-staff-v2')) {
+            az functionapp config appsettings set -g $env:AZURE_RESOURCE_GROUP -n $app --settings MIGRATION_STAGING=false --only-show-errors --output none
+            if ($LASTEXITCODE -ne 0) { throw "Could not activate background functions on $app." }
+          }

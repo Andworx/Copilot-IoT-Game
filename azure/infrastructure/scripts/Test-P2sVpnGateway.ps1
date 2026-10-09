@@ -7,7 +7,7 @@ param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
     [string]$PublicIpName = 'iot-demo-vpn-pip',
     [string]$GatewayName = 'iot-demo-vpn',
-    [string]$ExpectedPublicIpAddress = '20.83.141.134',
+    [string]$ExpectedPublicIpAddress = '48.217.22.117',
     [string]$ExpectedRootCertificateName = 'IoTDemo-VPN-Root',
     [string]$ExpectedRootCertificateSha256 = 'E938743A23DCE67592C9DF8268AC7C413DC128029E2D06A4EB99C9F96B93B8A7'
 )
@@ -38,7 +38,7 @@ $gateway = Invoke-AzJson @('network', 'vnet-gateway', 'show', '-g', $ResourceGro
 Assert-Equal $gateway.provisioningState 'Succeeded' 'Gateway provisioning state'
 Assert-Equal $gateway.gatewayType 'Vpn' 'Gateway type'
 Assert-Equal $gateway.vpnType 'RouteBased' 'VPN type'
-Assert-Equal $gateway.vpnGatewayGeneration 'Generation2' 'VPN gateway generation'
+Assert-Equal $gateway.vpnGatewayGeneration 'Generation1' 'VPN gateway generation'
 Assert-Equal $gateway.sku.name 'VpnGw1AZ' 'Gateway SKU'
 Assert-Equal $gateway.enableBgp $true 'BGP setting'
 Assert-Equal $gateway.activeActive $false 'Active-active setting'

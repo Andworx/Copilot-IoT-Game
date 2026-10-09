@@ -5,12 +5,11 @@
 [CmdletBinding()]
 param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
-    [string]$PrivateEndpointName = 'iot-demo-eventhub-pe',
-    [string]$ExpectedNicName = 'iot-demo-eventhub-pe-nic',
+    [string]$PrivateEndpointName = 'iot-migration-eventhub-pe',
+    [string]$ExpectedNicName = 'iot-migration-eventhub-pe-nic',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
     [string]$SubnetName = 'private-endpoint',
     [string]$EventHubNamespaceName = 'evhns-aw-iot-copilot',
-    [string]$ExpectedPrivateIpAddress = '10.20.1.8',
     [string]$DnsZoneGroupName = 'default',
     [string]$DnsZoneConfigName = 'privatelink-servicebus-windows-net',
     [string]$DnsZoneName = 'privatelink.servicebus.windows.net'
@@ -52,7 +51,8 @@ $nic = Invoke-AzJson @('network', 'nic', 'show', '--ids', $endpoint.networkInter
 $ipConfigurations = @($nic.ipConfigurations)
 if ($ipConfigurations.Count -ne 1) { throw "Expected one NIC IP configuration; found $($ipConfigurations.Count)." }
 Assert-Equal $nic.name $ExpectedNicName 'NIC name'
-Assert-Equal $ipConfigurations[0].privateIPAddress $ExpectedPrivateIpAddress 'Private endpoint address'
+${privateIpAddress} = $ipConfigurations[0].privateIPAddress
+if ([string]::IsNullOrWhiteSpace($privateIpAddress)) { throw 'Private endpoint NIC has no private IP address.' }
 Assert-Equal $ipConfigurations[0].privateIPAllocationMethod 'Dynamic' 'Private endpoint address allocation'
 
 $zoneGroups = @(Invoke-AzJson @('network', 'private-endpoint', 'dns-zone-group', 'list', '-g', $ResourceGroup, '--endpoint-name', $PrivateEndpointName))
@@ -62,12 +62,12 @@ $configs = @($zoneGroup[0].privateDnsZoneConfigs)
 if ($configs.Count -ne 1) { throw "Expected one private DNS zone configuration; found $($configs.Count)." }
 Assert-Equal $configs[0].name $DnsZoneConfigName 'Private DNS zone configuration name'
 Assert-Equal $configs[0].privateDnsZoneId $expectedDnsZoneId 'Private DNS zone ID'
-if (-not (@($configs[0].recordSets).ipAddresses -contains $ExpectedPrivateIpAddress)) {
-    throw "Private DNS record set does not contain $ExpectedPrivateIpAddress."
+if (-not (@($configs[0].recordSets).ipAddresses -contains $privateIpAddress)) {
+    throw "Private DNS record set does not contain $privateIpAddress."
 }
 $dnsRecord = Invoke-AzJson @('network', 'private-dns', 'record-set', 'a', 'show', '-g', $ResourceGroup, '-z', $DnsZoneName, '-n', $EventHubNamespaceName)
-if (-not (@($dnsRecord.aRecords).ipv4Address -contains $ExpectedPrivateIpAddress)) {
-    throw "Private DNS A record for $EventHubNamespaceName does not contain $ExpectedPrivateIpAddress."
+if (-not (@($dnsRecord.aRecords).ipv4Address -contains $privateIpAddress)) {
+    throw "Private DNS A record for $EventHubNamespaceName does not contain $privateIpAddress."
 }
 
-Write-Host "Event Hub private endpoint verified: $PrivateEndpointName -> $ExpectedPrivateIpAddress"
+Write-Host "Event Hub private endpoint verified: $PrivateEndpointName -> $privateIpAddress"

@@ -54,8 +54,9 @@ Function keys and browser identity headers cannot substitute for it.
 
 ## Provisioning and runtime configuration
 
-Target subscription `2e291b4a-5f03-4dcd-bb56-09643c729adc`, resource group
-`rg-aw-azcom-iot-copilot`, East US. Non-secret inputs live in
+Current target subscription `9e8c862e-9bba-4363-a21b-c45cabe8b637`, resource group
+`rg-aw-azcom-iot-copilot`, East US. The former source resource group was deleted.
+Non-secret inputs live in
 [`azure/infrastructure/staff-api.prod.json`](../azure/infrastructure/staff-api.prod.json).
 
 `azure/infrastructure/staff-api.bicep`, deployed only by `deploy-apps.yml` through
@@ -70,14 +71,14 @@ automatic app-release bootstrap.
 
 | Resource | Configuration |
 |---|---|
-| `func-aw-azcom-iot-staff` | New Linux Flex Consumption, Node 22, public HTTPS, no private endpoint |
-| `func-aw-azcom-iot-staff-plan` | FC1; 2,048 MB instances, max 40, no always-ready instances |
-| `stawazcomiotstafffn` | New Standard LRS StorageV2; private package container `staff-function-package`; authenticated public storage endpoint |
+| `func-aw-iot-staff-v2` | Destination Linux Flex Consumption, Node 22, public HTTPS, no private endpoint |
+| `func-aw-iot-staff-v2-plan` | FC1; 2,048 MB instances, max 40, no always-ready instances |
+| `stawazcomiotstaffv2` | Destination Standard LRS StorageV2; private package container `function-packages`; authenticated public storage endpoint |
 | Outbound integration | Existing `iot-demo-vnet/function-integration`; Microsoft.App/environments delegation verified |
 | Monitoring | Reuses existing game app's Application Insights connection setting |
 | Identity | New system-assigned identity; not yet used for storage or Dataverse credentials |
 
-ARM reads these source settings from `func-aw-azcom-iot-game` server-side:
+ARM reads these settings from the destination public app `func-aw-iot-game-v2` server-side:
 `DATAVERSE_URL`, `DATAVERSE_TENANT_ID`, `DATAVERSE_CLIENT_ID`,
 `DATAVERSE_CLIENT_SECRET`, `AzureSignalRConnectionString`, optional
 `GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID`, and `APPLICATIONINSIGHTS_CONNECTION_STRING`.
@@ -102,21 +103,17 @@ authoritative route sets and `connectors/iot-game-staff/openapi.json` for operat
 
 ## Deployment access
 
-Existing production GitHub identity client ID:
-`82570a78-246e-4e23-a433-ff3667c3fcb8`; object ID:
-`8904a13a-0f97-47de-854e-c7649b5d7fe6`.
-Read-only inspection found Website Contributor on the existing game app only.
-That original grant could not create the staff resources. The owner subsequently ran the bootstrap successfully; the release has now provisioned them.
+The previous production GitHub identity was owned by the source resource group and was
+deleted with it. An IAM administrator should run the consolidated destination bootstrap
+from [the infrastructure runbook](../azure/infrastructure/README.md#one-time-setup). It
+creates new app/infra OIDC identities, assigns the reviewed destination scopes, and prints
+client IDs to enter manually in GitHub. Do not reuse the deleted identity IDs. The script
+does not remove the unresolved old principal's Contributor/RBAC Administrator assignments;
+remove those after confirming the replacement infra identity works.
 
-An IAM administrator must review `azure/infrastructure/roles/staff-provisioner.json` and run the
-one-time bootstrap before the first release. This is not run by CI; it has
-now been run successfully by the owner (commands retained for reproducibility):
-
-```powershell
-az account set --subscription 2e291b4a-5f03-4dcd-bb56-09643c729adc
-./azure/infrastructure/scripts/Initialize-StaffDeploymentAccess.ps1 -DeploymentPrincipalId 8904a13a-0f97-47de-854e-c7649b5d7fe6 -WhatIf
-# After reviewing the role, run the same command without -WhatIf.
-```
+`Initialize-StaffDeploymentAccess.ps1` remains the lower-level staff-role helper invoked by
+the consolidated script. It is destination-pinned, requires Owner/User Access Administrator,
+and can be run with `-WhatIf` independently when reviewing only that grant.
 
 The custom role provides deployments, Web app/plan management, storage creation
 and key reads, and subnet read/join at resource-group scope. It does not grant
@@ -154,11 +151,11 @@ IAM bootstrap and runtime startup subsequently passed; owner reported authentica
 | Router | GL.iNet Beryl AX GL-MT3000, firmware 4.11.0; LAN `192.168.8.0/24`, gateway `.1`; DCO disabled for Azure compatibility |
 | Routing | Azure `10.20.0.0/16` through VPN, other internet via WAN; IP masquerading on |
 | DNS | Resolver `iot-demo-dns-resolver`, inbound `iot-demo-dns-inbound`, `10.20.3.4` |
-| IoT Hub | `iothub-aw-iot-copilot`, private IP `10.20.1.4`; one built Pi confirmed sending telemetry |
-| Event Hub | `evhns-aw-iot-copilot`, private IP `10.20.1.8`, hub `iot-telemetry`; owner confirmed continued flow |
-| SignalR | `signalr-aw-iot-copilot`, Standard S1/serverless, private IP `10.20.1.9`; private DNS/443 and updates confirmed |
-| Game Function | `func-aw-azcom-iot-game`, private IP `10.20.1.10`; outbound VNet integration verified read-only |
-| Game storage | `stawazcomiotgamefn`, blob private IP `10.20.1.11`; owner confirmed checks |
+| IoT Hub | `iothub-aw-iot-copilot`, private IP `10.20.1.5`; Event Hub/service/device members `10.20.1.6` through `.8` |
+| Event Hub | `evhns-aw-iot-copilot`, private IP `10.20.1.9`, hub `iot-telemetry` |
+| SignalR | `signalr-aw-iot-copilot`, Standard S1/serverless, private IP `10.20.1.4` |
+| Public Function | `func-aw-iot-game-v2`; destination private endpoint is tracked by Bicep and receives a dynamic IP |
+| Game storage | `stawazcomiotgamev2`; destination blob endpoint is tracked by Bicep and receives a dynamic IP |
 
 Router conditional DNS forwards `azure-devices.net`, `servicebus.windows.net`,
 `service.signalr.net`, `azurewebsites.net`, and `blob.core.windows.net` to
@@ -172,9 +169,9 @@ one boot-time outage. Do not claim reboot stability solely from a route entry.
 IoT Hub's Event Hub route was changed to managed identity after assigning Event
 Hubs Data Sender, with successful owner-reported telemetry. Public service access
 remains enabled; private connectivity checks do not prove public isolation.
-DPS and legacy `func-aw-iot-copilot`/`stfuncawiotcopilot` were not migrated.
+DPS and the public/staff Function apps live in the destination resource group now.
 Storage queue/table/file private endpoints and off-VPN isolation remain unverified.
-The new staff template does not adopt or replay this manually built network.
+The staff template does not adopt or replay the manually built network.
 
 Read-only inventory on 2026-09-29 captured the network separately in
 [`azure/infrastructure/network`](../azure/infrastructure/network/README.md). The live gateway is Generation2
@@ -189,7 +186,7 @@ References: [setup runbook](STAFF_API_SETUP.md), [CI/CD](CI_CD.md),
 
 ## Connector binding follow-up
 
-- Bootstrap release: commit `6110fffa7a994990b0a51c861c24b4395547577f`, [successful run](https://github.com/Andworx/Copilot-IoT-Game/actions/runs/36629295635). Staff hostname `func-aw-azcom-iot-staff.azurewebsites.net`; unauthenticated 401 probe passed. Existing apps were skipped as intended.
+- Historical bootstrap release: commit `6110fffa7a994990b0a51c861c24b4395547577f`, [successful run](https://github.com/Andworx/Copilot-IoT-Game/actions/runs/36629295635). It used the now-retired source hostname `func-aw-azcom-iot-staff.azurewebsites.net`; destination releases target `func-aw-iot-staff-v2.azurewebsites.net`.
 - IAM bootstrap: owner reported successful grant to the production deployment identity.
 - Current connector: **IoT Game Staff API Connector**. The earlier connector was recreated; use the IDs below.
 - Environment: `dd045fe3-6b47-e5bd-87e6-680b3cfd3a09`.

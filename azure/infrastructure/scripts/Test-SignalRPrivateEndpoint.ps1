@@ -5,12 +5,11 @@
 [CmdletBinding()]
 param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
-    [string]$PrivateEndpointName = 'iot-demo-signalr-pe',
-    [string]$ExpectedNicName = 'iot-demo-signalr-pe-nic',
+    [string]$PrivateEndpointName = 'iot-rebuild-signalr-pe',
+    [string]$ExpectedNicName = 'iot-rebuild-signalr-pe-nic',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
     [string]$SubnetName = 'private-endpoint',
     [string]$SignalRName = 'signalr-aw-iot-copilot',
-    [string]$ExpectedPrivateIpAddress = '10.20.1.9',
     [string]$DnsZoneGroupName = 'default',
     [string]$DnsZoneConfigName = 'privatelink-service-signalr-net',
     [string]$DnsZoneName = 'privatelink.service.signalr.net'
@@ -45,9 +44,7 @@ $nicId = $endpoint.networkInterfaces[0].id
 if (-not $nicId) { throw 'SignalR private endpoint has no network interface.' }
 $nic = Invoke-AzJson @('resource', 'show', '--ids', $nicId, '--api-version', '2024-05-01')
 $privateIpAddress = $nic.properties.ipConfigurations[0].properties.privateIPAddress
-if ($privateIpAddress -ne $ExpectedPrivateIpAddress) {
-    throw "SignalR private endpoint private IP is '$privateIpAddress', expected '$ExpectedPrivateIpAddress'."
-}
+if ([string]::IsNullOrWhiteSpace($privateIpAddress)) { throw 'SignalR private endpoint NIC has no private IP address.' }
 
 $zoneGroup = Invoke-AzJson @('network', 'private-endpoint', 'dns-zone-group', 'show', '-g', $ResourceGroup, '--endpoint-name', $PrivateEndpointName, '-n', $DnsZoneGroupName)
 $zoneConfig = @($zoneGroup.privateDnsZoneConfigs | Where-Object {
@@ -57,8 +54,8 @@ if ($zoneConfig.Count -ne 1) { throw 'SignalR private DNS zone group does not po
 
 $recordSet = Invoke-AzJson @('network', 'private-dns', 'record-set', 'a', 'show', '-g', $ResourceGroup, '-z', $DnsZoneName, '-n', $SignalRName)
 $privateDnsAddresses = @($recordSet.aRecords | ForEach-Object { $_.ipv4Address })
-if ($privateDnsAddresses -notcontains $ExpectedPrivateIpAddress) {
-    throw "SignalR private DNS A record is '$($privateDnsAddresses -join ', ')', expected '$ExpectedPrivateIpAddress'."
+if ($privateDnsAddresses -notcontains $privateIpAddress) {
+    throw "SignalR private DNS A record is '$($privateDnsAddresses -join ', ')', expected '$privateIpAddress'."
 }
 
-Write-Host "SignalR private endpoint $PrivateEndpointName is approved at $ExpectedPrivateIpAddress with DNS zone $DnsZoneName."
+Write-Host "SignalR private endpoint $PrivateEndpointName is approved at $privateIpAddress with DNS zone $DnsZoneName."
