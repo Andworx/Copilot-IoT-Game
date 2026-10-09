@@ -104,6 +104,12 @@ param iotHubPrivateDnsZoneConfigNames array
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
 
+@description('Preserved Event Hubs Data Sender assignment name after a resource move. Empty uses the deterministic default.')
+param eventHubSenderRoleAssignmentName string = ''
+
+@description('Preserved Event Hubs Data Receiver assignment name after a resource move. Empty uses the deterministic default.')
+param eventHubReceiverRoleAssignmentName string = ''
+
 resource iotHub 'Microsoft.Devices/IotHubs@2023-06-30' existing = {
   name: iotHubName
 }
@@ -337,6 +343,7 @@ module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrinci
     namespaceName: eventHubNamespaceName
     eventHubName: eventHubName
     principalId: functionAppPrincipalId
+    roleAssignmentName: eventHubReceiverRoleAssignmentName
   }
 }
 
@@ -346,6 +353,7 @@ module sender 'modules/eventhub-sender.bicep' = {
   params: {
     namespaceName: eventHubNamespaceName
     principalId: iotHub.identity.principalId
+    roleAssignmentName: eventHubSenderRoleAssignmentName
   }
 }
 
