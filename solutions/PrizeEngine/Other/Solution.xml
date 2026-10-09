@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26084.171" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26084.171" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26084.00171">
+<ImportExportXml version="9.2.26085.172" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26085.172" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26085.00172">
   <SolutionManifest>
     <UniqueName>andy_PrizeEngine</UniqueName>
     <LocalizedNames>
@@ -91,6 +91,8 @@
       <RootComponent type="1" schemaName="contact" behavior="1" />
       <RootComponent type="1" schemaName="systemuser" behavior="1" />
       <RootComponent type="29" id="{54c7c125-647b-f011-b4cc-7c1e52578ac0}" behavior="0" />
+      <RootComponent type="29" id="{79ad0cf7-1fc4-f111-aaaf-3833c5e7f0a0}" behavior="0" />
+      <RootComponent type="29" id="{9302fd6b-20c4-f111-aaad-000d3a9d6391}" behavior="0" />
       <RootComponent type="36" id="{6db65f51-beba-f111-aaaf-3833c5e7f0a0}" behavior="0" />
       <RootComponent type="36" id="{70b65f51-beba-f111-aaaf-3833c5e7f0a0}" behavior="0" />
       <RootComponent type="61" schemaName="andy_contestcampaign_form.js" behavior="0" />
@@ -113,6 +115,10 @@
         <Dependent type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" />
       </MissingDependency>
       <MissingDependency>
+        <Required type="1" schemaName="andy_plinkoplay" displayName="Plinko Play" solution="Active" />
+        <Dependent type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" />
+      </MissingDependency>
+      <MissingDependency>
         <Required type="1" schemaName="andy_sessionprizewin" displayName="Session Prize Win" solution="Active" />
         <Dependent type="1" schemaName="andy_prizes" displayName="Prizes" />
       </MissingDependency>
@@ -127,6 +133,38 @@
       <MissingDependency>
         <Required type="connectionreference" displayName="cr552_commondataserviceforapps_3efd4b3dbb" solution="Active" id.connectionreferencelogicalname="cr552_commondataserviceforapps_3efd4b3dbb" />
         <Dependent type="29" displayName="Update Prize Type" id="{54c7c125-647b-f011-b4cc-7c1e52578ac0}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="connectionreference" displayName="new_sharedcommondataserviceforapps_489da" solution="Active" id.connectionreferencelogicalname="new_sharedcommondataserviceforapps_489da" />
+        <Dependent type="29" displayName="Prize Engine | Deactivate Prize" id="{9302fd6b-20c4-f111-aaad-000d3a9d6391}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{5c96134f-3932-4781-b56d-65b0c290dc96}" />
+        <Dependent type="powerpagecomponent" id="{12a255bb-d201-4e2e-b3e8-5d80d25f6a25}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{5c96134f-3932-4781-b56d-65b0c290dc96}" />
+        <Dependent type="powerpagecomponent" id="{b5fa8589-b336-479f-a01c-b9145b4b015c}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{5c96134f-3932-4781-b56d-65b0c290dc96}" />
+        <Dependent type="powerpagecomponent" id="{ccf3a6c1-88c8-43f1-a7f0-b33596150668}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{5c96134f-3932-4781-b56d-65b0c290dc96}" />
+        <Dependent type="powerpagecomponent" id="{f0700b12-8d8a-4790-a000-90aca0cd640f}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{74fe1776-8cce-4e3f-9a34-95caa9575218}" />
+        <Dependent type="powerpagecomponent" id="{14cdaff2-1c8a-4cd3-b412-3d82f06d0c5a}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{74fe1776-8cce-4e3f-9a34-95caa9575218}" />
+        <Dependent type="powerpagecomponent" id="{9558980f-a2e0-4eee-aadc-b9a2236a9298}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{bbb023e8-956b-4dc5-b168-9c85e1d22359}" />
+        <Dependent type="powerpagecomponent" id="{2d00e789-8b4b-44fc-813a-4ab4cf2b1022}" />
       </MissingDependency>
       <MissingDependency>
         <Required type="powerpagesite" solution="Active" id="{c1b1163c-382d-4601-b33f-9645e45409cf}" />

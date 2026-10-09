@@ -5,7 +5,7 @@
     <IntroducedVersion>1.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
         <tab verticallayout="true" id="{5C404E20-8875-4C00-A956-CFC4CA533B7A}" IsUserDefined="1">
           <labels>
@@ -24,15 +24,23 @@
                         <labels>
                           <label description="IoT Game Win Name" languagecode="1033" />
                         </labels>
-                        <control id="andy_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_name" />
+                        <control id="andy_name" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_name" disabled="true" />
                       </cell>
                     </row>
                     <row>
-                      <cell id="{E926D1D7-9B26-431F-BF85-F2DA729A225C}">
+                      <cell id="{7107a51e-92e9-4fdd-aa01-838ff1368a49}" locklevel="0" colspan="1" rowspan="1">
                         <labels>
-                          <label description="Owner" languagecode="1033" />
+                          <label description="Prize Claim" languagecode="1033" />
                         </labels>
-                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                        <control id="andy_prize_claim" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="andy_prize_claim" disabled="true" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{66bf04e0-1f02-4395-81e9-03b70e4b82fd}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Device Profile" languagecode="1033" />
+                        </labels>
+                        <control id="andy_device_profile" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="andy_device_profile" disabled="true" />
                       </cell>
                     </row>
                   </rows>
@@ -42,6 +50,57 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{617d6d71-3e6e-4003-827a-3bc47ef04ce2}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{cb191c2d-51d6-4636-baa8-c3f896075b70}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{f78577ef-1fe6-4784-95d9-9cd202bcb1f4}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{ee89399f-a44b-436c-9180-324f7ab80873}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{E926D1D7-9B26-431F-BF85-F2DA729A225C}" colspan="1" rowspan="1">
+              <labels>
+                <label description="Owner" languagecode="1033" />
+              </labels>
+              <control id="header_ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{facb65bd-6459-4e54-86d3-b04c560cac40}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{1bc4359a-ec0d-4c79-9c75-a9a5cb3f0099}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{f4b1d0d8-447e-4d87-a811-44f75d16efc7}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{559dd0af-ba31-4770-b4d3-0d4a73ecb3f9}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>
