@@ -32,12 +32,12 @@ param signalRSkuName string
 param gameFunctionPlanName string
 param gameFunctionAppName string
 param gameFunctionAppTags object = {}
+param gameFunctionCorsOrigins array
 param gameStorageAccountName string
 param gameStoragePackageContainerName string
 param gameStoragePackageContainerUrl string
 
 param gameAppInsightsName string
-param logAnalyticsWorkspaceResourceId string
 param gameFailureAnomaliesAlertName string
 param smartDetectionActionGroupName string
 param smartDetectionActionGroupShortName string
@@ -108,6 +108,18 @@ resource iotHub 'Microsoft.Devices/IotHubs@2023-06-30' existing = {
   name: iotHubName
 }
 
+resource currentGameAppSettings 'Microsoft.Web/sites/config@2024-04-01' existing = {
+  name: '${gameFunctionAppName}/appsettings'
+}
+
+var existingGameAppSettings = currentGameAppSettings.list().properties
+var gameFunctionResourceTags = {
+  application: 'CopilotIoTGame'
+  purpose: 'subscription-migration'
+  component: 'parallel-function-rebuild'
+  'managed-by': 'bicep'
+}
+
 module eventHub 'modules/eventhub.bicep' = {
   name: 'eventhub'
   params: {
@@ -143,7 +155,10 @@ module gameFunctionHosting 'modules/game-function-hosting.bicep' = {
     packageContainerName: gameStoragePackageContainerName
     packageContainerUrl: gameStoragePackageContainerUrl
     functionAppName: gameFunctionAppName
+    resourceTags: gameFunctionResourceTags
     functionAppTags: gameFunctionAppTags
+    corsOrigins: gameFunctionCorsOrigins
+    existingSettings: existingGameAppSettings
     integrationSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, 'function-integration')
   }
   dependsOn: [vnet]
@@ -154,7 +169,6 @@ module gameAppInsights 'modules/app-insights.bicep' = {
   params: {
     name: gameAppInsightsName
     location: location
-    workspaceResourceId: logAnalyticsWorkspaceResourceId
     tags: tags
   }
 }

@@ -371,7 +371,7 @@ AZURE_IOT_DPS_ENROLLMENT_GROUP_ID=iot-game-fleet
 AZURE_IOT_DPS_ID_SCOPE=0ne011EB47B
 AZURE_IOT_DPS_REGISTRATION_ID=copilotiotpanel
 AZURE_IOT_DPS_SYMMETRIC_KEY=<derived-device-key>
-MODE_STATE_URL=https://func-aw-azcom-iot-game.azurewebsites.net/api/kiosk-state
+MODE_STATE_URL=https://func-aw-iot-game-v2.azurewebsites.net/api/kiosk-state
 ```
 
 `iotdisplay` does not need these settings. It is the touchscreen display Pi and

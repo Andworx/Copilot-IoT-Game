@@ -3,7 +3,7 @@ param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
     [string]$NamespaceName = 'evhns-aw-iot-copilot',
     [string]$EventHubName = 'iot-telemetry',
-    [string]$GameFunctionApp = 'func-aw-azcom-iot-game',
+    [string]$GameFunctionApp = 'func-aw-iot-game-v2',
     [string]$IoTHubName = 'iothub-aw-iot-copilot'
 )
 

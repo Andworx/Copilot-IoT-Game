@@ -1,6 +1,6 @@
 # Network adoption baseline
 
-Status: captured from live Azure for review. The VNet/subnets, private DNS zones/links,
+Status: captured from the destination subscription on 2026-10-08. The VNet/subnets, private DNS zones/links,
 DNS resolver/inbound endpoint, and Point-to-Site VPN gateway/public IP have been adopted
 into the deployable main stack; the Event Hub, SignalR, game Function, game storage blob, and IoT Hub private endpoints are also deployable and the other private endpoints remain baseline-only. This is the current network, not the
 older proposed foundation in the companion service repository.
@@ -35,15 +35,17 @@ its client certificate/key and the host-route hotplug hook.
 - Subnets: `GatewaySubnet` 10.20.0.0/27; **`private-endpoint`** 10.20.1.0/24;
   `function-integration` 10.20.2.0/26; `dns-inbound` 10.20.3.0/28.
 - Actual delegation names and defaultOutboundAccess settings are retained.
-- VPN `iot-demo-vpn`: VpnGw1AZ, **Generation2, BGP enabled**, active-active false.
+- VPN `iot-demo-vpn`: VpnGw1AZ, **Generation1, BGP enabled**, active-active false.
   Earlier notes saying Generation1/BGP off were not the live configuration.
 - P2S: OpenVPN/certificate, 172.27.240.0/24. Preserve the root certificate.
 - Public IP `iot-demo-vpn-pip`: Standard/Static, zones 1/2/3.
 - Resolver inbound: static 10.20.3.4.
-- IoT Hub endpoint attaches both azure-devices and servicebus private DNS zones,
-  including auxiliary addresses 10.20.1.5-.7 as well as primary 10.20.1.4.
-- Event Hub 10.20.1.8, SignalR 10.20.1.9, game Function 10.20.1.10,
-  game storage blob 10.20.1.11 were recorded in prior verified endpoint checks.
+- IoT Hub endpoint attaches both azure-devices and servicebus private DNS zones:
+  primary IoT Hub `10.20.1.5`, Event Hub member `10.20.1.6`, service `10.20.1.7`,
+  and device `10.20.1.8`.
+- Destination Event Hub private endpoint is `10.20.1.9`; SignalR private endpoint is
+  `10.20.1.4`. Function and game-storage private endpoints are destination-only names
+  in Bicep and receive dynamic addresses when deployed.
 - No NSGs or route tables were present in the network inventory. The older proposal
   adding NSGs is not adopted as if already deployed.
 
@@ -71,7 +73,7 @@ run that older service deployment as a substitute for network adoption.
 Local read-only preview:
 
 ```powershell
-az account set --subscription 2e291b4a-5f03-4dcd-bb56-09643c729adc
+az account set --subscription 9e8c862e-9bba-4363-a21b-c45cabe8b637
 ./azure/infrastructure/network/Preview-Network.ps1
 ```
 

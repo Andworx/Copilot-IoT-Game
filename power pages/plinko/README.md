@@ -28,7 +28,7 @@ Use `?station=<slug>` to bind the display to a specific board. In local Vite dev
 
 ## Runtime Configuration
 
-- `VITE_API_BASE_URL` points to the Functions backend. Defaults to `https://func-aw-azcom-iot-game.azurewebsites.net`.
+- `VITE_API_BASE_URL` points to the Functions backend. Defaults to `https://func-aw-iot-game-v2.azurewebsites.net`.
 - `VITE_PRIZE_WHEEL_URL` points to the player phone Prize Wheel Code Site. Defaults to `https://andworxprizewheel.powerappsportals.com`.
 
 The display listens for `plinkoResult` messages on the existing SignalR endpoint at `/api` and ignores events for other stations when the event includes `station` or `stationSlug`.

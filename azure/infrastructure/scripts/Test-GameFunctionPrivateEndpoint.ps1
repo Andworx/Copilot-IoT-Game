@@ -5,12 +5,11 @@
 [CmdletBinding()]
 param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
-    [string]$PrivateEndpointName = 'iot-demo-game-function-pe',
-    [string]$ExpectedNicName = 'iot-demo-game-function-pe-nic',
+    [string]$PrivateEndpointName = 'iot-game-v2-pe',
+    [string]$ExpectedNicName = 'iot-game-v2-pe-nic',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
     [string]$SubnetName = 'private-endpoint',
-    [string]$FunctionAppName = 'func-aw-azcom-iot-game',
-    [string]$ExpectedPrivateIpAddress = '10.20.1.10',
+    [string]$FunctionAppName = 'func-aw-iot-game-v2',
     [string]$DnsZoneGroupName = 'default',
     [string]$DnsZoneConfigName = 'privatelink-azurewebsites-net',
     [string]$DnsZoneName = 'privatelink.azurewebsites.net'
@@ -45,9 +44,7 @@ $nicId = $endpoint.networkInterfaces[0].id
 if (-not $nicId) { throw 'Game Function private endpoint has no network interface.' }
 $nic = Invoke-AzJson @('resource', 'show', '--ids', $nicId, '--api-version', '2024-05-01')
 $privateIpAddress = $nic.properties.ipConfigurations[0].properties.privateIPAddress
-if ($privateIpAddress -ne $ExpectedPrivateIpAddress) {
-    throw "Game Function private endpoint private IP is '$privateIpAddress', expected '$ExpectedPrivateIpAddress'."
-}
+if ([string]::IsNullOrWhiteSpace($privateIpAddress)) { throw 'Game Function private endpoint NIC has no private IP address.' }
 
 $zoneGroup = Invoke-AzJson @('network', 'private-endpoint', 'dns-zone-group', 'show', '-g', $ResourceGroup, '--endpoint-name', $PrivateEndpointName, '-n', $DnsZoneGroupName)
 $zoneConfig = @($zoneGroup.privateDnsZoneConfigs | Where-Object {
@@ -57,8 +54,8 @@ if ($zoneConfig.Count -ne 1) { throw 'Game Function private DNS zone group does 
 
 $recordSet = Invoke-AzJson @('network', 'private-dns', 'record-set', 'a', 'show', '-g', $ResourceGroup, '-z', $DnsZoneName, '-n', $FunctionAppName)
 $privateDnsAddresses = @($recordSet.aRecords | ForEach-Object { $_.ipv4Address })
-if ($privateDnsAddresses -notcontains $ExpectedPrivateIpAddress) {
-    throw "Game Function private DNS A record is '$($privateDnsAddresses -join ', ')', expected '$ExpectedPrivateIpAddress'."
+if ($privateDnsAddresses -notcontains $privateIpAddress) {
+    throw "Game Function private DNS A record is '$($privateDnsAddresses -join ', ')', expected '$privateIpAddress'."
 }
 
-Write-Host "Game Function private endpoint $PrivateEndpointName is approved at $ExpectedPrivateIpAddress with DNS zone $DnsZoneName."
+Write-Host "Game Function private endpoint $PrivateEndpointName is approved at $privateIpAddress with DNS zone $DnsZoneName."
