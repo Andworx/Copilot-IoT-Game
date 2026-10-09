@@ -165,6 +165,9 @@ table 1011 alone was insufficient. Hook `/etc/hotplug.d/iface/99-iot-azure-dns`
 was restored after firmware upgrade removed it. Back it up and recheck routing,
 DNS and telemetry after firmware updates/reboots; reconnecting the VPN resolved
 one boot-time outage. Do not claim reboot stability solely from a route entry.
+The hook now also re-adds missing DNS forwards; install, backup and verify steps are in
+[`network/router`](../azure/infrastructure/network/router/README.md). The forwards were found missing
+on 2026-10-09 after the VPN move.
 
 IoT Hub's Event Hub route was changed to managed identity after assigning Event
 Hubs Data Sender, with successful owner-reported telemetry. Public service access
