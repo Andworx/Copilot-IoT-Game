@@ -198,3 +198,5 @@ param iotHubPrivateDnsZoneConfigNames = [
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.
 param functionAppPrincipalId = readEnvironmentVariable('FUNCTION_APP_PRINCIPAL_ID', '')
+param eventHubSenderRoleAssignmentName = '0183f339-ea7f-4947-a18d-3829bade4962'
+param eventHubReceiverRoleAssignmentName = '5923c53b-17e7-4a15-b254-a62e1f48fa82'
