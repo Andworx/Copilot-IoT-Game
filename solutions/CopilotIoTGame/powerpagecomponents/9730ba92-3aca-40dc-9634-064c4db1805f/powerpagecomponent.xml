@@ -1,0 +1,15 @@
+<powerpagecomponent powerpagecomponentid="9730ba92-3aca-40dc-9634-064c4db1805f">
+  <content>{
+  "description": "Override query for site search, to apply additional weights and filters. @Query is the query text entered by a user. Lucene query syntax reference: http://lucene.apache.org/core/old_versioned_docs/versions/2_9_1/queryparsersyntax.html",
+  "value": "+(@Query) _title:(@Query) _logicalname:knowledgearticle~0.9^0.3 _logicalname:annotation~0.9^0.25 _logicalname:adx_webpage~0.9^0.2 -_logicalname:adx_webfile~0.9 adx_partialurl:(@Query) _logicalname:adx_blogpost~0.9^0.1 -_logicalname:adx_communityforumthread~0.9",
+  "websiteid": "87d349fa-f76a-4949-8151-0d43f67b9d41"
+}</content>
+  <iscustomizable>1</iscustomizable>
+  <name>search/query</name>
+  <powerpagecomponenttype>9</powerpagecomponenttype>
+  <powerpagesiteid>
+    <powerpagesiteid>87d349fa-f76a-4949-8151-0d43f67b9d41</powerpagesiteid>
+  </powerpagesiteid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</powerpagecomponent>
