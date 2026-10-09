@@ -128,6 +128,11 @@ jobs:
             --ignore-path 'properties.vpnClientConfiguration.vpnClientRootCertificates[0].id' \
             --ignore-path 'properties.vpnClientConfiguration.vpnClientRootCertificates[0].type' \
             --ignore-path properties.vpnStack
+      # what-if cannot read Microsoft.Web/sites/config, so the siteConfig preview paths above are
+      # ignored; this step keeps real drift in those settings detectable.
+      - name: Verify game Function site config
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-GameFunctionSiteConfig.ps1
 
   deploy:
     name: Deploy
