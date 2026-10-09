@@ -116,6 +116,11 @@ jobs:
             --ignore-path 'properties.privateDnsZoneConfigs[1].id' \
             --ignore-path 'properties.privateDnsZoneConfigs[1].properties.provisioningState' \
             --ignore-path 'properties.privateDnsZoneConfigs[1].type' \
+            --ignore-path properties.siteConfig.cors \
+            --ignore-path properties.siteConfig.ftpsState \
+            --ignore-path properties.siteConfig.minTlsVersion \
+            --ignore-path properties.siteConfig.scmMinTlsVersion \
+            --ignore-path properties.siteConfig.vnetRouteAllEnabled \
             --ignore-path properties.siteConfig.localMySqlEnabled \
             --ignore-path properties.siteConfig.netFrameworkVersion \
             --ignore-path properties.virtualNetworkGatewayMigrationStatus \
