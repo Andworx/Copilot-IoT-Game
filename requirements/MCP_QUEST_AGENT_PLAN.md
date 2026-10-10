@@ -195,9 +195,15 @@ one. Something has to carry N across without the game doing the engine's job. Op
 
 | Option | Engine change | Notes |
 |---|---|---|
-| **A. The game's win table holds N; the claim reads it (recommended)** | One small, generic hook in `claim-prize`: after resolving the claim, ask the claim's contest source for "entries requested" (default 1), clamped to the cap minus the contact's existing entries. No tier logic, no new Prize Claim column | Same pattern as IoT and Plinko: the game's own table (`andy_mcpquestplay`, already linked to Prize Claim) stores the result, here the entry count next to the score. Other games keep today's behaviour |
+| **A. The game's win table holds N (`andy_entriesawarded`, as on Plinko Play); the claim reads it (recommended)** | One small, generic hook in `claim-prize`: after resolving the claim, ask the claim's contest source for "entries requested" (default 1), clamped to the cap minus the contact's existing entries. No tier logic, no new Prize Claim column | Same pattern as IoT and Plinko: the game's own table (`andy_mcpquestplay`, already linked to Prize Claim) stores the result, here the entry count next to the score. Other games keep today's behaviour |
 | B. Game reads the cap and writes extra entries itself after the claim | None | The Prize Wheel calls `claim-prize` directly, so the game never sees the claim; it would need to poll or hook a Dataverse event. Fragile |
 | C. One Prize Claim per entry | None | One QR and one wheel spin per claim, so the player would scan several times. Not workable |
+
+Plinko already works this way on paper: `PLINKO_GAME_PLAN.md` gives Plinko Play an
+`andy_entriesawarded` column and says `claim-prize` should create that many entries, each checked
+against the cap. That `claim-prize` change is **not implemented yet** (there is no Plinko code in
+the Function App), so it should be built once, generically, for any game's play table. MCP Quest
+adds the same column (`tables/andy_mcpquestplay/definition.json`, not yet deployed).
 
 A is the smallest change that keeps the engine multi-game. If you want zero engine change,
 the realistic fallback is every player gets one entry and the tiers apply to something else

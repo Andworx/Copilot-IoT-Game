@@ -126,6 +126,13 @@
       "required": "Optional"
     },
     {
+      "schemaName": "andy_entriesawarded",
+      "displayName": "Entries Awarded",
+      "description": "Grand-prize entries this play earned (same column as Plinko Play). Set by the game at submit from the score and the campaign's per-contact maximum; claim-prize creates this many entries, capped by the engine. Not yet deployed.",
+      "dataType": "Integer",
+      "required": "Optional"
+    },
+    {
       "schemaName": "andy_durationseconds",
       "displayName": "Duration (seconds)",
       "description": "Seconds from start to submission, capped at the mission's time limit.",
