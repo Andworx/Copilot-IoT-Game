@@ -1,4 +1,5 @@
 import { computeSpecId, computeToolsHash, validateGameSpec, type GameSpec } from "../gamespec";
+import { fromWireSpec } from "../gamespecSchema";
 import { isMcpStationSlug } from "../mcpstation";
 import { fetchServerDigest, type FetchLike, type ServerDigest } from "./digest";
 import type { SpecModel } from "./foundry";
@@ -70,7 +71,7 @@ export async function generateGameSpec(slug: unknown, deps: GenerateDeps): Promi
   if (cached) return { stored: cached, cached: true, modelCalls: 0 };
 
   const input = buildGeneratorInput(digest, toolsHash);
-  const check = (output: unknown) => validateGameSpec(output, { tools: digest.tools, bindToTools: true, requireReference: true });
+  const check = (output: unknown) => validateGameSpec(fromWireSpec(output), { tools: digest.tools, bindToTools: true, requireReference: true });
 
   let modelCalls = 0;
   const ask = async (previous?: { input: string; output: unknown }, repairInput?: string) => {

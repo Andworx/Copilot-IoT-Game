@@ -83,6 +83,12 @@ try {
     for (const r of c.requirements) console.log(`      * ${r.text}`);
   }
   console.log(`  saved to ${out}`);
+  if (outputs.length > 1) {
+    // The first answer needed a repair: keep it so the prompt can be tuned from real failures.
+    const firstFile = out.replace(/\.json$/, "") + ".first-attempt.json";
+    writeFileSync(firstFile, JSON.stringify(outputs[0], null, 2) + "\n");
+    console.log(`  first attempt (rejected, then repaired) saved to ${firstFile}`);
+  }
 } catch (error) {
   console.log(`[FAIL] ${error.code ?? "error"}: ${error.message}`);
   for (const d of error.details ?? []) console.log(`  - ${d}`);

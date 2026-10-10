@@ -9,7 +9,7 @@ import {
   validateGameSpec,
   type GameSpec,
 } from "../src/mcpquest/gamespec";
-import { GAME_SPEC_JSON_SCHEMA } from "../src/mcpquest/gamespecSchema";
+import { GAME_SPEC_JSON_SCHEMA, fromWireSpec } from "../src/mcpquest/gamespecSchema";
 import { DEFAULT_SNAPSHOT, SNAPSHOTS } from "../src/mcpquest/snapshot";
 import type { ToolDef } from "../src/mcpquest/types";
 
@@ -238,20 +238,51 @@ test("canonical JSON and spec ids are stable under key order", () => {
   assert.notEqual(computeSpecId(changed), computeSpecId(a));
 });
 
-test("the JSON Schema is strict and covers every predicate op", () => {
+test("the JSON Schema follows strict structured-output rules and covers every predicate op", () => {
   const schema = GAME_SPEC_JSON_SCHEMA as any;
   assert.equal(schema.additionalProperties, false);
   assert.deepEqual([...schema.required].sort(), Object.keys(schema.properties).sort());
-  const ops = schema.$defs.predicate.anyOf.map((o: any) => o.properties.op.const).sort();
+  const ops = schema.$defs.predicate.anyOf.map((o: any) => o.properties.op.enum[0]).sort();
   assert.deepEqual(ops, ["all", "any", "before", "called", "design", "not", "not-called"]);
-  // Strict mode: every object lists all of its properties as required and forbids extras.
-  const walk = (n: any) => {
+
+  // Rules the live service enforced (2026-10-09 run): fixed properties, all required, no
+  // open maps, and a `type` on every node (a bare `const` was rejected).
+  const walk = (n: any, path: string) => {
     if (!n || typeof n !== "object") return;
-    if (n.type === "object" && n.properties) {
-      assert.equal(n.additionalProperties, false);
-      assert.deepEqual([...n.required].sort(), Object.keys(n.properties).sort());
+    assert.equal("const" in n, false, `${path} uses const`);
+    if (n.type === "object") {
+      assert.ok(n.properties, `${path} is an object without fixed properties`);
+      assert.equal(n.additionalProperties, false, path);
+      assert.deepEqual([...n.required].sort(), Object.keys(n.properties).sort(), path);
     }
-    Object.values(n).forEach(walk);
+    for (const [k, v] of Object.entries(n)) walk(v, `${path}.${k}`);
   };
-  walk(schema);
+  walk(schema, "schema");
+});
+
+test("the wire format converts back to the internal spec and validates", () => {
+  const wire = clone(validSpec()) as any;
+  for (const c of wire.cases) {
+    c.scenarios = c.scenarios.map((s: any) => ({ ...s, input: Object.entries(s.input).map(([key, value]) => ({ key, value })) }));
+    c.reference = { pass: JSON.stringify({ trigger: "record-created", steps: [] }), fail: JSON.stringify({ trigger: "manual", steps: [] }) };
+  }
+  // Rewrite every call's args map as the wire's name/matcher array.
+  const toArray = (node: any): void => {
+    if (!node || typeof node !== "object") return;
+    if (node.args && !Array.isArray(node.args)) node.args = Object.entries(node.args).map(([name, matcher]) => ({ name, matcher }));
+    for (const v of Object.values(node)) toArray(v);
+  };
+  wire.cases.forEach((c: any) => c.requirements.forEach((r: any) => toArray(r.check)));
+
+  const internal = fromWireSpec(wire) as any;
+  assert.deepEqual(internal.cases[0].scenarios[0].input, { incidentId: "INC0001", priority: "1" });
+  assert.deepEqual(internal.cases[0].reference.pass, { trigger: "record-created", steps: [] });
+  assert.deepEqual(internal.cases[0].requirements[0].check.of[0].call.args.state, { equals: "In Progress" });
+  const r = validateGameSpec(internal, { tools, bindToTools: true, requireReference: true });
+  assert.equal(r.ok, true, r.ok ? "" : r.errors.join("\n"));
+});
+
+test("fromWireSpec passes unexpected shapes through for the validator to report", () => {
+  for (const v of [null, 5, "x", { cases: "no" }, { cases: [null, 3] }]) assert.doesNotThrow(() => fromWireSpec(v));
+  assert.equal(validateGameSpec(fromWireSpec({ cases: "no" }), { tools }).ok, false);
 });

@@ -16,7 +16,7 @@ Return one JSON object matching the supplied schema. Rules:
 - Requirements are shown to the player up front. Describe the behaviour wanted in plain language without revealing the exact answer, and keep each under ${SPEC_LIMITS.requirementChars} characters.
 - Every requirement must be checkable and fair: a competent player can satisfy it using the server's tools, and a lazy or wrong design fails it. Include at least one requirement that a do-nothing design fails.
 - Scenario "input" values are the facts a scenario supplies (record ids, categories, priorities). Reference them from predicates with "fromInput" instead of repeating them. Use values that exist in the data sample.
-- Give each case a "reference" with a "pass" design that meets every requirement and a "fail" design that breaks at least one. Designs use this provisional format. For run cases: {"trigger": "record-created" | "recurrence" | "manual", "steps": [{"id": "s1", "tool": "<tool name>", "args": {"<argument>": "<value>"}}]}. For design cases: a flat JSON object of the settings the requirements inspect.
+- Give each case a "reference" whose "pass" and "fail" are JSON TEXT (a string containing a JSON object): "pass" meets every requirement, "fail" breaks at least one. Designs use this provisional format. For run cases: {"trigger": "record-created" | "recurrence" | "manual", "steps": [{"id": "s1", "tool": "<tool name>", "args": {"<argument>": "<value>"}}]}. For design cases: a flat JSON object of the settings the requirements inspect.
 - "hint" nudges without giving the answer. Never put an answer key in a title, brief or hint.
 - Do not invent tools, fields, people or data. Keep text plain: no markdown, no links, no code.`;
 

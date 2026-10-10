@@ -268,8 +268,22 @@ and strict `json_schema` output returned HTTP 200 in 1.5 s with valid JSON. Role
 Administrator and Owner (control plane only, denied), Cognitive Services OpenAI Contributor
 (denied), **Foundry User** (needed for the data plane). The resource is network-restricted, so
 the Function App needs a private endpoint and DNS before it can call it (owner to add later).
-Still unverified: the full GameSpec schema in strict mode, and a real MCP Station read.
-Run `azure/functions/game/scripts/generate-spec.mjs <slug>` from an allowed machine to test both.
+**First live generation, 2026-10-10 (`scripts/generate-spec.mjs it-ticketing`, run from VS Code on
+the allowed IP):** a real MCP Station read and a real `gpt-6-sol` call produced a valid GameSpec
+in 43 s. The first answer failed validation and the single repair attempt fixed it (2 model
+calls at roughly 18-25 s each), so plan for about a minute and for the repair path being normal,
+not rare. The result was two run-judged cases (a flow and an agent), grounded in real incident
+and group ids, with pass and fail reference designs that behave as intended on paper.
+What the live service taught us about strict structured output: every schema node needs a
+`type` (a bare `const` was rejected with HTTP 400), objects need fixed properties, and
+open-ended maps are not allowed. The wire schema therefore spells scenario inputs and argument
+matchers as key/value arrays and reference designs as JSON text, and `fromWireSpec` rebuilds
+the internal shape before `validateGameSpec`.
+Still unverified: whether the reference designs actually pass and fail when run (needs the
+Phase 2 judge), variety across servers (only `it-ticketing` tried; both cases were run-judged,
+none were report/table/security), and a second MCP Station server.
+Note the repair rate is unknown: the script does not yet save the failed first attempt on
+success. Worth logging before tuning the prompt.
 
 **Earlier caveat (kept for the rest).** The build environment cannot reach Azure or Microsoft docs, so the request
 shape comes from search summaries of Microsoft's Foundry docs, not from a live call. Check on
