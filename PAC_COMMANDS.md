@@ -157,7 +157,7 @@ and upload against the live site's metadata, as for `copilotiotgame`:
 
 ```powershell
 cd "power pages\mcpquest"
-npm install
+npm ci
 $env:VITE_MCPQUEST_API = "live"
 npm run build
 pac pages download-code-site --path "$env:TEMP\live-mcpquest" --webSiteId 4fb95e05-e635-4f0c-a0e3-4065f5dfb72a --overwrite
