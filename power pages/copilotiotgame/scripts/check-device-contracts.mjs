@@ -116,3 +116,25 @@ for (const slug of DEVICE_ORDER) {
 }
 assert.equal(cablesMatch(CABLE_RECIPES.thermostat, [{ cable: 1, sockets: ["S1", "S1"] }]), false);
 console.log("RJ-45 socket-pair recipes verified for missing/unknown/extra links and reversed ends.");
+
+// Walkthrough steps are data: every node/link id they cite must exist in the dataset they
+// describe, so a renamed node cannot silently leave a step highlighting nothing.
+const bundleModule = async entry => {
+  const { outputFiles } = await esbuild.build({ entryPoints: [fileURLToPath(new URL(entry, import.meta.url))], bundle: true, write: false, format: "esm", target: "es2022", platform: "neutral" });
+  return import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString("base64")}`);
+};
+const { MAP_NODES, MAP_LINKS } = await bundleModule("../src/data/systemMap.ts");
+const { STANDARD_WALKTHROUGH, linkKey } = await bundleModule("../src/data/walkthrough.ts");
+const datasets = [[STANDARD_WALKTHROUGH, MAP_NODES, MAP_LINKS]];
+for (const [walkthrough, nodes, links] of datasets) {
+  const nodeIds = new Set(nodes.map(n => n.id)), linkKeys = new Set(links.map(linkKey));
+  assert.equal(linkKeys.size, links.length, `${walkthrough.id}: duplicate link keys`);
+  assert.ok(walkthrough.steps.length > 0, `${walkthrough.id}: no steps`);
+  walkthrough.steps.forEach((step, i) => {
+    const label = `${walkthrough.id} step ${i + 1}`;
+    assert.ok(step.title && step.description && step.nodes.length > 0, `${label}: needs title, description and nodes`);
+    for (const id of [...step.nodes, ...(step.dim?.nodes ?? [])]) assert.ok(nodeIds.has(id), `${label}: unknown node ${id}`);
+    for (const key of [...step.links, ...(step.dim?.links ?? [])]) assert.ok(linkKeys.has(key), `${label}: unknown link ${key}`);
+  });
+}
+console.log("Walkthrough steps verified against their architecture datasets.");
