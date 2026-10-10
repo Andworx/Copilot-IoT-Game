@@ -289,6 +289,11 @@ the prompt: **6 of 6 passed on the first model call, 21-30 s each**, across `it-
 design-judged case. Sample is small and the same prompt tuned on the same servers, so treat
 the rate as promising, not measured.
 
+**With samples, the discoverability rule and the argument-syntax prompt (same day):** 6 of 6
+`it-ticketing` / `freight-tracking` / `expense-reporting` runs passed on the first model call, 21-48 s,
+with the full proof (reference designs plus discoverability) in the loop. A run just before the
+prompt documented `{{key}}` needed one repair, so the prompt and the alias matter.
+
 Still unverified: whether the reference designs actually pass and fail when run (needs the
 Phase 2 judge), variety across servers (only `it-ticketing` tried; both cases were run-judged,
 none were report/table/security), and a second MCP Station server.
