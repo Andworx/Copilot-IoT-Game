@@ -11,6 +11,7 @@ glance what to build against versus what's historical.
 | [`GAME_MODE_PLAN.md`](GAME_MODE_PLAN.md) | Overall architecture, Dataverse schema, software-defined mode control, win/claim flow, phased build plan. The master design doc — start here. |
 | [`KIOSK_UI_SPEC.md`](KIOSK_UI_SPEC.md) | Visual/interaction spec for every kiosk screen — layouts, device roster content, spin/win screen behavior. |
 | [`SHARED_CONTEST_ENTRY_MODEL.md`](SHARED_CONTEST_ENTRY_MODEL.md) | Shared contest/campaign, Contact identity, source caps, and grand-prize entry design for epic #121 / issue #123. |
+| [`PLINKO_GAME_PLAN.md`](PLINKO_GAME_PLAN.md) | Plinko rules, `Plinko` solution schema, Pi landing contract, booth display, and operational views for epic #119 (#124/#127/#128). |
 
 `GAME_MODE_PLAN.md`'s own prize-schema section (§5) is superseded by the current live
 schema — see the archive below, specifically `PRIZE_DATA_MODEL_MIGRATION_STATUS.md`, for
@@ -27,7 +28,7 @@ explaining what superseded it and where to look instead.
 | [`archive/PRIZE_ENGINE_SPEC.md`](archive/PRIZE_ENGINE_SPEC.md) | Superseded 2026-09-09 | Original single-table `andy_prize` design (weight/remaining decrement). Replaced by the `andy_PrizeTypes`/`andy_Prizes` split below. |
 | [`archive/PRIZE_DATA_MODEL_MIGRATION.md`](archive/PRIZE_DATA_MODEL_MIGRATION.md) | Done 2026-09-09 | The Dataverse-side migration plan (schema, seed data, decommission). |
 | [`archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md`](archive/PRIZE_DATA_MODEL_MIGRATION_STATUS.md) | Done 2026-09-09 | Phase-by-phase status/checklist tracking the migration above to completion, including the Phase 6 decommission of `andy_prize`/`andy_prizecategory` and the `andy_PrizeEngine` solution split. This is the most detailed record of the final live state. |
-| [`archive/PRIZE_CODE_MIGRATION.md`](archive/PRIZE_CODE_MIGRATION.md) | Done 2026-09-09 | The Azure Functions (`azure/functions/game/src/lib/dataverse.ts`) backend rewrite against the new schema, deployed and smoke-tested live. |
+| [`archive/PRIZE_CODE_MIGRATION.md`](archive/PRIZE_CODE_MIGRATION.md) | Done 2026-09-09 | The Azure Functions (`azure/src/lib/dataverse.ts`) backend rewrite against the new schema, deployed and smoke-tested live. |
 
 ## Why archive instead of delete
 
