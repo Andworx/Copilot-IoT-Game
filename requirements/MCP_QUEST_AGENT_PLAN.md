@@ -167,7 +167,7 @@ games: a score under 70 still earns one entry. Each submitted play mints a Prize
 source `mcpquest`, and the player scans the QR to the **Prize Wheel**, exactly as in IoT,
 Plinko and the hand-built MCP Quest. `claim-prize` is unchanged for the wheel and instant prize.
 
-**Grand-prize entries by score** (`src/mcpquest/entryTier.ts`, tested):
+**Grand-prize entries by score** (with today's cap of 3: 3 / 2 / 1) (`src/mcpquest/entryTier.ts`, tested):
 
 | Score | Tier | Grand-prize entries |
 |---|---|---|
@@ -270,8 +270,9 @@ The visitor picks from MCP Station's public catalog (`GET https://www.mcpstation
 1. **Carrying N.** Decided: option A, built.
 2. **Entries vs prize types.** Are the score tiers grand-prize entries (this plan) or different
    Grand Prize types?
-2. **Campaign cap.** What is `andy_maxentriespercontact` for the event? It defines "the most
-   allowed", and the tiers collapse at 1 or 2.
+2. **Campaign cap.** Decided: `andy_maxentriespercontact` is currently **3**, so 90-100 earns 3
+   entries, 70-89 earns 2, under 70 earns 1. The game reads the cap at submit time, so changing
+   it in Dataverse changes the tiers with no code change.
 3. **Latency.** Is a 20-60 s build screen acceptable (the cave scene is designed for it), or
    pre-generate specs for each MCP Station server before the event?
 4. **Judge reuse.** Re-express the 13 hand-built cases as GameSpecs (single judge) or keep two
