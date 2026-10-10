@@ -61,6 +61,14 @@
 .map-links path[data-emphasis=on] { stroke:#b8ffcf; stroke-width:3; opacity:1; }
 .system-map[data-flow] .map-links path[data-emphasis=on] { stroke-dasharray:8 6; animation:map-flow 1s linear infinite; }
 @keyframes map-flow { to { stroke-dashoffset:-14; } }
+/* Standard / Advanced architecture selector (#256) */
+.map-view-switch { display:inline-flex; gap:4px; margin:10px 0 0; padding:3px; border:1px solid #31432f; border-radius:7px; background:#0f1a13; }
+.map-view-option { background:transparent; border:0; border-radius:5px; padding:7px 16px; min-height:40px; color:#acc1af; font-size:13px; }
+.map-view-option[aria-pressed=true] { background:#243b2a; color:#eafff0; box-shadow:inset 0 0 0 1px #c0ffd1; }
+/* Current vs planned infrastructure (#256). Default nodes are current; "planned" renders as a dashed target. */
+.map-node[data-status=planned] { border-style:dashed; border-color:#9ac8ed; background:#101a24; }
+.map-node[data-status=planned]::after { content:"PLANNED"; position:absolute; top:-9px; right:6px; font-size:8px; letter-spacing:.1em; color:#9ac8ed; background:#101a24; padding:0 4px; border-radius:3px; }
+.map-legend .planned { color:#9ac8ed; }
 @media (max-width:760px) { .map-intro-row { flex-direction:column; align-items:stretch; padding-right:0; } .walkthrough { flex-direction:column; align-items:stretch; } .walkthrough-controls { justify-content:flex-start; } }
 @media (max-width:600px) { .system-map-page { padding:16px 12px 65px; }.map-page-header { align-items:flex-start; flex-direction:column; }.map-page-actions { align-items:flex-start; }.system-map,.solution-map-page .system-map { display:grid; grid-template-columns:1fr 1fr; gap:10px; height:auto; padding:12px; }.map-band,.map-links { display:none; }.map-node,.solution-map-page .map-node { position:static; transform:none; width:100%; min-width:0; height:94px; }.map-node strong { font-size:12px; }.map-node span { font-size:10px; }.map-node.edge { border-color:#8ddb9e; }.map-node.cloud { border-color:#ebc784; }.map-node.platform { border-color:#9ac8ed; }.map-legend > span:last-child { margin-left:0; }.map-intro { font-size:13px; } }
 @media (prefers-reduced-motion:reduce) { .system-map-page *, .map-details * { animation:none !important; transition:none !important; } }

@@ -1,5 +1,6 @@
 export type MapTier = "edge" | "cloud" | "platform";
-export interface MapNode { id: string; label: string; subtitle: string; tier: MapTier; x: number; y: number; icon?: string; detail: string; }
+/** Deployment status. Omitted = "current" (deployed). Flag "planned" to render a node as not-yet-deployed target infrastructure. */
+export interface MapNode { id: string; label: string; subtitle: string; tier: MapTier; x: number; y: number; icon?: string; detail: string; status?: "current" | "planned"; }
 export interface MapLink { from: string; to: string; label: string; }
 export const MAP_NODES: MapNode[] = [
   { id: "inputs", label: "Switches & sockets", subtitle: "Physical inputs", tier: "edge", x: 20, y: 18, detail: "Six switches and four sockets provide the physical puzzle inputs. Cable connections and switch positions are read by the panel Pi. Use the gear menu in a device mode to see its required setup." },

@@ -14,7 +14,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Dataverse | 8 | 7 | 3 | 0 | 18 |
 | Flows | 0 | 1 | 1 | 0 | 2 |
 | Agents | 0 | 0 | 1 | 0 | 1 |
-| Power Pages | 4 | 15 | 1 | 0 | 20 |
+| Power Pages | 4 | 16 | 1 | 0 | 21 |
 | Plugins | 0 | 0 | 1 | 0 | 1 |
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 7 | 0 | 1 | 8 |
@@ -23,7 +23,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 2 | 1 | 0 | 3 |
 | MCP Quest (new game) | 0 | 4 | 3 | 0 | 7 |
-| Totals | 26 | 50 | 16 | 2 | 94 |
+| Totals | 26 | 51 | 16 | 2 | 95 |
 
 ## Dataverse
 
@@ -83,6 +83,7 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | `prize wheel`: GitHub Actions Code Site deployment and claim reachability | Code Site + CI/CD | ⬜ Verify | Issues #196/#197 — `deploy-apps.yml` now builds `power pages/prize wheel`, uploads it through live-site metadata, and injects the current Function App URL so the deployed claim flow no longer depends on stale checked-in site metadata. Needs a production Actions run plus real QR claim smoke test. |
 | `plinko`: player-facing display Code Site and event-day operations UI | Code Site + model-driven views | ⬜ Verify | Issue #127 — `power pages/plinko` now builds as a standalone display with idle how-it-works flow, on-screen chase lights, `plinkoResult` win celebration, QR scan/skip flow, and Plinko-specific prize-wheel handoff copy. The Plinko solution now includes named event-day saved views. Needs Power Pages site creation/activation, `POWER_PLINKO_WEBSITE_ID` configuration, production deploy, and live SignalR/player-flow validation. |
 | Infrastructure guided walkthrough on `/kiosk/info` | Code Site | ⬜ Verify | Issue #258 — shared data-driven walkthrough engine (`data/walkthrough.ts`, `useWalkthrough`, `WalkthroughPanel`) with an 8-step Standard sequence; the timer and highlight state are page-local, so leaving the page or mode clears them. Local build, data-integrity check and browser test pass; production validation awaits release. Advanced view is issue #256. See `power pages/docs/INFRASTRUCTURE_WALKTHROUGH.md`. |
+| Advanced networking view + Standard/Advanced selector on `/kiosk/info` | Code Site | ⬜ Verify | Issue #256 — in-place selector swaps the `SOLUTION_NODES`/`SOLUTION_LINKS` secure-networking dataset and a 9-step `ADVANCED_WALKTHROUGH` on the same engine (no reload); `?view=advanced` deep-links it and `/kiosk/solution` redirects in. Adds a `MapNode.status` current/planned mechanism (all current post-cutover, nothing flagged planned). Local build and data-integrity check pass; production validation awaits release. See `power pages/docs/INFRASTRUCTURE_WALKTHROUGH.md`. |
 | `copilotiotgame`: review each kiosk mode UI one by one | Code Site review | ⬜ TODO | Issue #70 — use the local preview/device routes to review all 12 modes individually and track any mode-specific fixes separately. |
 | `copilotiotgame`: Game Mode win overlay fits the 800×480 kiosk (QR no longer clipped) | Code Site CSS | ✅ Done | PR #277 — the two-column `.device-win-overlay` layout was overridden by the later single-column `.win-overlay` rule, so the content stacked to about 650px and cut off the QR. Fixed by raising specificity; Playwright at 800×480 shows 38–442px for the original message and 16–464px for a longer message across all 12 illustrations. Deployed in run `37979970926`; owner confirmed a full scan through to the spin page. |
 
