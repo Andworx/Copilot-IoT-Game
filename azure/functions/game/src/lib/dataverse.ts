@@ -331,18 +331,14 @@ export async function createSourcedPrizeClaim(input: {
   now?: Date;
 }): Promise<{ prizeClaimId: string; existed: boolean }> {
   if (!isGuidLike(input.claimToken)) throw new Error("claimToken must be a GUID");
-  const existing = await dataverseFetch(
-    `${PRIZE_CLAIMS_SET}?$select=andy_prizeclaimid&$filter=andy_claim_token eq '${input.claimToken}'&$top=1`
-  );
-  const existingBody = (await existing.json()) as { value: Array<{ andy_prizeclaimid: string }> };
-  if (existingBody.value[0]) return { prizeClaimId: existingBody.value[0].andy_prizeclaimid, existed: true };
-
   const sourceKey = normalizeContestSourceKey(input.contestSourceKey);
   const [campaign, contestSource] = await Promise.all([fetchActiveContestCampaign(), fetchContestSourceByKey(sourceKey)]);
   if (!contestSource) throw new Error(`No active Contest Source row found for source key "${sourceKey}"`);
 
-  const response = await dataverseFetch(PRIZE_CLAIMS_SET, {
-    method: "POST",
+  const path = `${PRIZE_CLAIMS_SET}(andy_claim_token='${input.claimToken}')`;
+  const response = await dataverseFetchRaw(path, {
+    method: "PATCH",
+    headers: { "If-None-Match": "*" },
     body: JSON.stringify(
       buildPrizeClaimCreatePayload({
         claimToken: input.claimToken,
@@ -354,9 +350,26 @@ export async function createSourcedPrizeClaim(input: {
       })
     ),
   });
-  const prizeClaimId = parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId"));
-  if (!prizeClaimId) throw new Error("Dataverse did not return the created Prize Claim id");
-  return { prizeClaimId, existed: false };
+  if (response.status === 412) {
+    const prizeClaimId = await getPrizeClaimIdByToken(input.claimToken);
+    if (prizeClaimId) return { prizeClaimId, existed: true };
+  } else if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Dataverse PATCH ${path} failed: ${response.status} ${body}`);
+  }
+  const prizeClaimId =
+    parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId")) ??
+    (await getPrizeClaimIdByToken(input.claimToken));
+  if (!prizeClaimId) throw new Error("Dataverse did not return the upserted Prize Claim id");
+  return { prizeClaimId, existed: response.status !== 201 };
+}
+
+async function getPrizeClaimIdByToken(claimToken: string): Promise<string | null> {
+  const response = await dataverseFetch(
+    `${PRIZE_CLAIMS_SET}?$select=andy_prizeclaimid&$filter=andy_claim_token eq '${claimToken}'&$top=1`
+  );
+  const body = (await response.json()) as { value: Array<{ andy_prizeclaimid: string }> };
+  return body.value[0]?.andy_prizeclaimid ?? null;
 }
 
 /** The active Contest Campaign id, if there is one. Used to scope a game's leaderboard. */
