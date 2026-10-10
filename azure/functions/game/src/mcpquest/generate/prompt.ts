@@ -12,12 +12,12 @@ You receive an MCP server's tool list and a small data sample inside <server_dat
 Return one JSON object matching the supplied schema. Rules:
 - Make 2 to ${SPEC_LIMITS.cases.max} cases. Each case is a realistic business problem a Power Platform product solves with this server's tools. Use different designers where it makes sense: ${DESIGNER_KINDS.join(", ")}.
 - Use ONLY tool names and argument names that appear in the tool list, and only argument values the schema allows. The game rejects anything else.
-- "judging": "run" cases execute the player's design (flow, app, site, agent) against your scenarios; requirements are predicates over the tool calls the design made. "design" cases (report, table, security) inspect the design JSON; requirements use only the "design" op.
+- "judging": "run" cases execute the player's design (flow, app, site, agent) against your scenarios; requirements are predicates over the tool calls the design made. "design" cases (report, table, security) inspect the design JSON; requirements use only the "design" op, whose "path" is a plain key path into the design object such as "severity" or "filters[0].value" (no "$" prefix); give it a "mode" of "equals" or "contains" and the "value" to compare.
 - Requirements are shown to the player up front. Describe the behaviour wanted in plain language without revealing the exact answer, and keep each under ${SPEC_LIMITS.requirementChars} characters.
 - Every requirement must be checkable and fair: a competent player can satisfy it using the server's tools, and a lazy or wrong design fails it. Include at least one requirement that a do-nothing design fails.
 - Scenario "input" values are the facts a scenario supplies (record ids, categories, priorities). Reference them from predicates with "fromInput" instead of repeating them. Use values that exist in the data sample.
 - Give each case a "reference" whose "pass" and "fail" are JSON TEXT (a string containing a JSON object): "pass" meets every requirement, "fail" breaks at least one. Designs use this provisional format. For run cases: {"trigger": "record-created" | "recurrence" | "manual", "steps": [{"id": "s1", "tool": "<tool name>", "args": {"<argument>": "<value>"}}]}. For design cases: a flat JSON object of the settings the requirements inspect.
-- "hint" nudges without giving the answer. Never put an answer key in a title, brief or hint.
+- Every case needs a non-empty "hint" and a "reference". The "hint" nudges without giving the answer. Never put an answer key in a title, brief or hint. Use real values from the data sample, never filler or placeholder text.
 - Do not invent tools, fields, people or data. Keep text plain: no markdown, no links, no code.`;
 
 const fence = (text: string) => text.replace(/<\/?server_data>/gi, "");

@@ -53,8 +53,10 @@ const predicate = {
     strictObject({
       op: literal("design"),
       path: str(80),
-      equals: nullable(scalar),
-      contains: nullable(str(SPEC_LIMITS.scalarChars)),
+      // One enum plus one value, so the model is never asked to fill an "unused" field. (Two
+      // nullable fields made strict output set both, or put filler text in the unused one.)
+      mode: { type: "string", enum: ["equals", "contains"] },
+      value: scalar,
     }),
   ],
 };
@@ -83,8 +85,11 @@ const caseSpec = strictObject({
   requirements: { type: "array", items: requirementSpec },
   scenarios: { type: "array", items: scenarioSpec },
   hint: str(SPEC_LIMITS.hintChars),
-  /** Designs are JSON text on the wire: strict mode has no free-form objects. */
-  reference: nullable(strictObject({ pass: str(SPEC_LIMITS.referenceBytes), fail: str(SPEC_LIMITS.referenceBytes) })),
+  /**
+   * Designs are JSON text on the wire: strict mode has no free-form objects. Required, not
+   * nullable: when it was nullable the model sometimes skipped it.
+   */
+  reference: strictObject({ pass: str(SPEC_LIMITS.referenceBytes), fail: str(SPEC_LIMITS.referenceBytes) }),
 });
 
 export const GAME_SPEC_JSON_SCHEMA = {
@@ -119,6 +124,17 @@ function predicateFromWire(p: unknown): unknown {
   if (!isObj(p)) return p;
   const out: Obj = { ...p };
   for (const key of ["call", "first", "then"]) if (key in out) out[key] = callFromWire(out[key]);
+  // Models often write JSONPath ("$.severity"); the internal grammar is plain dot/index notation.
+  if (out.op === "design" && typeof out.path === "string") out.path = out.path.replace(/^\$\.?/, "");
+  if (out.op === "design") {
+    if (out.mode === "equals" || out.mode === "contains") {
+      const { mode, value, ...rest } = out;
+      return { ...rest, ...(mode === "equals" ? { equals: value } : { contains: String(value) }) };
+    }
+    // Older shape with separate fields: drop the one left as "" or null.
+    if (out.contains === "" || out.contains === null) delete out.contains;
+    if (out.equals === null) delete out.equals;
+  }
   if (Array.isArray(out.of)) out.of = out.of.map(predicateFromWire);
   else if ("of" in out) out.of = predicateFromWire(out.of);
   return out;

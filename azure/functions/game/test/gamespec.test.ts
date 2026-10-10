@@ -286,3 +286,27 @@ test("fromWireSpec passes unexpected shapes through for the validator to report"
   for (const v of [null, 5, "x", { cases: "no" }, { cases: [null, 3] }]) assert.doesNotThrow(() => fromWireSpec(v));
   assert.equal(validateGameSpec(fromWireSpec({ cases: "no" }), { tools }).ok, false);
 });
+test("JSONPath-style design paths from a model are normalised", () => {
+  const wire = clone(validSpec()) as any;
+  wire.cases[1].requirements[0].check.path = "$.field";
+  const internal = fromWireSpec(wire) as any;
+  assert.equal(internal.cases[1].requirements[0].check.path, "field");
+  assert.equal(validateGameSpec(internal, { tools }).ok, true);
+});
+test("placeholder values for the unused equals/contains are dropped, real conflicts are not", () => {
+  const wire = clone(validSpec()) as any;
+  wire.cases[1].requirements[0].check = { op: "design", path: "field", equals: "category", contains: "" };
+  assert.equal(validateGameSpec(fromWireSpec(wire), { tools }).ok, true);
+  wire.cases[1].requirements[0].check = { op: "design", path: "field", equals: "category", contains: "cat" };
+  assert.equal(validateGameSpec(fromWireSpec(wire), { tools }).ok, false, "both set is still an error");
+});
+test("a design check's mode and value become equals or contains", () => {
+  const wire = clone(validSpec()) as any;
+  wire.cases[1].requirements[0].check = { op: "design", path: "$.field", mode: "equals", value: "category" };
+  let internal = fromWireSpec(wire) as any;
+  assert.deepEqual(internal.cases[1].requirements[0].check, { op: "design", path: "field", equals: "category" });
+  assert.equal(validateGameSpec(internal, { tools }).ok, true);
+  wire.cases[1].requirements[0].check = { op: "design", path: "field", mode: "contains", value: 5 };
+  internal = fromWireSpec(wire) as any;
+  assert.deepEqual(internal.cases[1].requirements[0].check, { op: "design", path: "field", contains: "5" });
+});
