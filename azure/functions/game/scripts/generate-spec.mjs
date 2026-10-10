@@ -77,7 +77,7 @@ try {
     model: loggingModel,
     store,
     fetchFn: fetch,
-    prove: async (spec, digest) => judge.proveSpec(spec, digest.tools),
+    prove: async (spec, digest) => judge.proveSpec(spec, digest.tools, digest.samples),
   });
   const spec = result.stored.spec;
   writeFileSync(out, JSON.stringify(result.stored, null, 2) + "\n");

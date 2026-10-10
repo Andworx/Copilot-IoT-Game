@@ -72,7 +72,8 @@ function storedSpec(validated = true): StoredSpec {
     scenario: "The overnight queue is on fire.",
     cases: [flowCase, reportCase],
   };
-  return { specId: computeSpecId(spec), toolsHash: spec.server.toolsHash, spec, tools, validated, createdAt: 1 };
+  const samples = [{ tool: "list_incidents", text: JSON.stringify({ data: [{ incidentId: "INC0001", priority: "1", state: "New" }] }) }];
+  return { specId: computeSpecId(spec), toolsHash: spec.server.toolsHash, spec, tools, samples, validated, createdAt: 1 };
 }
 
 // ---- in-memory store, claims and service ------------------------------------------------
@@ -166,6 +167,8 @@ test("a generated game starts with plain requirements and no checks or reference
   assert.deepEqual(session.objectives[0].requirements, ["Read the incident before updating it", "Move it to In Progress"]);
   assert.deepEqual(session.objectives[0].scenarios, [{ name: "p1", trigger: "record-created", input: { incidentId: "INC0001" } }]);
   assert.ok(session.tools.some((t) => t.name === "update_incident"));
+  assert.deepEqual(session.samples, h.stored!.samples, "the player sees the sampled records");
+  assert.match(JSON.stringify(session.samples), /INC0001/);
 
   const wire = JSON.stringify(session);
   assert.doesNotMatch(wire, /reference|"check"|"op":|fromInput|"equals"/);

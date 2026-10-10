@@ -71,6 +71,8 @@ export interface SessionInfo {
   scenario: string;
   objectives: Objective[];
   tools: ToolDef[];
+  /** Generated games: records sampled from the server, so the player can find real ids and values. */
+  samples?: { tool: string; text: string }[];
   catalog: DesignCatalog;
   /** Present when tool calls go to a real MCP server. */
   mcpServer?: McpServerInfo;

@@ -12,6 +12,8 @@ export interface StoredSpec {
   spec: GameSpec;
   /** The tool list the spec was validated against. Plays judge designs against it. */
   tools: ToolDef[];
+  /** Records sampled from the server. The player sees these, so values in requirements can be found. */
+  samples: { tool: string; text: string }[];
   /** True once the reference designs have been proven through the judge (proveSpec). */
   validated: boolean;
   createdAt: number;
@@ -136,6 +138,7 @@ export async function generateGameSpec(slug: unknown, deps: GenerateDeps): Promi
     toolsHash,
     spec: result.spec,
     tools: digest.tools,
+    samples: digest.samples.map((s) => ({ tool: s.tool, text: s.text })),
     validated,
     createdAt: (deps.now ?? Date.now)(),
   };

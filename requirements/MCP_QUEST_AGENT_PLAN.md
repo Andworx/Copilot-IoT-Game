@@ -374,11 +374,19 @@ played through the service with their own reference designs: the pass designs sc
 tier, 3 entries at a cap of 3) and the deliberately flawed fail designs scored 33-58 (base tier,
 1 entry).
 
-**Known gap: data discovery.** Some requirements depend on values the player can only learn
-from the server's data (for example a group id). With direct calls rejected, a human cannot
-look them up; a design can only guess them. Options: include the sampled records in the session
-(the generator already reads them), allow read-only calls replayed from a stored snapshot, or
-require the generator to put discoverable values in the scenario inputs. Decide before the UI.
+**Data discovery (decided 2026-10-10: sampled records).** Some requirements depend on values
+the player can only learn from the server's data (for example a group id), and direct calls
+are not offered. So the records the generator sampled are stored with the spec
+(`StoredSpec.samples`, re-read from blob storage) and sent in the session as `samples`; the
+player UI shows them next to the cases. The model wrote its requirements from exactly these
+records, so the values it uses are findable by construction, and the proof now enforces it:
+`undiscoverableValues` flags any literal a requirement depends on that is not in the samples,
+the case's scenario facts or text, or the tool's allowed values, and `proveSpec` fails the case
+(the problem goes back to the model for its repair attempt). Measured on the 22 cases generated
+so far: none depended on a hidden value, so the rule costs nothing today. Limits: samples are
+capped at 4 read tools, 5 records, 1 500 characters each, so a game can only ask about what
+fits in those; a snapshot replay (read-only calls against stored data) remains the upgrade if
+playtests find that too tight.
 
 **Still not built.** Designers that emit the run-design format, the `generate` route with a
 rate limit, and the private endpoint for Foundry.

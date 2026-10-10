@@ -45,6 +45,14 @@ export async function storageToken(env: NodeJS.ProcessEnv = process.env, fetchFn
   return body.access_token;
 }
 
+function parseSamples(value: unknown): StoredSpec["samples"] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((s): s is { tool: string; text: string } => !!s && typeof s.tool === "string" && typeof s.text === "string")
+    .slice(0, 8)
+    .map((s) => ({ tool: s.tool.slice(0, 64), text: s.text.slice(0, 4000) }));
+}
+
 /** Returns the stored spec only if it is intact: well-formed, valid for its tools, id matches. */
 export function parseStoredSpec(json: unknown): StoredSpec | null {
   if (!json || typeof json !== "object") return null;
@@ -60,6 +68,7 @@ export function parseStoredSpec(json: unknown): StoredSpec | null {
     toolsHash: checked.spec.server.toolsHash,
     spec: checked.spec,
     tools,
+    samples: parseSamples(raw.samples),
     validated: raw.validated === true,
     createdAt: typeof raw.createdAt === "number" ? raw.createdAt : 0,
   };

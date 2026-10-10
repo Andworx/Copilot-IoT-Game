@@ -65,6 +65,7 @@ export function specSession(stored: StoredSpec): Omit<SessionInfo, "token" | "st
     scenario: spec.scenario,
     objectives,
     tools: stored.tools,
+    samples: stored.samples,
     catalog: EMPTY_CATALOG,
     parSeconds: SPEC_RULES.parSeconds,
     maxSeconds: SPEC_RULES.maxSeconds,

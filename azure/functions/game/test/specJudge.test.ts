@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { GAME_SPEC_VERSION, computeToolsHash, type CaseSpec, type GameSpec } from "../src/mcpquest/gamespec";
-import { emptyDesign, judgeCase, proveSpec, readPath, runDesign, scalarsEqual } from "../src/mcpquest/specJudge";
+import { emptyDesign, judgeCase, proveSpec, readPath, runDesign, scalarsEqual, undiscoverableValues } from "../src/mcpquest/specJudge";
 import { DEFAULT_SNAPSHOT, SNAPSHOTS } from "../src/mcpquest/snapshot";
 import type { ToolDef } from "../src/mcpquest/types";
 
@@ -231,4 +231,61 @@ test("proof catches unwinnable, trivial and mis-referenced cases", () => {
   const invented = flowCase();
   invented.reference = { pass: { trigger: "record-created", steps: [{ tool: "teleport_ticket", args: {} }] }, fail: invented.reference!.fail };
   assert.match(proveSpec(spec([invented]), tools).problems.join("\n"), /teleport_ticket/);
+});
+
+test("values the player cannot find in what they are shown are reported", () => {
+  const c: CaseSpec = {
+    ...flowCase(),
+    scenarios: [{ name: "s", trigger: "record-created", input: { incidentId: "INC0001" } }],
+    requirements: [
+      { id: "in-sample", text: "Assign it to the network team", check: { op: "called", call: { tool: "update_incident", args: { assignment_group_id: { equals: "GRP-0006" } } } } },
+      { id: "in-enum", text: "Move it on", check: { op: "called", call: { tool: "update_incident", args: { state: { equals: "In Progress" } } } } },
+      { id: "in-text", text: "Priority 3 only", check: { op: "called", call: { tool: "update_incident", args: { priority: { equals: "3" } } } } },
+      { id: "hidden", text: "Assign it correctly", check: { op: "called", call: { tool: "update_incident", args: { assignment_group_id: { equals: "GRP-9999" } } } } },
+      { id: "design-hidden", text: "Set the cap", check: { op: "design", path: "limit", equals: 876.25 } },
+    ],
+  };
+  const samples = [{ tool: "list_assignment_groups", text: '{"data":[{"id":"GRP-0006","name":"Network"}]}' }];
+  assert.deepEqual(undiscoverableValues(c, samples, tools), ['"GRP-9999" (requirement "hidden")', '"876.25" (requirement "design-hidden")']);
+  assert.deepEqual(undiscoverableValues({ ...c, requirements: c.requirements.slice(0, 3) }, samples, tools), []);
+  // Case-insensitive, and booleans are not data.
+  c.requirements = [{ id: "b", text: "x", check: { op: "design", path: "open", equals: true } }];
+  assert.deepEqual(undiscoverableValues(c, [], tools), []);
+});
+
+test("proof fails a case whose answer cannot be found, only when samples are supplied", () => {
+  const c = flowCase();
+  c.requirements[1] = {
+    id: "in-progress",
+    text: "Assign it to the right team",
+    check: { op: "called", call: { tool: "update_incident", args: { assignment_group_id: { equals: "GRP-0042" } } } },
+  };
+  c.reference = {
+    pass: { trigger: "record-created", steps: [
+      { tool: "get_incident", args: { incident_id: { fromInput: "incidentId" } } },
+      { tool: "update_incident", args: { incident_id: { fromInput: "incidentId" }, assignment_group_id: "GRP-0042" } },
+    ] },
+    fail: c.reference!.fail,
+  };
+  assert.equal(proveSpec(spec([c]), tools).ok, true, "no samples: not checked");
+  const hidden = proveSpec(spec([c]), tools, [{ tool: "list_incidents", text: "{}" }]);
+  assert.equal(hidden.ok, false);
+  assert.match(hidden.problems.join(), /player cannot find "GRP-0042"/);
+  assert.equal(proveSpec(spec([c]), tools, [{ tool: "list_assignment_groups", text: "GRP-0042" }]).ok, true);
+});
+
+test("{{key}} in a step argument means the scenario's input", () => {
+  const c = flowCase();
+  const design = {
+    trigger: "record-created",
+    steps: [
+      { tool: "get_incident", args: { incident_id: "{{incidentId}}" } },
+      { tool: "update_incident", args: { incident_id: " {{ incidentId }} ", state: "In Progress" } },
+    ],
+  };
+  const v = judgeCase(c, design, tools);
+  assert.equal(v.passed, true, JSON.stringify(v));
+  const unknown = runDesign({ trigger: "record-created", steps: [{ tool: "get_incident", args: { incident_id: "{{nope}}" } }] }, scenario, tools);
+  assert.equal(unknown.calls.length, 0);
+  assert.match(unknown.problems.join(), /no usable value/);
 });

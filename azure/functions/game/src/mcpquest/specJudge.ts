@@ -10,7 +10,8 @@ import type { ToolDef } from "./types";
  *
  *   run cases     { "trigger": "record-created" | "recurrence" | "manual",
  *                   "steps": [ { "id": "s1", "tool": "<tool>", "args": { "<arg>": <value> } } ] }
- *                 An arg value is a literal or { "fromInput": "<scenario input key>" }.
+ *                 An arg value is a literal, { "fromInput": "<scenario input key>" } or the
+ *                 equivalent string "{{<scenario input key>}}".
  *   design cases  any JSON object; checks read it with `design` paths.
  *
  * "Running" a design means building the log of tool calls it makes in a scenario, without
@@ -83,8 +84,15 @@ export function readPath(design: unknown, path: string): unknown {
 
 // ---- running a design ---------------------------------------------------------------------
 
+const TEMPLATE_RE = /^\{\{\s*([A-Za-z][A-Za-z0-9_]*)\s*\}\}$/;
+
 function resolveArg(value: unknown, scenario: ScenarioSpec): Scalar | undefined {
   if (isObj(value) && typeof value.fromInput === "string") return scenario.input[value.fromInput];
+  // "{{key}}" is accepted as another way to write { fromInput: "key" }.
+  if (typeof value === "string") {
+    const m = TEMPLATE_RE.exec(value.trim());
+    if (m) return scenario.input[m[1]];
+  }
   return isScalar(value) ? value : undefined;
 }
 
@@ -237,13 +245,83 @@ export interface Proof {
   problems: string[];
 }
 
+/** What a player is shown from the server's data. */
+export interface SampleRecords {
+  tool: string;
+  text: string;
+}
+
+const norm = (v: unknown) => String(v).trim().toLowerCase();
+
+/** Every literal a requirement compares against: argument values and design values. */
+function literalsOf(p: Predicate, out: { tool?: string; arg?: string; value: Scalar }[] = []) {
+  const fromCall = (m: CallMatcher) => {
+    for (const [arg, rule] of Object.entries(m.args ?? {})) {
+      if ("equals" in rule) out.push({ tool: m.tool, arg, value: rule.equals });
+      else if ("oneOf" in rule) for (const v of rule.oneOf) out.push({ tool: m.tool, arg, value: v });
+    }
+  };
+  switch (p.op) {
+    case "called":
+    case "not-called":
+      fromCall(p.call);
+      break;
+    case "before":
+      fromCall(p.first);
+      fromCall(p.then);
+      break;
+    case "all":
+    case "any":
+      for (const x of p.of) literalsOf(x, out);
+      break;
+    case "not":
+      literalsOf(p.of, out);
+      break;
+    case "design":
+      if (p.equals !== undefined) out.push({ value: p.equals });
+      break;
+  }
+  return out;
+}
+
+/**
+ * Literal values a requirement depends on that a player has no way to learn: not in the sampled
+ * records, the scenario facts, the case's own text, or the tool's allowed values. Such a case
+ * can only be solved by guessing.
+ */
+export function undiscoverableValues(c: CaseSpec, samples: SampleRecords[], tools?: ToolDef[]): string[] {
+  const haystack = [
+    ...samples.map((s) => s.text),
+    c.brief,
+    c.title,
+    ...c.requirements.map((r) => r.text),
+    ...c.scenarios.flatMap((s) => Object.values(s.input).map(String)),
+  ]
+    .join("\n")
+    .toLowerCase();
+  const missing = new Set<string>();
+  for (const req of c.requirements) {
+    for (const lit of literalsOf(req.check)) {
+      if (typeof lit.value === "boolean") continue;
+      const wanted = norm(lit.value);
+      if (wanted === "" || haystack.includes(wanted)) continue;
+      const prop = lit.tool && lit.arg ? tools?.find((t) => t.name === lit.tool)?.inputSchema.properties[lit.arg] : undefined;
+      if (prop?.enum?.some((e) => norm(e) === wanted)) continue;
+      missing.add(`"${String(lit.value)}" (requirement "${req.id}")`);
+    }
+  }
+  return [...missing];
+}
+
 /**
  * Proves a spec is playable before it is served. Per case:
  *   - the reference "pass" design must meet every requirement and be a well-formed design,
  *   - the reference "fail" design must miss at least one requirement,
- *   - a do-nothing design must also miss at least one (the case is not trivially satisfied).
+ *   - a do-nothing design must also miss at least one (the case is not trivially satisfied),
+ *   - when `samples` is given, every literal a requirement depends on is something the player
+ *     can find in what they are shown (see `undiscoverableValues`).
  */
-export function proveSpec(spec: GameSpec, tools?: ToolDef[]): Proof {
+export function proveSpec(spec: GameSpec, tools?: ToolDef[], samples?: SampleRecords[]): Proof {
   const problems: string[] = [];
   for (const c of spec.cases) {
     const at = `case "${c.id}"`;
@@ -260,6 +338,13 @@ export function proveSpec(spec: GameSpec, tools?: ToolDef[]): Proof {
     if (fail.passed) problems.push(`${at}: the reference fail design meets every requirement`);
 
     if (judgeCase(c, emptyDesign(c), tools).passed) problems.push(`${at}: a design that does nothing meets every requirement`);
+
+    if (samples) {
+      const hidden = undiscoverableValues(c, samples, tools);
+      if (hidden.length) {
+        problems.push(`${at}: the player cannot find ${hidden.join(", ")} in the sample records, scenario facts or requirement text`);
+      }
+    }
   }
   return { ok: problems.length === 0, problems };
 }
