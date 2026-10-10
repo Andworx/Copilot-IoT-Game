@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { GAME_SPEC_VERSION, computeToolsHash, type GameSpec } from "../src/mcpquest/gamespec";
 import { fetchServerDigest, type FetchLike } from "../src/mcpquest/generate/digest";
-import { createFoundryModel, extractOutputText, foundryToken, isFoundryProjectEndpoint, type SpecModel } from "../src/mcpquest/generate/foundry";
+import { createFoundryModel, extractOutputText, foundryAudience, foundryToken, isFoundryEndpoint, isFoundryProjectEndpoint, responsesUrl, type SpecModel } from "../src/mcpquest/generate/foundry";
 import { GENERATOR_INSTRUCTIONS, buildGeneratorInput } from "../src/mcpquest/generate/prompt";
 import { GenerateError, generateGameSpec, type SpecStore, type StoredSpec } from "../src/mcpquest/generate/service";
 import { DEFAULT_SNAPSHOT, SNAPSHOTS } from "../src/mcpquest/snapshot";
@@ -193,7 +193,7 @@ test("only Foundry project endpoints are accepted", () => {
   for (const bad of ["http://res.services.ai.azure.com/api/projects/p", "https://evil.test/api/projects/p", "https://res.services.ai.azure.com/", ENDPOINT + "/x"]) {
     assert.equal(isFoundryProjectEndpoint(bad), false, bad);
   }
-  assert.throws(() => createFoundryModel({ projectEndpoint: "https://evil.test", model: "m", getToken: async () => "t" }), /FOUNDRY_PROJECT_ENDPOINT/);
+  assert.throws(() => createFoundryModel({ projectEndpoint: "https://evil.test", model: "m", getToken: async () => "t" }), /FOUNDRY_ENDPOINT/);
   assert.throws(() => createFoundryModel({ projectEndpoint: ENDPOINT, getToken: async () => "t" }), /agent name or a model/);
 });
 
@@ -247,4 +247,25 @@ test("the Foundry token comes from the managed identity or an explicit override"
   }) as unknown as typeof fetch;
   assert.equal(await foundryToken({ IDENTITY_ENDPOINT: "http://127.0.0.1:1/msi/token", IDENTITY_HEADER: "hdr" } as any, fetchFn), "mi-token");
   assert.match(url, /resource=https%3A%2F%2Fai\.azure\.com/);
+});
+
+test("the OpenAI-style resource endpoint is supported for model deployments", async () => {
+  const OPENAI = "https://foundry-aw--ed-azcomm-eastus2.openai.azure.com/openai/v1";
+  assert.equal(isFoundryEndpoint(OPENAI), true);
+  assert.equal(isFoundryEndpoint(OPENAI + "/"), true);
+  assert.equal(isFoundryEndpoint("https://evil.test/openai/v1"), false);
+  assert.equal(isFoundryEndpoint("http://x.openai.azure.com/openai/v1"), false);
+  assert.equal(responsesUrl(OPENAI), `${OPENAI}/responses`, "no second /openai/v1");
+  assert.equal(responsesUrl(ENDPOINT), `${ENDPOINT}/openai/v1/responses`);
+  assert.equal(foundryAudience(OPENAI), "https://cognitiveservices.azure.com");
+  assert.equal(foundryAudience(ENDPOINT), "https://ai.azure.com");
+
+  let url = "";
+  const fetchFn = (async (u: string) => {
+    url = u;
+    return new Response(JSON.stringify({ output_text: "{}" }), { status: 200 });
+  }) as unknown as typeof fetch;
+  await createFoundryModel({ projectEndpoint: OPENAI, model: "gpt-6-sol", getToken: async () => "t", fetchFn }).generate({ instructions: "", input: "x" });
+  assert.equal(url, `${OPENAI}/responses`);
+  assert.throws(() => createFoundryModel({ projectEndpoint: OPENAI, agentName: "a", getToken: async () => "t" }), /needs the project endpoint/);
 });

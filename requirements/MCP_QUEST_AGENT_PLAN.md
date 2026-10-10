@@ -274,9 +274,11 @@ audience, and the role the managed identity needs.
 2. Optional: create a prompt agent from `GENERATOR_INSTRUCTIONS` (`prompt.ts`).
 3. Grant the public Function App's managed identity access to the project (expected role:
    Azure AI User; confirm in the portal).
-4. App settings on the public Function App: `FOUNDRY_PROJECT_ENDPOINT`
-   (`https://<resource>.services.ai.azure.com/api/projects/<project>`), and one of
-   `FOUNDRY_AGENT_NAME` or `FOUNDRY_MODEL`.
+4. App settings on the public Function App: `FOUNDRY_ENDPOINT`
+   (the project endpoint, or the resource's OpenAI-style `https://<resource>.openai.azure.com/openai/v1`,
+   which is what this deployment uses), and one of `FOUNDRY_AGENT_NAME` (project endpoint only)
+   or `FOUNDRY_MODEL`. Token audience is `https://cognitiveservices.azure.com` for the OpenAI-style
+   endpoint and `https://ai.azure.com` for the project endpoint.
 5. Network: the Function App must reach `www.mcpstation.io` and the Foundry endpoint. The infra
    uses private networking, so check egress rules.
 
