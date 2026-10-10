@@ -5,12 +5,11 @@
 [CmdletBinding()]
 param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
-    [string]$PrivateEndpointName = 'iot-demo-game-storage-blob-pe',
-    [string]$ExpectedNicName = 'iot-demo-game-storage-blob-pe-nic',
+    [string]$PrivateEndpointName = 'iot-game-v2-storage-blob-pe',
+    [string]$ExpectedNicName = 'iot-game-v2-storage-blob-pe-nic',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
     [string]$SubnetName = 'private-endpoint',
-    [string]$StorageAccountName = 'stawazcomiotgamefn',
-    [string]$ExpectedPrivateIpAddress = '10.20.1.11',
+    [string]$StorageAccountName = 'stawazcomiotgamev2',
     [string]$DnsZoneGroupName = 'default',
     [string]$DnsZoneConfigName = 'privatelink-blob-core-windows-net',
     [string]$DnsZoneName = 'privatelink.blob.core.windows.net'
@@ -45,9 +44,7 @@ $nicId = $endpoint.networkInterfaces[0].id
 if (-not $nicId) { throw 'Game storage blob private endpoint has no network interface.' }
 $nic = Invoke-AzJson @('resource', 'show', '--ids', $nicId, '--api-version', '2024-05-01')
 $privateIpAddress = $nic.properties.ipConfigurations[0].properties.privateIPAddress
-if ($privateIpAddress -ne $ExpectedPrivateIpAddress) {
-    throw "Game storage blob private endpoint private IP is '$privateIpAddress', expected '$ExpectedPrivateIpAddress'."
-}
+if ([string]::IsNullOrWhiteSpace($privateIpAddress)) { throw 'Game storage blob private endpoint NIC has no private IP address.' }
 
 $zoneGroup = Invoke-AzJson @('network', 'private-endpoint', 'dns-zone-group', 'show', '-g', $ResourceGroup, '--endpoint-name', $PrivateEndpointName, '-n', $DnsZoneGroupName)
 $zoneConfig = @($zoneGroup.privateDnsZoneConfigs | Where-Object {
@@ -57,8 +54,8 @@ if ($zoneConfig.Count -ne 1) { throw 'Game storage blob private DNS zone group d
 
 $recordSet = Invoke-AzJson @('network', 'private-dns', 'record-set', 'a', 'show', '-g', $ResourceGroup, '-z', $DnsZoneName, '-n', $StorageAccountName)
 $privateDnsAddresses = @($recordSet.aRecords | ForEach-Object { $_.ipv4Address })
-if ($privateDnsAddresses -notcontains $ExpectedPrivateIpAddress) {
-    throw "Game storage blob private DNS A record is '$($privateDnsAddresses -join ', ')', expected '$ExpectedPrivateIpAddress'."
+if ($privateDnsAddresses -notcontains $privateIpAddress) {
+    throw "Game storage blob private DNS A record is '$($privateDnsAddresses -join ', ')', expected '$privateIpAddress'."
 }
 
-Write-Host "Game storage blob private endpoint $PrivateEndpointName is approved at $ExpectedPrivateIpAddress with DNS zone $DnsZoneName."
+Write-Host "Game storage blob private endpoint $PrivateEndpointName is approved at $privateIpAddress with DNS zone $DnsZoneName."

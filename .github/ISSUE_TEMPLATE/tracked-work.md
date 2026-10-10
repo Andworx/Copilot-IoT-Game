@@ -1,8 +1,8 @@
 ---
 name: Tracked Work Item
-about: Create a tracked work item for the YOUR_PROJECT_NAME project board
+about: Create a tracked work item for the Copilot IoT Game project board
 title: "[COMPONENT] Brief description of the work"
-labels: ["YOUR_PROJECT_LABEL", "status:backlog"]
+labels: ["project:copilot-iot-game", "status:backlog"]
 ---
 
 ## Description
@@ -41,13 +41,13 @@ labels: ["YOUR_PROJECT_LABEL", "status:backlog"]
 
 ## Labels
 <!-- After creating this issue, add appropriate labels:
-  - YOUR_PROJECT_LABEL (required for project board tracking)
+  - project:copilot-iot-game (required for project board tracking)
   - Exactly one type:* label (epic, feature, or task)
   - One or more area:* labels (dataverse, flows, agents, plugins, pages, reporting)
   - Optional planning labels (`priority:high`, `blocked`)
   - Any other relevant labels for filtering/categorization
 -->
-This issue will automatically be added to the project board once labeled with `YOUR_PROJECT_LABEL`.
+This issue will automatically be added to the project board once labeled with `project:copilot-iot-game`.
 
 ## Workflow Notes
 <!-- Reference CONTRIBUTING.md for branch naming and conventional commits:

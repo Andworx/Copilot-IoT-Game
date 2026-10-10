@@ -25,10 +25,15 @@ power pages/
 │   ├── powerpages.config.json   # site name + build output path, read by PAC
 │   ├── src/                     # React app source
 │   └── README.md                # app-specific dev notes, Game Mode behavior, what's stubbed
-├── prize wheel/            # standalone phone-facing spin Code Site (separate site/domain)
+├── prize wheel/            # standalone phone-facing spin Code Site — deployed via deploy-apps.yml
 │   ├── powerpages.config.json
 │   └── src/
-└── plinko/                 # Plinko booth display Code Site (site `Plinko`, not yet in CI)
+├── plinko/                 # Plinko booth display Code Site — deployed via deploy-apps.yml
+│   ├── powerpages.config.json
+│   └── src/
+└── mcpquest/               # MCP Quest player Code Site — deployed via deploy-apps.yml
+    ├── powerpages.config.json
+    └── src/
 ```
 
 See `docs/README.md` for what's still an active reference vs. archived.

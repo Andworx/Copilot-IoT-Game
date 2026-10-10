@@ -3,97 +3,13 @@
   <emailtemplate>
     <IsCustomizable>1</IsCustomizable>
     <templateid>{70b65f51-beba-f111-aaaf-3833c5e7f0a0}</templateid>
-    <subject>&lt;?xml version="1.0" ?&gt;&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;&lt;xsl:output method="text" indent="no"/&gt;&lt;xsl:template match="/data"&gt;&lt;![CDATA[Reminder: come to the booth for {{EventName}}]]&gt;&lt;/xsl:template&gt;&lt;/xsl:stylesheet&gt;</subject>
-    <subjectpresentationxml>&lt;template&gt;&lt;text&gt;&lt;![CDATA[Reminder: come to the booth for {{EventName}}]]&gt;&lt;/text&gt;&lt;/template&gt;</subjectpresentationxml>
+    <subject></subject>
+    <subjectpresentationxml></subjectpresentationxml>
     <templatetypecode>2</templatetypecode>
-    <body>&lt;?xml version="1.0" ?&gt;&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;&lt;xsl:output method="text" indent="no"/&gt;&lt;xsl:template match="/data"&gt;&lt;![CDATA[&lt;!doctype html&gt;
-&lt;html lang="en"&gt;
-  &lt;head&gt;
-    &lt;meta charset="utf-8"&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
-    &lt;title&gt;Grand-prize booth reminder&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body style="margin:0;background:#f4f7fb;color:#172033;font-family:Segoe UI,Arial,sans-serif;"&gt;
-    &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:28px 12px;"&gt;
-      &lt;tr&gt;
-        &lt;td align="center"&gt;
-          &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#ffffff;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;"&gt;
-            &lt;tr&gt;
-              &lt;td style="background:#2a3380;color:#ffffff;padding:24px 28px;border-bottom:4px solid #f59e0b;"&gt;
-                &lt;p style="margin:0 0 8px;font-size:28px;line-height:1;font-weight:800;letter-spacing:0;color:#ffffff;"&gt;andworx&lt;/p&gt;
-                &lt;p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f8d36b;"&gt;Copilot IoT Game&lt;/p&gt;
-                &lt;h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:800;"&gt;Please come to the booth&lt;/h1&gt;
-              &lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-              &lt;td style="padding:28px;"&gt;
-                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Hi {{FirstName}},&lt;/p&gt;
-                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;The {{EventName}} drawing is coming up at {{DrawingTime}}.&lt;/p&gt;
-                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;You must be present in person to win.&lt;/strong&gt; Bring this QR code or the text code to staff check-in at {{CheckInLocation}} before the drawing begins.&lt;/p&gt;
-                &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #b7d8ff;border-radius:10px;background:#eef6ff;"&gt;
-                  &lt;tr&gt;
-                    &lt;td style="padding:22px;text-align:center;"&gt;
-                      &lt;p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2a3380;"&gt;Check-in code&lt;/p&gt;
-                      &lt;p style="margin:0 0 18px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#172033;"&gt;{{CheckInCode}}&lt;/p&gt;
-                      &lt;img src="{{CheckInQrDataUrl}}" width="220" height="220" alt="QR code for {{CheckInCode}}" style="display:block;margin:0 auto 12px;border:10px solid #ffffff;border-radius:8px;background:#ffffff;"&gt;
-                      &lt;p style="margin:0;font-size:13px;line-height:1.5;color:#52657a;"&gt;Staff can scan this QR in the Game Box Control check-in screen.&lt;/p&gt;
-                    &lt;/td&gt;
-                  &lt;/tr&gt;
-                &lt;/table&gt;
-                &lt;p style="margin:0;font-size:16px;line-height:1.6;"&gt;Good luck,&lt;br&gt;Andworx Copilot IoT Game Team&lt;/p&gt;
-              &lt;/td&gt;
-            &lt;/tr&gt;
-          &lt;/table&gt;
-        &lt;/td&gt;
-      &lt;/tr&gt;
-    &lt;/table&gt;
-  &lt;/body&gt;
-&lt;/html&gt;]]&gt;&lt;/xsl:template&gt;&lt;/xsl:stylesheet&gt;</body>
+    <body></body>
     <title>gameengine - Grand Prize Booth Reminder</title>
     <description>Follow-up reminder for checked-in-code recipients before the grand-prize drawing time. Placeholder tokens: {{FirstName}}, {{CheckInCode}}, {{DrawingTime}}, {{EventName}}, {{CheckInLocation}}, {{CheckInQrDataUrl}} Version: 1.2</description>
-    <presentationxml>&lt;template&gt;&lt;html&gt;&lt;![CDATA[&lt;!doctype html&gt;
-&lt;html lang="en"&gt;
-  &lt;head&gt;
-    &lt;meta charset="utf-8"&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
-    &lt;title&gt;Grand-prize booth reminder&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body style="margin:0;background:#f4f7fb;color:#172033;font-family:Segoe UI,Arial,sans-serif;"&gt;
-    &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:28px 12px;"&gt;
-      &lt;tr&gt;
-        &lt;td align="center"&gt;
-          &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#ffffff;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;"&gt;
-            &lt;tr&gt;
-              &lt;td style="background:#2a3380;color:#ffffff;padding:24px 28px;border-bottom:4px solid #f59e0b;"&gt;
-                &lt;p style="margin:0 0 8px;font-size:28px;line-height:1;font-weight:800;letter-spacing:0;color:#ffffff;"&gt;andworx&lt;/p&gt;
-                &lt;p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f8d36b;"&gt;Copilot IoT Game&lt;/p&gt;
-                &lt;h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:800;"&gt;Please come to the booth&lt;/h1&gt;
-              &lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-              &lt;td style="padding:28px;"&gt;
-                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Hi {{FirstName}},&lt;/p&gt;
-                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;The {{EventName}} drawing is coming up at {{DrawingTime}}.&lt;/p&gt;
-                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;You must be present in person to win.&lt;/strong&gt; Bring this QR code or the text code to staff check-in at {{CheckInLocation}} before the drawing begins.&lt;/p&gt;
-                &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #b7d8ff;border-radius:10px;background:#eef6ff;"&gt;
-                  &lt;tr&gt;
-                    &lt;td style="padding:22px;text-align:center;"&gt;
-                      &lt;p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2a3380;"&gt;Check-in code&lt;/p&gt;
-                      &lt;p style="margin:0 0 18px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#172033;"&gt;{{CheckInCode}}&lt;/p&gt;
-                      &lt;img src="{{CheckInQrDataUrl}}" width="220" height="220" alt="QR code for {{CheckInCode}}" style="display:block;margin:0 auto 12px;border:10px solid #ffffff;border-radius:8px;background:#ffffff;"&gt;
-                      &lt;p style="margin:0;font-size:13px;line-height:1.5;color:#52657a;"&gt;Staff can scan this QR in the Game Box Control check-in screen.&lt;/p&gt;
-                    &lt;/td&gt;
-                  &lt;/tr&gt;
-                &lt;/table&gt;
-                &lt;p style="margin:0;font-size:16px;line-height:1.6;"&gt;Good luck,&lt;br&gt;Andworx Copilot IoT Game Team&lt;/p&gt;
-              &lt;/td&gt;
-            &lt;/tr&gt;
-          &lt;/table&gt;
-        &lt;/td&gt;
-      &lt;/tr&gt;
-    &lt;/table&gt;
-  &lt;/body&gt;
-&lt;/html&gt;]]&gt;&lt;/html&gt;&lt;/template&gt;</presentationxml>
+    <presentationxml></presentationxml>
     <languagecode>1033</languagecode>
     <generationtypecode>0</generationtypecode>
     <IntroducedVersion>1.0.0.0</IntroducedVersion>
@@ -101,103 +17,13 @@
   <emailtemplate>
     <IsCustomizable>1</IsCustomizable>
     <templateid>{6db65f51-beba-f111-aaaf-3833c5e7f0a0}</templateid>
-    <subject>&lt;?xml version="1.0" ?&gt;&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;&lt;xsl:output method="text" indent="no"/&gt;&lt;xsl:template match="/data"&gt;&lt;![CDATA[Your grand-prize check-in code: {{CheckInCode}}]]&gt;&lt;/xsl:template&gt;&lt;/xsl:stylesheet&gt;</subject>
-    <subjectpresentationxml>&lt;template&gt;&lt;text&gt;&lt;![CDATA[Your grand-prize check-in code: {{CheckInCode}}]]&gt;&lt;/text&gt;&lt;/template&gt;</subjectpresentationxml>
+    <subject></subject>
+    <subjectpresentationxml></subjectpresentationxml>
     <templatetypecode>2</templatetypecode>
-    <body>&lt;?xml version="1.0" ?&gt;&lt;xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"&gt;&lt;xsl:output method="text" indent="no"/&gt;&lt;xsl:template match="/data"&gt;&lt;![CDATA[&lt;!doctype html&gt;
-&lt;html lang="en"&gt;
-  &lt;head&gt;
-    &lt;meta charset="utf-8"&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
-    &lt;title&gt;Your grand-prize check-in code&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body style="margin:0;background:#f4f7fb;color:#172033;font-family:Segoe UI,Arial,sans-serif;"&gt;
-    &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:28px 12px;"&gt;
-      &lt;tr&gt;
-        &lt;td align="center"&gt;
-          &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#ffffff;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;"&gt;
-            &lt;tr&gt;
-              &lt;td style="background:#2a3380;color:#ffffff;padding:24px 28px;border-bottom:4px solid #f59e0b;"&gt;
-                &lt;p style="margin:0 0 8px;font-size:28px;line-height:1;font-weight:800;letter-spacing:0;color:#ffffff;"&gt;andworx&lt;/p&gt;
-                &lt;p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f8d36b;"&gt;Copilot IoT Game&lt;/p&gt;
-                &lt;h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:800;"&gt;Your check-in code is ready&lt;/h1&gt;
-              &lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-              &lt;td style="padding:28px;"&gt;
-                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Hi {{FirstName}},&lt;/p&gt;
-                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Thanks for playing. You are entered for the {{EventName}} grand-prize drawing.&lt;/p&gt;
-                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;You must be present in person to win.&lt;/strong&gt; Bring this QR code or the text code to staff check-in at {{CheckInLocation}} before the drawing begins.&lt;/p&gt;
-                &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #b7d8ff;border-radius:10px;background:#eef6ff;"&gt;
-                  &lt;tr&gt;
-                    &lt;td style="padding:22px;text-align:center;"&gt;
-                      &lt;p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2a3380;"&gt;Check-in code&lt;/p&gt;
-                      &lt;p style="margin:0 0 18px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#172033;"&gt;{{CheckInCode}}&lt;/p&gt;
-                      &lt;img src="{{CheckInQrDataUrl}}" width="220" height="220" alt="QR code for {{CheckInCode}}" style="display:block;margin:0 auto 12px;border:10px solid #ffffff;border-radius:8px;background:#ffffff;"&gt;
-                      &lt;p style="margin:0;font-size:13px;line-height:1.5;color:#52657a;"&gt;Staff can scan this QR in the Game Box Control check-in screen.&lt;/p&gt;
-                    &lt;/td&gt;
-                  &lt;/tr&gt;
-                &lt;/table&gt;
-                &lt;p style="margin:0 0 8px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;Drawing time:&lt;/strong&gt; {{DrawingTime}}&lt;/p&gt;
-                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;Check-in location:&lt;/strong&gt; {{CheckInLocation}}&lt;/p&gt;
-                &lt;p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#53657a;"&gt;If you no longer want to participate or receive event messages, update your preferences here: {{PreferenceUrl}}&lt;/p&gt;
-                &lt;p style="margin:0;font-size:16px;line-height:1.6;"&gt;Good luck,&lt;br&gt;Andworx Copilot IoT Game Team&lt;/p&gt;
-              &lt;/td&gt;
-            &lt;/tr&gt;
-          &lt;/table&gt;
-        &lt;/td&gt;
-      &lt;/tr&gt;
-    &lt;/table&gt;
-  &lt;/body&gt;
-&lt;/html&gt;]]&gt;&lt;/xsl:template&gt;&lt;/xsl:stylesheet&gt;</body>
+    <body></body>
     <title>gameengine - Grand Prize Check-In Code</title>
     <description>Sent after a player scans the claim QR, shares contact info, and receives a Grand Prize Entry. Placeholder tokens: {{FirstName}}, {{CheckInCode}}, {{DrawingTime}}, {{EventName}}, {{CheckInLocation}}, {{CheckInQrDataUrl}}, {{PreferenceUrl}} Version: 1.2</description>
-    <presentationxml>&lt;template&gt;&lt;html&gt;&lt;![CDATA[&lt;!doctype html&gt;
-&lt;html lang="en"&gt;
-  &lt;head&gt;
-    &lt;meta charset="utf-8"&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
-    &lt;title&gt;Your grand-prize check-in code&lt;/title&gt;
-  &lt;/head&gt;
-  &lt;body style="margin:0;background:#f4f7fb;color:#172033;font-family:Segoe UI,Arial,sans-serif;"&gt;
-    &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f7fb;padding:28px 12px;"&gt;
-      &lt;tr&gt;
-        &lt;td align="center"&gt;
-          &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:660px;background:#ffffff;border:1px solid #d8e0ea;border-radius:10px;overflow:hidden;"&gt;
-            &lt;tr&gt;
-              &lt;td style="background:#2a3380;color:#ffffff;padding:24px 28px;border-bottom:4px solid #f59e0b;"&gt;
-                &lt;p style="margin:0 0 8px;font-size:28px;line-height:1;font-weight:800;letter-spacing:0;color:#ffffff;"&gt;andworx&lt;/p&gt;
-                &lt;p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#f8d36b;"&gt;Copilot IoT Game&lt;/p&gt;
-                &lt;h1 style="margin:0;font-size:28px;line-height:1.2;font-weight:800;"&gt;Your check-in code is ready&lt;/h1&gt;
-              &lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-              &lt;td style="padding:28px;"&gt;
-                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Hi {{FirstName}},&lt;/p&gt;
-                &lt;p style="margin:0 0 16px;font-size:16px;line-height:1.6;"&gt;Thanks for playing. You are entered for the {{EventName}} grand-prize drawing.&lt;/p&gt;
-                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;You must be present in person to win.&lt;/strong&gt; Bring this QR code or the text code to staff check-in at {{CheckInLocation}} before the drawing begins.&lt;/p&gt;
-                &lt;table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:22px 0;border:1px solid #b7d8ff;border-radius:10px;background:#eef6ff;"&gt;
-                  &lt;tr&gt;
-                    &lt;td style="padding:22px;text-align:center;"&gt;
-                      &lt;p style="margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#2a3380;"&gt;Check-in code&lt;/p&gt;
-                      &lt;p style="margin:0 0 18px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:.08em;color:#172033;"&gt;{{CheckInCode}}&lt;/p&gt;
-                      &lt;img src="{{CheckInQrDataUrl}}" width="220" height="220" alt="QR code for {{CheckInCode}}" style="display:block;margin:0 auto 12px;border:10px solid #ffffff;border-radius:8px;background:#ffffff;"&gt;
-                      &lt;p style="margin:0;font-size:13px;line-height:1.5;color:#52657a;"&gt;Staff can scan this QR in the Game Box Control check-in screen.&lt;/p&gt;
-                    &lt;/td&gt;
-                  &lt;/tr&gt;
-                &lt;/table&gt;
-                &lt;p style="margin:0 0 8px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;Drawing time:&lt;/strong&gt; {{DrawingTime}}&lt;/p&gt;
-                &lt;p style="margin:0 0 18px;font-size:16px;line-height:1.6;"&gt;&lt;strong&gt;Check-in location:&lt;/strong&gt; {{CheckInLocation}}&lt;/p&gt;
-                &lt;p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#53657a;"&gt;If you no longer want to participate or receive event messages, update your preferences here: {{PreferenceUrl}}&lt;/p&gt;
-                &lt;p style="margin:0;font-size:16px;line-height:1.6;"&gt;Good luck,&lt;br&gt;Andworx Copilot IoT Game Team&lt;/p&gt;
-              &lt;/td&gt;
-            &lt;/tr&gt;
-          &lt;/table&gt;
-        &lt;/td&gt;
-      &lt;/tr&gt;
-    &lt;/table&gt;
-  &lt;/body&gt;
-&lt;/html&gt;]]&gt;&lt;/html&gt;&lt;/template&gt;</presentationxml>
+    <presentationxml></presentationxml>
     <languagecode>1033</languagecode>
     <generationtypecode>0</generationtypecode>
     <IntroducedVersion>1.0.0.0</IntroducedVersion>

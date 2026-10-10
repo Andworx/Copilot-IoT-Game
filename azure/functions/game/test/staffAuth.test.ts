@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { HttpRequest, InvocationContext } from "@azure/functions";
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from "jose";
 import { createStaffGuard, readStaffAuthConfig } from "../src/lib/staffAuth";
-import { apiSurface, routeEnabled } from "../src/lib/apiSurface";
+import { apiSurface, backgroundWorkEnabled, routeEnabled } from "../src/lib/apiSurface";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
@@ -53,6 +53,9 @@ test("staff API verifies signed delegated tokens before any business side effect
 test("configuration and route boundaries fail closed", () => {
   assert.throws(() => readStaffAuthConfig({}));
   assert.throws(() => apiSurface("typo"));
+  assert.equal(backgroundWorkEnabled("false"), true);
+  assert.equal(backgroundWorkEnabled("true"), false);
+  assert.throws(() => backgroundWorkEnabled("typo"));
   assert.throws(() => routeEnabled("unreviewed-operation", "public"));
   for (const name of ["set-mode", "toggle-device", "set-game-mode", "bulk-create-prizes",
     "prize-types", "prize-count", "grand-prize-check-in", "grand-prize-draw",
@@ -84,13 +87,14 @@ test("actual Function registrations separate staff routes and never duplicate te
       );
     };
     app.eventHub = name => routes.push({name, trigger: 'eventHub'});
+    app.timer = name => routes.push({name, trigger: 'timer'});
     require('./dist/src/index.js');
     Promise.all(checks).then(() => process.stdout.write(JSON.stringify(routes)));
   `;
-  for (const surface of ["staff", "public"]) {
+  for (const [surface, staging] of [["staff", "false"], ["public", "false"], ["staff", "true"], ["public", "true"]]) {
     const result = spawnSync(process.execPath, ["-e", script], {
       cwd: join(__dirname, "../.."), env: {
-        ...process.env, API_SURFACE: surface,
+        ...process.env, API_SURFACE: surface, MIGRATION_STAGING: staging,
         STAFF_AUTH_TENANT_ID: "11111111-1111-4111-8111-111111111111",
         STAFF_AUTH_AUDIENCE: "22222222-2222-4222-8222-222222222222",
         STAFF_AUTH_CLIENT_ID: "33333333-3333-4333-8333-333333333333",
@@ -98,7 +102,8 @@ test("actual Function registrations separate staff routes and never duplicate te
     });
     assert.equal(result.status, 0, result.stderr);
     const routes = JSON.parse(result.stdout) as { name: string; auth?: string; trigger?: string; deniedStatus?: number }[];
-    assert.equal(routes.some(route => route.name === "iot-telemetry"), surface === "public");
+    assert.equal(routes.some(route => route.name === "iot-telemetry"), surface === "public" && staging === "false");
+    assert.equal(routes.some(route => route.name === "consent-maintenance"), surface === "staff" && staging === "false");
     assert.equal(routes.some(route => route.name === "set-mode"), surface === "staff");
     assert.equal(routes.some(route => route.name === "grand-prize-drawing-slices"), surface === "staff");
     assert.equal(routes.some(route => route.name === "prizes"), surface === "public");

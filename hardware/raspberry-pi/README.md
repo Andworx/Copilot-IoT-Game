@@ -60,6 +60,11 @@ its own consumer group and expect it to ignore or mis-handle these messages. If 
 code still expects the previous logical mode-index field name, map it to the Power
 App-selected mode rather than to any physical selector.
 
+Live demo telemetry also depends on mode sync. Keep `MODE_STATE_URL` in the panel `.env`
+when switching between direct IoT Hub auth and DPS auth; without it the Pi falls back to
+`thermostat`, while the kiosk follows the active backend `deviceSlug` and ignores telemetry
+for any other mode.
+
 ## Parts list
 
 | Qty | Part | Notes |
@@ -212,8 +217,10 @@ service after deploying the reviewed firmware, then verify the physical cables.
   `python -m unittest test_cable_matrix` (fake GPIO backend, no `lgpio`).
 - **`telemetry.py`** — a background-threaded Azure IoT Hub publisher (queued,
   non-blocking) so a slow/dropped network connection never stalls GPIO
-  polling. Runs in console-only mode if `AZURE_IOT_CONNECTION_STRING` isn't
-  set, for bench-testing without cloud credentials.
+  polling. Prefer DPS provisioning through `iot-game-fleet`; direct IoT Hub
+  connection strings remain supported as a rollback path. Runs in console-only
+  mode if no Azure IoT auth settings are present, for bench-testing without
+  cloud credentials.
 - **`lamp_patterns.py`** — evaluates each lamp's `when` expression into an
   `{active, pattern}` state (`on`/`blink`/`fast_blink`), forcing all 4 lamps
   solid on the moment a mode is won, and drives gpiozero `LED`s so a blink
@@ -328,7 +335,7 @@ cd hardware/raspberry-pi
 python3 -m venv --system-site-packages .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env   # then fill in AZURE_IOT_CONNECTION_STRING
+cp .env.example .env   # then fill in the DPS-derived device key
 python3 panel_controller.py
 ```
 
@@ -339,8 +346,36 @@ apt package — `--system-site-packages` just lets the venv see it, so `pip
 install -r requirements.txt` finds it already satisfied instead of trying
 (and failing) to build its own copy.
 
-Bench-test without an IoT Hub connection string set — the panel still runs
-the full switch/mode/LED logic and logs what it *would* publish.
+Bench-test without Azure IoT auth settings — the panel still runs the full
+switch/mode/LED logic and logs what it *would* publish.
+
+### Azure IoT authentication
+
+The preferred auth path is DPS enrollment group `iot-game-fleet`. Generate the
+device key from that group's key using the secret-safe helper in the repo root,
+then copy only the derived device key to the Pi's local `.env`:
+
+```powershell
+$env:DPS_ENROLLMENT_GROUP_KEY = '<paste iot-game-fleet group key for this shell only>'
+.\azure\infrastructure\scripts\New-DpsDeviceRegistration.ps1 `
+  -EnrollmentGroupId iot-game-fleet `
+  -RegistrationId copilotiotpanel `
+  -OutputPath .notes/dps/copilotiotpanel.json
+Remove-Item Env:\DPS_ENROLLMENT_GROUP_KEY
+```
+
+Then set the Pi's `.env` values:
+
+```bash
+AZURE_IOT_DPS_ENROLLMENT_GROUP_ID=iot-game-fleet
+AZURE_IOT_DPS_ID_SCOPE=0ne011EB47B
+AZURE_IOT_DPS_REGISTRATION_ID=copilotiotpanel
+AZURE_IOT_DPS_SYMMETRIC_KEY=<derived-device-key>
+MODE_STATE_URL=https://func-aw-iot-game-v2.azurewebsites.net/api/kiosk-state
+```
+
+`iotdisplay` does not need these settings. It is the touchscreen display Pi and
+does not register with IoT Hub.
 
 ### Deploying from a dev machine (scp)
 

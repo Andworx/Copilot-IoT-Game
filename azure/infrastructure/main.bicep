@@ -32,12 +32,12 @@ param signalRSkuName string
 param gameFunctionPlanName string
 param gameFunctionAppName string
 param gameFunctionAppTags object = {}
+param gameFunctionCorsOrigins array
 param gameStorageAccountName string
 param gameStoragePackageContainerName string
 param gameStoragePackageContainerUrl string
 
 param gameAppInsightsName string
-param logAnalyticsWorkspaceResourceId string
 param gameFailureAnomaliesAlertName string
 param smartDetectionActionGroupName string
 param smartDetectionActionGroupShortName string
@@ -70,6 +70,12 @@ param vpnClientProtocols array
 param vpnAuthenticationTypes array
 param vpnClientRootCertificates array
 
+param eventHubPrivateEndpointName string
+param eventHubPrivateEndpointNicName string
+param eventHubPrivateDnsZoneGroupName string
+param eventHubPrivateDnsZoneConfigName string
+param eventHubPrivateDnsZoneName string
+
 param signalRPrivateEndpointName string
 param signalRPrivateEndpointNicName string
 param privateEndpointSubnetName string
@@ -97,6 +103,28 @@ param iotHubPrivateDnsZoneConfigNames array
 
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
+
+@description('Preserved Event Hubs Data Sender assignment name after a resource move. Empty uses the deterministic default.')
+param eventHubSenderRoleAssignmentName string = ''
+
+@description('Preserved Event Hubs Data Receiver assignment name after a resource move. Empty uses the deterministic default.')
+param eventHubReceiverRoleAssignmentName string = ''
+
+resource iotHub 'Microsoft.Devices/IotHubs@2023-06-30' existing = {
+  name: iotHubName
+}
+
+resource currentGameAppSettings 'Microsoft.Web/sites/config@2024-04-01' existing = {
+  name: '${gameFunctionAppName}/appsettings'
+}
+
+var existingGameAppSettings = currentGameAppSettings.list().properties
+var gameFunctionResourceTags = {
+  application: 'CopilotIoTGame'
+  purpose: 'subscription-migration'
+  component: 'parallel-function-rebuild'
+  'managed-by': 'bicep'
+}
 
 module eventHub 'modules/eventhub.bicep' = {
   name: 'eventhub'
@@ -133,7 +161,10 @@ module gameFunctionHosting 'modules/game-function-hosting.bicep' = {
     packageContainerName: gameStoragePackageContainerName
     packageContainerUrl: gameStoragePackageContainerUrl
     functionAppName: gameFunctionAppName
+    resourceTags: gameFunctionResourceTags
     functionAppTags: gameFunctionAppTags
+    corsOrigins: gameFunctionCorsOrigins
+    existingSettings: existingGameAppSettings
     integrationSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, 'function-integration')
   }
   dependsOn: [vnet]
@@ -144,7 +175,6 @@ module gameAppInsights 'modules/app-insights.bicep' = {
   params: {
     name: gameAppInsightsName
     location: location
-    workspaceResourceId: logAnalyticsWorkspaceResourceId
     tags: tags
   }
 }
@@ -222,6 +252,22 @@ module vpnGateway 'modules/p2s-vpn-gateway.bicep' = {
   dependsOn: [vnet]
 }
 
+module eventHubPrivateEndpoint 'modules/eventhub-private-endpoint.bicep' = {
+  name: 'eventhub-private-endpoint'
+  params: {
+    location: location
+    privateEndpointName: eventHubPrivateEndpointName
+    customNetworkInterfaceName: eventHubPrivateEndpointNicName
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+    eventHubNamespaceId: resourceId('Microsoft.EventHub/namespaces', eventHubNamespaceName)
+    privateDnsZoneGroupName: eventHubPrivateDnsZoneGroupName
+    privateDnsZoneConfigName: eventHubPrivateDnsZoneConfigName
+    privateDnsZoneId: resourceId('Microsoft.Network/privateDnsZones', eventHubPrivateDnsZoneName)
+    tags: {}
+  }
+  dependsOn: [eventHub, vnet, privateDns]
+}
+
 module signalRPrivateEndpoint 'modules/signalr-private-endpoint.bicep' = {
   name: 'signalr-private-endpoint'
   params: {
@@ -297,6 +343,17 @@ module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrinci
     namespaceName: eventHubNamespaceName
     eventHubName: eventHubName
     principalId: functionAppPrincipalId
+    roleAssignmentName: eventHubReceiverRoleAssignmentName
+  }
+}
+
+module sender 'modules/eventhub-sender.bicep' = {
+  name: 'eventhub-sender'
+  dependsOn: [eventHub]
+  params: {
+    namespaceName: eventHubNamespaceName
+    principalId: iotHub.identity.principalId
+    roleAssignmentName: eventHubSenderRoleAssignmentName
   }
 }
 
@@ -317,6 +374,7 @@ output dnsResolverInboundEndpointName string = dnsResolver.outputs.inboundEndpoi
 output dnsResolverInboundPrivateIpAddress string = dnsResolver.outputs.inboundPrivateIpAddress
 output vpnPublicIpName string = vpnGateway.outputs.publicIpName
 output vpnGatewayName string = vpnGateway.outputs.gatewayName
+output eventHubPrivateEndpointName string = eventHubPrivateEndpoint.outputs.privateEndpointName
 output signalRPrivateEndpointName string = signalRPrivateEndpoint.outputs.privateEndpointName
 output gameFunctionPrivateEndpointName string = gameFunctionPrivateEndpoint.outputs.privateEndpointName
 output gameStorageBlobPrivateEndpointName string = gameStorageBlobPrivateEndpoint.outputs.privateEndpointName

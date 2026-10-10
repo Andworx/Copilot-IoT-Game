@@ -5,16 +5,16 @@
 [CmdletBinding()]
 param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
-    [string]$PrivateEndpointName = 'iot-demo-iothub-pe',
-    [string]$ExpectedNicName = 'iot-demo-iothub-pe-nic',
+    [string]$PrivateEndpointName = 'iot-migration-iothub-pe',
+    [string]$ExpectedNicName = 'iot-migration-iothub-pe-nic',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
     [string]$SubnetName = 'private-endpoint',
     [string]$IoTHubName = 'iothub-aw-iot-copilot',
-    [string]$ExpectedPrimaryIpAddress = '10.20.1.4',
+    [string]$ExpectedPrimaryIpAddress = '10.20.1.5',
     [hashtable]$ExpectedAuxiliaryIpAddresses = @{
-        eventHub = '10.20.1.5'
-        iotHubService = '10.20.1.6'
-        iotHubDevice = '10.20.1.7'
+        eventHub = '10.20.1.6'
+        iotHubService = '10.20.1.7'
+        iotHubDevice = '10.20.1.8'
     },
     [string]$DnsZoneGroupName = 'default',
     [string]$AzureDevicesDnsZoneConfigName = 'privatelink-azure-devices-net',

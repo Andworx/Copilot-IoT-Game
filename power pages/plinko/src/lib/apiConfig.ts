@@ -5,7 +5,7 @@
  */
 export const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
-  "https://func-aw-azcom-iot-game.azurewebsites.net";
+  "https://func-aw-iot-game-v2.azurewebsites.net";
 
 /**
  * Base URL of the shared prize wheel SPA (power pages/prize wheel). Plinko reuses it:

@@ -1,6 +1,5 @@
 param name string
 param location string
-param workspaceResourceId string
 param tags object = {}
 
 resource component 'Microsoft.Insights/components@2020-02-02' = {
@@ -11,10 +10,9 @@ resource component 'Microsoft.Insights/components@2020-02-02' = {
   properties: {
     Application_Type: 'web'
     Flow_Type: 'Bluefield'
-    IngestionMode: 'LogAnalytics'
+    IngestionMode: 'Disabled'
     Request_Source: 'rest'
     RetentionInDays: 90
-    WorkspaceResourceId: workspaceResourceId
     publicNetworkAccessForIngestion: 'Enabled'
     publicNetworkAccessForQuery: 'Enabled'
   }

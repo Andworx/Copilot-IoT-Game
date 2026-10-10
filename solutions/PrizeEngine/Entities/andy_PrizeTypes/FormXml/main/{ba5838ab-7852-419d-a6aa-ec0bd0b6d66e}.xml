@@ -68,6 +68,14 @@
                       </cell>
                     </row>
                     <row>
+                      <cell id="{935e1c9e-36aa-4308-8b19-a3e2846ab1b8}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Is Fallback" languagecode="1033" />
+                        </labels>
+                        <control id="andy_isfallback" classid="{67FAC785-CD58-4F9F-ABB3-4B7DDC6ED5ED}" datafieldname="andy_isfallback" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
                       <cell id="{949551a5-b711-4c72-8f67-45bf7ac2a86d}" locklevel="0" colspan="1" rowspan="1">
                         <labels>
                           <label description="Prize Image SVG" languagecode="1033" />

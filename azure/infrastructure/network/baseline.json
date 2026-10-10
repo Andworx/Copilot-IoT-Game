@@ -113,7 +113,7 @@
       "enableBgp": true,
       "gatewayType": "Vpn",
       "vpnType": "RouteBased",
-      "vpnGatewayGeneration": "Generation2",
+      "vpnGatewayGeneration": "Generation1",
       "enablePrivateIpAddress": false,
       "disableIPSecReplayProtection": false,
       "customRoutes": {
@@ -133,10 +133,10 @@
           "properties": {
             "privateIPAllocationMethod": "Dynamic",
             "publicIPAddress": {
-              "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/publicIPAddresses/iot-demo-vpn-pip"
+              "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/publicIPAddresses/iot-demo-vpn-pip"
             },
             "subnet": {
-              "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/GatewaySubnet"
+              "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/GatewaySubnet"
             }
           }
         }
@@ -174,7 +174,7 @@
     "tags": {},
     "properties": {
       "virtualNetwork": {
-        "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
+        "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
       }
     }
   },
@@ -188,7 +188,7 @@
           "privateIpAllocationMethod": "Static",
           "privateIpAddress": "10.20.3.4",
           "subnet": {
-            "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/dns-inbound"
+            "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/dns-inbound"
           }
         }
       ]
@@ -234,7 +234,7 @@
       "properties": {
         "registrationEnabled": false,
         "virtualNetwork": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
         }
       }
     },
@@ -245,7 +245,7 @@
       "properties": {
         "registrationEnabled": false,
         "virtualNetwork": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
         }
       }
     },
@@ -256,7 +256,7 @@
       "properties": {
         "registrationEnabled": false,
         "virtualNetwork": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
         }
       }
     },
@@ -267,7 +267,7 @@
       "properties": {
         "registrationEnabled": false,
         "virtualNetwork": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
         }
       }
     },
@@ -278,27 +278,27 @@
       "properties": {
         "registrationEnabled": false,
         "virtualNetwork": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet"
         }
       }
     }
   ],
   "endpoints": [
     {
-      "name": "iot-demo-eventhub-pe",
+      "name": "iot-migration-eventhub-pe",
       "location": "eastus",
       "tags": {},
       "properties": {
-        "customNetworkInterfaceName": "iot-demo-eventhub-pe-nic",
+        "customNetworkInterfaceName": "iot-migration-eventhub-pe-nic",
         "ipConfigurations": [],
         "subnet": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
         },
         "privateLinkServiceConnections": [
           {
-            "name": "iot-demo-eventhub-pe",
+            "name": "iot-migration-eventhub-pe",
             "properties": {
-              "privateLinkServiceId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.EventHub/namespaces/evhns-aw-iot-copilot",
+              "privateLinkServiceId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.EventHub/namespaces/evhns-aw-iot-copilot",
               "groupIds": [
                 "namespace"
               ]
@@ -308,20 +308,20 @@
       }
     },
     {
-      "name": "iot-demo-game-function-pe",
+      "name": "iot-game-v2-pe",
       "location": "eastus",
       "tags": {},
       "properties": {
-        "customNetworkInterfaceName": "iot-demo-game-function-pe-nic",
+        "customNetworkInterfaceName": "iot-game-v2-pe-nic",
         "ipConfigurations": [],
         "subnet": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
         },
         "privateLinkServiceConnections": [
           {
-            "name": "iot-demo-game-function-pe",
+            "name": "iot-game-v2-pe",
             "properties": {
-              "privateLinkServiceId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Web/sites/func-aw-azcom-iot-game",
+              "privateLinkServiceId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Web/sites/func-aw-iot-game-v2",
               "groupIds": [
                 "sites"
               ]
@@ -331,20 +331,20 @@
       }
     },
     {
-      "name": "iot-demo-game-storage-blob-pe",
+      "name": "iot-game-v2-storage-blob-pe",
       "location": "eastus",
       "tags": {},
       "properties": {
-        "customNetworkInterfaceName": "iot-demo-game-storage-blob-pe-nic",
+        "customNetworkInterfaceName": "iot-game-v2-storage-blob-pe-nic",
         "ipConfigurations": [],
         "subnet": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
         },
         "privateLinkServiceConnections": [
           {
-            "name": "iot-demo-game-storage-blob-pe",
+            "name": "iot-game-v2-storage-blob-pe",
             "properties": {
-              "privateLinkServiceId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Storage/storageAccounts/stawazcomiotgamefn",
+              "privateLinkServiceId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Storage/storageAccounts/stawazcomiotgamev2",
               "groupIds": [
                 "blob"
               ]
@@ -354,20 +354,20 @@
       }
     },
     {
-      "name": "iot-demo-iothub-pe",
+      "name": "iot-migration-iothub-pe",
       "location": "eastus",
       "tags": {},
       "properties": {
-        "customNetworkInterfaceName": "iot-demo-iothub-pe-nic",
+        "customNetworkInterfaceName": "iot-migration-iothub-pe-nic",
         "ipConfigurations": [],
         "subnet": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
         },
         "privateLinkServiceConnections": [
           {
-            "name": "iot-demo-iothub-pe",
+            "name": "iot-migration-iothub-pe",
             "properties": {
-              "privateLinkServiceId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Devices/IotHubs/iothub-aw-iot-copilot",
+              "privateLinkServiceId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Devices/IotHubs/iothub-aw-iot-copilot",
               "groupIds": [
                 "iotHub"
               ]
@@ -377,20 +377,20 @@
       }
     },
     {
-      "name": "iot-demo-signalr-pe",
+      "name": "iot-rebuild-signalr-pe",
       "location": "eastus",
       "tags": {},
       "properties": {
-        "customNetworkInterfaceName": "iot-demo-signalr-pe-nic",
+        "customNetworkInterfaceName": "iot-rebuild-signalr-pe-nic",
         "ipConfigurations": [],
         "subnet": {
-          "id": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
+          "id": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/virtualNetworks/iot-demo-vnet/subnets/private-endpoint"
         },
         "privateLinkServiceConnections": [
           {
-            "name": "iot-demo-signalr-pe",
+            "name": "iot-rebuild-signalr-pe",
             "properties": {
-              "privateLinkServiceId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.SignalRService/SignalR/signalr-aw-iot-copilot",
+              "privateLinkServiceId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.SignalRService/SignalR/signalr-aw-iot-copilot",
               "groupIds": [
                 "signalr"
               ]
@@ -402,71 +402,71 @@
   ],
   "zoneGroups": [
     {
-      "name": "iot-demo-eventhub-pe/default",
+      "name": "iot-migration-eventhub-pe/default",
       "properties": {
         "privateDnsZoneConfigs": [
           {
             "name": "privatelink-servicebus-windows-net",
             "properties": {
-              "privateDnsZoneId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.servicebus.windows.net"
+              "privateDnsZoneId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.servicebus.windows.net"
             }
           }
         ]
       }
     },
     {
-      "name": "iot-demo-game-function-pe/default",
+      "name": "iot-game-v2-pe/default",
       "properties": {
         "privateDnsZoneConfigs": [
           {
             "name": "privatelink-azurewebsites-net",
             "properties": {
-              "privateDnsZoneId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.azurewebsites.net"
+              "privateDnsZoneId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.azurewebsites.net"
             }
           }
         ]
       }
     },
     {
-      "name": "iot-demo-game-storage-blob-pe/default",
+      "name": "iot-game-v2-storage-blob-pe/default",
       "properties": {
         "privateDnsZoneConfigs": [
           {
             "name": "privatelink-blob-core-windows-net",
             "properties": {
-              "privateDnsZoneId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
+              "privateDnsZoneId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net"
             }
           }
         ]
       }
     },
     {
-      "name": "iot-demo-iothub-pe/default",
+      "name": "iot-migration-iothub-pe/default",
       "properties": {
         "privateDnsZoneConfigs": [
           {
             "name": "privatelink-azure-devices-net",
             "properties": {
-              "privateDnsZoneId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.azure-devices.net"
+              "privateDnsZoneId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.azure-devices.net"
             }
           },
           {
             "name": "privatelink-servicebus-windows-net",
             "properties": {
-              "privateDnsZoneId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.servicebus.windows.net"
+              "privateDnsZoneId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.servicebus.windows.net"
             }
           }
         ]
       }
     },
     {
-      "name": "iot-demo-signalr-pe/default",
+      "name": "iot-rebuild-signalr-pe/default",
       "properties": {
         "privateDnsZoneConfigs": [
           {
             "name": "privatelink-service-signalr-net",
             "properties": {
-              "privateDnsZoneId": "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.service.signalr.net"
+              "privateDnsZoneId": "/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Network/privateDnsZones/privatelink.service.signalr.net"
             }
           }
         ]

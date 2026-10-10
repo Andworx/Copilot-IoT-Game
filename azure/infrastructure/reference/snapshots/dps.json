@@ -1,13 +1,19 @@
 {
   "allocationPolicy": "Hashed",
+  "idScope": "0ne011EB47B",
+  "ipFilterRules": null,
   "linkedHubs": [
     {
       "allocationWeight": null,
+      "applyAllocationPolicy": null,
+      "authenticationType": "KeyBased",
       "location": "eastus",
       "name": "iothub-aw-iot-copilot.azure-devices.net"
     }
   ],
   "location": "eastus",
+  "provisioningState": "Succeeded",
+  "publicNetworkAccess": null,
   "sku": {
     "capacity": 1,
     "family": null,
@@ -15,5 +21,9 @@
     "name": "S1",
     "size": null,
     "tier": "Standard"
+  },
+  "state": "Active",
+  "tags": {
+    "project": "iot-copilot env=dev owner=andworx"
   }
 }

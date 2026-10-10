@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26084.171" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26084.171" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26084.00171">
+<ImportExportXml version="9.2.26085.172" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26085.172" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26085.00172">
   <SolutionManifest>
     <UniqueName>CopilotIoTGame</UniqueName>
     <LocalizedNames>
@@ -86,7 +86,9 @@
       <RootComponent type="1" schemaName="andy_iotgamewin" behavior="0" />
       <RootComponent type="1" schemaName="andy_iottelemetryevent" behavior="0" />
       <RootComponent type="1" schemaName="andy_prizeclaim" behavior="1" />
+      <RootComponent type="1" schemaName="andy_prizes" behavior="1" />
       <RootComponent type="20" id="{1cc6d8d0-83ab-f111-aaac-3833c5e08f78}" behavior="0" />
+      <RootComponent type="29" id="{9302fd6b-20c4-f111-aaad-000d3a9d6391}" behavior="0" />
       <RootComponent type="36" id="{6db65f51-beba-f111-aaaf-3833c5e7f0a0}" behavior="0" />
       <RootComponent type="36" id="{70b65f51-beba-f111-aaaf-3833c5e7f0a0}" behavior="0" />
       <RootComponent type="61" schemaName="andy_deviceprofile_icon" behavior="0" />
@@ -124,11 +126,7 @@
       </MissingDependency>
       <MissingDependency>
         <Required type="1" schemaName="andy_prizes" displayName="Prizes" solution="Active" />
-        <Dependent type="62" schemaName="andy_CopilotIotGameBackend" />
-      </MissingDependency>
-      <MissingDependency>
-        <Required type="1" schemaName="andy_prizes" displayName="Prizes" solution="Active" />
-        <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Copilot IoT Game Backend" />
+        <Dependent type="1" schemaName="andy_prizes" displayName="Prizes" />
       </MissingDependency>
       <MissingDependency>
         <Required type="1" schemaName="andy_prizetypes" displayName="Prize Types" solution="Active" />
@@ -211,6 +209,26 @@
         <Dependent type="26" schemaName="Active Prize Claims" displayName="Active Prize Claims" parentSchemaName="andy_prizeclaim" parentDisplayName="Prize Claim" id="{dbc66812-dff7-4950-843e-09135da5d852}" />
       </MissingDependency>
       <MissingDependency>
+        <Required type="2" schemaName="andy_prizename" displayName="Prize Name" parentSchemaName="andy_prizes" parentDisplayName="Prizes" solution="Active" />
+        <Dependent type="26" schemaName="Inactive Prizes" displayName="Inactive Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" id="{8fc86ca1-ddec-4ea0-a2d3-ef51a40fc0c2}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="andy_prizename" displayName="Prize Name" parentSchemaName="andy_prizes" parentDisplayName="Prizes" solution="Active" />
+        <Dependent type="26" schemaName="Active Prizes" displayName="Active Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" id="{e67dc58d-7eac-4598-8ab8-0df85285c168}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="andy_prizesid" displayName="Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" solution="Active" />
+        <Dependent type="26" schemaName="Inactive Prizes" displayName="Inactive Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" id="{8fc86ca1-ddec-4ea0-a2d3-ef51a40fc0c2}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="andy_prizesid" displayName="Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" solution="Active" />
+        <Dependent type="26" schemaName="Active Prizes" displayName="Active Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" id="{e67dc58d-7eac-4598-8ab8-0df85285c168}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="andy_prizetaken" displayName="Prize Taken" parentSchemaName="andy_prizes" parentDisplayName="Prizes" solution="Active" />
+        <Dependent type="29" displayName="Prize Engine | Deactivate Prize" id="{9302fd6b-20c4-f111-aaad-000d3a9d6391}" />
+      </MissingDependency>
+      <MissingDependency>
         <Required type="2" schemaName="andy_sourcekey" displayName="Source Key" parentSchemaName="andy_contestsource" parentDisplayName="Contest Source" solution="Active" />
         <Dependent type="26" schemaName="Active Contest Sources" displayName="Active Contest Sources" parentSchemaName="andy_contestsource" parentDisplayName="Contest Source" id="{35237ed5-0f2b-4646-9244-9f871bb1a375}" />
       </MissingDependency>
@@ -231,6 +249,10 @@
         <Dependent type="26" schemaName="Active Prize Claims" displayName="Active Prize Claims" parentSchemaName="andy_prizeclaim" parentDisplayName="Prize Claim" id="{dbc66812-dff7-4950-843e-09135da5d852}" />
       </MissingDependency>
       <MissingDependency>
+        <Required type="2" schemaName="createdon" displayName="Created On" parentSchemaName="andy_prizes" parentDisplayName="Prizes" solution="Active" />
+        <Dependent type="26" schemaName="Active Prizes" displayName="Active Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" id="{e67dc58d-7eac-4598-8ab8-0df85285c168}" />
+      </MissingDependency>
+      <MissingDependency>
         <Required type="2" schemaName="statecode" displayName="Status" parentSchemaName="andy_contestsource" parentDisplayName="Contest Source" solution="Active" />
         <Dependent type="26" schemaName="Active Contest Sources" displayName="Active Contest Sources" parentSchemaName="andy_contestsource" parentDisplayName="Contest Source" id="{35237ed5-0f2b-4646-9244-9f871bb1a375}" />
       </MissingDependency>
@@ -241,6 +263,14 @@
       <MissingDependency>
         <Required type="2" schemaName="statecode" displayName="Status" parentSchemaName="andy_prizeclaim" parentDisplayName="Prize Claim" solution="Active" />
         <Dependent type="26" schemaName="Active Prize Claims" displayName="Active Prize Claims" parentSchemaName="andy_prizeclaim" parentDisplayName="Prize Claim" id="{dbc66812-dff7-4950-843e-09135da5d852}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="statecode" displayName="Status" parentSchemaName="andy_prizes" parentDisplayName="Prizes" solution="Active" />
+        <Dependent type="26" schemaName="Inactive Prizes" displayName="Inactive Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" id="{8fc86ca1-ddec-4ea0-a2d3-ef51a40fc0c2}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="statecode" displayName="Status" parentSchemaName="andy_prizes" parentDisplayName="Prizes" solution="Active" />
+        <Dependent type="26" schemaName="Active Prizes" displayName="Active Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" id="{e67dc58d-7eac-4598-8ab8-0df85285c168}" />
       </MissingDependency>
       <MissingDependency>
         <Required type="26" schemaName="Active Contest Source Caps" displayName="Active Contest Source Caps" parentSchemaName="andy_contestsourcecap" parentDisplayName="Contest Source Cap" solution="Active" id="{fd5ed50c-dfe5-4f0a-90fe-0e3571fff7bb}" />
@@ -273,6 +303,10 @@
       <MissingDependency>
         <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)" />
         <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Copilot IoT Game Backend" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="connectionreference" displayName="new_sharedcommondataserviceforapps_489da" solution="Active" id.connectionreferencelogicalname="new_sharedcommondataserviceforapps_489da" />
+        <Dependent type="29" displayName="Prize Engine | Deactivate Prize" id="{9302fd6b-20c4-f111-aaad-000d3a9d6391}" />
       </MissingDependency>
       <MissingDependency>
         <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.20)" id.uniquename="AppChannel">

@@ -40,13 +40,13 @@ This checklist confirms that the label taxonomy and project board automation are
 - [x] `blocked` — Blocked by dependency (Red)
 
 ### Project Tracking
-- [x] `YOUR_PROJECT_LABEL` — Project board tracking (Blue)
+- [x] `project:copilot-iot-game` — Project board tracking (Blue)
 
 ## Issue Template Validation ✅
 
 - [x] "Tracked Work Item" template exists at `.github/ISSUE_TEMPLATE/tracked-work.md`
 - [x] Template includes all required labels (status, type, area, priority, blocked)
-- [x] Template auto-assigns `YOUR_PROJECT_LABEL` and `status:backlog` on creation
+- [x] Template auto-assigns `project:copilot-iot-game` and `status:backlog` on creation
 - [x] Template references `.github/PROJECT_BOARD_GUIDE.md` for workflow details
 
 ## Existing Issues Relabeling ✅
@@ -57,17 +57,17 @@ Onboarding issues updated to use the new taxonomy:
 
 | Issue | Title | New Labels Added |
 |-------|-------|-----------------|
-| #48 | Onboarding Epic | `YOUR_PROJECT_LABEL`, `type:epic`, `area:automation` |
-| #49 | Define guided setup UX | `YOUR_PROJECT_LABEL`, `type:task`, `area:automation` |
-| #50 | Build interactive bootstrap script | `YOUR_PROJECT_LABEL`, `type:task`, `area:automation` |
-| #51 | Implement prerequisite checks | `YOUR_PROJECT_LABEL`, `type:task`, `area:automation` |
-| #52 | Define secure config strategy | `YOUR_PROJECT_LABEL`, `type:task`, `area:automation` |
-| #53 | Add optional GitHub setup automation | `YOUR_PROJECT_LABEL`, `type:task`, `area:automation` |
-| #54 | Create quickstart docs | `YOUR_PROJECT_LABEL`, `type:docs`, `area:automation` |
-| #55 | Add validation and regression checks | `YOUR_PROJECT_LABEL`, `type:task`, `area:automation` |
-| #56 | Establish success metrics | `YOUR_PROJECT_LABEL`, `type:task`, `area:automation` |
-| #57 | Create label taxonomy (this issue) | `YOUR_PROJECT_LABEL`, `type:task`, `area:automation` |
-| #58 | Copilot/Claude onboarding guardrail | `YOUR_PROJECT_LABEL`, `type:feature`, `area:automation` |
+| #48 | Onboarding Epic | `project:copilot-iot-game`, `type:epic`, `area:automation` |
+| #49 | Define guided setup UX | `project:copilot-iot-game`, `type:task`, `area:automation` |
+| #50 | Build interactive bootstrap script | `project:copilot-iot-game`, `type:task`, `area:automation` |
+| #51 | Implement prerequisite checks | `project:copilot-iot-game`, `type:task`, `area:automation` |
+| #52 | Define secure config strategy | `project:copilot-iot-game`, `type:task`, `area:automation` |
+| #53 | Add optional GitHub setup automation | `project:copilot-iot-game`, `type:task`, `area:automation` |
+| #54 | Create quickstart docs | `project:copilot-iot-game`, `type:docs`, `area:automation` |
+| #55 | Add validation and regression checks | `project:copilot-iot-game`, `type:task`, `area:automation` |
+| #56 | Establish success metrics | `project:copilot-iot-game`, `type:task`, `area:automation` |
+| #57 | Create label taxonomy (this issue) | `project:copilot-iot-game`, `type:task`, `area:automation` |
+| #58 | Copilot/Claude onboarding guardrail | `project:copilot-iot-game`, `type:feature`, `area:automation` |
 
 ## Board Automation Testing ✅
 
@@ -77,7 +77,7 @@ Onboarding issues updated to use the new taxonomy:
 - [x] Creates and updates all labels in repository
 
 ### Workflow: `project-auto-add.yml`
-- [x] Issues with `YOUR_PROJECT_LABEL` are automatically added to project board
+- [x] Issues with `project:copilot-iot-game` are automatically added to project board
 - [x] New issues appear in "Backlog" column by default
 - [x] Status label normalized to `status:backlog` on board entry
 
@@ -87,7 +87,7 @@ Onboarding issues updated to use the new taxonomy:
 - [x] PR closed (unmerged) moves issue back to "In Progress"
 
 ### Workflow: `project-sync.yml`
-- [x] PR creation on issue without `YOUR_PROJECT_LABEL` auto-adds the label
+- [x] PR creation on issue without `project:copilot-iot-game` auto-adds the label
 - [x] Ensures no tracked work is accidentally excluded from board
 
 ## Documentation Alignment ✅
@@ -100,7 +100,7 @@ Onboarding issues updated to use the new taxonomy:
 
 ## Project Board Configuration
 
-**Project URL:** https://github.com/orgs/YOUR_ORG_NAME/projects/YOUR_PROJECT_NUMBER
+**Project URL:** GitHub Projects v2 board configured by repository variable `COPILOT_IOT_GAME_PROJECT_NUMBER`
 
 **Columns:**
 - Backlog
@@ -108,7 +108,7 @@ Onboarding issues updated to use the new taxonomy:
 - In Review
 - Done
 
-**Auto-populated by:** Issues with `YOUR_PROJECT_LABEL` label
+**Auto-populated by:** Issues with `project:copilot-iot-game` label
 
 ---
 

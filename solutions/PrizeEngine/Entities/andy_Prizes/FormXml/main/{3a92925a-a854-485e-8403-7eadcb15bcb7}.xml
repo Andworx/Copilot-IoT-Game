@@ -32,15 +32,15 @@
                         <labels>
                           <label description="Prize Info" languagecode="1033" />
                         </labels>
-                        <control id="andy_prizeinfo" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_prizeinfo" />
+                        <control id="andy_prizeinfo" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_prizeinfo" disabled="true" />
                       </cell>
                     </row>
                     <row>
-                      <cell id="{96c211b2-a942-424a-b1d7-e6a08093b078}">
+                      <cell id="{96c211b2-a942-424a-b1d7-e6a08093b078}" visible="false">
                         <labels>
                           <label description="Prize Winner" languagecode="1033" />
                         </labels>
-                        <control id="andy_prizewinner" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_prizewinner" />
+                        <control id="andy_prizewinner" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_prizewinner" disabled="true" />
                       </cell>
                     </row>
                     <row>
@@ -48,7 +48,7 @@
                         <labels>
                           <label description="Prize Taken" languagecode="1033" />
                         </labels>
-                        <control id="andy_prizetaken" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_prizetaken" disabled="false" />
+                        <control id="andy_prizetaken" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_prizetaken" disabled="true" />
                       </cell>
                     </row>
                     <row>
@@ -56,9 +56,33 @@
                         <labels>
                           <label description="Prize Type" languagecode="1033" />
                         </labels>
-                        <control id="andy_prizetype" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="andy_prizetype" disabled="false" />
+                        <control id="andy_prizetype" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="andy_prizetype" disabled="true" />
                       </cell>
                     </row>
+                    <row>
+                      <cell locklevel="0" id="{12e0ed95-9534-4437-a53d-dcf5419f07fd}" rowspan="4" colspan="1" auto="false" showlabel="false">
+                        <labels>
+                          <label description="New SG control 1791578220244" languagecode="1033" />
+                        </labels>
+                        <control indicationOfSubgrid="true" id="Subgrid_new_1" classid="{E7A81278-8635-4D9E-8D4D-59480B391C5B}">
+                          <parameters>
+                            <RecordsPerPage>4</RecordsPerPage>
+                            <AutoExpand>Fixed</AutoExpand>
+                            <EnableQuickFind>false</EnableQuickFind>
+                            <EnableViewPicker>false</EnableViewPicker>
+                            <EnableChartPicker>true</EnableChartPicker>
+                            <ChartGridMode>All</ChartGridMode>
+                            <RelationshipName>andy_andy_prizes_Prize_Instance_andy_prizeclaim</RelationshipName>
+                            <TargetEntityType>andy_prizeclaim</TargetEntityType>
+                            <ViewId>{dbc66812-dff7-4950-843e-09135da5d852}</ViewId>
+                            <ViewIds>{dbc66812-dff7-4950-843e-09135da5d852}</ViewIds>
+                          </parameters>
+                        </control>
+                      </cell>
+                    </row>
+                    <row />
+                    <row />
+                    <row />
                   </rows>
                 </section>
               </sections>

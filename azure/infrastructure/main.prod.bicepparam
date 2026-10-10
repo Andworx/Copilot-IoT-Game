@@ -16,17 +16,24 @@ param consumerGroups = [
 param signalRName = 'signalr-aw-iot-copilot'
 param signalRSkuName = 'Standard_S1'
 
-param gameFunctionPlanName = 'ASP-rgawazcomiotcopilot-ec55'
-param gameFunctionAppName = 'func-aw-azcom-iot-game'
+param gameFunctionPlanName = 'func-aw-iot-game-v2-plan'
+param gameFunctionAppName = 'func-aw-iot-game-v2'
 param gameFunctionAppTags = {
-  'hidden-link: /app-insights-resource-id': '/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/microsoft.insights/components/func-aw-azcom-iot-game'
+  'hidden-link: /app-insights-resource-id': '/subscriptions/9e8c862e-9bba-4363-a21b-c45cabe8b637/resourceGroups/rg-aw-azcom-iot-copilot/providers/microsoft.insights/components/func-aw-azcom-iot-game'
 }
-param gameStorageAccountName = 'stawazcomiotgamefn'
-param gameStoragePackageContainerName = 'app-package-funcawazcomiotgame-0968767'
-param gameStoragePackageContainerUrl = 'https://stawazcomiotgamefn.blob.core.windows.net/app-package-funcawazcomiotgame-0968767'
+param gameFunctionCorsOrigins = [
+  'http://localhost:5173'
+  'http://localhost:5174'
+  'https://andworxprizewheel.powerappsportals.com'
+  'https://copilotiotgame.powerappsportals.com'
+  'https://plinko.powerappsportals.com'
+  'https://dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatformusercontent.com'
+]
+param gameStorageAccountName = 'stawazcomiotgamev2'
+param gameStoragePackageContainerName = 'function-packages'
+param gameStoragePackageContainerUrl = 'https://stawazcomiotgamev2.blob.core.windows.net/function-packages'
 
 param gameAppInsightsName = 'func-aw-azcom-iot-game'
-param logAnalyticsWorkspaceResourceId = '/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/DefaultResourceGroup-EUS/providers/Microsoft.OperationalInsights/workspaces/DefaultWorkspace-2e291b4a-5f03-4dcd-bb56-09643c729adc-EUS'
 param gameFailureAnomaliesAlertName = 'Failure Anomalies - func-aw-azcom-iot-game'
 param smartDetectionActionGroupName = 'application insights smart detection'
 param smartDetectionActionGroupShortName = 'SmartDetect'
@@ -126,7 +133,7 @@ param vpnPublicIpZones = [
 param vpnPublicIpTags = {}
 param vpnGatewayName = 'iot-demo-vpn'
 param vpnGatewaySkuName = 'VpnGw1AZ'
-param vpnGatewayGeneration = 'Generation2'
+param vpnGatewayGeneration = 'Generation1'
 param vpnGatewaySubnetName = 'GatewaySubnet'
 param vpnGatewayTags = {}
 param vpnClientAddressPrefixes = [
@@ -148,28 +155,34 @@ param vpnClientRootCertificates = [
   }
 ]
 
-param signalRPrivateEndpointName = 'iot-demo-signalr-pe'
-param signalRPrivateEndpointNicName = 'iot-demo-signalr-pe-nic'
+param eventHubPrivateEndpointName = 'iot-migration-eventhub-pe'
+param eventHubPrivateEndpointNicName = 'iot-migration-eventhub-pe-nic'
+param eventHubPrivateDnsZoneGroupName = 'default'
+param eventHubPrivateDnsZoneConfigName = 'privatelink-servicebus-windows-net'
+param eventHubPrivateDnsZoneName = 'privatelink.servicebus.windows.net'
+
+param signalRPrivateEndpointName = 'iot-rebuild-signalr-pe'
+param signalRPrivateEndpointNicName = 'iot-rebuild-signalr-pe-nic'
 param privateEndpointSubnetName = 'private-endpoint'
 param signalRPrivateDnsZoneGroupName = 'default'
 param signalRPrivateDnsZoneConfigName = 'privatelink-service-signalr-net'
 param signalRPrivateDnsZoneName = 'privatelink.service.signalr.net'
 
-param gameFunctionPrivateEndpointName = 'iot-demo-game-function-pe'
-param gameFunctionPrivateEndpointNicName = 'iot-demo-game-function-pe-nic'
+param gameFunctionPrivateEndpointName = 'iot-game-v2-pe'
+param gameFunctionPrivateEndpointNicName = 'iot-game-v2-pe-nic'
 param gameFunctionPrivateDnsZoneGroupName = 'default'
 param gameFunctionPrivateDnsZoneConfigName = 'privatelink-azurewebsites-net'
 param gameFunctionPrivateDnsZoneName = 'privatelink.azurewebsites.net'
 
-param gameStorageBlobPrivateEndpointName = 'iot-demo-game-storage-blob-pe'
-param gameStorageBlobPrivateEndpointNicName = 'iot-demo-game-storage-blob-pe-nic'
+param gameStorageBlobPrivateEndpointName = 'iot-game-v2-storage-blob-pe'
+param gameStorageBlobPrivateEndpointNicName = 'iot-game-v2-storage-blob-pe-nic'
 param gameStorageBlobPrivateDnsZoneGroupName = 'default'
 param gameStorageBlobPrivateDnsZoneConfigName = 'privatelink-blob-core-windows-net'
 param gameStorageBlobPrivateDnsZoneName = 'privatelink.blob.core.windows.net'
 
 param iotHubName = 'iothub-aw-iot-copilot'
-param iotHubPrivateEndpointName = 'iot-demo-iothub-pe'
-param iotHubPrivateEndpointNicName = 'iot-demo-iothub-pe-nic'
+param iotHubPrivateEndpointName = 'iot-migration-iothub-pe'
+param iotHubPrivateEndpointNicName = 'iot-migration-iothub-pe-nic'
 param iotHubPrivateDnsZoneGroupName = 'default'
 param iotHubPrivateDnsZoneConfigNames = [
   {
@@ -185,3 +198,5 @@ param iotHubPrivateDnsZoneConfigNames = [
 // The deploy workflow assigns the Function App's managed identity, then exports its
 // principal ID here. Empty (the default, and what `what-if` runs use) skips the role assignment.
 param functionAppPrincipalId = readEnvironmentVariable('FUNCTION_APP_PRINCIPAL_ID', '')
+param eventHubSenderRoleAssignmentName = '0183f339-ea7f-4947-a18d-3829bade4962'
+param eventHubReceiverRoleAssignmentName = '5923c53b-17e7-4a15-b254-a62e1f48fa82'

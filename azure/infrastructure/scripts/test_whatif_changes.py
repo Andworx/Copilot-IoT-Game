@@ -54,6 +54,26 @@ class WhatIfChangeTests(unittest.TestCase):
         }
         self.assertTrue(delta_is_actionable(item, {"properties.ipConfigurations[0].type"}))
 
+    def test_unevaluated_reference_expression_is_not_actionable(self):
+        item = {
+            "path": "properties.principalId",
+            "propertyChangeType": "Modify",
+            "before": "02dd68e9-a5b3-4fae-b802-3618e9e7e5d1",
+            "after": "[reference('/subscriptions/x/providers/Microsoft.Devices/IotHubs/h', '2023-06-30', 'Full').identity.principalId]",
+            "children": [],
+        }
+        self.assertFalse(delta_is_actionable(item, set()))
+
+    def test_literal_principal_change_remains_actionable(self):
+        item = {
+            "path": "properties.principalId",
+            "propertyChangeType": "Modify",
+            "before": "02dd68e9-a5b3-4fae-b802-3618e9e7e5d1",
+            "after": "11111111-1111-1111-1111-111111111111",
+            "children": [],
+        }
+        self.assertTrue(delta_is_actionable(item, set()))
+
     def test_no_effect_is_not_actionable(self):
         change = {
             "changeType": "Modify",

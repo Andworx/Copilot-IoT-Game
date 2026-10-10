@@ -54,9 +54,17 @@
                     <row>
                       <cell id="{75d3eabf-264a-44ad-82d5-badf7112c26e}" locklevel="0" colspan="1" rowspan="1">
                         <labels>
-                          <label description="Win Text" languagecode="1033" />
+                          <label description="Win Text In Game Mode" languagecode="1033" />
                         </labels>
                         <control id="andy_wintext" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_wintext" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e50d55eb-1829-492d-a408-de8e5c29ff1d}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Win text in Non Game Mode" languagecode="1033" />
+                        </labels>
+                        <control id="andy_wintextinnongamemode" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_wintextinnongamemode" disabled="false" />
                       </cell>
                     </row>
                   </rows>

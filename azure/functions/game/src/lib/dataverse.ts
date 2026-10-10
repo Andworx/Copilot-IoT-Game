@@ -138,10 +138,13 @@ export interface DeviceProfileSummary {
   deviceSlug: string;
   isEnabled: boolean;
   winText: string | null;
+  winTextInNonGameMode: string | null;
 }
 
-async function queryDeviceProfiles(includeWinText: boolean): Promise<DeviceProfileSummary[]> {
-  const select = "andy_deviceprofileid,andy_name,andy_deviceslug,statecode" + (includeWinText ? ",andy_wintext" : "");
+async function queryDeviceProfiles(includeWinText: boolean, includeWinTextInNonGameMode: boolean): Promise<DeviceProfileSummary[]> {
+  const select = "andy_deviceprofileid,andy_name,andy_deviceslug,statecode" +
+    (includeWinText ? ",andy_wintext" : "") +
+    (includeWinTextInNonGameMode ? ",andy_wintextinnongamemode" : "");
   const response = await dataverseFetch(`andy_deviceprofiles?$select=${select}&$orderby=andy_name`);
   const body = (await response.json()) as {
     value: Array<{
@@ -150,6 +153,7 @@ async function queryDeviceProfiles(includeWinText: boolean): Promise<DeviceProfi
       andy_deviceslug: string;
       statecode: number;
       andy_wintext?: string | null;
+      andy_wintextinnongamemode?: string | null;
     }>;
   };
   return body.value.map((row) => ({
@@ -159,16 +163,20 @@ async function queryDeviceProfiles(includeWinText: boolean): Promise<DeviceProfi
     // Built-in Status: only Active (0) profiles are enabled.
     isEnabled: row.statecode === 0,
     winText: row.andy_wintext?.trim() || null,
+    winTextInNonGameMode: row.andy_wintextinnongamemode?.trim() || null,
   }));
 }
 
 /** Lists all andy_deviceprofile rows, for the control app's device picker. */
 export async function listDeviceProfiles(): Promise<DeviceProfileSummary[]> {
   try {
-    return await queryDeviceProfiles(true);
+    return await queryDeviceProfiles(true, true);
   } catch (error) {
+    if (error instanceof Error && error.message.includes("andy_wintextinnongamemode")) {
+      return queryDeviceProfiles(true, false);
+    }
     if (error instanceof Error && error.message.includes("andy_wintext")) {
-      return queryDeviceProfiles(false);
+      return queryDeviceProfiles(false, false);
     }
     throw error;
   }
@@ -310,6 +318,65 @@ export async function createGameWin(
   return { claimToken };
 }
 
+/**
+ * Mints an unclaimed Prize Claim for a game that has no IoT device (MCP Quest and similar).
+ * The claim is anchored to the active Contest Campaign and the named Contest Source, so
+ * `claim-prize` and the grand-prize drawing treat it exactly like an IoT or Plinko claim.
+ * The caller supplies the token so that a retry can reuse it.
+ */
+export async function createSourcedPrizeClaim(input: {
+  claimToken: string;
+  contestSourceKey: string;
+  name: string;
+  now?: Date;
+}): Promise<{ prizeClaimId: string; existed: boolean }> {
+  if (!isGuidLike(input.claimToken)) throw new Error("claimToken must be a GUID");
+  const sourceKey = normalizeContestSourceKey(input.contestSourceKey);
+  const [campaign, contestSource] = await Promise.all([fetchActiveContestCampaign(), fetchContestSourceByKey(sourceKey)]);
+  if (!contestSource) throw new Error(`No active Contest Source row found for source key "${sourceKey}"`);
+
+  const path = `${PRIZE_CLAIMS_SET}(andy_claim_token='${input.claimToken}')`;
+  const response = await dataverseFetchRaw(path, {
+    method: "PATCH",
+    headers: { "If-None-Match": "*" },
+    body: JSON.stringify(
+      buildPrizeClaimCreatePayload({
+        claimToken: input.claimToken,
+        deviceSlug: sourceKey,
+        name: input.name,
+        campaignId: campaign?.id,
+        contestSourceId: contestSource.id,
+        now: input.now,
+      })
+    ),
+  });
+  if (response.status === 412) {
+    const prizeClaimId = await getPrizeClaimIdByToken(input.claimToken);
+    if (prizeClaimId) return { prizeClaimId, existed: true };
+  } else if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Dataverse PATCH ${path} failed: ${response.status} ${body}`);
+  }
+  const prizeClaimId =
+    parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId")) ??
+    (await getPrizeClaimIdByToken(input.claimToken));
+  if (!prizeClaimId) throw new Error("Dataverse did not return the upserted Prize Claim id");
+  return { prizeClaimId, existed: response.status !== 201 };
+}
+
+async function getPrizeClaimIdByToken(claimToken: string): Promise<string | null> {
+  const response = await dataverseFetch(
+    `${PRIZE_CLAIMS_SET}?$select=andy_prizeclaimid&$filter=andy_claim_token eq '${claimToken}'&$top=1`
+  );
+  const body = (await response.json()) as { value: Array<{ andy_prizeclaimid: string }> };
+  return body.value[0]?.andy_prizeclaimid ?? null;
+}
+
+/** The active Contest Campaign id, if there is one. Used to scope a game's leaderboard. */
+export async function getActiveContestCampaignId(): Promise<string | null> {
+  return (await fetchActiveContestCampaign())?.id ?? null;
+}
+
 // Entity set names -- confirmed against solutions/CopilotIoTGame/Entities/andy_Prizes/
 // Entity.xml and .../andy_PrizeTypes/Entity.xml's <EntitySetName> after the Phase 5
 // export. Both logical names already end in "s", so Dataverse's naive "+s"
@@ -348,13 +415,15 @@ function normalizeContestSourceKey(sourceKey: string | undefined): string {
 export function buildPrizeClaimCreatePayload(input: {
   claimToken: string;
   deviceSlug: string;
+  /** Primary name of the claim. Defaults to the IoT form, `IoT <slug> <time>`. */
+  name?: string;
   campaignId?: string | null;
   contestSourceId?: string | null;
   now?: Date;
 }): Record<string, string | number> {
   const timestamp = (input.now ?? new Date()).toISOString();
   return {
-    andy_name: `IoT ${input.deviceSlug} ${timestamp}`,
+    andy_name: input.name ?? `IoT ${input.deviceSlug} ${timestamp}`,
     andy_claim_token: input.claimToken,
     andy_claim_status: PRIZE_CLAIM_STATUS_UNCLAIMED,
     andy_win_time: timestamp,
@@ -406,29 +475,6 @@ export async function listAllPrizeTypes(): Promise<Array<{ id: string; name: str
   return body.value.map((row) => ({ id: row.andy_prizetypesid, name: row.andy_prizetypename }));
 }
 
-/** Count of untaken andy_Prizes rows still available to be claimed -- for Game Box
- * Control's at-a-glance stock indicator. Uses $count=true with $top=1 rather than
- * fetching every row: Dataverse returns the total-matching-rows count in the
- * "@odata.count" annotation regardless of how many rows are actually returned, so
- * this stays cheap even once the prize pool grows into the hundreds. */
-export async function countAvailablePrizes(): Promise<number> {
-  const response = await dataverseFetch(
-    `${PRIZES_SET}?$select=andy_prizesid&$filter=andy_prizetaken eq false&$count=true&$top=1`
-  );
-  const body = (await response.json()) as { "@odata.count"?: number };
-  return body["@odata.count"] ?? 0;
-}
-
-/** Count of every andy_Prizes row regardless of taken status -- the total size of
- * the prize pool ever created, shown alongside countAvailablePrizes() on the Prize
- * Management screen so staff can see both "still up for grabs" and "created total"
- * at a glance. Same cheap $count=true/$top=1 pattern, no filter. */
-export async function countAllPrizes(): Promise<number> {
-  const response = await dataverseFetch(`${PRIZES_SET}?$select=andy_prizesid&$count=true&$top=1`);
-  const body = (await response.json()) as { "@odata.count"?: number };
-  return body["@odata.count"] ?? 0;
-}
-
 async function countPrizesForType(typeId: string, availableOnly: boolean): Promise<number> {
   const filters = [`_andy_prizetype_value eq ${typeId}`];
   if (availableOnly) filters.push("andy_prizetaken eq false");
@@ -454,6 +500,18 @@ export async function countPrizesByType(): Promise<
       return { typeId: type.id, typeName: type.name, total, available };
     })
   );
+}
+
+/** Overall Prize Management totals, summed from the per-type counts so they cover only
+ * active prize types -- inactive types stay out of both the breakdown and the totals. */
+export function summarizePrizeCounts(
+  byType: Array<{ typeId: string; typeName: string; total: number; available: number }>
+): { total: number; available: number; byType: typeof byType } {
+  return {
+    total: byType.reduce((sum, t) => sum + t.total, 0),
+    available: byType.reduce((sum, t) => sum + t.available, 0),
+    byType,
+  };
 }
 
 /** Creates `quantity` andy_Prizes instance rows bound to one andy_PrizeTypes row, for

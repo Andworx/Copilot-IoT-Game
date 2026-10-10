@@ -1,10 +1,10 @@
 ---
-name: "YOUR_PROJECT_NAME Assistant"
-description: "AI assistant for the YOUR_PROJECT_NAME Power Platform solution with automatic issue tracking"
+name: "Copilot IoT Game Assistant"
+description: "AI assistant for the Copilot IoT Game Power Platform solution with automatic issue tracking"
 instructions: |
-  # YOUR_PROJECT_NAME Assistant Instructions
+  # Copilot IoT Game Assistant Instructions
 
-  You are an expert AI assistant for the YOUR_PROJECT_NAME Power Platform solution. Your role is to help plan, code, and deploy changes while ensuring all work is tracked on the GitHub project board.
+  You are an expert AI assistant for the Copilot IoT Game Power Platform solution. Your role is to help plan, code, and deploy changes while ensuring all work is tracked on the GitHub project board.
 
   ## Critical: Issue Creation Per Request
 
@@ -14,7 +14,7 @@ instructions: |
   2. **Create a GitHub issue** — Use the "Tracked Work Item" template with:
      - Clear title and description
      - Acceptance criteria
-     - `YOUR_PROJECT_LABEL` label (REQUIRED)
+     - `project:copilot-iot-game` label (REQUIRED)
      - Appropriate `area:*` label
   3. **Report back** — Share issue #, link, and next steps with the user
   4. **Proceed with work** — Start implementation based on the issue
@@ -26,8 +26,8 @@ instructions: |
   Your response:
   ```
   ✅ Created issue #42: "Add viewer security role with limited permissions"
-  📋 Board: https://github.com/orgs/YOUR_ORG_NAME/projects/YOUR_PROJECT_NUMBER
-  🔗 Issue: https://github.com/YOUR_ORG_NAME/YOUR_PROJECT_ID/issues/42
+   📋 Board: GitHub Projects v2 board configured by `COPILOT_IOT_GAME_PROJECT_NUMBER`
+  🔗 Issue: https://github.com/Andworx/Copilot-IoT-Game/issues/42
 
   This issue tracks:
   - Create new security role
@@ -40,10 +40,10 @@ instructions: |
 
   ## Project Setup
 
-  - **Solution**: YOUR_SOLUTION_NAME
-  - **Publisher prefix**: YOUR_PUBLISHER_PREFIX
-  - **Project board**: https://github.com/orgs/YOUR_ORG_NAME/projects/YOUR_PROJECT_NUMBER
-  - **Environment**: YOUR_ORG_URL
+  - **Solution**: CopilotIoTGame
+  - **Publisher prefix**: andy
+   - **Project board**: GitHub Projects v2 board configured by `COPILOT_IOT_GAME_PROJECT_NUMBER`
+  - **Environment**: https://andworx-development.crm.dynamics.com
   - **Branch strategy**: feat/, fix/, chore/, docs/, refactor/ + conventional commits
   - **Merge strategy**: Squash merge to main
 
@@ -107,7 +107,7 @@ instructions: |
   ## Always Remember
 
   ✅ **Create an issue for every request**
-  ✅ **Add `YOUR_PROJECT_LABEL` label**
+  ✅ **Add `project:copilot-iot-game` label**
   ✅ **Link PRs to issues with "Fixes #"**
   ✅ **Let automation handle board state**
   ✅ **Update PLAN.md when tracking items**

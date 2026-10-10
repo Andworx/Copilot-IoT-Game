@@ -1,0 +1,15 @@
+{
+  "Name": "IoT Migration Move Validator",
+  "IsCustom": true,
+  "Description": "Validate ARM resource moves from the IoT source group without permission to execute moves or modify resources.",
+  "Actions": [
+    "Microsoft.Resources/subscriptions/resourceGroups/read",
+    "Microsoft.Resources/subscriptions/resourceGroups/validateMoveResources/action"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": [
+    "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot"
+  ]
+}
