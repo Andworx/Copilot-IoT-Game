@@ -26,18 +26,24 @@
 // colour parts loaded as parts of the same object. Neither needs supports.
 
 /* [Part] */
-part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test]
+part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck]
 
 /* [Bucket slot - board numbers 2026-09-30 (4 x 5 x 0.5 in); MEASURE] */
-slot_w = 101.6;         // gap between the two bucket dividers (X)
-slot_gap = 12.7;        // front acrylic to backboard (Y); see the echoed minimum
+slot_widths = [88.89, 80.21, 81.38, 79.38, 81.63, 86.54]; // measured 2026-10-10, buckets 1..6 left to right
+slot = 4;               // which bucket to build (1-6); 0 = use slot_w below
+slot_w = 79.38;         // gap between the two bucket dividers (X); used when slot = 0
+slot_gap = 48.85;       // front acrylic to backboard (Y), measured 2026-10-10
 side_clear = 0.4;       // clearance to each divider
 front_clear = 0.5;      // clearance to the acrylic
 face_h = 25.0;          // height of the top surface the puck rests on
 
-/* [Puck - 1.5 in diameter, lighter than an AA battery] */
-puck_d = 38.1;
-puck_t = 6.0;           // thickness - UNKNOWN, mockup only
+/* [Funnel - the top slopes into a central groove so a puck lands under the beam at any depth] */
+funnel_angle = 40;      // slope of the funnel faces from horizontal; must exceed the friction angle of PLA on the puck
+groove_w = 14.0;        // flat groove at the bottom, a bit wider than the puck is thick
+
+/* [Puck - measured 2026-10-10] */
+puck_d = 49.56;
+puck_t = 9.92;
 
 /* [Body] */
 end_block_w = 8.5;      // solid ends: magnets, heat-set inserts
@@ -56,9 +62,9 @@ ir_clear = 0.4;         // pocket clearance, total
 ir_lens_total = 10.86;  // rear of the housing to the lens tip
 lens_hole_d = 3.4;      // counterbore the lens sits in (3 mm lens + clearance)
 beam_h = 16.0;          // beam centre above the top surface; the wire end sits on the top surface
-ir_wall_out = 1.2;      // tower wall against the divider
+ir_wall_out = 1.0;      // tower wall against the divider
 tx_hole_d = 3.4;        // emitter window
-rx_aperture_len = 3.0;  // receiver aperture tube beyond the lens counterbore
+rx_aperture_len = 2.0;  // receiver aperture tube beyond the lens counterbore
 rx_aperture_d = 2.5;    // receiver aperture; smaller rejects more stray light
 ir_roof = 1.6;          // tower material above the pocket
 tower_slope_rise = 6.0; // tower top rises this much toward the divider so pucks roll off
@@ -104,7 +110,8 @@ include <logos/generated/logo_data.scad>;
 // ============================================================
 // DERIVED
 // ============================================================
-shell_w = slot_w - 2 * side_clear;
+slot_w_eff = slot > 0 ? slot_widths[slot - 1] : slot_w;
+shell_w = slot_w_eff - 2 * side_clear;
 shell_d = slot_gap - front_clear;
 z_top = face_h;
 body_y0 = cover_t + cover_gap;               // body front face (below the top surface)
@@ -120,8 +127,11 @@ rx_wall_in = lens_pocket + rx_aperture_len;  // receiver tower inner wall
 ir_pocket_x = ir_x + ir_clear;
 ir_pocket_h = ir_z + ir_clear;
 ir_pocket_w = ir_y + ir_clear;
-ir_pocket_y0 = shell_d - ir_pocket_w;        // pocket opens to the rear face
-beam_y = ir_pocket_y0 + ir_pocket_w / 2;     // assumes the lens hole is centred across the width
+beam_y = (body_y0 + shell_d) / 2;            // beam across the middle of the groove
+ir_pocket_y0 = beam_y - ir_pocket_w / 2;     // the pocket is a channel from here out the rear face
+groove_y0 = beam_y - groove_w / 2;
+groove_y1 = beam_y + groove_w / 2;
+funnel_rise = (groove_y0 - body_y0) * tan(funnel_angle);
 pocket_z0 = beam_z + ir_hole_from_end + ir_clear / 2 - ir_pocket_h;  // pocket floor (wire end)
 tower_in_h = beam_z + ir_hole_from_end + ir_clear / 2 + ir_roof;
 tower_out_h = tower_in_h + tower_slope_rise;
@@ -140,7 +150,8 @@ assert(slot_gap >= min_slot_gap - 0.001, str("Slot gap too small for the IR hous
 assert(ir_lip_h <= ir_z, "Lip taller than the housing");
 assert(tx_wall_in > ir_lip_out + 1.0, "Wall too thin in front of the lip");
 assert(rx_aperture_d < lens_hole_d, "Receiver aperture must be narrower than the lens counterbore");
-assert(ir_pocket_y0 >= 2.0 - 0.001, "IR pocket front wall too thin");
+assert(ir_pocket_y0 >= body_y0 + 2.0, "IR pocket front wall too thin");
+assert(puck_t + 2 <= groove_w, "Groove too narrow for the puck");
 assert(flat_w >= puck_d + 2, str("Towers leave only ", flat_w, " mm for the puck"));
 assert(pocket_z0 >= z_top - 0.01, str("Wire end of the housing sits ", z_top - pocket_z0, " mm below the top surface; raise beam_h"));
 assert(beam_h < puck_d - 8, "Beam too high to be blocked reliably by a resting puck");
@@ -206,11 +217,11 @@ module tower_profile(x_out, x_in) {
 module ir_pocket(inner, dir, wall_in, window_d) {
   x_in = inner - dir * wall_in;               // inner face of the pocket
   x0 = min(x_in, x_in - dir * ir_pocket_x);
-  translate([x0, ir_pocket_y0, pocket_z0]) cube([ir_pocket_x, ir_pocket_w + eps, ir_pocket_h]);
+  translate([x0, ir_pocket_y0, pocket_z0]) cube([ir_pocket_x, shell_d - ir_pocket_y0 + eps, ir_pocket_h]);
   // Lip relief: the lip stands ir_lip_out proud on the lens side, so the upper part of the pocket
   // reaches that much further toward the bucket, into the wall.
   x0u = min(x_in + dir * ir_lip_out, x_in - dir * ir_pocket_x);
-  translate([x0u, ir_pocket_y0, pocket_z0 + ir_pocket_h - ir_lip_h]) cube([ir_pocket_x + ir_lip_out, ir_pocket_w + eps, ir_lip_h]);
+  translate([x0u, ir_pocket_y0, pocket_z0 + ir_pocket_h - ir_lip_h]) cube([ir_pocket_x + ir_lip_out, shell_d - ir_pocket_y0 + eps, ir_lip_h]);
   // Aperture through the wall, then the wider counterbore that the protruding lens sits in.
   translate([min(inner, x_in) - eps, beam_y, beam_z]) rotate([0, 90, 0])
     cylinder(d = window_d, h = wall_in + 2 * eps, $fn = 24);
@@ -229,12 +240,22 @@ module raceway() {
   translate([ir_wall_out, race_y0, race_z0]) cube([shell_w - 2 * ir_wall_out, race_d + eps, race_w]);
 }
 
+// Two wedges between the towers, rising from the groove edges to the front and rear faces.
+module funnel() {
+  translate([tx_w - eps, 0, 0]) rotate([90, 0, 90]) linear_extrude(flat_w + 2 * eps) {
+    polygon([[body_y0, z_top - eps], [body_y0, z_top + funnel_rise], [groove_y0, z_top - eps]]);
+    polygon([[shell_d, z_top - eps], [shell_d, z_top + (shell_d - groove_y1) * tan(funnel_angle)], [groove_y1, z_top - eps]]);
+  }
+}
+
 module body() {
   difference() {
     union() {
       translate([0, body_y0, 0]) cube([shell_w, shell_d - body_y0, z_top]);
-      xz_extrude() tower_profile(0, tx_w);
-      xz_extrude() tower_profile(shell_w, shell_w - rx_w);
+      // Towers run only around the beam, from just in front of the pocket to the rear face.
+      xz_extrude(ir_pocket_y0 - 2, shell_d - ir_pocket_y0 + 2) tower_profile(0, tx_w);
+      xz_extrude(ir_pocket_y0 - 2, shell_d - ir_pocket_y0 + 2) tower_profile(shell_w, shell_w - rx_w);
+      funnel();
     }
 
     ir_pocket(tx_w, 1, tx_wall_in, tx_hole_d);
@@ -307,7 +328,7 @@ module magnet_mocks() {
 }
 
 module puck_mock(x = shell_w / 2) {
-  color("gold", 0.9) translate([x, (slot_gap - front_clear - puck_t) / 2, z_top + puck_d / 2])
+  color("gold", 0.9) translate([x, beam_y - puck_t / 2, z_top + puck_d / 2])
     rotate([-90, 0, 0]) cylinder(d = puck_d, h = puck_t);
 }
 
@@ -326,13 +347,27 @@ module cover_set(columns = 3) {
       cover_coloured(LOGOS[i][0]);
 }
 
+// Our own puck: smooth faces on a low raised ring (the original decal backing sticks), rounded edge, solid so it blocks IR.
+puck_print_d = 48.9;
+puck_print_t = 9.5;
+module puck() {
+  r = puck_print_d / 2;
+  edge = 1.6;
+  rotate_extrude($fn = 96) union() {
+    square([r - edge, puck_print_t]);
+    translate([0, edge]) square([r, puck_print_t - 2 * edge]);
+    translate([r - edge, edge]) circle(r = edge, $fn = 32);
+    translate([r - edge, puck_print_t - edge]) circle(r = edge, $fn = 32);
+  }
+}
+
 module print_flat_body() translate([0, 0, shell_d]) rotate([-90, 0, 0]) body();
 // Receiver end only (the harder fit: pocket, aperture tube, wire drop, raceway stub, M3 insert), for a quick test print.
 module fit_test() {
   translate([0, 0, shell_d]) rotate([-90, 0, 0])
     intersection() {
       body();
-      translate([shell_w - rx_w - 14, -1, race_z0 - 6]) cube([rx_w + 14 + 1, shell_d + 2, tower_out_h]);
+      translate([shell_w - rx_w - 14, ir_pocket_y0 - 3, race_z0 - 6]) cube([rx_w + 14 + 1, shell_d - ir_pocket_y0 + 4, tower_out_h]);
     }
 }
 // Cover base and colour layers share this transform so they load aligned in the slicer.
@@ -344,6 +379,7 @@ module print_flat_cover_colour(k) rotate([90, 0, 0]) cover_colour(k);
 // ============================================================
 if (part == "body") print_flat_body();
 else if (part == "fit_test") fit_test();
+else if (part == "puck") puck();
 else if (part == "cover") print_flat_cover();
 else if (part == "cover_colour") print_flat_cover_colour(logo_colour);
 else if (part == "cover_set") cover_set();

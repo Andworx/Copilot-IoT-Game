@@ -2,6 +2,7 @@ param(
     [string]$OpenScad = "C:\Program Files\OpenSCAD\openscad.com",
     [string[]]$Logos,             # default: every logo in logos/generated/logos.json
     [ValidateSet("inlay", "cutout")][string]$LogoStyle = "inlay",
+    [ValidateRange(1, 6)][int]$Slot = 4,   # bucket the covers and previews are built for (widths differ per bucket)
     [switch]$SkipCovers,
     [switch]$SkipSnapshot
 )
@@ -43,8 +44,13 @@ function Invoke-OpenScad([string[]]$Arguments, [switch]$ShowEcho, [switch]$Allow
     $Output | Where-Object { $_ -match $Pattern } | Sort-Object -Unique | Write-Host
 }
 
-Write-Host "== body"
-Invoke-OpenScad @("-o", (Join-Path $StlDir "body.stl"), "-D", "part=`"body`"", $Source) -ShowEcho
+# One body per bucket: the dividers are different distances apart (slot_widths in the SCAD).
+foreach ($SlotNumber in 1..6) {
+    Write-Host "== body slot $SlotNumber"
+    Invoke-OpenScad @("-o", (Join-Path $StlDir "body_slot$SlotNumber.stl"), "-D", "part=`"body`"", "-D", "slot=$SlotNumber", $Source) -ShowEcho
+}
+Write-Host "== puck"
+Invoke-OpenScad @("-o", (Join-Path $StlDir "puck.stl"), "-D", "part=`"puck`"", $Source)
 Write-Host "== fit test (receiver end only)"
 Invoke-OpenScad @("-o", (Join-Path $StlDir "fit_test.stl"), "-D", "part=`"fit_test`"", $Source)
 
@@ -53,12 +59,12 @@ Invoke-OpenScad @("-o", (Join-Path $StlDir "fit_test.stl"), "-D", "part=`"fit_te
 # to each; the file names carry the colour to match.
 if (-not $SkipCovers) {
     # Logo-free reference cover: validate_covers.py checks each set adds up to it.
-    Invoke-OpenScad @("-o", (Join-Path $CoverDir "_plain_cover.stl"), "-D", "part=`"cover`"", "-D", "logo=`"none`"", $Source)
+    Invoke-OpenScad @("-o", (Join-Path $CoverDir "_plain_cover.stl"), "-D", "part=`"cover`"", "-D", "logo=`"none`"", "-D", "slot=$Slot", $Source)
     foreach ($Logo in $LogoTable) {
         $Folder = Join-Path $CoverDir $Logo.name
         if (Test-Path $Folder) { Remove-Item -Recurse -Force $Folder }
         New-Item -ItemType Directory -Path $Folder | Out-Null
-        $Common = @("-D", "logo=`"$($Logo.name)`"", "-D", "logo_style=`"$LogoStyle`"")
+        $Common = @("-D", "logo=`"$($Logo.name)`"", "-D", "logo_style=`"$LogoStyle`"", "-D", "slot=$Slot")
         Write-Host "== cover $($Logo.name)"
         Invoke-OpenScad (@("-o", (Join-Path $Folder "$($Logo.name)_cover_base.stl"), "-D", "part=`"cover`"") + $Common + $Source)
         if ($LogoStyle -eq "inlay") {
@@ -78,7 +84,7 @@ if (-not $SkipCovers) {
 foreach ($View in $Previews) {
     $Size = if ($View.Size) { $View.Size } else { "1000,800" }
     $Arguments = @("-o", (Join-Path $PreviewDir "$($View.Part).png"), "-D", "part=`"$($View.Part)`"",
-        "--camera=$($View.Camera)", "--imgsize=$Size", "--colorscheme=Tomorrow")
+        "-D", "slot=$Slot", "--camera=$($View.Camera)", "--imgsize=$Size", "--colorscheme=Tomorrow")
     if ($View.Ortho) { $Arguments += "--projection=o" }
     if (-not $View.Ortho -or $View.Fit) { $Arguments += @("--autocenter", "--viewall") }
     Invoke-OpenScad ($Arguments + $Source)

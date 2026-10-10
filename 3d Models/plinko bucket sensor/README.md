@@ -4,11 +4,15 @@ Issue #128. One printed insert per Plinko bucket. It detects a puck resting in t
 bucket with an IR break beam. The insert has no LEDs: the chase lights run on the
 Plinko display page (Power Pages).
 
-**Board:** 24 × 48 in with 6 buckets, each 4 in wide, roughly 5 in tall, and 0.5 in from
-acrylic to backboard.
+**Board (measured 2026-10-10):** 6 buckets with dividers 88.89, 80.21, 81.38, 79.38, 81.63 and
+86.54 mm apart (left to right), 48.85 mm from acrylic to backboard, no pegs in the bucket zone
+(the last peg row is about 88 mm above the buckets; pegs are 51.2 mm, 44 of them).
 
-**Pucks:** 1.5 in in diameter and lighter than an AA battery. That is too light to
-reliably press a micro switch, so a beam detects the puck instead.
+**Pucks:** 49.56 mm diameter x 9.92 mm thick, falling face-on to the board. They can land anywhere
+in the 48.85 mm depth, so one flat beam would miss most of them. Each body therefore has a
+**funnel**: the top slopes (40 degrees) down into a 14 mm groove at mid-depth, and the beam crosses
+the groove. A puck lands on a slope, slides into the groove and blocks the beam. The bodies are
+therefore full depth (48 mm), one per bucket width (`body_slotN.stl`).
 
 ```
    |<----------------- 4" bucket ----------------->|
@@ -21,7 +25,7 @@ reliably press a micro switch, so a beam detects the puck instead.
 
 | Part | Material | Notes |
 |---|---|---|
-| **Body** | PLA | Sits on the bucket floor. Two M3 screws from behind the backboard go into heat-set inserts in the rear face. Each end has a tower holding one Adafruit 2167 housing **standing upright** (emitter left, receiver right), pushed in from the rear. The tower tops slope so a puck landing on one rolls into the bucket. |
+| **Body** | PLA | Full depth (acrylic to backboard), one per bucket width. Sits on the bucket floor. Two M3 screws from behind the backboard go into heat-set inserts in the rear face. Each end has a tower holding one Adafruit 2167 housing **standing upright** (emitter left, receiver right), pushed in from the rear. The tower tops slope so a puck landing on one rolls into the bucket. |
 | **Cover** | PLA, multi-colour | Swappable, held by four pairs of 6 × 2 mm disc magnets and located by two pins. One cover per logo (below); the logo is a 0.6 mm colour inlay in the face. |
 
 - **Sensor fit (measured and test-printed 2026-10-08):** housing 7.96 (along the beam) x 9.80 x
@@ -124,3 +128,20 @@ The STLs are exported in print orientation:
   height so the 0.6 mm inlay is exactly 3 layers.
 
 Neither part needs supports.
+
+
+## Funnel, puck and per-bucket bodies
+
+| File | What |
+|---|---|
+| `exports/stl/body_slot1..6.stl` | Body per bucket (insert widths 88.1, 79.4, 80.6, 78.6, 80.8 and 85.7 mm). |
+| `exports/stl/puck.stl` | Our own puck: 48.9 x 9.5 mm, solid, rounded edge, smooth faces. No decal backing, which is what sticks on the pegs. |
+| `exports/stl/fit_test.stl` | Receiver end only, to check the housing fit (passed). |
+
+- Bucket 4 (79.38 mm) is the tightest: 51.9 mm of clear width between the towers for the 49.56 mm
+  puck, so about 1 mm each side. Do not go below 78 mm without slimming the towers further.
+- Covers and previews are built for one bucket at a time: `.\export_parts.ps1 -Slot 2` (default 4).
+  A cover is as wide as its bucket, so build covers per bucket once the logos are chosen.
+- Not yet tested on the board: whether pucks slide off the funnel faces at 40 degrees (lower
+  `funnel_angle` loses the slide, higher makes it taller), and whether the 2 mm receiver aperture
+  rejects enough reflected IR.
