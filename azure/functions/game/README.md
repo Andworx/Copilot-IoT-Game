@@ -35,6 +35,13 @@ The same artifact runs with `API_SURFACE=public` on the existing app and `API_SU
 | `/api/grand-prize/drawing-slices` | GET | staff Entra | Returns the active campaign, registered/checked-in counts, and weighted checked-in wheel slices for the staff display |
 | `/api/grand-prize/drawing-state` | GET | staff Entra | Returns the latest committed drawing state/result so a presentation screen can recover after reload or a missed SignalR event |
 | `/api/grand-prize/draw` | POST | staff Entra | Atomically selects one checked-in winner, writes the PrizeEngine result/audit record, and returns the committed result to staff |
+| `/api/mcpquest/start` | POST | anonymous | MCP Quest: creates a play and returns the session (no answer keys). See `docs/MCP_QUEST_ENGINE.md` |
+| `/api/mcpquest/call` | POST | anonymous (session token) | MCP Quest: one direct tool call, counted against the play |
+| `/api/mcpquest/hint` | POST | anonymous (session token) | MCP Quest: returns a hint and records the penalty |
+| `/api/mcpquest/choose` | POST | anonymous (session token) | MCP Quest: checks a Power Platform product choice |
+| `/api/mcpquest/test` | POST | anonymous (session token) | MCP Quest: runs a design against the case's scenarios |
+| `/api/mcpquest/submit` | POST | anonymous (session token) | MCP Quest: grades the play, records it, and mints a Prize Claim for source `mcpquest` when it passed |
+| `/api/mcpquest/leaderboard` | GET | anonymous | MCP Quest: top scores for a mission, scoped to the active campaign |
 | `iot-telemetry` | Event Hub trigger | â€” | Panel Pi telemetry â†’ SignalR `SendTelemetryUpdate` / `TriggerAgentHelp` (gamebox hub) + an `andy_iottelemetryevent` row |
 
 `/api/claim-prize` also performs the Contact and grand-prize entry flow for epic #121:
@@ -81,6 +88,7 @@ Required app setting for activity-based email delivery:
 | Setting | Purpose |
 |---|---|
 | `GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID` | Dataverse systemuser GUID for the sender mailbox used in Email activity parties. If omitted, the claim still succeeds and returns `emailActivity.status = not_configured`. |
+| `MCPQUEST_TOKEN_SECRET` | Random secret (32+ characters) that signs MCP Quest session tokens. Required on the public app; rotating it ends plays in progress. Optional overrides `MCPQUEST_PLAYS_SET`, `MCPQUEST_PRIZE_CLAIM_NAV` and `MCPQUEST_CAMPAIGN_NAV` are described in `docs/MCP_QUEST_ENGINE.md`. |
 | `PREFERENCE_TOKEN_SECRET` | Random secret (32+ characters) that signs preference-center links. Required on both the public and staff apps; rotating it revokes every outstanding link. |
 | `MARKETING_SENDER_ADDRESS` | Physical sender address printed on marketing content. If unset, the follow-up email is always the neutral thank-you. |
 | `FOLLOW_UP_MARKETING_HTML` | HTML block added to the follow-up email for contacts with a confirmed marketing opt-in. If unset, the follow-up is always the neutral thank-you. |
