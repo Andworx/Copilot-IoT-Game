@@ -175,25 +175,38 @@ Plinko and the hand-built MCP Quest. `claim-prize` is unchanged for the wheel an
 | 70-89 | mid | one fewer than the most |
 | 0-69 | base | one |
 
-"The most the campaign allows" is the campaign's `andy_maxentriespercontact`. With a cap of 1
-every tier is 1; with a cap of 2 the tiers are 2 / 1 / 1. A contact's existing entries count
-against the cap, so a repeat player can be capped below their tier.
+**Who owns what** (decided 2026-10-10). The game owns the rules; the engine only owns the
+maximum.
 
-**What has to change in the engine** (a shared-engine change, not MCP Quest-only):
+| | Owns |
+|---|---|
+| Game (`entryTier.ts`, judge) | The score, the tiers, and the math: it takes the engine's maximum and returns the entries this play is worth |
+| Engine | "The most allowed" (the campaign's `andy_maxentriespercontact`) and enforcing it. It knows nothing about scores or tiers, so it stays game-agnostic for other games |
 
-1. Today one claim creates exactly one Grand Prize Entry (`createGrandPrizeEntryForClaim`).
-   It must create N entries for a claim, still stopping at the per-contact cap, and still one
-   check-in code per contact.
-2. The claim must carry N. Add an entry-count column on Prize Claim (the engine doc currently
-   says MCP Quest never adds columns to Prize Claim; that rule needs an owner exception, or the
-   count lives on the play row and `claim-prize` reads it through the play).
-3. The campaign must have a cap set. If `andy_maxentriespercontact` is empty there is no
-   "most allowed"; require it for the active campaign (or add a separate per-game maximum).
-4. The score used is the server-side judged score, never anything the page sends.
-5. The existing pass-only claim minting and `passScore` do not apply to generated games.
+"The most allowed" is the campaign cap. With a cap of 1 every tier is 1; with a cap of 2 the
+tiers are 2 / 1 / 1. The cap is per contact across all plays and games: however many times
+someone plays, they can never hold more than the cap. That is how the engine already behaves
+(it counts the contact's existing entries and stops at the cap), so replays need no game logic.
+A repeat player's later plays simply top up to the cap and no further.
 
-Interpretation to confirm: the tiers are grand-prize **entries**, not different prize types.
-If you meant different Grand Prize types per tier, items 1-3 change to "claim carries a tier".
+**One gap to settle.** The game works out N entries at submit time, but entries are created
+later, when the player claims at the Prize Wheel, and today `claim-prize` always creates exactly
+one. Something has to carry N across without the game doing the engine's job. Options:
+
+| Option | Engine change | Notes |
+|---|---|---|
+| **A. Claim carries a requested entry count (recommended)** | One small, generic, optional input: "entries requested", default 1, clamped to the cap minus the contact's existing entries. No tier logic | Every other game keeps today's behaviour. Needs a column (or the play row, read through the Prize Claim link) to hold N |
+| B. Game reads the cap and writes extra entries itself after the claim | None | The Prize Wheel calls `claim-prize` directly, so the game never sees the claim; it would need to poll or hook a Dataverse event. Fragile |
+| C. One Prize Claim per entry | None | One QR and one wheel spin per claim, so the player would scan several times. Not workable |
+
+A is the smallest change that keeps the engine multi-game. If you want zero engine change,
+the realistic fallback is every player gets one entry and the tiers apply to something else
+(for example which instant prizes the wheel may pick), so say if you prefer that.
+
+Also needed either way: the campaign has `andy_maxentriespercontact` set, the judge scores out
+of 100, and the pass-only claim minting and `passScore` do not apply to generated games.
+
+Interpretation to confirm: tiers are grand-prize **entries**, not different prize types.
 
 ## MCP Station only
 
@@ -231,7 +244,7 @@ The visitor picks from MCP Station's public catalog (`GET https://www.mcpstation
 | 1. Spike | `generate` route calling Foundry for `it-ticketing` and one differently shaped catalog server; measure latency, cost, and how often the first output validates | ≥ 80% of first attempts validate (or after one repair), and the validation loop catches deliberately broken specs |
 | 2. Judge | GameSpec interpreter: build outcomes from the call log, evaluate predicates; generic tool-call-log runners replace the incident-specific `Outcome` for spec games | The hand-built cases re-expressed as GameSpecs score identically to today's judge |
 | 3. Storage and start | Spec blob store, `specId` on the play row, `start { specId }`, cache by `toolsHash` | A play survives a Function restart; a repeat pick is a cache hit |
-| 3b. Engine tiers | `entryTier.ts` ✅ (tested). Multi-entry claims in `claim-prize`, entry count on the claim, cap required on the campaign, 100-point scoring in the judge | A 95 play on a cap-5 campaign yields 5 entries and one wheel spin; a 75 yields 4; a 40 yields 1 |
+| 3b. Entries and scoring | `entryTier.ts` ✅ (tested, game-side). 100-point scoring in the judge; carry N to the claim (option A above, pending your call) | On a cap-5 campaign a 95 yields 5 entries and one wheel spin, a 75 yields 4, a 40 yields 1, and a contact never exceeds 5 across plays |
 | 4. Console UI | Catalog picker, cave build screen (see above) with staged progress, designers driven by spec | Walk-up flow works at 800×480 |
 | 5. Hardening | Rate limit, retention, deploy wiring, playtest | Docs updated; plan items to Verify, then Done after live checks |
 
@@ -240,14 +253,16 @@ The visitor picks from MCP Station's public catalog (`GET https://www.mcpstation
 | Question | Answer |
 |---|---|
 | Cloud | Commercial |
-| Prizes | From the game engine by score out of 100: 90-100 the most entries allowed, 70-89 one fewer, under 70 one entry; Prize Wheel via QR as in the other games |
+| Prizes | Game computes entries from a score out of 100 against the engine's maximum (engine only sets and enforces the max): 90-100 the most entries allowed, 70-89 one fewer, under 70 one entry; Prize Wheel via QR as in the other games |
 | MCP source | MCP Station only |
 | Catalog or any URL | MCP Station catalog slugs only |
 | Write tools | Safe: MCP Station writes are simulated |
 
 ## Open questions
 
-1. **Entries vs prize types.** Are the score tiers grand-prize entries (this plan) or different
+1. **Carrying N.** Accept the small generic engine input (option A), or no engine change and
+   one entry for everyone?
+2. **Entries vs prize types.** Are the score tiers grand-prize entries (this plan) or different
    Grand Prize types?
 2. **Campaign cap.** What is `andy_maxentriespercontact` for the event? It defines "the most
    allowed", and the tiers collapse at 1 or 2.
