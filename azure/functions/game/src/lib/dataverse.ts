@@ -372,6 +372,12 @@ async function getPrizeClaimIdByToken(claimToken: string): Promise<string | null
   return body.value[0]?.andy_prizeclaimid ?? null;
 }
 
+/** The active campaign's per-contact entry cap: "the most allowed" a game's tiers are measured against. */
+export async function getActiveCampaignMaxEntries(): Promise<number | null> {
+  const cap = (await fetchActiveContestCampaign())?.maxEntriesPerContact;
+  return typeof cap === "number" && cap > 0 ? cap : null;
+}
+
 /** The active Contest Campaign id, if there is one. Used to scope a game's leaderboard. */
 export async function getActiveContestCampaignId(): Promise<string | null> {
   return (await fetchActiveContestCampaign())?.id ?? null;

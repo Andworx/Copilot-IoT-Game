@@ -8,6 +8,7 @@ import {
   testDesign,
   type JudgeSession,
 } from "./judge";
+import { entriesForScore } from "./entryTier";
 import { MODES } from "./api/modes";
 import { randomHex, withSeed } from "./api/shuffle";
 import type { World } from "./api/world";
@@ -67,6 +68,8 @@ const TOP_N = 10;
 export interface PlayServiceDeps {
   store: PlayStore;
   claims: ClaimIssuer;
+  /** The campaign's per-contact entry cap: the most a play can earn. Defaults to 1 when unknown. */
+  maxEntries?: () => Promise<number>;
   /** Signs a session token for a play. */
   signToken(playId: string, expiresAt: number): string;
   /** Returns the play id for a valid token, or null. */
@@ -245,7 +248,7 @@ export function createPlayService(deps: PlayServiceDeps) {
       if (row.submitted) {
         const stored = parseResult(row);
         if (!stored) throw new PlayError("not_found", "The result for this play is unavailable.");
-        if (row.passed && row.claimToken && !row.claimIssued) await issueClaim(row);
+        if (row.claimToken && !row.claimIssued) await issueClaim(row);
         return stored;
       }
 
@@ -261,16 +264,20 @@ export function createPlayService(deps: PlayServiceDeps) {
       const durationSeconds = Math.min(session.modeTimeLimit, Math.max(1, elapsed));
       const { graded, reports } = await gradeObjectives(session, safeAnswers);
       const score = computeScore(session, graded, durationSeconds);
-      const claimToken = score.passed ? newClaimToken() : null;
+      // Every submitted play earns a Prize Claim; the score decides how many entries it is worth.
+      const claimToken = newClaimToken();
+      const award = entriesForScore(score.percent, await maxEntriesFor(deps));
 
       const result: SubmitResult = {
         score,
         cases: reports.length > 0 ? reports : undefined,
-        claimToken: claimToken ?? undefined,
+        claimToken,
+        entries: { tier: award.tier, awarded: award.entries },
       };
       await deps.store.complete(row.id, row.etag, {
         passed: score.passed,
         score: score.total,
+        entriesAwarded: award.entries,
         durationSeconds,
         callCount: score.callCount,
         hintsUsed: score.hintsUsed,
@@ -281,7 +288,7 @@ export function createPlayService(deps: PlayServiceDeps) {
         state: stateOf(session),
       });
 
-      if (claimToken) await issueClaim({ ...row, submitted: true, passed: true, claimToken, claimIssued: false });
+      await issueClaim({ ...row, submitted: true, passed: score.passed, claimToken, claimIssued: false });
       result.rank = await deps.store.rankOf(row.modeSlug, score.total, durationSeconds);
       return result;
     },
@@ -304,8 +311,18 @@ export function createPlayService(deps: PlayServiceDeps) {
       await deps.store.markClaimIssued(row.id, prizeClaimId);
     } catch (error) {
       console.error("MCP Quest could not issue the Prize Claim", error);
-      throw new PlayError("claim_unavailable", "You passed, but the prize could not be set up. Press submit again.");
+      throw new PlayError("claim_unavailable", "Your prize could not be set up. Press submit again.");
     }
+  }
+}
+
+async function maxEntriesFor(deps: PlayServiceDeps): Promise<number> {
+  try {
+    const max = await deps.maxEntries?.();
+    return typeof max === "number" && Number.isInteger(max) && max >= 1 ? max : 1;
+  } catch (error) {
+    console.error("MCP Quest could not read the campaign entry cap; awarding one entry", error);
+    return 1;
   }
 }
 

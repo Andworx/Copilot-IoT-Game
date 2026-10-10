@@ -163,6 +163,8 @@ export interface ScoreBreakdown {
   efficiencyPenalty: number;
   hintPenalty: number;
   total: number;
+  /** Score out of 100 (total as a share of the most this play could earn). Drives the entry tier. */
+  percent: number;
   passed: boolean;
   durationSeconds: number;
   callCount: number;
@@ -184,8 +186,10 @@ export interface CaseReport {
 export interface SubmitResult {
   score: ScoreBreakdown;
   cases?: CaseReport[];
-  /** Present only when the play passed; encoded into the prize QR. */
+  /** Encoded into the prize QR. Every submitted play gets one; the score sets the entries. */
   claimToken?: string;
+  /** Grand-prize entries this play earned, and the tier that set them. */
+  entries?: { tier: "top" | "mid" | "base"; awarded: number };
   rank?: number;
 }
 

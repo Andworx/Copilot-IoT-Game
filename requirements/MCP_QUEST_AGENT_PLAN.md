@@ -277,5 +277,5 @@ The visitor picks from MCP Station's public catalog (`GET https://www.mcpstation
    pre-generate specs for each MCP Station server before the event?
 4. **Judge reuse.** Re-express the 13 hand-built cases as GameSpecs (single judge) or keep two
    judges side by side?
-5. **Hand-built mode prizes.** Keep the existing pass-gated mint for the hand-built mode, or
-   move it to the same score tiers?
+5. **Hand-built mode prizes.** Decided and built 2026-10-10: the hand-built mode uses the same
+   score tiers (score scaled to 0-100, every submit earns a claim).

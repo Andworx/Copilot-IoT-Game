@@ -145,13 +145,21 @@ export function ResultScreen({
           </div>
         ) : null}
 
-        {score.passed ? (
+        {result.claimToken ? (
           <div className="claim">
             <div className="qr-card">
               {qrUrl ? <img src={qrUrl} alt="Scan to claim your instant prize" /> : <span>QR loading</span>}
             </div>
             <div>
               <h3>Claim your prize</h3>
+              {result.entries ? (
+                <p>
+                  <strong>
+                    {result.entries.awarded} grand prize {result.entries.awarded === 1 ? "entry" : "entries"}
+                  </strong>{" "}
+                  for a score of {score.percent} out of 100.
+                </p>
+              ) : null}
               <p>Scan the code with your phone to spin for your instant prize.</p>
               {isPreview ? (
                 <p className="preview-note">Test mode: this code is a placeholder and will not redeem.</p>

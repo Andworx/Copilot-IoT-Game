@@ -50,7 +50,7 @@ A play row has three jobs:
 |---|---|
 | **Session store** | `andy_seed`, `andy_snaphotversion`, `andy_statejson`, `andy_startedtime`, `andy_issubmitted` |
 | **Leaderboard** | `andy_nickname`, `andy_mission`, `andy_score`, `andy_durationseconds`, `andy_issubmitted`, `andy_campaign` |
-| **Audit / support** | `andy_resultjson`, `andy_toolcalls`, `andy_hintsused`, `andy_testruns`, `andy_station`, `andy_ispassed` |
+| **Audit / support** | `andy_resultjson`, `andy_entriesawarded`, `andy_toolcalls`, `andy_hintsused`, `andy_testruns`, `andy_station`, `andy_ispassed` |
 
 The row holds no contact data. A player's email only ever reaches the shared Contact through
 the existing `claim-prize` flow.
@@ -66,15 +66,16 @@ Player page ──start──► Function App ──creates play row (seed, empt
      │
      └─ submit ─► grade ─► mark row submitted (atomic, ETag)
                             │
-                            ├─ passed? mint claim token ─► Prize Claim (source mcpquest) ─► link to play
-                            └─ return score, per-case criteria, claim token
+                            ├─ score out of 100 + campaign cap ─► entries (90+ max, 70-89 one fewer, else 1)
+                            ├─ mint claim token (every submit) ─► Prize Claim (source mcpquest) ─► link to play
+                            └─ return score, entries, per-case criteria, claim token
 
 Phone ──?token=…──► Prize Wheel ──► claim-prize (existing, unchanged)
                                         └─► Contact, prize, Grand Prize Entry, email
 ```
 
-Everything after the claim token is the existing engine. `claim-prize` already reads the
-claim's Contest Source to pick the Source Cap, so no change is needed there.
+Everything after the claim token is the existing engine. `claim-prize` reads the claim's Contest Source to pick the Source Cap and now also reads
+`andy_entriesawarded` from the play row (see "Entries" below).
 
 ## 4. Server design
 
@@ -106,6 +107,16 @@ claim's Contest Source to pick the Source Cap, so no change is needed there.
 The Code Site imports the shared contract and, in non-live builds only, the judge from the
 Function App through the `@mcpquest` alias, so there is one source of truth.
 
+### Entries
+
+Every submitted play earns a Prize Claim. The score decides the grand-prize entries:
+`percent = round(total / most the play could earn * 100)`, then `entriesForScore(percent, cap)`
+(`src/mcpquest/entryTier.ts`): 90-100 the cap, 70-89 one fewer, under 70 one. The cap is the
+active campaign's `andy_maxentriespercontact` (1 if unset or unreadable). The result is stored
+as `andy_entriesawarded` on the play; `claim-prize` creates that many entries, never exceeding
+the cap across all of the contact's plays. `passed` is still recorded for display but no longer
+gates the prize. A blank submit earns one entry.
+
 ## 5. Routes
 
 All anonymous, on the **public** API surface. The session token is the only identity.
@@ -117,11 +128,11 @@ All anonymous, on the **public** API surface. The session token is the only iden
 | `/api/mcpquest/hint` | POST | `sessionToken, objectiveId` | `{ hint }` |
 | `/api/mcpquest/choose` | POST | `sessionToken, objectiveId, productId` | `ChooseResult` |
 | `/api/mcpquest/test` | POST | `sessionToken, objectiveId, design` | `TestReport` |
-| `/api/mcpquest/submit` | POST | `sessionToken, answers` | `SubmitResult` (claim token when passed) |
+| `/api/mcpquest/submit` | POST | `sessionToken, answers` | `SubmitResult` (claim token and entries for every submit) |
 | `/api/mcpquest/leaderboard` | GET | `?mode=` | `{ entries }` |
 
 Errors are `{ error, code }` with 400 `bad_request`, 401 `unauthorized`, 404 `not_found`,
-409 `time_up` / `already_submitted`, and 503 `claim_unavailable` (the play passed; submit again).
+409 `time_up` / `already_submitted`, and 503 `claim_unavailable` (the prize could not be set up; submit again).
 
 ## 6. Configuration
 
@@ -176,10 +187,10 @@ behaviour:
 - [ ] A play started from the site creates a row with `andy_issubmitted = false`.
 - [ ] Choosing the wrong tool lowers that case's tool points.
 - [ ] A flow test run reports each step and the simulated MCP write.
-- [ ] A passing play sets `andy_ispassed`, creates a Prize Claim with source `MCP Quest`, and
-      links it (`andy_isclaimissued = true`).
+- [ ] A submitted play (pass or not) creates a Prize Claim with source `MCP Quest`, links it
+      (`andy_isclaimissued = true`) and sets `andy_entriesawarded` (3 / 2 / 1 with a cap of 3).
 - [ ] The claim QR opens the Prize Wheel and `claim-prize` succeeds once, then refuses a repeat.
-- [ ] The claimed player appears as a Grand Prize Entry for the active campaign.
+- [ ] The claimed player gets `andy_entriesawarded` Grand Prize Entries (never more than the cap in total).
 - [ ] Submitting twice returns the same result and creates one claim.
 - [ ] The built Code Site bundle contains no case titles (`grep "Hand-sorted queue" dist/assets/*.js`).
 

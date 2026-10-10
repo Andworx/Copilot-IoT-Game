@@ -1,6 +1,6 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { registerHttp } from "../lib/apiSurface";
-import { getActiveContestCampaignId } from "../lib/dataverse";
+import { getActiveCampaignMaxEntries, getActiveContestCampaignId } from "../lib/dataverse";
 import { signPlayToken, verifyPlayToken } from "../lib/mcpquestToken";
 import { dataverseClaimIssuer, dataversePlayStore } from "../lib/mcpquestStore";
 import { PlayError, createPlayService, type PlayService } from "../mcpquest/service";
@@ -27,6 +27,7 @@ function playService(): PlayService {
     signToken: (playId, expiresAt) => signPlayToken({ playId, expiresAt }),
     verifyToken: (token, now) => verifyPlayToken(token, now),
     activeCampaignId: getActiveContestCampaignId,
+    maxEntries: async () => (await getActiveCampaignMaxEntries()) ?? 1,
   });
   return service;
 }
