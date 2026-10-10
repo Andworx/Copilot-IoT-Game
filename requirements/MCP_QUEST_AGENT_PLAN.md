@@ -261,7 +261,17 @@ needs the instructions and a structured-output model).
 (`IDENTITY_ENDPOINT`, audience `https://ai.azure.com`) or `FOUNDRY_ACCESS_TOKEN` for local runs.
 No keys. Error messages never include response bodies.
 
-**Not verified.** The build environment cannot reach Azure or Microsoft docs, so the request
+**Verified 2026-10-10 (owner, from a home IP allowed by the resource firewall):** endpoint
+`https://foundry-aw--ed-azcomm-eastus2.openai.azure.com/openai/v1`, model deployment `gpt-6-sol`,
+`POST <endpoint>/responses` with a bearer token for audience `https://cognitiveservices.azure.com`
+and strict `json_schema` output returned HTTP 200 in 1.5 s with valid JSON. Roles tried: Azure AI
+Administrator and Owner (control plane only, denied), Cognitive Services OpenAI Contributor
+(denied), **Foundry User** (needed for the data plane). The resource is network-restricted, so
+the Function App needs a private endpoint and DNS before it can call it (owner to add later).
+Still unverified: the full GameSpec schema in strict mode, and a real MCP Station read.
+Run `azure/functions/game/scripts/generate-spec.mjs <slug>` from an allowed machine to test both.
+
+**Earlier caveat (kept for the rest).** The build environment cannot reach Azure or Microsoft docs, so the request
 shape comes from search summaries of Microsoft's Foundry docs, not from a live call. Check on
 the first real run: the endpoint path and any required `api-version`, whether structured
 output is honoured when `agent_reference` is used (if not, use `model` mode), the exact token
