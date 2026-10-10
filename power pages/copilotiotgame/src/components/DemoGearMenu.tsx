@@ -63,7 +63,7 @@ export function DemoGearMenu({ currentSlug, azureConnected = false, iotConnected
           <button type="button" role="menuitem" className={currentSlug === "info" ? "is-current" : undefined} onClick={() => go("/kiosk/info")}>
             Info — Demo / How to Play
           </button>
-          <button type="button" role="menuitem" className={currentSlug === "solution" ? "is-current" : undefined} onClick={() => go("/kiosk/solution")}>
+          <button type="button" role="menuitem" className={currentSlug === "solution" ? "is-current" : undefined} onClick={() => go("/kiosk/info?view=advanced")}>
             Full solution diagram
           </button>
           {import.meta.env.DEV && DEVICE_ORDER.map((slug) => {

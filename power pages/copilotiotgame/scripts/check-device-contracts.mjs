@@ -123,9 +123,9 @@ const bundleModule = async entry => {
   const { outputFiles } = await esbuild.build({ entryPoints: [fileURLToPath(new URL(entry, import.meta.url))], bundle: true, write: false, format: "esm", target: "es2022", platform: "neutral" });
   return import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString("base64")}`);
 };
-const { MAP_NODES, MAP_LINKS } = await bundleModule("../src/data/systemMap.ts");
-const { STANDARD_WALKTHROUGH, linkKey } = await bundleModule("../src/data/walkthrough.ts");
-const datasets = [[STANDARD_WALKTHROUGH, MAP_NODES, MAP_LINKS]];
+const { MAP_NODES, MAP_LINKS, SOLUTION_NODES, SOLUTION_LINKS } = await bundleModule("../src/data/systemMap.ts");
+const { STANDARD_WALKTHROUGH, ADVANCED_WALKTHROUGH, linkKey } = await bundleModule("../src/data/walkthrough.ts");
+const datasets = [[STANDARD_WALKTHROUGH, MAP_NODES, MAP_LINKS], [ADVANCED_WALKTHROUGH, SOLUTION_NODES, SOLUTION_LINKS]];
 for (const [walkthrough, nodes, links] of datasets) {
   const nodeIds = new Set(nodes.map(n => n.id)), linkKeys = new Set(links.map(linkKey));
   assert.equal(linkKeys.size, links.length, `${walkthrough.id}: duplicate link keys`);
