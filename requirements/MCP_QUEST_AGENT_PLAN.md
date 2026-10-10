@@ -195,7 +195,7 @@ one. Something has to carry N across without the game doing the engine's job. Op
 
 | Option | Engine change | Notes |
 |---|---|---|
-| **A. Claim carries a requested entry count (recommended)** | One small, generic, optional input: "entries requested", default 1, clamped to the cap minus the contact's existing entries. No tier logic | Every other game keeps today's behaviour. Needs a column (or the play row, read through the Prize Claim link) to hold N |
+| **A. The game's win table holds N; the claim reads it (recommended)** | One small, generic hook in `claim-prize`: after resolving the claim, ask the claim's contest source for "entries requested" (default 1), clamped to the cap minus the contact's existing entries. No tier logic, no new Prize Claim column | Same pattern as IoT and Plinko: the game's own table (`andy_mcpquestplay`, already linked to Prize Claim) stores the result, here the entry count next to the score. Other games keep today's behaviour |
 | B. Game reads the cap and writes extra entries itself after the claim | None | The Prize Wheel calls `claim-prize` directly, so the game never sees the claim; it would need to poll or hook a Dataverse event. Fragile |
 | C. One Prize Claim per entry | None | One QR and one wheel spin per claim, so the player would scan several times. Not workable |
 
