@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{3bdcc3cb-c347-4e02-80fe-4356142bebe1}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{891CC33B-6647-4DA1-94CA-11E653BFC01D}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{88F7F230-FB5C-4F22-B84C-4A4C58EDAFFF}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{A68C6CCA-E81C-4E19-B287-A4BFCE4E7EE1}">
+                        <labels>
+                          <label description="" languagecode="1033" />
+                        </labels>
+                        <control id="andy_playname" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_PlayName" />
+                      </cell>
+                    </row>
+                    <row />
+                    <row>
+                      <cell id="{2e568d21-06f8-4aaf-9538-bea1a0c5022c}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Play Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_playname" classid="{4273EDBD-AC1D-40D3-9FB2-095C621B552D}" datafieldname="andy_playname" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{c6ceac15-bfa3-4c5c-b527-1f76f210b8b5}">
+                        <labels>
+                          <label description="Station" languagecode="1033" />
+                        </labels>
+                        <control id="andy_station" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_station" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{c997a519-561b-4995-a174-a6b172dc083b}">
+                        <labels>
+                          <label description="Mission" languagecode="1033" />
+                        </labels>
+                        <control id="andy_mission" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_mission" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{1f5276a6-c8ca-44fe-95e4-85c7ac8b4add}">
+                        <labels>
+                          <label description="Nick Name" languagecode="1033" />
+                        </labels>
+                        <control id="andy_nickname" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_nickname" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{f462412f-23a3-4b8f-855e-2cc999914f7b}">
+                        <labels>
+                          <label description="Seed" languagecode="1033" />
+                        </labels>
+                        <control id="andy_seed" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_seed" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{a0637e01-d9a6-43be-9abb-e803877d466e}">
+                        <labels>
+                          <label description="Snaphot Version" languagecode="1033" />
+                        </labels>
+                        <control id="andy_snaphotversion" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_snaphotversion" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b72f12b2-cccc-4c26-be81-63c164a39ed0}">
+                        <labels>
+                          <label description="Started Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_startedtime" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_startedtime" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{9a539bf5-b2c0-428e-8e3c-75ea51c42b01}">
+                        <labels>
+                          <label description="Submitted Time" languagecode="1033" />
+                        </labels>
+                        <control id="andy_submittedtime" classid="{5b773807-9fb2-42db-97c3-7a91eff8adff}" datafieldname="andy_submittedtime" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{26edc26e-3d33-45b6-ae4e-96bd5dfe667f}">
+                        <labels>
+                          <label description="Is Submitted" languagecode="1033" />
+                        </labels>
+                        <control id="andy_issubmitted" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_issubmitted" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{d3bc4a69-bc32-41ff-8e73-e9a92c1f29a3}">
+                        <labels>
+                          <label description="Is Passed" languagecode="1033" />
+                        </labels>
+                        <control id="andy_ispassed" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_ispassed" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{83ff2ed0-52b8-4885-ae00-6c4a4d227402}">
+                        <labels>
+                          <label description="Is Claim Issued" languagecode="1033" />
+                        </labels>
+                        <control id="andy_isclaimissued" classid="{67fac785-cd58-4f9f-abb3-4b7ddc6ed5ed}" datafieldname="andy_isclaimissued" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{3e373a82-06a4-44c3-aecd-cf4199271076}">
+                        <labels>
+                          <label description="Claim Token" languagecode="1033" />
+                        </labels>
+                        <control id="andy_claimtoken" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_claimtoken" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{4a7f839c-f045-4604-b0b8-5de49bc400e5}">
+                        <labels>
+                          <label description="Score" languagecode="1033" />
+                        </labels>
+                        <control id="andy_score" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_score" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{01b1b11c-15df-4acb-9a93-fe7b57e5df2a}">
+                        <labels>
+                          <label description="Duration (seconds)" languagecode="1033" />
+                        </labels>
+                        <control id="andy_durationseconds" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_durationseconds" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{aa21587c-168a-43c0-8a83-6e3158ff9002}">
+                        <labels>
+                          <label description="Tool Calls" languagecode="1033" />
+                        </labels>
+                        <control id="andy_toolcalls" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_toolcalls" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{84cad8f9-6a2c-44ef-8d7c-04a85d5354b1}">
+                        <labels>
+                          <label description="Hints Used" languagecode="1033" />
+                        </labels>
+                        <control id="andy_hintsused" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_hintsused" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{35a7a051-eb49-4949-aeab-57e58cb7047d}">
+                        <labels>
+                          <label description="Test Runs" languagecode="1033" />
+                        </labels>
+                        <control id="andy_testruns" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_testruns" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e686dd71-629e-430a-94b0-c3f2eac86406}">
+                        <labels>
+                          <label description="Prize Claim" languagecode="1033" />
+                        </labels>
+                        <control id="andy_prizeclaim" classid="{270bd3db-d9af-4782-9025-509e298dec0a}" datafieldname="andy_prizeclaim" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{c32e1d8d-6b73-41f3-ac0d-f42e2fd9a75c}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Result JSON" languagecode="1033" />
+                        </labels>
+                        <control id="andy_resultjson" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_resultjson" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{85881d54-aabe-429c-a039-e765b497aa91}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="State JSON" languagecode="1033" />
+                        </labels>
+                        <control id="andy_statejson" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_statejson" disabled="false" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{a5128cd3-2d3f-48a4-8ad8-485c9e3c57a0}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{4a38e2ac-e485-4024-971e-128bac148b71}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{93685dc8-05cc-47ec-9ab6-3ccf6a0a7660}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{2d40b6df-41a1-46de-b9e9-19b8b7f25f7e}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{81bcfb31-3e22-4995-b006-a3f9af298394}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{dc94f420-2be1-4033-a232-22cbc28af019}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{557ebdff-2192-412c-ae81-abc2ebc2adfc}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{81f6b6ff-8d3a-4924-a449-4944e5597e3d}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

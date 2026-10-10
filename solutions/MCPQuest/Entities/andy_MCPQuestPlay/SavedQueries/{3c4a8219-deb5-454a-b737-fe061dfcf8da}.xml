@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{3c4a8219-deb5-454a-b737-fe061dfcf8da}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="andy_playname" select="1" icon="1" preview="1">
+        <row name="result" id="andy_mcpquestplayid">
+          <cell name="andy_playname" width="300" />
+          <cell name="andy_station" width="150" />
+          <cell name="andy_mission" width="150" />
+          <cell name="andy_nickname" width="150" />
+          <cell name="andy_seed" width="150" />
+          <cell name="andy_snaphotversion" width="150" />
+          <cell name="andy_startedtime" width="150" />
+          <cell name="andy_submittedtime" width="150" />
+          <cell name="andy_issubmitted" width="150" />
+          <cell name="andy_ispassed" width="150" />
+          <cell name="andy_isclaimissued" width="150" />
+          <cell name="andy_claimtoken" width="150" />
+          <cell name="andy_score" width="150" />
+          <cell name="andy_durationseconds" width="150" />
+          <cell name="andy_toolcalls" width="150" />
+          <cell name="andy_hintsused" width="150" />
+          <cell name="andy_testruns" width="150" />
+          <cell name="andy_prizeclaim" width="150" />
+          <cell name="andy_campaign" width="150" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="andy_mcpquestplay">
+          <attribute name="andy_mcpquestplayid" />
+          <attribute name="andy_playname" />
+          <attribute name="createdon" />
+          <order attribute="andy_playname" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+          <attribute name="andy_station" />
+          <attribute name="andy_mission" />
+          <attribute name="andy_nickname" />
+          <attribute name="andy_seed" />
+          <attribute name="andy_snaphotversion" />
+          <attribute name="andy_startedtime" />
+          <attribute name="andy_submittedtime" />
+          <attribute name="andy_issubmitted" />
+          <attribute name="andy_ispassed" />
+          <attribute name="andy_isclaimissued" />
+          <attribute name="andy_claimtoken" />
+          <attribute name="andy_score" />
+          <attribute name="andy_durationseconds" />
+          <attribute name="andy_toolcalls" />
+          <attribute name="andy_hintsused" />
+          <attribute name="andy_testruns" />
+          <attribute name="andy_prizeclaim" />
+          <attribute name="andy_campaign" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Active MCP Quest Plays" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>
