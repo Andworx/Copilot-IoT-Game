@@ -279,6 +279,16 @@ What the live service taught us about strict structured output: every schema nod
 open-ended maps are not allowed. The wire schema therefore spells scenario inputs and argument
 matchers as key/value arrays and reference designs as JSON text, and `fromWireSpec` rebuilds
 the internal shape before `validateGameSpec`.
+**Second-server and repeat runs (same day).** Before hardening, 6 runs on `it-ticketing` and
+`freight-tracking` gave 3 first-call passes, 2 invalid-after-repair and 1 transient `az`
+token error. The failures were all strict-output side effects: both `equals` and `contains`
+filled on a report check (once with garbled filler text), a skipped reference, an empty hint.
+After changing report checks to `mode` + `value`, requiring the reference, and tightening
+the prompt: **6 of 6 passed on the first model call, 21-30 s each**, across `it-ticketing`,
+`freight-tracking` and `expense-reporting`, and most specs now include a report-style
+design-judged case. Sample is small and the same prompt tuned on the same servers, so treat
+the rate as promising, not measured.
+
 Still unverified: whether the reference designs actually pass and fail when run (needs the
 Phase 2 judge), variety across servers (only `it-ticketing` tried; both cases were run-judged,
 none were report/table/security), and a second MCP Station server.
