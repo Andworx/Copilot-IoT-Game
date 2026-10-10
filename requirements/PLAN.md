@@ -22,8 +22,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 2 | 1 | 0 | 3 |
-| MCP Quest (new game) | 0 | 8 | 4 | 0 | 12 |
-| Totals | 26 | 53 | 17 | 2 | 98 |
+| MCP Quest (new game) | 0 | 9 | 4 | 0 | 13 |
+| Totals | 26 | 54 | 17 | 2 | 99 |
 
 ## Dataverse
 
@@ -245,6 +245,7 @@ Design: [MCP_QUEST_PLAN.md](MCP_QUEST_PLAN.md). Single-player, player-called too
 | Mode #1 content: scenario, MCP server snapshot, question pool, rubric | Content | ⬜ TODO | Committed to the repo so the mode can be self-hosted if MCP Station is unavailable. First pass exists in the player page: "Fix it with Power Platform" (choose the tool, build in that product's designer, test against the live service desk; 13 authored cases over all six products and seven designers) and "Investigate the queue". All 13 cases were solved through the UI in a headless browser against the live MCP server. Browser-scored; still needs the server-side judge and a repo snapshot. |
 | Station device build and leaderboard display | Hardware / display | ⬜ TODO | Device choice and spectator-screen decision are open items in MCP_QUEST_PLAN.md. |
 | Agent-generated games: GameSpec schema and validator | Azure Functions | ⬜ Verify | `src/mcpquest/gamespec.ts` and `gamespecSchema.ts` with 18 tests. Declarative spec an agent returns; validated against the server's real tool list. Not wired to anything yet. Plan: [MCP_QUEST_AGENT_PLAN.md](MCP_QUEST_AGENT_PLAN.md). |
+| Agent-generated games: Foundry generator service and client | Azure Functions | ⬜ Verify | 2026-10-10: `src/mcpquest/generate/` reads an MCP Station server, asks Foundry for a strict-schema GameSpec, validates it against the real tool list with one repair attempt, caches by tool-list hash. 13 unit tests with fakes; no route, no blob store, and never run against live Foundry or MCP Station (the build environment cannot reach either). Owner steps: Foundry project and model, managed identity access, app settings. See MCP_QUEST_AGENT_PLAN.md "Foundry integration". |
 | Agent-generated games: score tiers and MCP Station allowlist | Azure Functions | ⬜ Verify | `entryTier.ts` (90-100 max entries, 70-89 one fewer, under 70 one) and `mcpstation.ts` (catalog slug to endpoint, rejects other hosts), 6 tests. Not wired into the engine yet. |
 | MCP Quest hand-built mode on the score tiers | Azure Functions + Code Site | ⬜ Verify | 2026-10-10: every submit now mints a Prize Claim and the score (out of 100) sets `andy_entriesawarded` with the campaign cap (3 today: 90-100 = 3, 70-89 = 2, under 70 = 1). Result screen shows the entries. 98 unit tests pass; not deployed. Remaining: deploy, then live check (play, scan QR, spin, confirm entries and cap across replays). A blank submit earns one entry, per the rule. |
 | Agent-generated games: `claim-prize` honours `andy_entriesawarded` (shared with Plinko) | Azure Functions | ⬜ Verify | Built 2026-10-10 in `lib/dataverse.ts`: the claim looks up the game play row (`andy_plinkoplaies`, `andy_mcpquestplaies`) by Prize Claim, creates that many Grand Prize Entries (default 1, clamped to the campaign cap minus the contact's existing entries, ceiling 25 with no cap), one check-in code and one email per claim. IoT is unchanged. 5 unit tests for the count logic. Column `andy_entriesawarded` created on the MCP Quest Play table (owner, 2026-10-10); campaign cap is 3. The hand-built MCP Quest now writes it (see the next row); `solutions/MCPQuest` carries a hand-added copy of the column until the owner re-exports. Remaining: live check with a Plinko play and an MCP Quest play. |

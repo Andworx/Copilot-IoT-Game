@@ -232,6 +232,58 @@ The visitor picks from MCP Station's public catalog (`GET https://www.mcpstation
 - Rate budget: 1000 requests/min is shared across all stations (spike). Generation reads a
   bounded number of records, and plays use the snapshot, so event load does not hit MCP Station.
 
+## Foundry integration (built, not yet run live)
+
+Code: `azure/functions/game/src/mcpquest/generate/` (`digest.ts`, `prompt.ts`, `foundry.ts`,
+`service.ts`), 13 tests with fakes. Nothing calls it from an HTTP route yet.
+
+**Design change: the generator is given the server's data, not an MCP tool.** The Function reads
+MCP Station itself (`digest.ts`: `initialize`, `tools/list`, and a few capped read-only samples
+from `https://www.mcpstation.io/mcp/<slug>` only) and puts the result in the prompt, fenced as
+untrusted data. The Foundry agent has no tools, so a hostile tool description cannot make it call
+anything. It also means the spec is validated against exactly the data the agent saw, and the
+same capture can become the play snapshot. A Foundry prompt agent can still be used (it only
+needs the instructions and a structured-output model).
+
+**Flow** (`generateGameSpec(slug)`):
+1. Reject anything that is not a plain MCP Station slug.
+2. Read the digest; hash the tool list; return the cached spec if one exists (no model call).
+3. Ask Foundry for JSON matching `GAME_SPEC_JSON_SCHEMA` (strict structured output).
+4. `validateGameSpec` against the real tools, bound to the tool-list hash, reference designs
+   required. On errors, one repair call with the validator's complaints; then fail with them.
+5. Optional `prove` step (Phase 2, the judge) runs the reference designs; until it exists specs
+   are stored with `validated: false` and cannot mint prizes.
+6. Store by `(slug, toolsHash)`.
+
+**Foundry client** (`foundry.ts`): `POST {projectEndpoint}/openai/v1/responses` with either
+`agent_reference` (a named prompt agent) or `model` + `instructions`, `text.format` =
+`json_schema` strict, `store: false`. Token from the Function App's managed identity
+(`IDENTITY_ENDPOINT`, audience `https://ai.azure.com`) or `FOUNDRY_ACCESS_TOKEN` for local runs.
+No keys. Error messages never include response bodies.
+
+**Not verified.** The build environment cannot reach Azure or Microsoft docs, so the request
+shape comes from search summaries of Microsoft's Foundry docs, not from a live call. Check on
+the first real run: the endpoint path and any required `api-version`, whether structured
+output is honoured when `agent_reference` is used (if not, use `model` mode), the exact token
+audience, and the role the managed identity needs.
+
+**Owner runbook** (commercial cloud):
+1. Create a Foundry project and deploy a model that supports structured outputs. Infra in this
+   repo is Bicep-only (see CLAUDE.md), so either add it to `azure/infrastructure/` through the
+   infra workflow or create it by hand and record it.
+2. Optional: create a prompt agent from `GENERATOR_INSTRUCTIONS` (`prompt.ts`).
+3. Grant the public Function App's managed identity access to the project (expected role:
+   Azure AI User; confirm in the portal).
+4. App settings on the public Function App: `FOUNDRY_PROJECT_ENDPOINT`
+   (`https://<resource>.services.ai.azure.com/api/projects/<project>`), and one of
+   `FOUNDRY_AGENT_NAME` or `FOUNDRY_MODEL`.
+5. Network: the Function App must reach `www.mcpstation.io` and the Foundry endpoint. The infra
+   uses private networking, so check egress rules.
+
+**Still to build for Phase 1:** a blob-backed `SpecStore`; the `/api/mcpquest/generate` route
+(slug from the catalog only, with a per-IP and global rate limit before it is exposed, since it
+costs money); the live spike against two MCP Station servers.
+
 ## Security and abuse
 
 | Risk | Control |
@@ -248,7 +300,7 @@ The visitor picks from MCP Station's public catalog (`GET https://www.mcpstation
 | Phase | Deliverable | Exit test |
 |---|---|---|
 | 0. Schema ✅ | `gamespec.ts`, `gamespecSchema.ts`, 18 tests | Validator rejects bad specs, accepts a realistic one |
-| 1. Spike | `generate` route calling Foundry for `it-ticketing` and one differently shaped catalog server; measure latency, cost, and how often the first output validates | ≥ 80% of first attempts validate (or after one repair), and the validation loop catches deliberately broken specs |
+| 1. Spike | Generator service and Foundry client ✅ (tests with fakes). Remaining: blob spec store, `generate` route, live run. `generate` route calling Foundry for `it-ticketing` and one differently shaped catalog server; measure latency, cost, and how often the first output validates | ≥ 80% of first attempts validate (or after one repair), and the validation loop catches deliberately broken specs |
 | 2. Judge | GameSpec interpreter: build outcomes from the call log, evaluate predicates; generic tool-call-log runners replace the incident-specific `Outcome` for spec games | The hand-built cases re-expressed as GameSpecs score identically to today's judge |
 | 3. Storage and start | Spec blob store, `specId` on the play row, `start { specId }`, cache by `toolsHash` | A play survives a Function restart; a repeat pick is a cache hit |
 | 3b. Entries and scoring | `entryTier.ts` ✅ (tested, game-side). 100-point scoring in the judge; carry N to the claim (option A above, pending your call) | On a cap-5 campaign a 95 yields 5 entries and one wheel spin, a 75 yields 4, a 40 yields 1, and a contact never exceeds 5 across plays |
