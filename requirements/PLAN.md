@@ -22,8 +22,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 2 | 1 | 0 | 3 |
-| MCP Quest (new game) | 0 | 4 | 3 | 0 | 7 |
-| Totals | 26 | 49 | 16 | 2 | 93 |
+| MCP Quest (new game) | 0 | 5 | 4 | 0 | 9 |
+| Totals | 26 | 50 | 17 | 2 | 95 |
 
 ## Dataverse
 
@@ -244,3 +244,5 @@ Design: [MCP_QUEST_PLAN.md](MCP_QUEST_PLAN.md). Single-player, player-called too
 | Player page Code Site (own device, `?station=<slug>`) | Power Pages Code Site | ⬜ Verify | UI built in `power pages/mcpquest/`; all 13 cases solved through the UI in a headless browser against the live MCP server. 2026-10-09: manually uploaded to Development as website `4fb95e05-e635-4f0c-a0e3-4065f5dfb72a` ("MCP Quest"), not yet activated. Remaining: activate and check the live site (CSP for the MCP origin, MCP connected vs offline fallback), `POWER_MCPQUEST_WEBSITE_ID`, deploy-apps wiring and a PAC_COMMANDS.md section, then the Function routes so it is prize-eligible. |
 | Mode #1 content: scenario, MCP server snapshot, question pool, rubric | Content | ⬜ TODO | Committed to the repo so the mode can be self-hosted if MCP Station is unavailable. First pass exists in the player page: "Fix it with Power Platform" (choose the tool, build in that product's designer, test against the live service desk; 13 authored cases over all six products and seven designers) and "Investigate the queue". All 13 cases were solved through the UI in a headless browser against the live MCP server. Browser-scored; still needs the server-side judge and a repo snapshot. |
 | Station device build and leaderboard display | Hardware / display | ⬜ TODO | Device choice and spectator-screen decision are open items in MCP_QUEST_PLAN.md. |
+| Agent-generated games: GameSpec schema and validator | Azure Functions | ⬜ Verify | `src/mcpquest/gamespec.ts` and `gamespecSchema.ts` with 18 tests (84 passing in the app). Declarative spec an agent returns; validated against the server's real tool list. Not wired to anything yet. Plan: [MCP_QUEST_AGENT_PLAN.md](MCP_QUEST_AGENT_PLAN.md). |
+| Agent-generated games: Foundry `generate` route, spec interpreter in the judge, spec store, console picker | Azure Functions + Code Site + Foundry | ⬜ TODO | Phases 1-5 of MCP_QUEST_AGENT_PLAN.md. Phase 1 is a spike against two catalog servers; open questions there (cloud availability, prize eligibility, latency, catalog vs any URL). |
