@@ -29,7 +29,8 @@ power pages/
 └── prize wheel/            # standalone phone-facing spin Code Site — deployed via deploy-apps.yml
     ├── powerpages.config.json
     └── src/
-└── plinko/                 # Plinko board display Code Site — deployed via deploy-apps.yml
+├── plinko/                 # Plinko board display Code Site — deployed via deploy-apps.yml
+└── mcpquest/               # MCP Quest player Code Site — deployed via deploy-apps.yml
   ├── powerpages.config.json
   └── src/
 ```
