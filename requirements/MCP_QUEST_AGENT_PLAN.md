@@ -201,8 +201,9 @@ one. Something has to carry N across without the game doing the engine's job. Op
 
 Plinko already works this way on paper: `PLINKO_GAME_PLAN.md` gives Plinko Play an
 `andy_entriesawarded` column and says `claim-prize` should create that many entries, each checked
-against the cap. That `claim-prize` change is **not implemented yet** (there is no Plinko code in
-the Function App), so it should be built once, generically, for any game's play table. MCP Quest
+against the cap. That `claim-prize` change is now **built generically** (2026-10-10, `lib/dataverse.ts`): it reads
+`andy_entriesawarded` from the claim's Plinko or MCP Quest play row, defaults to 1, and clamps to
+the cap. Not yet live-tested. MCP Quest
 adds the same column (`tables/andy_mcpquestplay/definition.json`, not yet deployed).
 
 A is the smallest change that keeps the engine multi-game. If you want zero engine change,
@@ -266,8 +267,7 @@ The visitor picks from MCP Station's public catalog (`GET https://www.mcpstation
 
 ## Open questions
 
-1. **Carrying N.** Accept the small generic engine input (option A), or no engine change and
-   one entry for everyone?
+1. **Carrying N.** Decided: option A, built.
 2. **Entries vs prize types.** Are the score tiers grand-prize entries (this plan) or different
    Grand Prize types?
 2. **Campaign cap.** What is `andy_maxentriespercontact` for the event? It defines "the most
