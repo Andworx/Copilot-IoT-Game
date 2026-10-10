@@ -11,6 +11,14 @@ isn't actually built yet, so this lives here instead, in this repo.
 
 ## API separation
 
+During parallel subscription migration, destination apps use `MIGRATION_STAGING=true`.
+HTTP route/auth boundaries remain unchanged, but neither `iot-telemetry` nor
+`consent-maintenance` is registered. This prevents a second Event Hub reader and duplicate
+email/retention work while the source apps stay active. Missing/false retains the normal
+behavior; any other value fails closed. Azure's per-function Disabled settings cannot be
+used for these hyphenated function names on Linux. Enable background registrations only
+as part of a reviewed consumer/timer cutover, not during staging.
+
 The same artifact runs with `API_SURFACE=public` on the existing app and `API_SURFACE=staff` on the new app. Staff-only routes are not registered on the public app. Every staff request, including shared read/test operations, passes Entra validation before its handler runs. Only the public app registers the telemetry trigger. See [manual setup and rollout](../../../docs/STAFF_API_SETUP.md). This source change is not yet a live cutover.
 
 ## Endpoints
@@ -27,6 +35,13 @@ The same artifact runs with `API_SURFACE=public` on the existing app and `API_SU
 | `/api/grand-prize/drawing-slices` | GET | staff Entra | Returns the active campaign, registered/checked-in counts, and weighted checked-in wheel slices for the staff display |
 | `/api/grand-prize/drawing-state` | GET | staff Entra | Returns the latest committed drawing state/result so a presentation screen can recover after reload or a missed SignalR event |
 | `/api/grand-prize/draw` | POST | staff Entra | Atomically selects one checked-in winner, writes the PrizeEngine result/audit record, and returns the committed result to staff |
+| `/api/mcpquest/start` | POST | anonymous | MCP Quest: creates a play and returns the session (no answer keys). See `docs/MCP_QUEST_ENGINE.md` |
+| `/api/mcpquest/call` | POST | anonymous (session token) | MCP Quest: one direct tool call, counted against the play |
+| `/api/mcpquest/hint` | POST | anonymous (session token) | MCP Quest: returns a hint and records the penalty |
+| `/api/mcpquest/choose` | POST | anonymous (session token) | MCP Quest: checks a Power Platform product choice |
+| `/api/mcpquest/test` | POST | anonymous (session token) | MCP Quest: runs a design against the case's scenarios |
+| `/api/mcpquest/submit` | POST | anonymous (session token) | MCP Quest: grades the play, records it, and mints a Prize Claim for source `mcpquest` when it passed |
+| `/api/mcpquest/leaderboard` | GET | anonymous | MCP Quest: top scores for a mission, scoped to the active campaign |
 | `iot-telemetry` | Event Hub trigger | â€” | Panel Pi telemetry â†’ SignalR `SendTelemetryUpdate` / `TriggerAgentHelp` (gamebox hub) + an `andy_iottelemetryevent` row |
 
 `/api/claim-prize` also performs the Contact and grand-prize entry flow for epic #121:
@@ -73,6 +88,7 @@ Required app setting for activity-based email delivery:
 | Setting | Purpose |
 |---|---|
 | `GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID` | Dataverse systemuser GUID for the sender mailbox used in Email activity parties. If omitted, the claim still succeeds and returns `emailActivity.status = not_configured`. |
+| `MCPQUEST_TOKEN_SECRET` | Random secret (32+ characters) that signs MCP Quest session tokens. Required on the public app; rotating it ends plays in progress. Optional overrides `MCPQUEST_PLAYS_SET`, `MCPQUEST_PRIZE_CLAIM_NAV` and `MCPQUEST_CAMPAIGN_NAV` are described in `docs/MCP_QUEST_ENGINE.md`. |
 | `PREFERENCE_TOKEN_SECRET` | Random secret (32+ characters) that signs preference-center links. Required on both the public and staff apps; rotating it revokes every outstanding link. |
 | `MARKETING_SENDER_ADDRESS` | Physical sender address printed on marketing content. If unset, the follow-up email is always the neutral thank-you. |
 | `FOLLOW_UP_MARKETING_HTML` | HTML block added to the follow-up email for contacts with a confirmed marketing opt-in. If unset, the follow-up is always the neutral thank-you. |
@@ -210,27 +226,27 @@ environment the write fails with a 404 that is logged as a warning and otherwise
    `andy_deviceprofile`.
 3. **Node.js 22** and the **Azure Functions Core Tools v4** (`npm i -g azure-functions-core-tools@4`) for local runs. Node 20 is refused at creation (EOL 2026-04-30); **Node 24 was tried first and didn't work** â€” the deployed app got stuck with "Runtime version: Error" in the portal and 503'd on every route, including Kudu itself, even after a restart. Node 22 (LTS) fixed it immediately. Worth retrying Node 24 in the future once it's had more time to bake on Linux Consumption specifically.
 
-### Deployed resources (updated 2026-09-10)
+### Destination resources (updated 2026-10-08)
 
-Runtime resources are consolidated into resource group `rg-aw-azcom-iot-copilot`
-(subscription "Microsoft Azure Sponsorship", `eastus`):
+The source resource group has been retired. Destination resources are in
+`rg-aw-azcom-iot-copilot` in subscription `9e8c862e-9bba-4363-a21b-c45cabe8b637`:
 
 | Resource | Name |
 |---|---|
-| Function App | `func-aw-azcom-iot-game` (`func-aw-azcom-iot-game.azurewebsites.net`) |
-| Storage account | `stawazcomiotgamefn` |
-| SignalR Service | `signalr-aw-iot-copilot` (Free_F1, Serverless, shared with the IoT Copilot environment â€” upgrade to Standard_S1 before the real booth event if concurrent connection or daily message volume approaches Free tier limits) |
+| Public Function App | `func-aw-iot-game-v2` (`func-aw-iot-game-v2.azurewebsites.net`) |
+| Staff Function App | `func-aw-iot-staff-v2` (`func-aw-iot-staff-v2.azurewebsites.net`) |
+| Function storage accounts | `stawazcomiotgamev2`, `stawazcomiotstaffv2` |
+| SignalR Service | `signalr-aw-iot-copilot` (Standard S1, Serverless, shared with the IoT Copilot environment) |
 | Entra app registration | `restore-and-spin-function`, App ID `8eb31f00-6f72-4663-8de9-e5290d2a2aa7`, tenant `7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8` â€” added as a Dataverse Application User (client secret was generated and set directly as the Function App's `DATAVERSE_CLIENT_SECRET` setting, not committed anywhere) |
 
-All 5 app settings (`DATAVERSE_URL`, `DATAVERSE_TENANT_ID`, `DATAVERSE_CLIENT_ID`,
-`DATAVERSE_CLIENT_SECRET`, `AzureSignalRConnectionString`) are set on the live Function App
-via `az functionapp config appsettings set`. Runtime is Node 22 on Flex Consumption â€” see
-the Node version note under Prerequisites before ever trying Node 24 again.
+The public app's protected Dataverse, SignalR, and Direct Line settings are preserved during
+infrastructure reconciliation. Both apps use Node 22 on Flex Consumption. The destination
+apps remain `MIGRATION_STAGING=true` until the coordinated GitHub Actions release activates
+the public telemetry trigger and staff maintenance timer. See the Node version note under
+Prerequisites before ever trying Node 24 again.
 
-**CORS:** `az functionapp cors add --allowed-origins <origin>` per origin that needs to call
-these endpoints from a browser (no wildcard). `http://localhost:5173` (the kiosk Code
-Site's dev server â€” `power pages/copilotiotgame`, formerly `restore-and-spin`) is allowed
-today; add the real production URL once that site is deployed.
+**CORS:** production kiosk, PrizeWheel, Plinko, local development, and Power Platform
+origins are declared in `main.prod.bicepparam`; no wildcard is used.
 
 **Confirmed working end to end (2026-09-08):** `GET /api/kiosk-state` returns real
 Dataverse data, and a live browser tab running the kiosk Code Site (`restore-and-spin` at
@@ -264,18 +280,12 @@ Other Power Platform components retain their existing PAC workflows.
 
 ## Deploying
 
-```bash
-npm run build
-func azure functionapp publish func-aw-azcom-iot-game --typescript
-```
-
-`--typescript` matters â€” without it, `func` can't determine the project language from a
-TS-only source tree and refuses to publish.
-
-Set the same app settings (`DATAVERSE_URL`, `DATAVERSE_TENANT_ID`, `DATAVERSE_CLIENT_ID`,
-`DATAVERSE_CLIENT_SECRET`, `AzureSignalRConnectionString`) on the deployed Function App
-(Azure Portal â†’ Configuration, or `func azure functionapp publish --publish-local-settings`)
-â€” `local.settings.json` only applies locally.
+GitHub Actions builds the shared package with Node 22 and deploys it to the destination
+public and staff apps using Flex Consumption package deployment. The public app's telemetry
+trigger and staff app's maintenance timer remain disabled until the coordinated release
+passes its staff-auth check and all frontend deployments; the final workflow job then enables
+the destination workers. Do not publish the package manually with Core Tools or include
+`local.settings.json` in a release.
 
 ## Structure
 

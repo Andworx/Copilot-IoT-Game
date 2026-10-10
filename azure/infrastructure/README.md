@@ -10,6 +10,121 @@ panel Pi â”€â–º IoT Hub â”€â–º route â”€â–º Event Hub
                                 iot-telemetry  iot-game
 ```
 
+## Destination VPN bootstrap
+
+Issue #259 adds `vpn-bootstrap.bicep` and the manual-only
+`bootstrap-destination-vpn.yml` workflow for the first migration stage in subscription
+`9e8c862e-9bba-4363-a21b-c45cabe8b637`. It creates only the destination VNet with four
+subnets, Standard zone-redundant public IP and VpnGw1AZ gateway. It reuses the reviewed
+modules and selected non-secret values from `network/baseline.json`; source resource
+IDs are never included in the compiled template.
+
+New VpnGw1AZ creation uses the documented Generation1 pairing. The source gateway
+reports Generation2 and is not changed. OpenVPN, certificate authentication, public
+root certificate, BGP and the address plan are preserved. Client private keys remain
+on the router and outside git.
+
+An IAM administrator must first create `rg-aw-azcom-iot-copilot` in `eastus` in the
+destination and grant the existing `id-gha-infra-deployer` identity Contributor on that
+group only. No existing GitHub deployment variable is retargeted. Run `preview` from
+`main`, inspect the result, then run `deploy` with confirmation
+`CREATE BILLABLE DESTINATION VPN` to acknowledge additional gateway charges.
+
+The workflow rejects modifications/deletions of existing destination network resources
+and any resource outside the exact bootstrap allowlist. It verifies gateway provisioning
+and reports the new public IP, SHA and run URL. The router stays on the source VPN until
+a real destination connection passes; identical-address source and destination VPNs
+must not be connected concurrently. DNS resolver, private DNS, private endpoints,
+workloads, source cleanup and future release retargeting are separate stages.
+
+See [the destination bootstrap runbook](../../docs/CI_CD.md#destination-vpn-bootstrap).
+
+## Remaining subscription migration
+
+Issue #261 added `dns-bootstrap.bicep` and the manual migration workflow. That workflow
+was retired on 2026-10-08 after the source resource group was deleted. Its historical
+DNS stage created five private DNS zones, destination VNet links, and the resolver
+inbound endpoint at `10.20.3.4`; current updates use the active `main.bicep` deployment.
+
+**Migration record only:** the manual migration workflow and its source-dependent Function
+rebuild templates have been removed. The remaining migration details below document
+completed actions and must not be used as deployment instructions.
+
+Its separate `validate-move` action builds a request from `service-move.json`, checks
+all 13 exact source candidates against live inventory and rejects destination name/type
+collisions. It calls only ARM `validateMoveResources`, not `moveResources`. The source
+private endpoints and Function VNet integration deliberately remain attached during this
+first validation so Azure reports the actual blockers before any outage is accepted.
+
+`roles/move-validator.json` grants only source resource-group read and move validation.
+An IAM administrator must create/assign it; the workflow never changes IAM.
+
+The separately acknowledged `detach-revalidate` action runs
+`scripts/Invoke-FunctionMovePreflight.ps1` for the two source Function Apps only. It
+checks all permissions and initial state before any detach, captures non-secret original
+subnet IDs, patches only `virtualNetworkSubnetId`, revalidates the same 13 candidates,
+and restores integrations in `finally` even when validation succeeds. An `always()`
+restore-only workflow step retries/verifies cleanup from the snapshot. Nine offline
+transaction/recovery scenarios run in credential-free CI. No app settings are read or
+rewritten, and no resource is moved/deleted by this action.
+
+The narrow `roles/function-network-preflight.json` role is assigned only on the two
+source apps. The public app already has Contributor; the staff app needs site-write
+permission before the action can start. The role grants site metadata read/write, not
+config/secret read, deletion, IAM or move execution. A site-write role can update other
+site properties; the reviewed script restricts its request body to the integration field.
+Actual service moves, private endpoint deletion, RBAC restoration, identity replacement,
+release retargeting and source retirement remain separate reviewed stages.
+
+The owner deferred physical VPN testing until the remaining infrastructure is migrated.
+This changes the order, not acceptance: VPN/private DNS and complete application/physical
+telemetry tests still precede router cutover and source retirement. See
+[remaining migration](../../docs/CI_CD.md#remaining-infrastructure-migration).
+
+## Destination Functions and app ownership
+
+The retired migration workflow created destination apps `func-aw-iot-game-v2` and
+`func-aw-iot-staff-v2`, dedicated storage/FC1 plans, and a destination SignalR private
+endpoint to the existing shared service. The source resource group was subsequently
+deleted by the owner. Current release ownership is split: `main.bicep` owns the public
+Function host, plan, storage, package container, CORS, private endpoints and receiver
+role; `staff-api.bicep` owns the staff host, plan, storage, package container, VNet
+integration and staff auth settings. The app workflow deploys the shared package to both.
+
+`MIGRATION_STAGING=true` omits telemetry/timer registrations from the staged artifact;
+the destination apps remain staged until the coordinated GitHub Actions release enables
+background work after the staff-auth check. `AZURE_MIGRATION_FREEZE=true` still suppresses
+normal releases until the deleted source-owned OIDC identities are replaced.
+
+The retired `validate-stateful` action validated the nine non-Web candidates, excluding
+the former app/plan resources. The stateful move completed; the owner later deleted the
+source resource group. IoT Hub/DPS enrollment/device state and Event Hubs checkpoints
+remain in the destination. Destination OIDC access must be recreated before releases resume. See
+[historical rebuild record](../../docs/CI_CD.md#historical-function-rebuild-and-cutover).
+
+## Historical stateful move record
+
+The retired `move-stateful` action ran `scripts/Move-StatefulResources.ps1` from GitHub main with the
+release freeze and exact acknowledgement `MOVE VALIDATED STATEFUL RESOURCES`. It moves
+only the nine non-Web entries in `service-move.json`, never the old apps/plans, network
+or deployment identities. Device/enrollment state and storage contents remain on the
+existing services; no service is recreated or deleted by this action.
+
+An administrator runs `scripts/Grant-StatefulMoveAccess.ps1` to grant the read/validate/
+move-only source role and destination RBAC administration conditioned to Event Hubs
+Sender/Receiver roles. `-WhatIf` previews the IAM handoff. The mover checks permissions,
+captures inventory/data assignments, proves temporary destination data-role grants,
+revalidates, moves once, verifies all nine destination IDs and restores scoped data
+roles for the existing readers/IoT Hub and staged public Function. Temporary broad
+data-role grants are removed only before a rejected move or after scoped restoration.
+An uncertain move retains access and writes a result journal instead of retrying or
+deleting anything. Six offline move/RBAC scenarios run in credential-free CI.
+
+`AZURE_MIGRATION_FREEZE=true` also freezes old infrastructure reconcile/apply/preview
+jobs during the move. This action does not activate the new Functions, replace GitHub
+identities, retarget clients, delete old private endpoints or retire the source group.
+Those dependencies must be resolved and verified after the stateful move.
+
 ## Staff API ownership exception
 
 The owner requested automatic creation of the new staff backend. `staff-api.bicep` and `staff-api.prod.json` are deployed by `deploy-apps.yml` through `scripts/Deploy-StaffApi.ps1`. They are the single owner for the staff app, plan, dedicated storage, package container, VNet integration and staff auth settings. They do not replay `main.bicep` or adopt the manually built network. The deployment script refuses to run if the staff app, plan or storage names are added to `main.prod.bicepparam` or the reference manifest, so the staff resources cannot quietly become co-owned by the portable infrastructure stack. The historical reference-only rows below describe the legacy app, not this staff app. See [wiring, IAM bootstrap and release stages](../../docs/STAFF_API_WIRING.md).
@@ -26,7 +141,10 @@ The owner requested automatic creation of the new staff backend. `staff-api.bice
 
 `main.bicep` owns the active game Application Insights component `func-aw-azcom-iot-game`, the local `application insights smart detection` action group, and the active `Failure Anomalies - func-aw-azcom-iot-game` Smart Detector alert.
 
-The Application Insights component stays connected to the existing default Log Analytics workspace in `DefaultResourceGroup-EUS`. That workspace is shared/default Azure platform state outside this resource group, so this repo references it by resource ID but does not deploy or modify it.
+The Application Insights component currently has `IngestionMode=Disabled`. Its former
+`DefaultResourceGroup-EUS` workspace reference disappeared with the source subscription;
+the destination Bicep no longer references or deploys that workspace. Re-enable ingestion
+only after a destination-owned workspace is selected and configured.
 
 There are currently no diagnostic settings, metric alerts, scheduled-query alerts or activity-log alerts in the `rg-aw-azcom-iot-copilot` target design. The retired `func-aw-iot-copilot` Application Insights component and its retired `Failure Anomalies - func-aw-iot-copilot` alert were deleted on 2026-10-04. The old demo resource group action group remains outside the deployable and reference target state.
 
@@ -91,7 +209,8 @@ azure/infrastructure/
 â””â”€â”€ scripts/
     â”œâ”€â”€ Invoke-ReferenceSnapshot.ps1     # -Mode Export | Check
     â”œâ”€â”€ Set-FunctionAppSettings.ps1
-    â””â”€â”€ Initialize-InfraIdentities.ps1   # one-time bootstrap, run by a human
+    â”œâ”€â”€ Initialize-DestinationDeploymentIdentities.ps1 # app + infra OIDC and role bootstrap
+    â””â”€â”€ Initialize-InfraIdentities.ps1   # lower-level infra identity helper
 ```
 
 ## Consumer groups
@@ -161,9 +280,15 @@ separately validated hardening step.
 
 ## One-time setup
 
-1. Run `scripts/Initialize-InfraIdentities.ps1` (try `-WhatIf` first) as someone with Owner
-   or User Access Administrator on the resource group. It creates two managed identities with
-   GitHub OIDC credentials:
+1. Run `scripts/Initialize-DestinationDeploymentIdentities.ps1 -WhatIf`, review the
+  plan, then rerun without `-WhatIf` as someone with Owner or User Access Administrator
+  on the destination resource group. It creates the production app identity, creates
+  the infra reader/deployer identities through `Initialize-InfraIdentities.ps1`, and
+  applies the staff provisioner role through `Initialize-StaffDeploymentAccess.ps1`.
+  It prints client IDs for `AZURE_CLIENT_ID`, `AZURE_INFRA_READER_CLIENT_ID`, and
+  `AZURE_INFRA_DEPLOYER_CLIENT_ID`; enter them manually in GitHub. It does not update
+  GitHub variables, clear the release freeze, or remove the unresolved old principal's
+  grants. It creates two infra managed identities with GitHub OIDC credentials:
    - `id-gha-infra-reader`: Reader only. It remains available for reference inspection while
      resources are moved from snapshots into Bicep. It cannot run ARM what-if because ARM checks
      that the caller could write each resource in the template.
@@ -179,8 +304,8 @@ separately validated hardening step.
 2. Create the GitHub environments `infra-readonly` (no protection) and `infra-deploy`
    (deployment branches: `main`; add a required reviewer if the plan supports it: the org's Free
    plan does not, see `docs/CI_CD.md`).
-3. Add the repository variables `AZURE_INFRA_READER_CLIENT_ID` and
-   `AZURE_INFRA_DEPLOYER_CLIENT_ID` (the script prints the values).
+3. Add the client ID variables printed by the script to repository/environment settings.
+  The workflow pins the destination subscription; do not restore `AZURE_SUBSCRIPTION_ID`.
 4. Merge an infrastructure change. Review the automatic reconciliation summary, approve it with
    the manual `deploy` action, then rerun `what-if` to confirm Azure matches Bicep.
 

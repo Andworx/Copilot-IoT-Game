@@ -32,12 +32,12 @@ param signalRSkuName string
 param gameFunctionPlanName string
 param gameFunctionAppName string
 param gameFunctionAppTags object = {}
+param gameFunctionCorsOrigins array
 param gameStorageAccountName string
 param gameStoragePackageContainerName string
 param gameStoragePackageContainerUrl string
 
 param gameAppInsightsName string
-param logAnalyticsWorkspaceResourceId string
 param gameFailureAnomaliesAlertName string
 param smartDetectionActionGroupName string
 param smartDetectionActionGroupShortName string
@@ -104,8 +104,26 @@ param iotHubPrivateDnsZoneConfigNames array
 @description('Principal ID of the game Function App system-assigned identity. Empty until `az functionapp identity assign` has run (the workflow does this); the role assignment is skipped while empty.')
 param functionAppPrincipalId string = ''
 
+@description('Preserved Event Hubs Data Sender assignment name after a resource move. Empty uses the deterministic default.')
+param eventHubSenderRoleAssignmentName string = ''
+
+@description('Preserved Event Hubs Data Receiver assignment name after a resource move. Empty uses the deterministic default.')
+param eventHubReceiverRoleAssignmentName string = ''
+
 resource iotHub 'Microsoft.Devices/IotHubs@2023-06-30' existing = {
   name: iotHubName
+}
+
+resource currentGameAppSettings 'Microsoft.Web/sites/config@2024-04-01' existing = {
+  name: '${gameFunctionAppName}/appsettings'
+}
+
+var existingGameAppSettings = currentGameAppSettings.list().properties
+var gameFunctionResourceTags = {
+  application: 'CopilotIoTGame'
+  purpose: 'subscription-migration'
+  component: 'parallel-function-rebuild'
+  'managed-by': 'bicep'
 }
 
 module eventHub 'modules/eventhub.bicep' = {
@@ -143,7 +161,10 @@ module gameFunctionHosting 'modules/game-function-hosting.bicep' = {
     packageContainerName: gameStoragePackageContainerName
     packageContainerUrl: gameStoragePackageContainerUrl
     functionAppName: gameFunctionAppName
+    resourceTags: gameFunctionResourceTags
     functionAppTags: gameFunctionAppTags
+    corsOrigins: gameFunctionCorsOrigins
+    existingSettings: existingGameAppSettings
     integrationSubnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, 'function-integration')
   }
   dependsOn: [vnet]
@@ -154,7 +175,6 @@ module gameAppInsights 'modules/app-insights.bicep' = {
   params: {
     name: gameAppInsightsName
     location: location
-    workspaceResourceId: logAnalyticsWorkspaceResourceId
     tags: tags
   }
 }
@@ -323,6 +343,7 @@ module receiver 'modules/eventhub-receiver.bicep' = if (!empty(functionAppPrinci
     namespaceName: eventHubNamespaceName
     eventHubName: eventHubName
     principalId: functionAppPrincipalId
+    roleAssignmentName: eventHubReceiverRoleAssignmentName
   }
 }
 
@@ -332,6 +353,7 @@ module sender 'modules/eventhub-sender.bicep' = {
   params: {
     namespaceName: eventHubNamespaceName
     principalId: iotHub.identity.principalId
+    roleAssignmentName: eventHubSenderRoleAssignmentName
   }
 }
 

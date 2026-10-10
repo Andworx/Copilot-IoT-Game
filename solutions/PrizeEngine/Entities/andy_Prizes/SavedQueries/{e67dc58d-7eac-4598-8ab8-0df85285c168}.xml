@@ -11,8 +11,6 @@
       <grid name="resultset" jump="andy_prizename" select="1" icon="1" preview="1">
         <row name="result" id="andy_prizesid">
           <cell name="andy_prizename" width="226" />
-          <cell name="andy_prizetype" width="183" />
-          <cell name="andy_prizeinfo" width="215" />
         </row>
       </grid>
     </layoutxml>
@@ -27,8 +25,6 @@
           <filter type="and">
             <condition attribute="statecode" operator="eq" value="0" />
           </filter>
-          <attribute name="andy_prizeinfo" />
-          <attribute name="andy_prizetype" />
         </entity>
       </fetch>
     </fetchxml>

@@ -14,6 +14,8 @@ on:
       - '!power pages/prize wheel/.powerpages-site/**'
       - 'power pages/plinko/**'
       - '!power pages/plinko/.powerpages-site/**'
+      - 'power pages/mcpquest/**'
+      - '!power pages/mcpquest/.powerpages-site/**'
       - '.github/workflows/deploy-apps.yml'
       - 'azure/infrastructure/staff-api.bicep'
       - 'azure/infrastructure/modules/staff-resources.bicep'
@@ -109,7 +111,7 @@ jobs:
       - name: Build
         working-directory: power pages/copilotiotgame
         env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
+          VITE_API_BASE_URL: https://func-aw-iot-game-v2.azurewebsites.net
         run: |
           npm ci
           npm run build
@@ -137,7 +139,7 @@ jobs:
       - name: Build
         working-directory: power pages/prize wheel
         env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
+          VITE_API_BASE_URL: https://func-aw-iot-game-v2.azurewebsites.net
           VITE_SOLUTION_DIAGRAM_URL: ${{ vars.SOLUTION_DIAGRAM_URL || 'https://copilotiotgame.powerappsportals.com/kiosk/solution' }}
         run: |
           npm ci
@@ -166,7 +168,7 @@ jobs:
       - name: Build
         working-directory: power pages/plinko
         env:
-          VITE_API_BASE_URL: https://${{ vars.AZURE_FUNCTIONAPP_NAME || 'func-aw-azcom-iot-game' }}.azurewebsites.net
+          VITE_API_BASE_URL: https://func-aw-iot-game-v2.azurewebsites.net
           VITE_PRIZE_WHEEL_URL: ${{ vars.PRIZE_WHEEL_URL || 'https://andworxprizewheel.powerappsportals.com' }}
         run: |
           npm ci
@@ -181,9 +183,47 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+  build-mcpquest:
+    name: Build MCP Quest Code Site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: power pages/mcpquest/package-lock.json
+      - name: Build
+        working-directory: power pages/mcpquest
+        env:
+          # A live build talks to the Function App and ships none of the judge or case logic.
+          VITE_MCPQUEST_API: live
+          VITE_API_BASE_URL: https://func-aw-iot-game-v2.azurewebsites.net
+          VITE_PRIZE_WHEEL_URL: ${{ vars.PRIZE_WHEEL_URL || 'https://andworxprizewheel.powerappsportals.com' }}
+        run: |
+          npm ci
+          npm run build
+          test -f dist/index.html
+      - name: Verify the live bundle contains no case logic
+        working-directory: power pages/mcpquest
+        run: |
+          if grep -rlE "Hand-sorted queue|Sign-off by email chain|owningTeams|mcpstation\.io" dist/assets; then
+            echo '::error::The live bundle contains case logic or the MCP Station URL.'
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: power-pages-mcpquest
+          path: |
+            power pages/mcpquest/dist/
+            power pages/mcpquest/powerpages.config.json
+          if-no-files-found: error
+          retention-days: 14
+
   build:
     name: Build apps
-    needs: [build-function, build-code-app, build-kiosk, build-prize-wheel, build-plinko]
+    needs: [build-function, build-code-app, build-kiosk, build-prize-wheel, build-plinko, build-mcpquest]
     runs-on: ubuntu-latest
     steps:
       - run: echo 'All application builds passed.'
@@ -191,7 +231,7 @@ jobs:
   deploy-backends:
     name: Deploy and verify backends
     needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AZURE_MIGRATION_FREEZE != 'true'
     runs-on: windows-latest
     timeout-minutes: 20
     environment: production
@@ -201,8 +241,8 @@ jobs:
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      AZURE_FUNCTIONAPP_NAME: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
+      AZURE_SUBSCRIPTION_ID: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+      AZURE_FUNCTIONAPP_NAME: func-aw-iot-game-v2
       STAFF_API_CUTOVER_READY: ${{ vars.STAFF_API_CUTOVER_READY || 'false' }}
     steps:
       - uses: actions/checkout@v7
@@ -223,7 +263,6 @@ jobs:
           $config = Get-Content azure/infrastructure/staff-api.prod.json -Raw | ConvertFrom-Json
           if ($config.sourceFunctionAppName -ne $env:AZURE_FUNCTIONAPP_NAME) { throw 'Staff source app differs from configured public app.' }
           if ($config.tenantId -ne $env:AZURE_TENANT_ID) { throw 'Staff configuration belongs to another tenant.' }
-          "AZURE_STAFF_FUNCTIONAPP_NAME=$($config.functionAppName)" >> $env:GITHUB_ENV
           "AZURE_RESOURCE_GROUP=$($config.resourceGroup)" >> $env:GITHUB_ENV
       - uses: actions/download-artifact@v8
         with:
@@ -233,7 +272,7 @@ jobs:
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: 9e8c862e-9bba-4363-a21b-c45cabe8b637
       - name: Validate staff connector binding
         if: env.STAFF_API_CUTOVER_READY == 'true'
         shell: pwsh
@@ -246,7 +285,7 @@ jobs:
       - name: Deploy staff Function App
         uses: Azure/functions-action@v1
         with:
-          app-name: ${{ env.AZURE_STAFF_FUNCTIONAPP_NAME }}
+          app-name: func-aw-iot-staff-v2
           package: function-artifact/function-app.zip
           sku: flexconsumption
           remote-build: false
@@ -277,15 +316,14 @@ jobs:
         if: env.STAFF_API_CUTOVER_READY == 'true'
         uses: Azure/functions-action@v1
         with:
-          app-name: ${{ vars.AZURE_FUNCTIONAPP_NAME }}
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: function-artifact/function-app.zip
           sku: flexconsumption
           remote-build: false
-
   deploy-frontends:
     name: Deploy ${{ matrix.label }}
     needs: [build, deploy-backends]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.STAFF_API_CUTOVER_READY == 'true'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.STAFF_API_CUTOVER_READY == 'true' && vars.AZURE_MIGRATION_FREEZE != 'true'
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -303,6 +341,9 @@ jobs:
           - kind: plinko
             label: Plinko Code Site
             artifact: power-pages-plinko
+          - kind: mcpquest
+            label: MCP Quest Code Site
+            artifact: power-pages-mcpquest
     runs-on: windows-latest
     timeout-minutes: 20
     environment: production
@@ -315,6 +356,7 @@ jobs:
       KIOSK_WEBSITE_ID: ${{ vars.POWER_PAGES_WEBSITE_ID || '4938f099-b8dd-485f-a5c2-3c4ad4b7e02a' }}
       PRIZE_WHEEL_WEBSITE_ID: ${{ vars.POWER_PRIZE_WHEEL_WEBSITE_ID || '5dadde98-1e91-4a34-8182-1b0a87466e58' }}
       PLINKO_WEBSITE_ID: ${{ vars.POWER_PLINKO_WEBSITE_ID }}
+      MCPQUEST_WEBSITE_ID: ${{ vars.POWER_MCPQUEST_WEBSITE_ID || '4fb95e05-e635-4f0c-a0e3-4065f5dfb72a' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -351,9 +393,10 @@ jobs:
             'kiosk' { $env:KIOSK_WEBSITE_ID }
             'prize-wheel' { $env:PRIZE_WHEEL_WEBSITE_ID }
             'plinko' { $env:PLINKO_WEBSITE_ID }
+            'mcpquest' { $env:MCPQUEST_WEBSITE_ID }
             default { throw 'Unknown Power Pages Code Site kind.' }
           }
-          if ([string]::IsNullOrWhiteSpace($websiteId)) { throw 'Missing GitHub deployment setting: POWER_PLINKO_WEBSITE_ID. Create and activate the Plinko Code Site, then set this variable before deployment.' }
+          if ([string]::IsNullOrWhiteSpace($websiteId)) { throw 'Missing the website ID for ${{ matrix.kind }}. Create the Code Site, then set its POWER_*_WEBSITE_ID variable before deployment (see docs/CI_CD.md).' }
           ./azure/infrastructure/scripts/Deploy-CodeSite.ps1 -ArtifactPath 'artifact' -WebsiteId $websiteId -SiteLabel '${{ matrix.kind }}'
       - name: Clear PAC credentials
         if: always()
@@ -367,8 +410,18 @@ jobs:
   deploy:
     name: Deploy production apps
     needs: [deploy-backends, deploy-frontends]
-    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AZURE_MIGRATION_FREEZE != 'true'
     runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+      AZURE_RESOURCE_GROUP: rg-aw-azcom-iot-copilot
+      STAFF_API_CUTOVER_READY: ${{ vars.STAFF_API_CUTOVER_READY || 'false' }}
     steps:
       - name: Verify deployment fan-out
         env:
@@ -379,3 +432,17 @@ jobs:
           test "$BACKEND_RESULT" = success
           if test "$CUTOVER_READY" = true; then test "$FRONTEND_RESULT" = success; fi
           echo 'All required application deployments passed.'
+      - uses: azure/login@v3
+        if: env.STAFF_API_CUTOVER_READY == 'true'
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+      - name: Enable destination telemetry and maintenance
+        if: env.STAFF_API_CUTOVER_READY == 'true'
+        shell: pwsh
+        run: |
+          foreach ($app in @('func-aw-iot-game-v2', 'func-aw-iot-staff-v2')) {
+            az functionapp config appsettings set -g $env:AZURE_RESOURCE_GROUP -n $app --settings MIGRATION_STAGING=false --only-show-errors --output none
+            if ($LASTEXITCODE -ne 0) { throw "Could not activate background functions on $app." }
+          }

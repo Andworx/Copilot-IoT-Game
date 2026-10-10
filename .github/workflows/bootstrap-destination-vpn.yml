@@ -1,0 +1,156 @@
+name: Bootstrap destination VPN
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/bootstrap-destination-vpn.yml'
+      - 'azure/infrastructure/vpn-bootstrap.bicep'
+      - 'azure/infrastructure/modules/vnet.bicep'
+      - 'azure/infrastructure/modules/p2s-vpn-gateway.bicep'
+      - 'azure/infrastructure/network/baseline.json'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Preview first; deploy creates billable destination network resources only'
+        required: true
+        default: preview
+        type: choice
+        options: [preview, deploy]
+      confirmation:
+        description: 'For deploy, acknowledge additional VPN charges by entering CREATE BILLABLE DESTINATION VPN'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: destination-vpn-bootstrap
+  cancel-in-progress: false
+
+env:
+  DESTINATION_SUBSCRIPTION: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+  DESTINATION_RESOURCE_GROUP: rg-aw-azcom-iot-copilot
+  DESTINATION_LOCATION: eastus
+
+jobs:
+  validate:
+    name: Validate isolated VPN bootstrap
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compile and check template boundary
+        shell: pwsh
+        run: |
+          az bicep build --file azure/infrastructure/vpn-bootstrap.bicep --outfile "$env:RUNNER_TEMP/vpn-bootstrap.json"
+          if ($LASTEXITCODE -ne 0) { throw 'VPN bootstrap Bicep compilation failed.' }
+          $json = Get-Content "$env:RUNNER_TEMP/vpn-bootstrap.json" -Raw
+          if ($json.Contains('2e291b4a-5f03-4dcd-bb56-09643c729adc')) { throw 'Compiled template references the source subscription.' }
+          $template = $json | ConvertFrom-Json -AsHashtable
+          $allowed = @('Microsoft.Resources/deployments', 'Microsoft.Network/virtualNetworks', 'Microsoft.Network/publicIPAddresses', 'Microsoft.Network/virtualNetworkGateways')
+          function Test-Template($current) {
+            foreach ($resource in $current.resources) {
+              if ($resource.type -notin $allowed) { throw "Unexpected resource type: $($resource.type)" }
+              if ($resource.ContainsKey('scope') -or $resource.ContainsKey('subscriptionId') -or $resource.ContainsKey('resourceGroup')) { throw 'Cross-scope resource is not allowed.' }
+              if ($resource.type -eq 'Microsoft.Resources/deployments') { Test-Template $resource.properties.template }
+            }
+          }
+          Test-Template $template
+          Write-Host 'PASS: compiled template contains only destination network resources and nested deployments.'
+
+  bootstrap:
+    name: Preview or deploy destination VPN
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment: infra-deploy
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Require main and explicit billable deployment acknowledgement
+        shell: pwsh
+        env:
+          REQUESTED_ACTION: ${{ inputs.action }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if ($env:GITHUB_REF -ne 'refs/heads/main') { throw 'Destination VPN bootstrap runs from main only.' }
+          if ($env:REQUESTED_ACTION -notin @('preview', 'deploy')) { throw 'Invalid bootstrap action.' }
+          if ($env:REQUESTED_ACTION -eq 'deploy' -and $env:CONFIRMATION -cne 'CREATE BILLABLE DESTINATION VPN') { throw 'Acknowledge additional VPN charges using the exact confirmation phrase.' }
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: 9e8c862e-9bba-4363-a21b-c45cabe8b637
+      - name: Verify destination and IAM bootstrap prerequisite
+        shell: pwsh
+        run: |
+          $subscription = az account show --query id --only-show-errors -o tsv
+          if ($LASTEXITCODE -ne 0 -or $subscription -ne $env:DESTINATION_SUBSCRIPTION) { throw 'Azure login did not select the pinned destination.' }
+          $location = az group show --subscription $env:DESTINATION_SUBSCRIPTION --name $env:DESTINATION_RESOURCE_GROUP --query location --only-show-errors -o tsv
+          if ($LASTEXITCODE -ne 0) { throw 'An IAM administrator must create the destination group and grant the existing infra OIDC identity Contributor on that group only.' }
+          if ($location -ne $env:DESTINATION_LOCATION) { throw 'Destination group location must be eastus.' }
+      - name: Validate and preview destination only
+        shell: pwsh
+        run: |
+          az deployment group validate --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name destination-vpn-bootstrap --template-file azure/infrastructure/vpn-bootstrap.bicep --only-show-errors --output none
+          if ($LASTEXITCODE -ne 0) { throw 'Destination ARM validation failed; nothing deployed.' }
+          az deployment group what-if --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name destination-vpn-bootstrap --template-file azure/infrastructure/vpn-bootstrap.bicep --no-pretty-print --only-show-errors -o json > "$env:RUNNER_TEMP/vpn-whatif.json"
+          if ($LASTEXITCODE -ne 0) { throw 'Destination what-if failed; nothing deployed.' }
+          $preview = Get-Content "$env:RUNNER_TEMP/vpn-whatif.json" -Raw | ConvertFrom-Json
+          if ($null -eq $preview.changes) { throw 'What-if did not return a resource change list.' }
+          $scope = "/subscriptions/$env:DESTINATION_SUBSCRIPTION/resourceGroups/$env:DESTINATION_RESOURCE_GROUP/providers/".ToLowerInvariant()
+          $allowedResources = @(
+            'microsoft.network/virtualnetworks/iot-demo-vnet',
+            'microsoft.network/publicipaddresses/iot-demo-vpn-pip',
+            'microsoft.network/virtualnetworkgateways/iot-demo-vpn',
+            'microsoft.resources/deployments/destination-vnet',
+            'microsoft.resources/deployments/destination-vpn'
+          )
+          foreach ($change in $preview.changes) {
+            $id = $change.resourceId.ToLowerInvariant()
+            if (-not $id.StartsWith($scope)) { throw "Unexpected resource scope: $id" }
+            $relative = $id.Substring($scope.Length)
+            if ($relative -notin $allowedResources) { throw "Unexpected bootstrap resource: $id" }
+            $allowedChanges = @('Create', 'NoChange')
+            if ($relative.StartsWith('microsoft.resources/deployments/')) { $allowedChanges += @('Deploy', 'Ignore') }
+            if ($change.changeType -notin $allowedChanges) { throw "Bootstrap refuses $($change.changeType) on $id. Review existing destination state before proceeding." }
+            "- $($change.changeType): $($change.resourceId)" >> $env:GITHUB_STEP_SUMMARY
+          }
+          'Source subscription, router, workloads and existing GitHub release variables are untouched.' >> $env:GITHUB_STEP_SUMMARY
+      - name: Deploy isolated destination VPN
+        if: inputs.action == 'deploy'
+        shell: pwsh
+        run: |
+          az deployment group create --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name destination-vpn-bootstrap --template-file azure/infrastructure/vpn-bootstrap.bicep --mode Incremental --only-show-errors --output none
+          if ($LASTEXITCODE -ne 0) { throw 'Destination VPN deployment failed. Source resources remain untouched; inspect deployment operations before retrying.' }
+      - name: Verify gateway provisioning and report new endpoint
+        if: inputs.action == 'deploy'
+        shell: pwsh
+        run: |
+          $gatewayJson = az network vnet-gateway show --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name iot-demo-vpn --only-show-errors -o json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read the destination gateway.' }
+          $gateway = $gatewayJson | ConvertFrom-Json
+          if ($gateway.provisioningState -ne 'Succeeded' -or $gateway.sku.name -ne 'VpnGw1AZ') { throw 'Destination gateway is not successfully provisioned with VpnGw1AZ.' }
+          if ('OpenVPN' -notin $gateway.vpnClientConfiguration.vpnClientProtocols -or 'Certificate' -notin $gateway.vpnClientConfiguration.vpnAuthenticationTypes) { throw 'Destination VPN client authentication differs from the approved baseline.' }
+          $baseline = Get-Content azure/infrastructure/network/baseline.json -Raw | ConvertFrom-Json
+          $expected = $baseline.gateway.properties.vpnClientConfiguration
+          if (@($gateway.vpnClientConfiguration.vpnClientRootCertificates).Count -ne @($expected.vpnClientRootCertificates).Count) { throw 'VPN root certificate count differs.' }
+          foreach ($certificate in $expected.vpnClientRootCertificates) {
+            $actual = $gateway.vpnClientConfiguration.vpnClientRootCertificates | Where-Object name -eq $certificate.name
+            if ($actual.publicCertData -ne $certificate.properties.publicCertData) { throw 'VPN public root certificate differs from the baseline.' }
+          }
+          $address = az network public-ip show --subscription $env:DESTINATION_SUBSCRIPTION --resource-group $env:DESTINATION_RESOURCE_GROUP --name iot-demo-vpn-pip --query ipAddress --only-show-errors -o tsv
+          if ($LASTEXITCODE -ne 0 -or -not $address) { throw 'Destination public IP is not allocated.' }
+          "Destination VPN public IP: $address" >> $env:GITHUB_STEP_SUMMARY
+          "Commit: $env:GITHUB_SHA" >> $env:GITHUB_STEP_SUMMARY
+          "Run: https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID" >> $env:GITHUB_STEP_SUMMARY
+          'Verify status: a real VPN connection still needs testing. Do not switch the router or delete source resources yet.' >> $env:GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: destination-vpn-preview
+          path: ${{ runner.temp }}/vpn-whatif.json
+          if-no-files-found: ignore

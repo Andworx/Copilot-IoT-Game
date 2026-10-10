@@ -16,21 +16,18 @@
                              plan supports it). It can:
                                - create deployments in the resource group (custom role
                                  "Infra Deployment Operator": deployments/* only),
-                                                             - Contributor on the Event Hub namespace, the SignalR service,
-                                                                 the game Function App, game Function plan, game Function storage,
-                                                                 game Application Insights, game failure anomalies alert,
-                                                                 the demo VNet, DNS Private Resolver, VPN public IP, VPN gateway,
-                                                                 Event Hub private endpoint, SignalR private endpoint, game Function
-                                                                 private endpoint, game storage blob private endpoint, and IoT Hub
-                                                                 private endpoint only,
+                                                             - Contributor on the Event Hub namespace, SignalR service, destination
+                                                                 game Function, plan, storage, Application Insights, failure alert,
+                                                                 VNet, DNS resolver, VPN public IP and gateway,
+                               - a resource-group-scoped Network Private Endpoint Operator role (private endpoint and DNS zone-group read/write only),
                                                              - create and manage action groups in the resource group,
                                                              - approve the IoT Hub private endpoint connection on the existing
                                                                  IoT Hub, without general IoT Hub write access,
                                - Private DNS Zone Contributor on the resource group,
                                                             - assign ONLY the "Azure Event Hubs Data Receiver" role on the telemetry event hub
                                                                 and "Azure Event Hubs Data Sender" on the Event Hub namespace (ABAC-conditioned).
-                             It has no write access to the IoT Hub, DPS, the legacy Function
-                             App, unrelated storage, or anything else, so a bad template or workflow
+                             It has no write access to the IoT Hub, DPS, source Function Apps,
+                             unrelated storage, or anything else, so a bad template or workflow
                              physically cannot change them.
 
     It does not create the GitHub environments or variables; the output lists them. Supports
@@ -48,13 +45,15 @@
 param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
     [string]$Location = 'eastus',
+    [string]$SubscriptionId = '9e8c862e-9bba-4363-a21b-c45cabe8b637',
+    [string]$TenantId = '7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8',
     [string]$SubjectPrefix = 'repo:Andworx@226577816/Copilot-IoT-Game@1350685991',
     [string]$EventHubNamespace = 'evhns-aw-iot-copilot',
     [string]$EventHubName = 'iot-telemetry',
     [string]$SignalRName = 'signalr-aw-iot-copilot',
-    [string]$GameFunctionApp = 'func-aw-azcom-iot-game',
-    [string]$GameFunctionPlanName = 'ASP-rgawazcomiotcopilot-ec55',
-    [string]$GameFunctionStorageAccountName = 'stawazcomiotgamefn',
+    [string]$GameFunctionApp = 'func-aw-iot-game-v2',
+    [string]$GameFunctionPlanName = 'func-aw-iot-game-v2-plan',
+    [string]$GameFunctionStorageAccountName = 'stawazcomiotgamev2',
     [string]$GameAppInsightsName = 'func-aw-azcom-iot-game',
     [string]$GameFailureAnomaliesAlertName = 'Failure Anomalies - func-aw-azcom-iot-game',
     [string]$SmartDetectionActionGroupName = 'application insights smart detection',
@@ -63,11 +62,6 @@ param(
     [string]$DnsResolverName = 'iot-demo-dns-resolver',
     [string]$VpnPublicIpName = 'iot-demo-vpn-pip',
     [string]$VpnGatewayName = 'iot-demo-vpn',
-    [string]$EventHubPrivateEndpointName = 'iot-demo-eventhub-pe',
-    [string]$SignalRPrivateEndpointName = 'iot-demo-signalr-pe',
-    [string]$GameFunctionPrivateEndpointName = 'iot-demo-game-function-pe',
-    [string]$GameStorageBlobPrivateEndpointName = 'iot-demo-game-storage-blob-pe',
-    [string]$IoTHubPrivateEndpointName = 'iot-demo-iothub-pe',
     [switch]$PreflightOnly
 )
 
@@ -80,6 +74,7 @@ $rbacAdminRoleId = 'f58310d9-a9f6-439a-9e8d-f62e7b41a168'          # Role Based 
 $deployRoleName = 'Infra Deployment Operator'
 $actionGroupRoleName = 'Action Group Operator'
 $iotHubPrivateEndpointApproverRoleName = 'IoT Hub Private Endpoint Connection Approver'
+$privateEndpointRoleName = 'Network Private Endpoint Operator'
 
 function Invoke-Step {
     param($description, [scriptblock]$action)
@@ -94,6 +89,9 @@ function Invoke-Step {
 }
 
 $sub = az account show --query id -o tsv
+if ($LASTEXITCODE -ne 0 -or $sub -ne $SubscriptionId) { throw "Select destination subscription $SubscriptionId before initializing deployment identities." }
+$tenant = az account show --query tenantId -o tsv
+if ($LASTEXITCODE -ne 0 -or $tenant -ne $TenantId) { throw "Select destination tenant $TenantId before initializing deployment identities." }
 $rgScope = "/subscriptions/$sub/resourceGroups/$ResourceGroup"
 $nsScope = "$rgScope/providers/Microsoft.EventHub/namespaces/$EventHubNamespace"
 $hubScope = "$nsScope/eventhubs/$EventHubName"
@@ -108,11 +106,6 @@ $vnetScope = "$rgScope/providers/Microsoft.Network/virtualNetworks/$VirtualNetwo
 $dnsResolverScope = "$rgScope/providers/Microsoft.Network/dnsResolvers/$DnsResolverName"
 $vpnPublicIpScope = "$rgScope/providers/Microsoft.Network/publicIPAddresses/$VpnPublicIpName"
 $vpnGatewayScope = "$rgScope/providers/Microsoft.Network/virtualNetworkGateways/$VpnGatewayName"
-$eventHubPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$EventHubPrivateEndpointName"
-$signalRPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$SignalRPrivateEndpointName"
-$gameFunctionPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$GameFunctionPrivateEndpointName"
-$gameStorageBlobPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$GameStorageBlobPrivateEndpointName"
-$iotHubPrivateEndpointScope = "$rgScope/providers/Microsoft.Network/privateEndpoints/$IoTHubPrivateEndpointName"
 
 # --- preflight: fail before creating anything ---
 function Assert-CanAdministerRoles($scope, $displayName) {
@@ -201,14 +194,56 @@ New-CustomRole $actionGroupRoleName 'Create, update and read action groups in th
 New-CustomRole $iotHubPrivateEndpointApproverRoleName 'Approve private endpoint connections for the existing IoT Hub. No IoT Hub write access.' @(
     'Microsoft.Devices/IotHubs/read', 'Microsoft.Devices/IotHubs/PrivateEndpointConnectionsApproval/action')
 
+New-CustomRole $privateEndpointRoleName 'Read and create private endpoints and their private DNS zone groups. No endpoint, NIC, VNet, or DNS deletion access.' @(
+    'Microsoft.Network/privateEndpoints/read',
+    'Microsoft.Network/privateEndpoints/write',
+    'Microsoft.Network/privateEndpoints/privateDnsZoneGroups/read',
+    'Microsoft.Network/privateEndpoints/privateDnsZoneGroups/write')
+
 function New-Assignment($identityName, $role, $scope, $extra = @()) {
+    if ($WhatIfPreference) {
+        Write-Host "WhatIf: assign '$role' to $identityName on $($scope.Split('/')[-1])"
+        return
+    }
+
     $principal = az identity show -g $ResourceGroup -n $identityName --query principalId -o tsv 2>$null
-    if (-not $principal -and -not $WhatIfPreference) { throw "identity $identityName not found" }
+    if ($LASTEXITCODE -ne 0 -or -not $principal) { throw "identity $identityName not found" }
     $roleArgument = $role
     if ($role -in @($deployRoleName, $actionGroupRoleName, $iotHubPrivateEndpointApproverRoleName)) {
         $roleArgument = az role definition list --name $role --query "[?roleName=='$role'].id | [0]" -o tsv
-        if (-not $roleArgument -and -not $WhatIfPreference) { throw "custom role $role not found" }
+        if ($LASTEXITCODE -ne 0 -or -not $roleArgument) { throw "custom role $role not found" }
     }
+
+    $roleId = if ($roleArgument -match '^/.*roleDefinitions/' -or $roleArgument -match '^[0-9a-fA-F-]{36}$') {
+        $roleArgument
+    } else {
+        az role definition list --name $roleArgument --query '[0].id' -o tsv
+    }
+    if ($LASTEXITCODE -ne 0 -or -not $roleId) { throw "Could not resolve role definition for '$role'." }
+    $roleGuid = $roleId.Split('/')[-1]
+
+    $assignmentJson = az role assignment list --assignee-object-id $principal --all --only-show-errors -o json
+    if ($LASTEXITCODE -ne 0) { throw "Could not inspect existing '$role' assignments for $identityName." }
+    $assignments = @($assignmentJson | ConvertFrom-Json)
+    $matching = @($assignments | Where-Object {
+        $_.scope -ieq $scope -and $_.roleDefinitionId.Split('/')[-1] -ieq $roleGuid
+    })
+    $expectedCondition = $null
+    $expectedConditionVersion = $null
+    for ($argumentIndex = 0; $argumentIndex -lt $extra.Count; $argumentIndex++) {
+        if ($extra[$argumentIndex] -eq '--condition') { $expectedCondition = $extra[$argumentIndex + 1] }
+        if ($extra[$argumentIndex] -eq '--condition-version') { $expectedConditionVersion = $extra[$argumentIndex + 1] }
+    }
+    if ($matching.Count -gt 1) { throw "Multiple '$role' assignments already exist for $identityName at $scope." }
+    if ($matching.Count -eq 1) {
+        $current = $matching[0]
+        if ($current.condition -ne $expectedCondition -or [string]$current.conditionVersion -ne [string]$expectedConditionVersion) {
+            throw "Existing '$role' assignment for $identityName has a different condition; review it manually before rerunning."
+        }
+        Write-Host "role '$role' is already assigned to $identityName on $($scope.Split('/')[-1])"
+        return
+    }
+
     Invoke-Step "assign '$role' to $identityName on $($scope.Split('/')[-1])" {
         az role assignment create --assignee-object-id $principal --assignee-principal-type ServicePrincipal `
             --role $roleArgument --scope $scope @extra --only-show-errors --output none
@@ -234,11 +269,7 @@ New-Assignment $deployerName 'Contributor' $vnetScope
 New-Assignment $deployerName 'Contributor' $dnsResolverScope
 New-Assignment $deployerName 'Contributor' $vpnPublicIpScope
 New-Assignment $deployerName 'Contributor' $vpnGatewayScope
-New-Assignment $deployerName 'Contributor' $eventHubPrivateEndpointScope
-New-Assignment $deployerName 'Contributor' $signalRPrivateEndpointScope
-New-Assignment $deployerName 'Contributor' $gameFunctionPrivateEndpointScope
-New-Assignment $deployerName 'Contributor' $gameStorageBlobPrivateEndpointScope
-New-Assignment $deployerName 'Contributor' $iotHubPrivateEndpointScope
+New-Assignment $deployerName $privateEndpointRoleName $rgScope
 New-Assignment $deployerName 'Private DNS Zone Contributor' $rgScope
 
 # May assign/remove only Event Hubs Data Sender/Receiver roles, and only within the Event Hub namespace.
@@ -256,7 +287,7 @@ Done. Now, by hand:
   2. GitHub > Settings > Secrets and variables > Actions > Variables:
        AZURE_INFRA_READER_CLIENT_ID   = $(if ($WhatIfPreference) { '<client id of ' + $readerName + '>' } else { az identity show -g $ResourceGroup -n $readerName --query clientId -o tsv })
        AZURE_INFRA_DEPLOYER_CLIENT_ID = $(if ($WhatIfPreference) { '<client id of ' + $deployerName + '>' } else { az identity show -g $ResourceGroup -n $deployerName --query clientId -o tsv })
-     (AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID are already set for the app deployment.)
+    Set AZURE_TENANT_ID for the deployment tenant. Workflows pin the destination subscription.
 "@
 
 exit 0

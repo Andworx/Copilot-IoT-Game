@@ -4,7 +4,7 @@ param()
 $ErrorActionPreference = 'Stop'
 $cliInfo = az version -o json | ConvertFrom-Json
 if ($LASTEXITCODE -ne 0 -or [version]$cliInfo.'azure-cli' -lt [version]'2.76.0') { throw 'Network preview requires Azure CLI 2.76.0 or later (ProviderNoRbac support).' }
-$expectedSubscription = '2e291b4a-5f03-4dcd-bb56-09643c729adc'
+$expectedSubscription = '9e8c862e-9bba-4363-a21b-c45cabe8b637'
 $subscription = az account show --query id --only-show-errors -o tsv
 if ($LASTEXITCODE -ne 0 -or $subscription -ne $expectedSubscription) { throw 'Select the recorded baseline subscription first.' }
 $template = Join-Path $PSScriptRoot 'main.bicep'

@@ -7,12 +7,22 @@ const staffOnly = new Set([
   "grand-prize-drawing-state", "grand-prize-drawing-slices",
 ]);
 const shared = new Set(["kiosk-state", "device-profiles", "create-win", "claim-prize"]);
-const publicOnly = new Set(["negotiate", "pick-random-mode", "prizes", "directline-token", "preferences"]);
+const publicOnly = new Set([
+  "negotiate", "pick-random-mode", "prizes", "directline-token", "preferences",
+  "mcpquest-start", "mcpquest-call", "mcpquest-hint", "mcpquest-choose", "mcpquest-test",
+  "mcpquest-submit", "mcpquest-leaderboard",
+]);
 
 export function apiSurface(value = process.env.API_SURFACE): "public" | "staff" {
   if (value === "public") return "public";
   if (value === "staff") return "staff";
   throw new Error("API_SURFACE must be public or staff.");
+}
+
+export function backgroundWorkEnabled(value = process.env.MIGRATION_STAGING): boolean {
+  if (value === undefined || value === "false") return true;
+  if (value === "true") return false;
+  throw new Error("MIGRATION_STAGING must be true or false.");
 }
 
 export function routeEnabled(name: string, surface: "public" | "staff"): boolean {

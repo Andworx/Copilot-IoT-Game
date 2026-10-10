@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="9.2.26085.172" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26085.172" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26085.00172">
+  <SolutionManifest>
+    <UniqueName>MCPQuest</UniqueName>
+    <LocalizedNames>
+      <LocalizedName description="MCP Quest" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions />
+    <Version>1.0.0.0</Version>
+    <Managed>0</Managed>
+    <Publisher>
+      <UniqueName>Andworx</UniqueName>
+      <LocalizedNames>
+        <LocalizedName description="Andworx" languagecode="1033" />
+      </LocalizedNames>
+      <Descriptions />
+      <EMailAddress xsi:nil="true"></EMailAddress>
+      <SupportingWebsiteUrl xsi:nil="true"></SupportingWebsiteUrl>
+      <CustomizationPrefix>andy</CustomizationPrefix>
+      <CustomizationOptionValuePrefix>43570</CustomizationOptionValuePrefix>
+      <Addresses>
+        <Address>
+          <AddressNumber>1</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"></City>
+          <County xsi:nil="true"></County>
+          <Country xsi:nil="true"></Country>
+          <Fax xsi:nil="true"></Fax>
+          <FreightTermsCode xsi:nil="true"></FreightTermsCode>
+          <ImportSequenceNumber xsi:nil="true"></ImportSequenceNumber>
+          <Latitude xsi:nil="true"></Latitude>
+          <Line1 xsi:nil="true"></Line1>
+          <Line2 xsi:nil="true"></Line2>
+          <Line3 xsi:nil="true"></Line3>
+          <Longitude xsi:nil="true"></Longitude>
+          <Name xsi:nil="true"></Name>
+          <PostalCode xsi:nil="true"></PostalCode>
+          <PostOfficeBox xsi:nil="true"></PostOfficeBox>
+          <PrimaryContactName xsi:nil="true"></PrimaryContactName>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"></StateOrProvince>
+          <Telephone1 xsi:nil="true"></Telephone1>
+          <Telephone2 xsi:nil="true"></Telephone2>
+          <Telephone3 xsi:nil="true"></Telephone3>
+          <TimeZoneRuleVersionNumber xsi:nil="true"></TimeZoneRuleVersionNumber>
+          <UPSZone xsi:nil="true"></UPSZone>
+          <UTCOffset xsi:nil="true"></UTCOffset>
+          <UTCConversionTimeZoneCode xsi:nil="true"></UTCConversionTimeZoneCode>
+        </Address>
+        <Address>
+          <AddressNumber>2</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"></City>
+          <County xsi:nil="true"></County>
+          <Country xsi:nil="true"></Country>
+          <Fax xsi:nil="true"></Fax>
+          <FreightTermsCode xsi:nil="true"></FreightTermsCode>
+          <ImportSequenceNumber xsi:nil="true"></ImportSequenceNumber>
+          <Latitude xsi:nil="true"></Latitude>
+          <Line1 xsi:nil="true"></Line1>
+          <Line2 xsi:nil="true"></Line2>
+          <Line3 xsi:nil="true"></Line3>
+          <Longitude xsi:nil="true"></Longitude>
+          <Name xsi:nil="true"></Name>
+          <PostalCode xsi:nil="true"></PostalCode>
+          <PostOfficeBox xsi:nil="true"></PostOfficeBox>
+          <PrimaryContactName xsi:nil="true"></PrimaryContactName>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"></StateOrProvince>
+          <Telephone1 xsi:nil="true"></Telephone1>
+          <Telephone2 xsi:nil="true"></Telephone2>
+          <Telephone3 xsi:nil="true"></Telephone3>
+          <TimeZoneRuleVersionNumber xsi:nil="true"></TimeZoneRuleVersionNumber>
+          <UPSZone xsi:nil="true"></UPSZone>
+          <UTCOffset xsi:nil="true"></UTCOffset>
+          <UTCConversionTimeZoneCode xsi:nil="true"></UTCConversionTimeZoneCode>
+        </Address>
+      </Addresses>
+    </Publisher>
+    <RootComponents>
+      <RootComponent type="1" schemaName="andy_contestcampaign" behavior="1" />
+      <RootComponent type="1" schemaName="andy_mcpquestplay" behavior="0" />
+      <RootComponent type="1" schemaName="andy_prizeclaim" behavior="1" />
+    </RootComponents>
+    <MissingDependencies>
+      <MissingDependency>
+        <Required type="1" schemaName="andy_contestcampaign" displayName="Contest Campaign" solution="Active" />
+        <Dependent type="1" schemaName="andy_contestcampaign" displayName="Contest Campaign" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" solution="Active" />
+        <Dependent type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="andy_eventname" displayName="Event Name" parentSchemaName="andy_contestcampaign" parentDisplayName="Contest Campaign" solution="Active" />
+        <Dependent type="10" schemaName="andy_mcpquestplay_Campaign_andy_contestcampaign" displayName="andy_mcpquestplay_Campaign_andy_contestcampaign" parentSchemaName="andy_mcpquestplay" parentDisplayName="MCP Quest Play" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="andy_name" displayName="Prize Claim Name" parentSchemaName="andy_prizeclaim" parentDisplayName="Prize Claim" solution="Active" />
+        <Dependent type="10" schemaName="andy_mcpquestplay_PrizeClaim_andy_prizeclaim" displayName="andy_mcpquestplay_PrizeClaim_andy_prizeclaim" parentSchemaName="andy_mcpquestplay" parentDisplayName="MCP Quest Play" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="61" schemaName="andy_contestcampaign_icon" displayName="andy_contestcampaign_icon" solution="Active" />
+        <Dependent type="1" schemaName="andy_contestcampaign" displayName="Contest Campaign" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="61" schemaName="andy_prizeclaim_icon" displayName="andy_prizeclaim_icon" solution="Active" />
+        <Dependent type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" />
+      </MissingDependency>
+    </MissingDependencies>
+  </SolutionManifest>
+</ImportExportXml>

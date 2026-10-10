@@ -77,6 +77,32 @@
       "cascadeReparent": "NoCascade",
       "cascadeShare": "NoCascade",
       "cascadeUnshare": "NoCascade"
+    },
+    {
+      "schemaName": "andy_mcpquestplay_PrizeClaim_andy_prizeclaim",
+      "description": "Links an MCP Quest Play to the shared Prize Claim minted when the play passed.",
+      "referencedEntity": "andy_prizeclaim",
+      "referencedAttribute": "andy_prizeclaimid",
+      "referencingEntity": "andy_mcpquestplay",
+      "referencingAttribute": "andy_prizeclaim",
+      "cascadeDelete": "RemoveLink",
+      "cascadeAssign": "NoCascade",
+      "cascadeReparent": "NoCascade",
+      "cascadeShare": "NoCascade",
+      "cascadeUnshare": "NoCascade"
+    },
+    {
+      "schemaName": "andy_mcpquestplay_Campaign_andy_contestcampaign",
+      "description": "Links an MCP Quest Play to the Contest Campaign that was active when it started, so leaderboards reset per event.",
+      "referencedEntity": "andy_contestcampaign",
+      "referencedAttribute": "andy_contestcampaignid",
+      "referencingEntity": "andy_mcpquestplay",
+      "referencingAttribute": "andy_campaign",
+      "cascadeDelete": "RemoveLink",
+      "cascadeAssign": "NoCascade",
+      "cascadeReparent": "NoCascade",
+      "cascadeShare": "NoCascade",
+      "cascadeUnshare": "NoCascade"
     }
   ]
 }

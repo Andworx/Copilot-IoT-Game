@@ -5,12 +5,17 @@ param storageAccountName string
 param packageContainerName string
 param packageContainerUrl string
 param functionAppName string
+param resourceTags object
 param functionAppTags object = {}
+param corsOrigins array
+@secure()
+param existingSettings object
 param integrationSubnetId string
 
 resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccountName
   location: location
+  tags: resourceTags
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -19,6 +24,8 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
     allowBlobPublicAccess: false
     minimumTlsVersion: 'TLS1_2'
     supportsHttpsTrafficOnly: true
+    allowSharedKeyAccess: true
+    publicNetworkAccess: 'Enabled'
     networkAcls: {
       defaultAction: 'Allow'
     }
@@ -49,6 +56,7 @@ resource packageContainer 'Microsoft.Storage/storageAccounts/blobServices/contai
 resource plan 'Microsoft.Web/serverfarms@2024-04-01' = {
   name: planName
   location: location
+  tags: resourceTags
   kind: 'functionapp'
   sku: {
     name: 'FC1'
@@ -62,7 +70,7 @@ resource plan 'Microsoft.Web/serverfarms@2024-04-01' = {
 resource app 'Microsoft.Web/sites@2024-04-01' = {
   name: functionAppName
   location: location
-  tags: functionAppTags
+  tags: union(resourceTags, functionAppTags)
   kind: 'functionapp,linux'
   identity: {
     type: 'SystemAssigned'
@@ -92,6 +100,21 @@ resource app 'Microsoft.Web/sites@2024-04-01' = {
         maximumInstanceCount: 100
         alwaysReady: []
       }
+    }
+    siteConfig: {
+      minTlsVersion: '1.2'
+      scmMinTlsVersion: '1.2'
+      ftpsState: 'Disabled'
+      http20Enabled: false
+      vnetRouteAllEnabled: false
+      cors: {
+        allowedOrigins: corsOrigins
+        supportCredentials: false
+      }
+      appSettings: map(items(existingSettings), setting => {
+        name: setting.key
+        value: string(setting.value)
+      })
     }
   }
 }

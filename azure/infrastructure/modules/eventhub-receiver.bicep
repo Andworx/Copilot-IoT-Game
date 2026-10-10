@@ -7,6 +7,9 @@ param eventHubName string
 @description('Object (principal) ID of the Function App system-assigned identity.')
 param principalId string
 
+@description('Existing role assignment resource name to adopt after a resource move. Empty creates the deterministic default.')
+param roleAssignmentName string = ''
+
 // Azure Event Hubs Data Receiver
 var receiverRoleId = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
 
@@ -21,8 +24,7 @@ resource hub 'Microsoft.EventHub/namespaces/eventhubs@2024-01-01' existing = {
 
 resource receiver 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: hub
-  // Deterministic, so re-deploys are idempotent.
-  name: guid(hub.id, principalId, receiverRoleId)
+  name: empty(roleAssignmentName) ? guid(hub.id, principalId, receiverRoleId) : roleAssignmentName
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', receiverRoleId)
     principalId: principalId

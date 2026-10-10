@@ -50,9 +50,18 @@ if ('Microsoft.App/environments' -notin @($subnet.properties.delegations.propert
 $resources = @(Read-Az @('resource', 'list', '--resource-group', $config.resourceGroup))
 $source = $resources | Where-Object { $_.type -eq 'Microsoft.Web/sites' -and $_.name -eq $config.sourceFunctionAppName }
 if (-not $source) { throw 'Source game Function App was not found in the configured resource group.' }
-$ownedNames = $staffResourceNames
-foreach ($resource in $resources | Where-Object { $_.name -in $ownedNames }) {
-    if ($resource.tags.component -ne 'staff-api' -or $resource.tags.managedBy -ne 'deploy-apps') {
+$staffResourceTypes = @{
+    $config.functionAppName = 'Microsoft.Web/sites'
+    $staffPlanName = 'Microsoft.Web/serverFarms'
+    $config.storageAccountName = 'Microsoft.Storage/storageAccounts'
+}
+foreach ($resource in $resources | Where-Object { $_.name -in $staffResourceNames }) {
+    if ($resource.type -ne $staffResourceTypes[$resource.name]) {
+        throw "Refusing to adopt '$($resource.name)' with unexpected resource type '$($resource.type)'."
+    }
+    $staffOwned = $resource.tags.component -eq 'staff-api' -and $resource.tags.managedBy -eq 'deploy-apps'
+    $migrationOwned = $resource.tags.component -eq 'parallel-function-rebuild' -and $resource.tags.'managed-by' -eq 'bicep' -and $resource.tags.purpose -eq 'subscription-migration'
+    if (-not ($staffOwned -or $migrationOwned)) {
         throw "Refusing to adopt existing unowned resource: $($resource.name). Review its ownership first."
     }
 }

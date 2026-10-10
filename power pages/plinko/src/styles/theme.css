@@ -1,0 +1,334 @@
+/* Plinko booth display. Tokens follow the copilotiotgame kiosk (KIOSK_UI_SPEC.md §1);
+   target is a landscape booth monitor, with a stacked layout for narrow screens. */
+
+:root {
+  --font-mono: "IBM Plex Mono", "Consolas", monospace;
+  --color-bg: #080c08;
+  --color-surface: #0f160f;
+  --color-surface-2: #161e16;
+  --color-border: #243224;
+  --color-text: #c8d4c8;
+  --color-text-muted: #7a8a7a;
+  --color-text-bright: #e8f0e8;
+  --color-primary: #f59e0b;
+  --color-primary-glow: rgba(245, 158, 11, 0.45);
+  --color-accent: #22c55e;
+  --tier-edge: #22c55e;
+  --tier-cloud: #4c8dff;
+  --tier-platform: #b67cff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
+
+button { font-family: var(--font-mono); }
+button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px; }
+
+.plinko-screen {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 64px);
+  background: radial-gradient(ellipse at 50% 0%, #12301a 0, var(--color-bg) 70%);
+}
+
+.eyebrow {
+  display: block;
+  color: var(--color-primary);
+  font-size: clamp(12px, 1.1vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ============ Idle: how-it-works infographic ============ */
+
+.flow { width: min(1600px, 100%); display: grid; gap: clamp(24px, 4vh, 56px); }
+
+.flow-header h1 {
+  margin: 10px 0 0;
+  color: var(--color-text-bright);
+  font-size: clamp(24px, 3.2vw, 52px);
+  line-height: 1.15;
+}
+
+.flow-track { --icon: clamp(56px, 5.5vw, 88px); position: relative; padding: 12px 0 0; }
+
+.flow-line {
+  position: absolute;
+  left: calc(50% / var(--count));
+  right: calc(50% / var(--count));
+  top: calc(12px + var(--icon) / 2);
+  height: 2px;
+  background: linear-gradient(90deg, var(--tier-edge), var(--tier-cloud) 45%, var(--tier-platform));
+  opacity: 0.35;
+}
+
+.flow-light {
+  position: absolute;
+  top: calc(12px + var(--icon) / 2);
+  left: calc((var(--index) + 0.5) / var(--count) * 100%);
+  width: 18px;
+  height: 18px;
+  margin: -8px 0 0 -9px;
+  border-radius: 50%;
+  background: #fff7d6;
+  box-shadow: 0 0 14px 6px var(--color-primary-glow), 0 0 40px 12px var(--color-primary-glow);
+  transition: left 0.9s cubic-bezier(0.45, 0, 0.2, 1), top 0.9s cubic-bezier(0.45, 0, 0.2, 1), opacity 0.3s;
+  z-index: 1;
+}
+/* Looping back to step 1: jump instead of sweeping backwards across the track. */
+.flow-track[data-wrap="true"] .flow-light { transition: none; opacity: 0; }
+
+.flow-steps {
+  display: grid;
+  grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow-step {
+  --tier: var(--tier-edge);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: clamp(11px, 0.95vw, 16px);
+  transition: color 0.4s;
+}
+.flow-step.cloud { --tier: var(--tier-cloud); }
+.flow-step.platform { --tier: var(--tier-platform); }
+
+.flow-icon {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: var(--icon);
+  height: var(--icon);
+  border: 2px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  transition: border-color 0.4s, box-shadow 0.4s, transform 0.4s;
+}
+.flow-icon img, .flow-icon svg { width: 58%; height: 58%; }
+.flow-icon svg { fill: none; stroke: var(--tier); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.flow-icon svg .lit { fill: var(--color-primary); stroke: var(--color-primary); }
+
+.flow-step[data-state="done"] { color: var(--color-text); }
+.flow-step[data-state="done"] .flow-icon { border-color: color-mix(in srgb, var(--tier) 45%, var(--color-border)); }
+.flow-step[data-state="active"] { color: var(--color-text-bright); }
+.flow-step[data-state="active"] .flow-icon {
+  border-color: var(--tier);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tier) 22%, transparent), 0 0 32px color-mix(in srgb, var(--tier) 55%, transparent);
+  transform: translateY(-4px) scale(1.06);
+}
+
+.flow-caption {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 8px 16px;
+  min-height: 150px;
+  padding: clamp(18px, 2.4vw, 32px);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+}
+.flow-caption h2 { grid-column: 1 / -1; margin: 4px 0 0; color: var(--color-text-bright); font-size: clamp(22px, 2.4vw, 40px); }
+.flow-caption p { grid-column: 1 / -1; margin: 0; font-size: clamp(16px, 1.5vw, 24px); line-height: 1.45; }
+.flow-count { color: var(--color-text-muted); font-size: 14px; }
+
+.tier-tag {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-bg);
+  background: var(--tier-edge);
+}
+.tier-tag.cloud { background: var(--tier-cloud); }
+.tier-tag.platform { background: var(--tier-platform); }
+
+/* ============ Win: celebration + QR ============ */
+
+.win {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 16px;
+  background: radial-gradient(circle at 50% 45%, #0f2f4dcc 0, #07121fe8 62%, #030914f2 100%);
+}
+
+.win-card {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 48px);
+  align-items: center;
+  width: min(1200px, 100%);
+  padding: clamp(20px, 3vw, 48px);
+  border: 1px solid #ffffff38;
+  border-radius: 16px;
+  background: #f8fbfff2;
+  color: #10233a;
+  box-shadow: 0 34px 90px #0206178a;
+  animation: win-pop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.2);
+}
+.win .eyebrow { color: #b42318; }
+.win-card h2 { margin: 8px 0 12px; color: #07121f; font-size: clamp(36px, 5vw, 76px); line-height: 1; }
+.win-bucket-line { margin: 0 0 20px; font-size: clamp(18px, 1.8vw, 28px); }
+
+.bucket-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+.bucket-row li {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: clamp(56px, 7vw, 96px);
+  border: 2px solid #c7d3e0;
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  color: #5b6b7f;
+  font-size: clamp(18px, 2vw, 30px);
+  font-weight: 800;
+}
+.bucket-row li small {
+  position: absolute;
+  top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #b45309;
+}
+.bucket-row li[data-lit="true"] { border-color: var(--color-primary); background: #fff4dc; box-shadow: 0 0 24px var(--color-primary-glow); }
+.bucket-row li[data-landed="true"] { border-color: #1f8a70; background: #1f8a70; color: #fff; }
+.bucket-row li[data-landed="true"] small { color: #fff4dc; }
+.bucket-row li[data-landed="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: 12px;
+  width: 38%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.25;
+}
+
+.win-awards { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; padding: 0; list-style: none; font-size: clamp(16px, 1.5vw, 22px); }
+.win-awards li { padding: 10px 16px; border: 1px dashed #7a8ca4; border-radius: 10px; background: #edf4fb; }
+.win-awards strong { font-size: 1.3em; }
+.win-lit .win-awards li:first-child { border-color: #b45309; background: #fff4dc; }
+
+.win-qr { display: grid; justify-items: center; gap: 10px; text-align: center; }
+.qr-block {
+  display: grid;
+  place-items: center;
+  width: clamp(200px, 22vw, 320px);
+  aspect-ratio: 1;
+  padding: 10px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 30px #10233a26;
+}
+.qr-block img { width: 100%; height: 100%; image-rendering: pixelated; }
+.qr-caption { margin: 6px 0 0; font-size: clamp(16px, 1.5vw, 22px); font-weight: 700; }
+.qr-note { margin: 0; color: #4b5d73; font-size: 14px; }
+
+.win-footer { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
+.btn-secondary {
+  min-width: 120px;
+  padding: 10px 18px;
+  border: 1px solid #7a8ca4;
+  border-radius: 8px;
+  background: transparent;
+  color: #10233a;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn-secondary:hover { background: #e3ebf5; }
+.reset-timer { color: #4b5d73; font-size: 14px; }
+
+.confetti-field { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.confetti-piece {
+  position: absolute;
+  top: -48px;
+  width: 44px;
+  height: 44px;
+  opacity: 0.95;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  filter: drop-shadow(0 5px 7px #0206173d);
+}
+
+@keyframes win-pop { from { opacity: 0; transform: translateY(16px) scale(0.92); } to { opacity: 1; transform: none; } }
+@keyframes confetti-fall { from { transform: translateY(-48px) rotate(0deg); } to { transform: translateY(110vh) rotate(180deg); } }
+
+/* ============ Connection indicator ============ */
+
+.connection {
+  position: fixed;
+  right: 16px;
+  bottom: 12px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+.connection span { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+.connection[data-connected="true"] span { background: var(--color-accent); }
+
+/* ============ Narrow screens: vertical track ============ */
+
+@media (max-width: 900px) {
+  .flow-track { --icon: 48px; padding: 0 0 0 64px; }
+  .flow-line {
+    left: 31px;
+    right: auto;
+    top: calc(50% / var(--count));
+    bottom: calc(50% / var(--count));
+    width: 2px;
+    height: auto;
+    background: linear-gradient(180deg, var(--tier-edge), var(--tier-cloud) 45%, var(--tier-platform));
+  }
+  .flow-light { left: 32px; top: calc((var(--index) + 0.5) / var(--count) * 100%); }
+  .flow-steps { grid-template-columns: 1fr; gap: 10px; }
+  .flow-step { grid-template-columns: auto 1fr; justify-items: start; align-items: center; text-align: left; font-size: 15px; }
+  .win-card { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-light { transition: none; }
+  .confetti-piece { animation: none; display: none; }
+  .win-card { animation: none; }
+}

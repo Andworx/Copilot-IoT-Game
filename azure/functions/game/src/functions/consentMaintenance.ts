@@ -1,5 +1,5 @@
 import { app, InvocationContext, Timer } from "@azure/functions";
-import { apiSurface } from "../lib/apiSurface";
+import { apiSurface, backgroundWorkEnabled } from "../lib/apiSurface";
 import { runFollowUps, runRetention } from "../lib/consentMaintenance";
 
 /**
@@ -13,6 +13,6 @@ export async function consentMaintenance(_timer: Timer, context: InvocationConte
   context.log("consent-maintenance retention", retention);
 }
 
-if (apiSurface() === "staff") {
+if (apiSurface() === "staff" && backgroundWorkEnabled()) {
   app.timer("consent-maintenance", { schedule: "0 0 14 * * *", handler: consentMaintenance });
 }

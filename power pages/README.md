@@ -3,8 +3,7 @@
 This folder contains **`copilotiotgame`**, the kiosk **Power Pages Code Site** (React 19 +
 Vite SPA) — not a classic Liquid portal. There's no `web-templates/`, `web-pages/`, or
 `website.yml` here; the whole site is the React app under `copilotiotgame/src/`. The
-standalone phone-facing spin flow lives in the sibling `prize wheel` Code Site, and the
-event-facing Plinko board display lives in the sibling `plinko` Code Site.
+standalone phone-facing spin flow lives in the sibling `prize wheel` Code Site.
 
 `restore-and-spin` was the original prototype for the kiosk site and has been retired —
 it had no Game Mode support and only a fake placeholder QR. Everything it did has a
@@ -26,23 +25,26 @@ power pages/
 │   ├── powerpages.config.json   # site name + build output path, read by PAC
 │   ├── src/                     # React app source
 │   └── README.md                # app-specific dev notes, Game Mode behavior, what's stubbed
-└── prize wheel/            # standalone phone-facing spin Code Site — deployed via deploy-apps.yml
+├── prize wheel/            # standalone phone-facing spin Code Site — deployed via deploy-apps.yml
+│   ├── powerpages.config.json
+│   └── src/
+├── plinko/                 # Plinko booth display Code Site — deployed via deploy-apps.yml
+│   ├── powerpages.config.json
+│   └── src/
+└── mcpquest/               # MCP Quest player Code Site — deployed via deploy-apps.yml
     ├── powerpages.config.json
     └── src/
-└── plinko/                 # Plinko board display Code Site — deployed via deploy-apps.yml
-  ├── powerpages.config.json
-  └── src/
 ```
 
 See `docs/README.md` for what's still an active reference vs. archived.
 
 ## GitHub Actions releases
 
-Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App,
-`copilotiotgame`, `prize wheel`, and `plinko` releases: PR build checks, then automatic
-deployment after relevant changes merge to `main`. Workflow:
-`.github/workflows/deploy-apps.yml`. Local publishing commands are for explicitly
-requested recovery/bootstrap work.
+Use [the CI/CD workflow](../docs/CI_CD.md) for routine Function App and
+`copilotiotgame` releases: PR build checks, then automatic deployment after
+relevant changes merge to `main`. Workflow: `.github/workflows/deploy-apps.yml`.
+Local publishing commands are for explicitly requested recovery/bootstrap work.
+`prize wheel` is not yet wired into that workflow and is deployed manually.
 
 ## PAC CLI Commands
 

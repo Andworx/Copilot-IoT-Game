@@ -1,0 +1,1743 @@
+{
+  "version": "it-ticketing@2026-10-09",
+  "source": "https://www.mcpstation.io/mcp/it-ticketing",
+  "capturedAt": "2026-10-09T23:19:14.027Z",
+  "server": {
+    "name": "IT Ticketing",
+    "protocolVersion": "2025-03-26"
+  },
+  "tools": [
+    {
+      "name": "list_incidents",
+      "title": "List Incidents",
+      "description": "Retrieve a paginated list of incidents with optional filtering by state, priority, category, caller, assignee, or assignment group. Returns summary information for each incident.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "description": "Maximum number of records to return (default: 10, max: 100)"
+          },
+          "state": {
+            "enum": [
+              "New",
+              "In Progress",
+              "On Hold",
+              "Resolved",
+              "Closed"
+            ],
+            "type": "string",
+            "description": "Filter by incident state"
+          },
+          "offset": {
+            "type": "number",
+            "description": "Number of records to skip for pagination (default: 0)"
+          },
+          "category": {
+            "enum": [
+              "Hardware",
+              "Software",
+              "Network",
+              "Access & Identity",
+              "Database",
+              "Email & Collaboration",
+              "Security",
+              "Other"
+            ],
+            "type": "string",
+            "description": "Filter by incident category"
+          },
+          "priority": {
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ],
+            "type": "string",
+            "description": "Filter by priority level"
+          },
+          "caller_id": {
+            "type": "string",
+            "description": "Filter by caller user ID",
+            "x-ref-dataset": "users"
+          },
+          "assigned_to_id": {
+            "type": "string",
+            "description": "Filter by assignee user ID",
+            "x-ref-dataset": "users"
+          },
+          "assignment_group_id": {
+            "type": "string",
+            "description": "Filter by assignment group ID",
+            "x-ref-dataset": "assignment_groups"
+          },
+          "data_quality": {
+            "type": "string",
+            "enum": [
+              "all",
+              "dirty_only",
+              "clean_only"
+            ],
+            "default": "clean_only",
+            "description": "Filter records by data quality. clean_only is the new default and excludes defective/augmentation records. dirty_only returns only defective records. all returns everything, matching the old behavior for callers that previously received dirty records."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_incident",
+      "title": "Get Incident",
+      "description": "Retrieve the complete details of a specific incident, including all comments, work notes, and related entity information.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "incident_id"
+        ],
+        "properties": {
+          "incident_id": {
+            "type": "string",
+            "description": "The incident ID to retrieve (format: INC-XXXXXX)"
+          },
+          "data_quality": {
+            "type": "string",
+            "enum": [
+              "all",
+              "dirty_only",
+              "clean_only"
+            ],
+            "default": "clean_only",
+            "description": "Filter records by data quality. clean_only is the new default and excludes defective/augmentation records. dirty_only returns only defective records. all returns everything, matching the old behavior for callers that previously received dirty records."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_incident",
+      "title": "Create Incident",
+      "description": "[Mock operation — changes are not persisted] Create a new incident in the system. Requires caller ID, short description, category, and priority. Returns the newly created incident with auto-assigned ID and system fields.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "caller_id",
+          "short_description",
+          "category",
+          "priority"
+        ],
+        "properties": {
+          "category": {
+            "enum": [
+              "Hardware",
+              "Software",
+              "Network",
+              "Access & Identity",
+              "Database",
+              "Email & Collaboration",
+              "Security",
+              "Other"
+            ],
+            "type": "string",
+            "description": "Primary category for the incident"
+          },
+          "priority": {
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ],
+            "type": "string",
+            "description": "Priority level (1=Critical, 5=Low)"
+          },
+          "caller_id": {
+            "type": "string",
+            "description": "User ID of the person reporting the incident",
+            "x-ref-dataset": "users"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the incident"
+          },
+          "subcategory": {
+            "type": "string",
+            "description": "Subcategory for additional specificity"
+          },
+          "short_description": {
+            "type": "string",
+            "description": "Brief one-line summary of the issue (max 160 characters)"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "update_incident",
+      "title": "Update Incident",
+      "description": "[Mock operation — changes are not persisted] Update an existing incident. Can modify state, priority, assignment, description, or add work notes. Provides full updated incident details.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "incident_id"
+        ],
+        "properties": {
+          "state": {
+            "enum": [
+              "New",
+              "In Progress",
+              "On Hold",
+              "Resolved",
+              "Closed"
+            ],
+            "type": "string",
+            "description": "New state for the incident"
+          },
+          "priority": {
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ],
+            "type": "string",
+            "description": "New priority level"
+          },
+          "description": {
+            "type": "string",
+            "description": "Updated description (appends to existing description with timestamp)"
+          },
+          "incident_id": {
+            "type": "string",
+            "description": "The incident ID to update (format: INC-XXXXXX)"
+          },
+          "assigned_to_id": {
+            "type": "string",
+            "description": "User ID to assign the incident to",
+            "x-ref-dataset": "users"
+          },
+          "assignment_group_id": {
+            "type": "string",
+            "description": "Assignment group ID to route the incident to",
+            "x-ref-dataset": "assignment_groups"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "add_comment",
+      "title": "Add Comment",
+      "description": "[Mock operation — changes are not persisted] Add a comment or internal work note to an incident. Comments are visible to end users; work notes are internal only.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "incident_id",
+          "author_id",
+          "text",
+          "type"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The comment or work note text"
+          },
+          "type": {
+            "enum": [
+              "comment",
+              "work_note"
+            ],
+            "type": "string",
+            "description": "Type of comment: public comment or internal work note"
+          },
+          "author_id": {
+            "type": "string",
+            "description": "User ID of the comment author",
+            "x-ref-dataset": "users"
+          },
+          "incident_id": {
+            "type": "string",
+            "description": "The incident ID to add the comment to"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_users",
+      "title": "List Users",
+      "description": "Retrieve a list of users with optional filtering by department or name search. Returns user summary information.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "description": "Maximum number of records to return (default: 10, max: 100)"
+          },
+          "offset": {
+            "type": "number",
+            "description": "Number of records to skip for pagination (default: 0)"
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "Filter by active status (default: true)"
+          },
+          "department": {
+            "enum": [
+              "Infrastructure",
+              "Applications",
+              "Network Operations",
+              "Security",
+              "Database Administration",
+              "Help Desk",
+              "IT Management"
+            ],
+            "type": "string",
+            "description": "Filter by department"
+          },
+          "name_contains": {
+            "type": "string",
+            "description": "Filter by partial name match (case-insensitive)"
+          },
+          "data_quality": {
+            "type": "string",
+            "enum": [
+              "all",
+              "dirty_only",
+              "clean_only"
+            ],
+            "default": "clean_only",
+            "description": "Filter records by data quality. clean_only is the new default and excludes defective/augmentation records. dirty_only returns only defective records. all returns everything, matching the old behavior for callers that previously received dirty records."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_user",
+      "title": "Get User",
+      "description": "Retrieve complete details for a specific user including department, contact information, and status.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "user_id"
+        ],
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "description": "The user ID to retrieve (format: USR-XXXX)"
+          },
+          "data_quality": {
+            "type": "string",
+            "enum": [
+              "all",
+              "dirty_only",
+              "clean_only"
+            ],
+            "default": "clean_only",
+            "description": "Filter records by data quality. clean_only is the new default and excludes defective/augmentation records. dirty_only returns only defective records. all returns everything, matching the old behavior for callers that previously received dirty records."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_user",
+      "title": "Create User",
+      "description": "[Mock operation — changes are not persisted] Create a new user account in the system. Returns the newly created user with assigned user ID.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "department"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Full name of the user"
+          },
+          "email": {
+            "type": "string",
+            "description": "Corporate email address"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Corporate phone number"
+          },
+          "department": {
+            "enum": [
+              "Infrastructure",
+              "Applications",
+              "Network Operations",
+              "Security",
+              "Database Administration",
+              "Help Desk",
+              "IT Management"
+            ],
+            "type": "string",
+            "description": "Department or team assignment"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "list_assignment_groups",
+      "title": "List Assignment Groups",
+      "description": "Retrieve all assignment groups available in the system. Groups define team responsibility areas for incident routing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "department": {
+            "type": "string",
+            "description": "Filter groups by department"
+          },
+          "data_quality": {
+            "type": "string",
+            "enum": [
+              "all",
+              "dirty_only",
+              "clean_only"
+            ],
+            "default": "clean_only",
+            "description": "Filter records by data quality. clean_only is the new default and excludes defective/augmentation records. dirty_only returns only defective records. all returns everything, matching the old behavior for callers that previously received dirty records."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_assignment_group",
+      "title": "Get Assignment Group",
+      "description": "Retrieve complete details for a specific assignment group.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "group_id"
+        ],
+        "properties": {
+          "group_id": {
+            "type": "string",
+            "description": "The assignment group ID to retrieve (format: GRP-XXXX)"
+          },
+          "data_quality": {
+            "type": "string",
+            "enum": [
+              "all",
+              "dirty_only",
+              "clean_only"
+            ],
+            "default": "clean_only",
+            "description": "Filter records by data quality. clean_only is the new default and excludes defective/augmentation records. dirty_only returns only defective records. all returns everything, matching the old behavior for callers that previously received dirty records."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_assignment_group",
+      "title": "Create Assignment Group",
+      "description": "[Mock operation — changes are not persisted] Create a new assignment group for routing incidents to teams. Returns the newly created group.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "department"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the assignment group"
+          },
+          "department": {
+            "type": "string",
+            "description": "Primary department this group supports"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the group's purpose and responsibility"
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000002",
+      "shortDescription": "Email service intermittent failures",
+      "state": "In Progress",
+      "priority": "2",
+      "category": "Email & Collaboration",
+      "caller_name": "Thomas O'Brien",
+      "assignedTo_name": "Lisa Wang",
+      "assignmentGroup_name": "Application Support",
+      "createdAt": "2024-12-18T10:30:00Z",
+      "updatedAt": "2024-12-19T12:45:00Z"
+    },
+    {
+      "incidentId": "INC-000003",
+      "shortDescription": "Network connectivity issues in Building C",
+      "state": "Resolved",
+      "priority": "1",
+      "category": "Network",
+      "caller_name": "Thomas O'Brien",
+      "assignedTo_name": "Jennifer Kowalski",
+      "assignmentGroup_name": "Network Operations",
+      "createdAt": "2024-12-17T08:15:00Z",
+      "updatedAt": "2024-12-17T09:45:00Z"
+    },
+    {
+      "incidentId": "INC-000004",
+      "shortDescription": "Urgent: Potential security breach detected",
+      "state": "In Progress",
+      "priority": "1",
+      "category": "Security",
+      "caller_name": "Dmitri Volkov",
+      "assignedTo_name": "Dmitri Volkov",
+      "assignmentGroup_name": "Security Incident Response",
+      "createdAt": "2024-12-19T16:20:00Z",
+      "updatedAt": "2024-12-19T16:50:00Z"
+    },
+    {
+      "incidentId": "INC-000005",
+      "shortDescription": "Cannot access shared network drive",
+      "state": "New",
+      "priority": "2",
+      "category": "Access & Identity",
+      "caller_name": "Michael Patterson",
+      "assignedTo_name": null,
+      "assignmentGroup_name": "Infrastructure Support",
+      "createdAt": "2024-12-19T13:00:00Z",
+      "updatedAt": "2024-12-19T13:00:00Z"
+    },
+    {
+      "incidentId": "INC-000006",
+      "shortDescription": "Monitor display not working",
+      "state": "New",
+      "priority": "3",
+      "category": "Hardware",
+      "caller_name": "Thomas O'Brien",
+      "assignedTo_name": null,
+      "assignmentGroup_name": "Help Desk Tier 1",
+      "createdAt": "2024-12-19T11:20:00Z",
+      "updatedAt": "2024-12-19T11:20:00Z"
+    },
+    {
+      "incidentId": "INC-000007",
+      "shortDescription": "Printer offline in Marketing department",
+      "state": "On Hold",
+      "priority": "3",
+      "category": "Hardware",
+      "caller_name": "Michael Patterson",
+      "assignedTo_name": "Thomas O'Brien",
+      "assignmentGroup_name": "Help Desk Tier 1",
+      "createdAt": "2024-12-18T14:50:00Z",
+      "updatedAt": "2024-12-19T10:30:00Z"
+    },
+    {
+      "incidentId": "INC-000008",
+      "shortDescription": "VPN connection drops frequently",
+      "state": "In Progress",
+      "priority": "2",
+      "category": "Network",
+      "caller_name": "Thomas O'Brien",
+      "assignedTo_name": "Jennifer Kowalski",
+      "assignmentGroup_name": "Network Operations",
+      "createdAt": "2024-12-17T16:30:00Z",
+      "updatedAt": "2024-12-19T14:15:00Z"
+    },
+    {
+      "incidentId": "INC-000009",
+      "shortDescription": "Application crash on startup",
+      "state": "In Progress",
+      "priority": "2",
+      "category": "Software",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Lisa Wang",
+      "assignmentGroup_name": "Application Support",
+      "createdAt": "2024-12-19T07:45:00Z",
+      "updatedAt": "2024-12-19T13:20:00Z"
+    },
+    {
+      "incidentId": "INC-000010",
+      "shortDescription": "Unable to reset password through self-service portal",
+      "state": "Resolved",
+      "priority": "2",
+      "category": "Access & Identity",
+      "caller_name": "Michael Patterson",
+      "assignedTo_name": "Sarah Okonkwo",
+      "assignmentGroup_name": "Infrastructure Support",
+      "createdAt": "2024-12-16T12:00:00Z",
+      "updatedAt": "2024-12-16T14:30:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v23",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v14",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v5",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v17",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v15",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v18",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v29",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v8",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v20",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v26",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v11",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v3",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v2",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v27",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v24",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v12",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v9",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v21",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v6",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    },
+    {
+      "incidentId": "INC-000001",
+      "shortDescription": "Production database server unresponsive",
+      "state": "In Progress v30",
+      "priority": "1",
+      "category": "Database",
+      "caller_name": "Marcus Chen",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup_name": "Database Support",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z"
+    }
+  ],
+  "details": {
+    "INC-000001": {
+      "state": "In Progress",
+      "caller": {
+        "name": "Marcus Chen",
+        "email": "m.chen@techcorp.com",
+        "userId": "USR-0002",
+        "department": "Applications"
+      },
+      "slaDue": "2024-12-19T15:45:00Z",
+      "category": "Database",
+      "comments": [
+        {
+          "text": "Investigating database logs. Found memory exhaustion on PRODDB01. Starting recovery process.",
+          "type": "work_note",
+          "author": {
+            "name": "Priya Sharma",
+            "email": "p.sharma@techcorp.com",
+            "userId": "USR-0005"
+          },
+          "commentId": "COM-000001",
+          "createdAt": "2024-12-19T15:05:00Z"
+        },
+        {
+          "text": "Restarted database service. Running consistency checks now.",
+          "type": "work_note",
+          "author": {
+            "name": "Priya Sharma",
+            "email": "p.sharma@techcorp.com",
+            "userId": "USR-0005"
+          },
+          "commentId": "COM-000002",
+          "createdAt": "2024-12-19T15:18:00Z"
+        }
+      ],
+      "priority": "1",
+      "createdAt": "2024-12-19T14:45:00Z",
+      "updatedAt": "2024-12-19T15:22:00Z",
+      "assignedTo": {
+        "name": "Priya Sharma",
+        "email": "p.sharma@techcorp.com",
+        "userId": "USR-0005",
+        "department": "Database Administration"
+      },
+      "incidentId": "INC-000001",
+      "caller_name": "Marcus Chen",
+      "description": "The primary production database server (PRODDB01) stopped responding to queries at approximately 14:30 UTC. All database-dependent applications are experiencing timeouts. Recent configuration changes to replication settings may be involved.",
+      "subcategory": "Server Unavailability",
+      "assignedTo_name": "Priya Sharma",
+      "assignmentGroup": {
+        "name": "Database Support",
+        "groupId": "GRP-0005"
+      },
+      "shortDescription": "Production database server unresponsive",
+      "assignmentGroup_name": "Database Support"
+    },
+    "INC-000002": {
+      "state": "In Progress",
+      "caller": {
+        "name": "Thomas O'Brien",
+        "email": "t.obrien@techcorp.com",
+        "userId": "USR-0006",
+        "department": "Help Desk"
+      },
+      "slaDue": "2024-12-18T13:30:00Z",
+      "category": "Email & Collaboration",
+      "comments": [
+        {
+          "text": "Confirmed issue in Exchange Online. Contacted Microsoft support for assistance.",
+          "type": "work_note",
+          "author": {
+            "name": "Lisa Wang",
+            "email": "l.wang@techcorp.com",
+            "userId": "USR-0009"
+          },
+          "commentId": "COM-000003",
+          "createdAt": "2024-12-18T11:15:00Z"
+        }
+      ],
+      "priority": "2",
+      "createdAt": "2024-12-18T10:30:00Z",
+      "updatedAt": "2024-12-19T12:45:00Z",
+      "assignedTo": {
+        "name": "Lisa Wang",
+        "email": "l.wang@techcorp.com",
+        "userId": "USR-0009",
+        "department": "Applications"
+      },
+      "incidentId": "INC-000002",
+      "caller_name": "Thomas O'Brien",
+      "description": "Multiple users reporting inability to send or receive emails intermittently. Issue appears to be affecting the Exchange Online connector. Affects approximately 40% of user population.",
+      "subcategory": "Service Disruption",
+      "assignedTo_name": "Lisa Wang",
+      "assignmentGroup": {
+        "name": "Application Support",
+        "groupId": "GRP-0002"
+      },
+      "shortDescription": "Email service intermittent failures",
+      "assignmentGroup_name": "Application Support"
+    },
+    "INC-000003": {
+      "state": "Resolved",
+      "caller": {
+        "name": "Thomas O'Brien",
+        "email": "t.obrien@techcorp.com",
+        "userId": "USR-0006",
+        "department": "Help Desk"
+      },
+      "slaDue": "2024-12-17T09:15:00Z",
+      "category": "Network",
+      "comments": [
+        {
+          "text": "Identified VLAN misconfiguration on core switch. Restored correct routing rules. Testing network connectivity now.",
+          "type": "work_note",
+          "author": {
+            "name": "Jennifer Kowalski",
+            "email": "j.kowalski@techcorp.com",
+            "userId": "USR-0003"
+          },
+          "commentId": "COM-000004",
+          "createdAt": "2024-12-17T08:45:00Z"
+        },
+        {
+          "text": "All workstations in Building C are now back online. Connectivity verified across all test points.",
+          "type": "work_note",
+          "author": {
+            "name": "Jennifer Kowalski",
+            "email": "j.kowalski@techcorp.com",
+            "userId": "USR-0003"
+          },
+          "commentId": "COM-000005",
+          "createdAt": "2024-12-17T09:40:00Z"
+        }
+      ],
+      "priority": "1",
+      "createdAt": "2024-12-17T08:15:00Z",
+      "updatedAt": "2024-12-17T09:45:00Z",
+      "assignedTo": {
+        "name": "Jennifer Kowalski",
+        "email": "j.kowalski@techcorp.com",
+        "userId": "USR-0003",
+        "department": "Network Operations"
+      },
+      "incidentId": "INC-000003",
+      "caller_name": "Thomas O'Brien",
+      "description": "All network ports in Building C third floor are down. VLAN routing appears to be misconfigured after recent network maintenance. Approximately 60 workstations affected.",
+      "subcategory": "Connectivity Loss",
+      "assignedTo_name": "Jennifer Kowalski",
+      "assignmentGroup": {
+        "name": "Network Operations",
+        "groupId": "GRP-0003"
+      },
+      "shortDescription": "Network connectivity issues in Building C",
+      "assignmentGroup_name": "Network Operations"
+    },
+    "INC-000004": {
+      "state": "In Progress",
+      "caller": {
+        "name": "Dmitri Volkov",
+        "email": "d.volkov@techcorp.com",
+        "userId": "USR-0004",
+        "department": "Security"
+      },
+      "slaDue": "2024-12-19T16:35:00Z",
+      "category": "Security",
+      "comments": [
+        {
+          "text": "Initiated immediate incident response protocol. Isolating affected domain controller from network. Reviewing access logs from past 24 hours.",
+          "type": "work_note",
+          "author": {
+            "name": "Dmitri Volkov",
+            "email": "d.volkov@techcorp.com",
+            "userId": "USR-0004"
+          },
+          "commentId": "COM-000006",
+          "createdAt": "2024-12-19T16:25:00Z"
+        }
+      ],
+      "priority": "1",
+      "createdAt": "2024-12-19T16:20:00Z",
+      "updatedAt": "2024-12-19T16:50:00Z",
+      "assignedTo": {
+        "name": "Dmitri Volkov",
+        "email": "d.volkov@techcorp.com",
+        "userId": "USR-0004",
+        "department": "Security"
+      },
+      "incidentId": "INC-000004",
+      "caller_name": "Dmitri Volkov",
+      "description": "Unauthorized access attempt detected on domain controller. Multiple failed login attempts from external IP followed by successful access using compromised credentials. Immediate investigation and containment required.",
+      "subcategory": "Unauthorized Access",
+      "assignedTo_name": "Dmitri Volkov",
+      "assignmentGroup": {
+        "name": "Security Incident Response",
+        "groupId": "GRP-0004"
+      },
+      "shortDescription": "Urgent: Potential security breach detected",
+      "assignmentGroup_name": "Security Incident Response"
+    },
+    "INC-000005": {
+      "state": "New",
+      "caller": {
+        "name": "Michael Patterson",
+        "email": "m.patterson@techcorp.com",
+        "userId": "USR-0008",
+        "department": "Help Desk"
+      },
+      "slaDue": "2024-12-19T16:00:00Z",
+      "category": "Access & Identity",
+      "comments": [],
+      "priority": "2",
+      "createdAt": "2024-12-19T13:00:00Z",
+      "updatedAt": "2024-12-19T13:00:00Z",
+      "assignedTo": null,
+      "incidentId": "INC-000005",
+      "caller_name": "Michael Patterson",
+      "description": "User unable to access the Finance shared folder (\\\\fileserver\\finance). Receives permission denied error despite being a member of Finance group. Issue started this morning.",
+      "subcategory": "File Share Access",
+      "assignedTo_name": null,
+      "assignmentGroup": {
+        "name": "Infrastructure Support",
+        "groupId": "GRP-0001"
+      },
+      "shortDescription": "Cannot access shared network drive",
+      "assignmentGroup_name": "Infrastructure Support"
+    },
+    "INC-000006": {
+      "state": "New",
+      "caller": {
+        "name": "Thomas O'Brien",
+        "email": "t.obrien@techcorp.com",
+        "userId": "USR-0006",
+        "department": "Help Desk"
+      },
+      "slaDue": "2024-12-19T19:20:00Z",
+      "category": "Hardware",
+      "comments": [],
+      "priority": "3",
+      "createdAt": "2024-12-19T11:20:00Z",
+      "updatedAt": "2024-12-19T11:20:00Z",
+      "assignedTo": null,
+      "incidentId": "INC-000006",
+      "caller_name": "Thomas O'Brien",
+      "description": "User's external monitor connected via HDMI is not displaying any signal. Adapter and cables appear intact. Built-in laptop display works fine.",
+      "subcategory": "Display/Monitor",
+      "assignedTo_name": null,
+      "assignmentGroup": {
+        "name": "Help Desk Tier 1",
+        "groupId": "GRP-0006"
+      },
+      "shortDescription": "Monitor display not working",
+      "assignmentGroup_name": "Help Desk Tier 1"
+    },
+    "INC-000007": {
+      "state": "On Hold",
+      "caller": {
+        "name": "Michael Patterson",
+        "email": "m.patterson@techcorp.com",
+        "userId": "USR-0008",
+        "department": "Help Desk"
+      },
+      "slaDue": "2024-12-18T22:50:00Z",
+      "category": "Hardware",
+      "comments": [
+        {
+          "text": "Waiting for Marketing department lead to confirm if printer is still needed in current location. Will investigate further once confirmation is received.",
+          "type": "work_note",
+          "author": {
+            "name": "Thomas O'Brien",
+            "email": "t.obrien@techcorp.com",
+            "userId": "USR-0006"
+          },
+          "commentId": "COM-000007",
+          "createdAt": "2024-12-19T10:25:00Z"
+        }
+      ],
+      "priority": "3",
+      "createdAt": "2024-12-18T14:50:00Z",
+      "updatedAt": "2024-12-19T10:30:00Z",
+      "assignedTo": {
+        "name": "Thomas O'Brien",
+        "email": "t.obrien@techcorp.com",
+        "userId": "USR-0006",
+        "department": "Help Desk"
+      },
+      "incidentId": "INC-000007",
+      "caller_name": "Michael Patterson",
+      "description": "The HP LaserJet Pro M479 printer in Marketing is showing offline status. Users cannot send print jobs. Printer is powered on and network cable is connected.",
+      "subcategory": "Printer",
+      "assignedTo_name": "Thomas O'Brien",
+      "assignmentGroup": {
+        "name": "Help Desk Tier 1",
+        "groupId": "GRP-0006"
+      },
+      "shortDescription": "Printer offline in Marketing department",
+      "assignmentGroup_name": "Help Desk Tier 1"
+    },
+    "INC-000008": {
+      "state": "In Progress",
+      "caller": {
+        "name": "Thomas O'Brien",
+        "email": "t.obrien@techcorp.com",
+        "userId": "USR-0006",
+        "department": "Help Desk"
+      },
+      "slaDue": "2024-12-17T19:30:00Z",
+      "category": "Network",
+      "comments": [
+        {
+          "text": "Reviewed VPN server logs. Found possible firewall rule timeout issue. Escalating to firewall team for review.",
+          "type": "work_note",
+          "author": {
+            "name": "Jennifer Kowalski",
+            "email": "j.kowalski@techcorp.com",
+            "userId": "USR-0003"
+          },
+          "commentId": "COM-000008",
+          "createdAt": "2024-12-18T09:00:00Z"
+        }
+      ],
+      "priority": "2",
+      "createdAt": "2024-12-17T16:30:00Z",
+      "updatedAt": "2024-12-19T14:15:00Z",
+      "assignedTo": {
+        "name": "Jennifer Kowalski",
+        "email": "j.kowalski@techcorp.com",
+        "userId": "USR-0003",
+        "department": "Network Operations"
+      },
+      "incidentId": "INC-000008",
+      "caller_name": "Thomas O'Brien",
+      "description": "Remote user experiencing frequent disconnections from corporate VPN. Disconnects happen every 15-20 minutes. User is able to reconnect manually but issue impacts productivity.",
+      "subcategory": "VPN",
+      "assignedTo_name": "Jennifer Kowalski",
+      "assignmentGroup": {
+        "name": "Network Operations",
+        "groupId": "GRP-0003"
+      },
+      "shortDescription": "VPN connection drops frequently",
+      "assignmentGroup_name": "Network Operations"
+    },
+    "INC-000009": {
+      "state": "In Progress",
+      "caller": {
+        "name": "Marcus Chen",
+        "email": "m.chen@techcorp.com",
+        "userId": "USR-0002",
+        "department": "Applications"
+      },
+      "slaDue": "2024-12-19T10:45:00Z",
+      "category": "Software",
+      "comments": [
+        {
+          "text": "Reproduced issue in test environment. Appears to be related to recent permissions change on application config folder. Reviewing permission audit logs.",
+          "type": "work_note",
+          "author": {
+            "name": "Lisa Wang",
+            "email": "l.wang@techcorp.com",
+            "userId": "USR-0009"
+          },
+          "commentId": "COM-000009",
+          "createdAt": "2024-12-19T08:30:00Z"
+        },
+        {
+          "text": "Found the root cause: NTFS permissions were inadvertently changed during a batch update yesterday. Restoring correct permissions now.",
+          "type": "work_note",
+          "author": {
+            "name": "Lisa Wang",
+            "email": "l.wang@techcorp.com",
+            "userId": "USR-0009"
+          },
+          "commentId": "COM-000010",
+          "createdAt": "2024-12-19T13:15:00Z"
+        }
+      ],
+      "priority": "2",
+      "createdAt": "2024-12-19T07:45:00Z",
+      "updatedAt": "2024-12-19T13:20:00Z",
+      "assignedTo": {
+        "name": "Lisa Wang",
+        "email": "l.wang@techcorp.com",
+        "userId": "USR-0009",
+        "department": "Applications"
+      },
+      "incidentId": "INC-000009",
+      "caller_name": "Marcus Chen",
+      "description": "Custom reporting application crashes immediately upon launch with error code 0x80070005 (Access Denied). Issue affects multiple users. Application was functioning correctly yesterday.",
+      "subcategory": "Application Crash",
+      "assignedTo_name": "Lisa Wang",
+      "assignmentGroup": {
+        "name": "Application Support",
+        "groupId": "GRP-0002"
+      },
+      "shortDescription": "Application crash on startup",
+      "assignmentGroup_name": "Application Support"
+    },
+    "INC-000010": {
+      "state": "Resolved",
+      "caller": {
+        "name": "Michael Patterson",
+        "email": "m.patterson@techcorp.com",
+        "userId": "USR-0008",
+        "department": "Help Desk"
+      },
+      "slaDue": "2024-12-16T15:00:00Z",
+      "category": "Access & Identity",
+      "comments": [
+        {
+          "text": "Identified backend service timeout on identity verification API. Increased timeout threshold and restarted service. Portal now operational.",
+          "type": "work_note",
+          "author": {
+            "name": "Sarah Okonkwo",
+            "email": "s.okonkwo@techcorp.com",
+            "userId": "USR-0001"
+          },
+          "commentId": "COM-000011",
+          "createdAt": "2024-12-16T13:15:00Z"
+        }
+      ],
+      "priority": "2",
+      "createdAt": "2024-12-16T12:00:00Z",
+      "updatedAt": "2024-12-16T14:30:00Z",
+      "assignedTo": {
+        "name": "Sarah Okonkwo",
+        "email": "s.okonkwo@techcorp.com",
+        "userId": "USR-0001",
+        "department": "Infrastructure"
+      },
+      "incidentId": "INC-000010",
+      "caller_name": "Michael Patterson",
+      "description": "User unable to complete password reset using the IT self-service portal. Process times out at the identity verification step. Affects multiple users attempting resets.",
+      "subcategory": "Password Reset",
+      "assignedTo_name": "Sarah Okonkwo",
+      "assignmentGroup": {
+        "name": "Infrastructure Support",
+        "groupId": "GRP-0001"
+      },
+      "shortDescription": "Unable to reset password through self-service portal",
+      "assignmentGroup_name": "Infrastructure Support"
+    }
+  },
+  "users": [
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v23",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v15",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v18",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v24",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v14",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v30",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v3",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v6",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v29",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v12",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v9",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v8",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v20",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v2",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v26",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v17",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v21",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v5",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v27",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo v11",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0001",
+      "name": "Sarah Okonkwo",
+      "email": "s.okonkwo@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0101",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0002",
+      "name": "Marcus Chen",
+      "email": "m.chen@techcorp.com",
+      "department": "Applications",
+      "phone": "+1-555-0102",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0003",
+      "name": "Jennifer Kowalski",
+      "email": "j.kowalski@techcorp.com",
+      "department": "Network Operations",
+      "phone": "+1-555-0103",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0004",
+      "name": "Dmitri Volkov",
+      "email": "d.volkov@techcorp.com",
+      "department": "Security",
+      "phone": "+1-555-0104",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0005",
+      "name": "Priya Sharma",
+      "email": "p.sharma@techcorp.com",
+      "department": "Database Administration",
+      "phone": "+1-555-0105",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0006",
+      "name": "Thomas O'Brien",
+      "email": "t.obrien@techcorp.com",
+      "department": "Help Desk",
+      "phone": "+1-555-0106",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0007",
+      "name": "Ana Rodriguez",
+      "email": "a.rodriguez@techcorp.com",
+      "department": "IT Management",
+      "phone": "+1-555-0107",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0008",
+      "name": "Michael Patterson",
+      "email": "m.patterson@techcorp.com",
+      "department": "Help Desk",
+      "phone": "+1-555-0108",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0009",
+      "name": "Lisa Wang",
+      "email": "l.wang@techcorp.com",
+      "department": "Applications",
+      "phone": "+1-555-0109",
+      "isActive": true
+    },
+    {
+      "userId": "USR-0010",
+      "name": "Robert Nkosi",
+      "email": "r.nkosi@techcorp.com",
+      "department": "Infrastructure",
+      "phone": "+1-555-0110",
+      "isActive": false
+    }
+  ],
+  "groups": [
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0002",
+      "name": "Application Support",
+      "description": "Manages application deployment and troubleshooting",
+      "department": "Applications",
+      "memberCount": 4
+    },
+    {
+      "groupId": "GRP-0003",
+      "name": "Network Operations",
+      "description": "Responsible for network connectivity and performance",
+      "department": "Network Operations",
+      "memberCount": 3
+    },
+    {
+      "groupId": "GRP-0004",
+      "name": "Security Incident Response",
+      "description": "Responds to security incidents and vulnerabilities",
+      "department": "Security",
+      "memberCount": 6
+    },
+    {
+      "groupId": "GRP-0005",
+      "name": "Database Support",
+      "description": "Manages database performance and availability",
+      "department": "Database Administration",
+      "memberCount": 4
+    },
+    {
+      "groupId": "GRP-0006",
+      "name": "Help Desk Tier 1",
+      "description": "First-line support for end-user issues",
+      "department": "Help Desk",
+      "memberCount": 8
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v5",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v24",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v8",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v14",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v11",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v21",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v15",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v3",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v27",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v20",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v9",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v6",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v2",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v12",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v29",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v18",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v26",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v17",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v30",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    },
+    {
+      "groupId": "GRP-0001",
+      "name": "Infrastructure Support v23",
+      "description": "Handles server, storage, and virtualization issues",
+      "department": "Infrastructure",
+      "memberCount": 5
+    }
+  ]
+}

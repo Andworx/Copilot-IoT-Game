@@ -5,13 +5,13 @@
 [CmdletBinding()]
 param(
     [string]$ResourceGroup = 'rg-aw-azcom-iot-copilot',
-    [string]$PlanName = 'ASP-rgawazcomiotcopilot-ec55',
-    [string]$StorageAccountName = 'stawazcomiotgamefn',
-    [string]$PackageContainerName = 'app-package-funcawazcomiotgame-0968767',
-    [string]$FunctionAppName = 'func-aw-azcom-iot-game',
+    [string]$PlanName = 'func-aw-iot-game-v2-plan',
+    [string]$StorageAccountName = 'stawazcomiotgamev2',
+    [string]$PackageContainerName = 'function-packages',
+    [string]$FunctionAppName = 'func-aw-iot-game-v2',
     [string]$VirtualNetworkName = 'iot-demo-vnet',
     [string]$IntegrationSubnetName = 'function-integration',
-    [string]$PackageContainerUrl = 'https://stawazcomiotgamefn.blob.core.windows.net/app-package-funcawazcomiotgame-0968767'
+    [string]$PackageContainerUrl = 'https://stawazcomiotgamev2.blob.core.windows.net/function-packages'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -51,6 +51,8 @@ Assert-Equal 'Game Function storage SKU' $storage.sku.name 'Standard_LRS'
 Assert-Equal 'Game Function storage HTTPS-only flag' $storage.enableHttpsTrafficOnly $true
 Assert-Equal 'Game Function storage blob public access flag' $storage.allowBlobPublicAccess $false
 Assert-Equal 'Game Function storage minimum TLS' $storage.minimumTlsVersion 'TLS1_2'
+Assert-Equal 'Game Function storage shared key access' $storage.allowSharedKeyAccess $true
+Assert-Equal 'Game Function storage public network access' $storage.publicNetworkAccess 'Enabled'
 Assert-Equal 'Game Function storage network default action' $storage.networkRuleSet.defaultAction 'Allow'
 
 $blobService = Invoke-AzJson @('resource', 'show', '--ids', "$storageId/blobServices/default", '--api-version', '2023-05-01')
@@ -81,10 +83,10 @@ Assert-Equal 'Game Function app instance memory' $app.properties.functionAppConf
 Assert-Equal 'Game Function app maximum instances' $app.properties.functionAppConfig.scaleAndConcurrency.maximumInstanceCount 100
 
 $config = Invoke-AzJson @('functionapp', 'config', 'show', '-g', $ResourceGroup, '-n', $FunctionAppName)
-Assert-Equal 'Game Function app FTPS state' $config.ftpsState 'FtpsOnly'
+Assert-Equal 'Game Function app FTPS state' $config.ftpsState 'Disabled'
 Assert-Equal 'Game Function app minimum TLS' $config.minTlsVersion '1.2'
 Assert-Equal 'Game Function app SCM minimum TLS' $config.scmMinTlsVersion '1.2'
-Assert-Equal 'Game Function app HTTP/2 flag' $config.http20Enabled $true
+Assert-Equal 'Game Function app HTTP/2 flag' $config.http20Enabled $false
 Assert-Equal 'Game Function app VNet route-all flag' $config.vnetRouteAllEnabled $false
 Assert-Equal 'Game Function app always-on flag' $config.alwaysOn $false
 Assert-Equal 'Game Function app scale limit' $config.functionAppScaleLimit 100
@@ -96,6 +98,7 @@ Assert-ContainsAll 'Game Function app CORS origins' @($cors.allowedOrigins) @(
     'http://localhost:5174',
     'https://andworxprizewheel.powerappsportals.com',
     'https://copilotiotgame.powerappsportals.com',
+    'https://plinko.powerappsportals.com',
     'https://dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatformusercontent.com'
 )
 
@@ -114,7 +117,8 @@ Assert-ContainsAll 'Game Function app settings' $settingNames @(
     'IOT_EVENTHUB_NAME',
     'IOT_EVENTHUB_CONSUMER_GROUP',
     'GRAND_PRIZE_EMAIL_FROM_SYSTEM_USER_ID',
-    'API_SURFACE'
+    'API_SURFACE',
+    'MIGRATION_STAGING'
 )
 
 Write-Host "Game Function hosting resources are configured for $FunctionAppName on $PlanName with package container $PackageContainerName."

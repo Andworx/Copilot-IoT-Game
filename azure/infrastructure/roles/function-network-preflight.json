@@ -1,0 +1,16 @@
+{
+  "Name": "IoT Function Network Preflight",
+  "IsCustom": true,
+  "Description": "Read Function App metadata and update site properties for temporary VNet detachment and restoration. No config/secret read, resource deletion or move execution permission.",
+  "Actions": [
+    "Microsoft.Web/sites/read",
+    "Microsoft.Web/sites/write"
+  ],
+  "NotActions": [],
+  "DataActions": [],
+  "NotDataActions": [],
+  "AssignableScopes": [
+    "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Web/sites/func-aw-azcom-iot-game",
+    "/subscriptions/2e291b4a-5f03-4dcd-bb56-09643c729adc/resourceGroups/rg-aw-azcom-iot-copilot/providers/Microsoft.Web/sites/func-aw-azcom-iot-staff"
+  ]
+}

@@ -1,11 +1,11 @@
 # Restore staff controls with a separate authenticated API
 
-Status: staff backend deployed; owner confirmed connector GetKioskState HTTP 200. Real PAC binding generated in the follow-up PR; hosted Code App cutover still pending. Entra and connector
-setup remains guided in the Portal; the owner requested automatic Function provisioning
-on the next main release. Track [#177](https://github.com/Andworx/Copilot-IoT-Game/issues/177).
-See [wiring and recorded progress](STAFF_API_WIRING.md). The existing app
-continues serving Power Pages and kiosk operations; the new app serves staff only.
-Both run the same package with different `API_SURFACE` settings.
+Status: destination Function Apps and connector are configured; the old source resource
+group has been deleted. Repository targets are `func-aw-iot-game-v2` for the public API
+and `func-aw-iot-staff-v2` for staff. OIDC identities must be recreated and
+`AZURE_MIGRATION_FREEZE` cleared before the next GitHub Actions release. See
+[wiring and recorded progress](STAFF_API_WIRING.md). Both apps run the same package with
+different `API_SURFACE` settings.
 
 ## 1. Entra API registration
 
@@ -37,9 +37,9 @@ Record its expiry and a rotation reminder privately.
 
 Do not create this app manually. `deploy-apps.yml` runs
 `azure/infrastructure/scripts/Deploy-StaffApi.ps1 -Mode Deploy` to preview and provision
-`azure/infrastructure/staff-api.bicep` using `azure/infrastructure/staff-api.prod.json`. This creates Linux Node 22
-**Flex Consumption** app `func-aw-azcom-iot-staff`, its FC1 plan and dedicated
-`stawazcomiotstafffn` storage (names subject to availability). No always-ready
+`azure/infrastructure/staff-api.bicep` using `azure/infrastructure/staff-api.prod.json`. This owns the destination Linux Node 22
+**Flex Consumption** app `func-aw-iot-staff-v2`, its FC1 plan and dedicated
+`stawazcomiotstaffv2` storage. No always-ready
 instances are configured. This adds consumption/storage cost, not an APIM fee.
 Record the actual hostname returned by Azure, which may include a unique suffix;
 do not assume it is `<name>.azurewebsites.net`.
@@ -106,22 +106,24 @@ layout, update the adapter based on actual generated output rather than guessing
 
 ## 5. CI/CD cutover
 
-Use `.github/workflows/deploy-apps.yml` only. Before its first release, an IAM
-administrator must grant the existing GitHub identity the reviewed provisioning
-role; see [the one-time command and its scope](STAFF_API_WIRING.md#deployment-access).
-The identity cannot grant itself that permission. Preserve its OIDC configuration.
+Use `.github/workflows/deploy-apps.yml` only. Before the next release, an IAM
+administrator must create destination-scoped app and infra OIDC identities, configure
+GitHub federation, and grant the reviewed destination resource roles; see
+[deployment access](STAFF_API_WIRING.md#deployment-access). The deleted source-owned
+identity cannot be reused.
 
 1. Leave `STAFF_API_CUTOVER_READY` unset or `false`. Merge through a PR. The next
-   main release previews/provisions the staff resources, deploys staff code and
-   requires an unauthenticated request to return 401. It does not release the
-   existing game app, Code App or Power Pages while this bootstrap flag is false.
+  main release deploys staff code and requires an unauthenticated request to return
+  401. It does not activate destination background work or release the public game
+  app, Code App or Power Pages while this bootstrap flag is false.
 2. Use the actual hostname in the job summary to finish the connector, operator
    role assignment, per-user connection and generated PAC binding. Commit the
    non-secret generated binding through a PR and validate it locally.
 3. Set repository variable `STAFF_API_CUTOVER_READY=true` only when ready for the
-   coordinated cutover. The next main release requires the real connector binding,
-   deploys staff first, sets `API_SURFACE=public` on the existing game app, deploys
-   that app, then the Code App and Power Pages. Subsequent releases retain this order.
+  coordinated cutover. The next main release requires the real connector binding,
+  deploys staff first, deploys the destination public app and all frontends, then
+  enables destination telemetry and maintenance only after every deployment passes.
+  Subsequent releases retain this order.
 
 Staff-only routes are absent from the public app after cutover. Remove the old
 `CODE_APP_*_FUNCTION_KEY` GitHub secrets and

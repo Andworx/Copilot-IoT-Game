@@ -9,10 +9,11 @@ name: Infrastructure
 #   deploy         Applies main.bicep and merges the Function App's telemetry settings. Only from
 #                  `main`, only through the `infra-deploy` environment (which only accepts `main`).
 #
-# The deploy identity has narrowly scoped write access to the adopted resources, including the VNet,
-# private DNS zones, DNS resolver, VPN, game Function host, plan, storage, and private endpoints.
-# It cannot modify the IoT Hub, DPS, or the legacy Function App
-# (azure/infrastructure/scripts/Initialize-InfraIdentities.ps1).
+# The source-owned OIDC identities were removed with the source resource group. Recreate
+# destination-scoped identities and apply reviewed roles with
+# azure/infrastructure/scripts/Initialize-InfraIdentities.ps1 before clearing the release freeze.
+# The destination deploy identity manages only adopted main.bicep resources; it has no
+# general IoT Hub or DPS write access.
 
 on:
   pull_request:
@@ -39,7 +40,7 @@ concurrency:
 
 env:
   AZURE_INFRA_RESOURCE_GROUP: rg-aw-azcom-iot-copilot
-  GAME_FUNCTION_APP: func-aw-azcom-iot-game
+  GAME_FUNCTION_APP: func-aw-iot-game-v2
   GAME_CONSUMER_GROUP: gamefunc
 
 jobs:
@@ -74,7 +75,7 @@ jobs:
   # as the narrowly scoped deployer identity.
   reconcile:
     name: Reconcile Bicep with Azure (changes nothing)
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.action == 'what-if')
+    if: vars.AZURE_MIGRATION_FREEZE != 'true' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.action == 'what-if'))
     needs: validate
     runs-on: ubuntu-latest
     environment: infra-deploy
@@ -87,7 +88,7 @@ jobs:
         with:
           client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: 9e8c862e-9bba-4363-a21b-c45cabe8b637
       - name: Compare Bicep with Azure
         run: |
           az deployment group what-if -g "$AZURE_INFRA_RESOURCE_GROUP" \
@@ -115,6 +116,11 @@ jobs:
             --ignore-path 'properties.privateDnsZoneConfigs[1].id' \
             --ignore-path 'properties.privateDnsZoneConfigs[1].properties.provisioningState' \
             --ignore-path 'properties.privateDnsZoneConfigs[1].type' \
+            --ignore-path properties.siteConfig.cors \
+            --ignore-path properties.siteConfig.ftpsState \
+            --ignore-path properties.siteConfig.minTlsVersion \
+            --ignore-path properties.siteConfig.scmMinTlsVersion \
+            --ignore-path properties.siteConfig.vnetRouteAllEnabled \
             --ignore-path properties.siteConfig.localMySqlEnabled \
             --ignore-path properties.siteConfig.netFrameworkVersion \
             --ignore-path properties.virtualNetworkGatewayMigrationStatus \
@@ -122,10 +128,15 @@ jobs:
             --ignore-path 'properties.vpnClientConfiguration.vpnClientRootCertificates[0].id' \
             --ignore-path 'properties.vpnClientConfiguration.vpnClientRootCertificates[0].type' \
             --ignore-path properties.vpnStack
+      # what-if cannot read Microsoft.Web/sites/config, so the siteConfig preview paths above are
+      # ignored; this step keeps real drift in those settings detectable.
+      - name: Verify game Function site config
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Test-GameFunctionSiteConfig.ps1
 
   deploy:
     name: Deploy
-    if: github.event_name == 'workflow_dispatch' && inputs.action == 'deploy' && github.ref == 'refs/heads/main'
+    if: vars.AZURE_MIGRATION_FREEZE != 'true' && github.event_name == 'workflow_dispatch' && inputs.action == 'deploy' && github.ref == 'refs/heads/main'
     needs: validate
     runs-on: ubuntu-latest
     environment: infra-deploy
@@ -138,7 +149,7 @@ jobs:
         with:
           client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: 9e8c862e-9bba-4363-a21b-c45cabe8b637
       - name: Give the Function App a managed identity (idempotent)
         run: |
           principal="$(az functionapp identity assign -g "$AZURE_INFRA_RESOURCE_GROUP" -n "$GAME_FUNCTION_APP" --query principalId -o tsv)"
@@ -197,7 +208,7 @@ jobs:
 
   network-what-if:
     name: Network baseline preview (no changes)
-    if: github.event_name == 'workflow_dispatch' && inputs.action == 'network-what-if' && github.ref == 'refs/heads/main'
+    if: vars.AZURE_MIGRATION_FREEZE != 'true' && github.event_name == 'workflow_dispatch' && inputs.action == 'network-what-if' && github.ref == 'refs/heads/main'
     needs: validate
     runs-on: ubuntu-latest
     environment: infra-deploy
@@ -210,7 +221,7 @@ jobs:
         with:
           client-id: ${{ vars.AZURE_INFRA_DEPLOYER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: 9e8c862e-9bba-4363-a21b-c45cabe8b637
       - name: Validate and preview captured network
         shell: pwsh
         run: ./azure/infrastructure/network/Preview-Network.ps1
