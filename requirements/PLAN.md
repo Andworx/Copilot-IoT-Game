@@ -22,7 +22,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 1 | 1 | 0 | 2 |
-| Totals | 22 | 37 | 11 | 2 | 72 |
+| MCP Quest (new game) | 0 | 4 | 3 | 0 | 7 |
+| Totals | 22 | 41 | 14 | 2 | 79 |
 
 ## Dataverse
 
@@ -223,3 +224,17 @@ Verify: all mode instruments use domain labels/current state, with no physical i
 |---|---|---|---|
 | Private-network browser API boundary and diagnostics | Design/tooling | ⬜ Verify | Owner confirmed hosted Code App and game controls working. The network baseline is captured; Event Hub private-only configuration is prepared with trusted IoT Hub delivery and the VNet-integrated `gamefunc` reader. Deployment and live Pi-to-kiosk validation remain pending. |
 | Entra staff authorization and client credential removal | Security | ⬜ TODO | Selected separate staff API + per-user Entra connector. Token validation, route separation and client migration implemented on feature branch; Entra registrations and consent recorded; automated staff provisioning added to app CI. IAM bootstrap, connector setup, generated bindings and live cutover remain pending. See docs/STAFF_API_WIRING.md. See docs/STAFF_API_SETUP.md and #177. |
+
+## MCP Quest (new game)
+
+Design: [MCP_QUEST_PLAN.md](MCP_QUEST_PLAN.md). Single-player, player-called tools, own device, scored with a high-score board, reusing the shared prize engine under a new `mcpquest` contest source.
+
+| Item | Type | Status | Notes |
+|---|---|---|---|
+| MCP Station spike (tool/call shape, logging, export, limits, private endpoints) | Research | ⬜ Verify | 2026-10-09: public-API half done and recorded in MCP_QUEST_PLAN.md "Spike results" (catalog, JSON-RPC shape, stateless, deterministic reads, writes are no-ops, 1000 req/min). Verdict: usable for authoring and prototyping; run events from a repo snapshot. Still open, needs an account: Pro limits/pricing, private endpoints, Creator export. |
+| `mcpquest` contest source and Source Cap; prove create-win/claim-prize for the key | Dataverse data + test | ⬜ TODO | Data rows only, no schema change: Contest Source `mcpquest` and a Source Cap per campaign. Server code already mints the claim through `createSourcedPrizeClaim` (tested with fakes); needs the rows in Development and a live end-to-end check. Runbook: docs/MCP_QUEST_ENGINE.md. |
+| MCPQuest solution and play table (`andy_mcpquestplay`) | Solution + table | ⬜ Verify | Created in Development and exported to `solutions/MCPQuest/` (reviewed 2026-10-09; JSON columns corrected to Multiline text). Function App names match the export, enforced by a contract test. Remaining: Function App user privileges on the table, then the first live play. Runbook in docs/MCP_QUEST_ENGINE.md. |
+| Function routes: start / call / hint / choose / test / submit / leaderboard | Azure Functions | ⬜ Verify | Built and unit-tested (18 tests, 60 passing in the app). Judge, signed session token, Dataverse play store with ETag concurrency, idempotent submit and claim, repo snapshot of the MCP server. Not deployed; needs `MCPQUEST_TOKEN_SECRET`, the play table and the Contest Source row. |
+| Player page Code Site (own device, `?station=<slug>`) | Power Pages Code Site | ⬜ Verify | UI built in `power pages/mcpquest/`; all 13 cases solved through the UI in a headless browser against the live MCP server. 2026-10-09: manually uploaded to Development as website `4fb95e05-e635-4f0c-a0e3-4065f5dfb72a` ("MCP Quest"), not yet activated. Remaining: activate and check the live site (CSP for the MCP origin, MCP connected vs offline fallback), `POWER_MCPQUEST_WEBSITE_ID`, deploy-apps wiring and a PAC_COMMANDS.md section, then the Function routes so it is prize-eligible. |
+| Mode #1 content: scenario, MCP server snapshot, question pool, rubric | Content | ⬜ TODO | Committed to the repo so the mode can be self-hosted if MCP Station is unavailable. First pass exists in the player page: "Fix it with Power Platform" (choose the tool, build in that product's designer, test against the live service desk; 13 authored cases over all six products and seven designers) and "Investigate the queue". All 13 cases were solved through the UI in a headless browser against the live MCP server. Browser-scored; still needs the server-side judge and a repo snapshot. |
+| Station device build and leaderboard display | Hardware / display | ⬜ TODO | Device choice and spectator-screen decision are open items in MCP_QUEST_PLAN.md. |
