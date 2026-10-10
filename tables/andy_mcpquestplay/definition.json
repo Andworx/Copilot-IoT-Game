@@ -1,0 +1,173 @@
+{
+  "schemaName": "andy_mcpquestplay",
+  "displayName": "MCP Quest Play",
+  "displayCollectionName": "MCP Quest Plays",
+  "description": "One row per MCP Quest play. It is the server-side session store, the leaderboard source and the audit record, and links a passing play to the shared Prize Claim. Claim, contact and prize data stays on Prize Claim.",
+  "primaryNameColumn": "andy_playname",
+  "ownership": "Organization",
+  "isActivity": false,
+  "changeTrackingEnabled": true,
+  "columns": [
+    {
+      "schemaName": "andy_playname",
+      "displayName": "Play Name",
+      "description": "Generated primary name: station, mission, nickname and start time.",
+      "dataType": "String",
+      "required": "Optional",
+      "maxLength": 850
+    },
+    {
+      "schemaName": "andy_prizeclaim",
+      "displayName": "Prize Claim",
+      "description": "Shared Prize Claim minted when the play passed. Empty for plays that did not pass.",
+      "dataType": "Lookup",
+      "required": "Optional",
+      "target": "andy_prizeclaim"
+    },
+    {
+      "schemaName": "andy_campaign",
+      "displayName": "Campaign",
+      "description": "Contest Campaign that was active when the play started. Scopes the leaderboard so a new event starts a fresh board.",
+      "dataType": "Lookup",
+      "required": "Recommended",
+      "target": "andy_contestcampaign"
+    },
+    {
+      "schemaName": "andy_station",
+      "displayName": "Station",
+      "description": "Slug of the device the play ran on, from the page's ?station= parameter.",
+      "dataType": "String",
+      "required": "Optional",
+      "maxLength": 100
+    },
+    {
+      "schemaName": "andy_mission",
+      "displayName": "Mission",
+      "description": "Mission slug, for example fixit or incident-queue.",
+      "dataType": "String",
+      "required": "Required",
+      "maxLength": 100
+    },
+    {
+      "schemaName": "andy_nickname",
+      "displayName": "Nick Name",
+      "description": "Player-chosen display name, 3 to 12 characters. Never an email address; contact details are collected only through the claim flow.",
+      "dataType": "String",
+      "required": "Required",
+      "maxLength": 100
+    },
+    {
+      "schemaName": "andy_seed",
+      "displayName": "Seed",
+      "description": "Random seed from which the judge rebuilds this play's cases on every request.",
+      "dataType": "String",
+      "required": "Required",
+      "maxLength": 100
+    },
+    {
+      "schemaName": "andy_snaphotversion",
+      "displayName": "Snaphot Version",
+      "description": "Version of the repo MCP snapshot the cases were built from, for example it-ticketing@2026-10-09. The schema name is spelled as deployed ('snaphot'); the Function App uses it as-is.",
+      "dataType": "String",
+      "required": "Required",
+      "maxLength": 100
+    },
+    {
+      "schemaName": "andy_startedtime",
+      "displayName": "Started Time",
+      "description": "Server time the play started. The time limit and the speed bonus are measured from here.",
+      "dataType": "DateTime",
+      "required": "Required"
+    },
+    {
+      "schemaName": "andy_submittedtime",
+      "displayName": "Submitted Time",
+      "description": "Server time the play was submitted and graded.",
+      "dataType": "DateTime",
+      "required": "Optional"
+    },
+    {
+      "schemaName": "andy_issubmitted",
+      "displayName": "Is Submitted",
+      "description": "True once the play has been graded. A submitted play cannot be changed.",
+      "dataType": "Boolean",
+      "required": "Required",
+      "defaultValue": false
+    },
+    {
+      "schemaName": "andy_ispassed",
+      "displayName": "Is Passed",
+      "description": "True when every solution met its requirements and the score reached the pass mark.",
+      "dataType": "Boolean",
+      "required": "Required",
+      "defaultValue": false
+    },
+    {
+      "schemaName": "andy_isclaimissued",
+      "displayName": "Is Claim Issued",
+      "description": "True once the Prize Claim for a passing play has been created and linked.",
+      "dataType": "Boolean",
+      "required": "Required",
+      "defaultValue": false
+    },
+    {
+      "schemaName": "andy_claimtoken",
+      "displayName": "Claim Token",
+      "description": "Claim token generated at submission for a passing play. Identical to the token on the linked Prize Claim.",
+      "dataType": "String",
+      "required": "Optional",
+      "maxLength": 100
+    },
+    {
+      "schemaName": "andy_score",
+      "displayName": "Score",
+      "description": "Final score awarded by the judge.",
+      "dataType": "Integer",
+      "required": "Optional"
+    },
+    {
+      "schemaName": "andy_durationseconds",
+      "displayName": "Duration (seconds)",
+      "description": "Seconds from start to submission, capped at the mission's time limit.",
+      "dataType": "Integer",
+      "required": "Optional"
+    },
+    {
+      "schemaName": "andy_toolcalls",
+      "displayName": "Tool Calls",
+      "description": "Tool calls the player made directly (not counting test runs).",
+      "dataType": "Integer",
+      "required": "Optional"
+    },
+    {
+      "schemaName": "andy_hintsused",
+      "displayName": "Hints Used",
+      "description": "Number of hints the player asked for.",
+      "dataType": "Integer",
+      "required": "Optional"
+    },
+    {
+      "schemaName": "andy_testruns",
+      "displayName": "Test Runs",
+      "description": "Total test runs across all cases.",
+      "dataType": "Integer",
+      "required": "Optional"
+    },
+    {
+      "schemaName": "andy_statejson",
+      "displayName": "State JSON",
+      "description": "Serialized in-progress state: per-case tool choices, misses and test counts, hints and call count. Written by the Function App only.",
+      "dataType": "Memo",
+      "required": "Required",
+      "maxLength": 20000
+    },
+    {
+      "schemaName": "andy_resultjson",
+      "displayName": "Result JSON",
+      "description": "Serialized final result: score breakdown and per-case criteria outcomes, for analytics and support.",
+      "dataType": "Memo",
+      "required": "Optional",
+      "maxLength": 20000
+    }
+  ]
+}

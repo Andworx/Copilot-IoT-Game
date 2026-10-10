@@ -425,6 +425,8 @@ in workflow files; do not restore source targets through repository variables.
 | `POWER_PLATFORM_SOLUTION_NAME` | Optional; defaults to `CopilotIoTGame` and is passed to `pac code push --solutionName` |
 | `POWER_PAGES_WEBSITE_ID` | Optional; defaults to the live `CopilotIoTGame` Code Site ID |
 | `POWER_PRIZE_WHEEL_WEBSITE_ID` | Optional; defaults to the live `PrizeWheel` Code Site ID |
+| `POWER_PLINKO_WEBSITE_ID` | Required for Plinko deployment; the activated Plinko Code Site ID |
+| `POWER_MCPQUEST_WEBSITE_ID` | Optional; defaults to the `MCP Quest` Code Site ID (`4fb95e05-e635-4f0c-a0e3-4065f5dfb72a`) |
 | `SOLUTION_DIAGRAM_URL` | Optional; defaults to `https://copilotiotgame.powerappsportals.com/kiosk/solution` for the PrizeWheel "Explore this solution" button |
 
 Create the `POWER_PLATFORM_CLIENT_SECRET` **environment secret** in `production`.

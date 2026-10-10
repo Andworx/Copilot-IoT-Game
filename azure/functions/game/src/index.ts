@@ -19,3 +19,4 @@ import "./functions/telemetry";
 import "./functions/directlineToken";
 import "./functions/preferences";
 import "./functions/consentMaintenance";
+import "./functions/mcpquest";

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <EntityRelationship Name="andy_mcpquestplay_Campaign_andy_contestcampaign" />
+  <EntityRelationship Name="andy_mcpquestplay_PrizeClaim_andy_prizeclaim" />
+  <EntityRelationship Name="lk_andy_mcpquestplay_createdby" />
+  <EntityRelationship Name="lk_andy_mcpquestplay_modifiedby" />
+  <EntityRelationship Name="organization_andy_mcpquestplay" />
+</EntityRelationships>

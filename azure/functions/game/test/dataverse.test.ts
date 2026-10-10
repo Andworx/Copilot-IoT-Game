@@ -1,15 +1,62 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { ConfidentialClientApplication } from "@azure/msal-node";
+import { describe, it, mock } from "node:test";
 import {
   buildGrandPrizeDrawingSlices,
   buildContactCreatePayload,
   buildGrandPrizeEntryPayload,
   buildIotGameWinCreatePayload,
   buildPrizeClaimCreatePayload,
+  createSourcedPrizeClaim,
   normalizeContestantEmail,
   selectGrandPrizeWinningSlice,
   summarizePrizeCounts,
 } from "../src/lib/dataverse";
+
+describe("createSourcedPrizeClaim", () => {
+  it("atomically upserts concurrent claims by the unique claim-token key", async (t) => {
+    process.env.DATAVERSE_CLIENT_ID = "00000000-0000-0000-0000-000000000001";
+    process.env.DATAVERSE_TENANT_ID = "00000000-0000-0000-0000-000000000002";
+    process.env.DATAVERSE_CLIENT_SECRET = "test-only";
+    t.mock.method(ConfidentialClientApplication.prototype, "acquireTokenByClientCredential", async () => ({
+      accessToken: "test-only",
+      expiresOn: new Date(Date.now() + 3600000),
+    }));
+
+    const claimToken = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    const prizeClaimId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+    const requests: Array<{ url: string; init: RequestInit }> = [];
+    let claimCreated = false;
+    t.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+      const url = String(input);
+      const request = init ?? {};
+      requests.push({ url, init: request });
+      if (url.includes("andy_contestcampaigns")) return Response.json({ value: [] });
+      if (url.includes("andy_contestsources")) {
+        return Response.json({ value: [{ andy_contestsourceid: "cccccccc-cccc-4ccc-8ccc-cccccccccccc" }] });
+      }
+      if (url.includes("andy_prizeclaims?")) return Response.json({ value: [{ andy_prizeclaimid: prizeClaimId }] });
+      if (claimCreated) return new Response(null, { status: 412 });
+      claimCreated = true;
+      return new Response(null, {
+        status: 201,
+        headers: { "OData-EntityId": `https://example.crm.dynamics.com/api/data/v9.2/andy_prizeclaims(${prizeClaimId})` },
+      });
+    });
+
+    const results = await Promise.all([
+      createSourcedPrizeClaim({ claimToken, contestSourceKey: "mcpquest", name: "MCP Quest win" }),
+      createSourcedPrizeClaim({ claimToken, contestSourceKey: "mcpquest", name: "MCP Quest win" }),
+    ]);
+
+    assert.deepEqual(results.map((result) => result.prizeClaimId), [prizeClaimId, prizeClaimId]);
+    assert.deepEqual(results.map((result) => result.existed).sort(), [false, true]);
+    const upserts = requests.filter(({ init }) => init.method === "PATCH");
+    assert.equal(upserts.length, 2);
+    assert.ok(upserts.every(({ url }) => url.includes(`andy_prizeclaims(andy_claim_token='${claimToken}')`)));
+    assert.ok(upserts.every(({ init }) => new Headers(init.headers).get("If-None-Match") === "*"));
+  });
+});
 
 describe("normalizeContestantEmail", () => {
   it("trims and lowercases an email address", () => {
