@@ -34,6 +34,34 @@ pac solution pack -z solutions\CopilotIoTGame.zip -f solutions\CopilotIoTGame -a
 pac solution import --path "solutions\CopilotIoTGame.zip" -pc
 ```
 
+## MCPQuest Solution
+
+Owns the MCP Quest play table. Depends on `andy_PrizeEngine`, so import PrizeEngine first.
+
+### MCPQuest Solution — Export
+
+```powershell
+pac solution export --name MCPQuest --path "solutions" -ow
+```
+
+### MCPQuest Solution — Unpack
+
+```powershell
+pac solution unpack --zipfile "solutions\MCPQuest.zip" --folder "solutions\MCPQuest" --allowWrite -ad
+```
+
+### MCPQuest Solution — Pack
+
+```powershell
+pac solution pack -z solutions\MCPQuest.zip -f solutions\MCPQuest -aw
+```
+
+### MCPQuest Solution — Import
+
+```powershell
+pac solution import --path "solutions\MCPQuest.zip" -pc
+```
+
 ## PrizeEngine Solution
 
 ### PrizeEngine Solution — Export
@@ -118,6 +146,27 @@ npm install
 npm run build
 pac pages upload-code-site --rootPath "."
 ```
+
+### mcpquest
+
+Routine releases use `deploy-apps.yml` (`build-mcpquest`, then the pinned upload). The site
+ID is `4fb95e05-e635-4f0c-a0e3-4065f5dfb72a`; override it with the `POWER_MCPQUEST_WEBSITE_ID` repository variable.
+
+For explicit manual recovery, build as CI does (`VITE_MCPQUEST_API=live` ships no case logic)
+and upload against the live site's metadata, as for `copilotiotgame`:
+
+```powershell
+cd "power pages\mcpquest"
+npm install
+$env:VITE_MCPQUEST_API = "live"
+npm run build
+pac pages download-code-site --path "$env:TEMP\live-mcpquest" --webSiteId 4fb95e05-e635-4f0c-a0e3-4065f5dfb72a --overwrite
+Remove-Item ".powerpages-site" -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item (Get-ChildItem "$env:TEMP\live-mcpquest" -Recurse -Directory -Force -Filter ".powerpages-site" | Select-Object -First 1).FullName ".powerpages-site" -Recurse
+pac pages upload-code-site --rootPath "."
+```
+
+The build also needs `azure/functions/game/src/mcpquest/`, which holds the shared contract.
 
 Authenticate to the intended Dataverse environment first. Activate an initial
 inactive site through Power Pages, then verify the public site.
