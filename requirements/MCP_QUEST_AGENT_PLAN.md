@@ -341,10 +341,47 @@ GameSpec: no model, no network, deterministic.
   the checks and the reference designs, so this shows the specs are internally consistent and
   use only real tools, not that they are fun or fair to a human.
 
-**Not yet wired.** The play service (`start` / `choose` / `test` / `submit`) still only serves
-the hand-built cases. Playing a generated spec needs: a stored spec per play (`specId` on the
-play row), designers that emit the run-design format above, and the 100-point scoring over a
-spec's cases. That is Phase 3-4.
+## Playing a generated game (built, tested server-side)
+
+Code: `specPlay.ts` (rules and grading), `service.ts` (dispatch), `lib/mcpquestSpecStore.ts`
+(blob store), 15 tests in `mcpquestSpecPlay.test.ts`.
+
+- **Start.** `POST /api/mcpquest/start { nickname, station, spec: "<specId>" }` reads the spec from
+  blob storage (`MCPQUEST_SPEC_BLOB_URL`) and creates an ordinary play row whose mission is
+  `spec:<specId>`; the leaderboard is therefore per spec. The response lists each case's brief,
+  designer, plain-language requirements and scenarios (facts such as incident ids), plus the
+  tool list. It never includes checks or reference designs.
+- **Blob store.** Plain Blob REST with the Function App's managed identity (audience
+  `https://storage.azure.com/`), no new dependency. `by-id/<specId>.json` and
+  `by-hash/<slug>/<toolsHash>.json`. On every read the spec is re-validated against its own
+  tool list and its id is recomputed, so a hand-edited blob is refused.
+- **Hint.** Returns the case's hint, costs 5 points, once per case.
+- **Test.** The player's design (JSON text, at most 20 000 characters) runs through the spec
+  judge; the response lists each requirement met or missed and the calls the design made.
+  Six test runs per case.
+- **Submit.** Each case is worth 100 / number of cases, split across its requirements, so a
+  partly right design earns partial credit. Hints come off. Total is clamped to 0-100 and is the
+  score. `passed` means every requirement was met and the score is at least 70.
+- **Prizes.** Same rule as the hand-built mode: a claim and QR for every submit, entries by
+  tier against the campaign cap (90-100 the cap, 70-89 one fewer, below 70 one), written to
+  `andy_entriesawarded`. Exception: a spec that was not proven (`validated: false`) is scored
+  and ranked but earns no claim and no entries.
+- **Not offered.** Direct tool calls and product choice are rejected for generated games: plays
+  run only on the stored tool list and never reach MCP Station.
+
+**Played end to end, 2026-10-10.** Six real model-generated specs from three servers were
+played through the service with their own reference designs: the pass designs scored 100 (top
+tier, 3 entries at a cap of 3) and the deliberately flawed fail designs scored 33-58 (base tier,
+1 entry).
+
+**Known gap: data discovery.** Some requirements depend on values the player can only learn
+from the server's data (for example a group id). With direct calls rejected, a human cannot
+look them up; a design can only guess them. Options: include the sampled records in the session
+(the generator already reads them), allow read-only calls replayed from a stored snapshot, or
+require the generator to put discoverable values in the scenario inputs. Decide before the UI.
+
+**Still not built.** Designers that emit the run-design format, the `generate` route with a
+rate limit, and the private endpoint for Foundry.
 
 ## Security and abuse
 

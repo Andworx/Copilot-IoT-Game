@@ -41,6 +41,11 @@ export interface Objective {
   caseTitle?: string;
   /** Short name used in the score breakdown. Falls back to the prompt. */
   label?: string;
+  /**
+   * Generated games only: the situations a design is tested in, with the facts each supplies
+   * (record ids, categories). Facts, not answers: checks refer to them by key.
+   */
+  scenarios?: { name: string; trigger: string; input: Record<string, string | number | boolean> }[];
 }
 
 export type ReportField = "category" | "priority" | "state" | "group";

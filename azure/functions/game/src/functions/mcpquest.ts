@@ -3,6 +3,7 @@ import { registerHttp } from "../lib/apiSurface";
 import { getActiveCampaignMaxEntries, getActiveContestCampaignId } from "../lib/dataverse";
 import { signPlayToken, verifyPlayToken } from "../lib/mcpquestToken";
 import { dataverseClaimIssuer, dataversePlayStore } from "../lib/mcpquestStore";
+import { blobSpecStore, storageToken } from "../lib/mcpquestSpecStore";
 import { PlayError, createPlayService, type PlayService } from "../mcpquest/service";
 
 /**
@@ -10,7 +11,7 @@ import { PlayError, createPlayService, type PlayService } from "../mcpquest/serv
  * `start` on every call; nothing else identifies a player. The judge, the answer keys and the
  * prize claim all live behind these routes. See docs/MCP_QUEST_ENGINE.md.
  *
- *   POST /api/mcpquest/start       { nickname, station, mode }     -> SessionInfo
+ *   POST /api/mcpquest/start       { nickname, station, mode | spec } -> SessionInfo
  *   POST /api/mcpquest/call        { sessionToken, tool, arguments } -> CallResult
  *   POST /api/mcpquest/hint        { sessionToken, objectiveId }     -> { hint }
  *   POST /api/mcpquest/choose      { sessionToken, objectiveId, productId } -> ChooseResult
@@ -23,6 +24,10 @@ let service: PlayService | null = null;
 function playService(): PlayService {
   service ??= createPlayService({
     store: dataversePlayStore(),
+    // Generated games: set MCPQUEST_SPEC_BLOB_URL to the container that holds the specs.
+    specs: process.env.MCPQUEST_SPEC_BLOB_URL
+      ? blobSpecStore({ containerUrl: process.env.MCPQUEST_SPEC_BLOB_URL, getToken: () => storageToken() })
+      : undefined,
     claims: dataverseClaimIssuer(),
     signToken: (playId, expiresAt) => signPlayToken({ playId, expiresAt }),
     verifyToken: (token, now) => verifyPlayToken(token, now),
@@ -64,7 +69,7 @@ registerHttp("mcpquest-start", {
   authLevel: "anonymous",
   handler: handler("mcpquest-start", async (s, r) => {
     const b = await body(r);
-    return s.start({ nickname: b.nickname, station: b.station, mode: b.mode });
+    return s.start({ nickname: b.nickname, station: b.station, mode: b.mode, spec: b.spec });
   }),
 });
 

@@ -1,6 +1,7 @@
 import { computeSpecId, computeToolsHash, validateGameSpec, type GameSpec } from "../gamespec";
 import { fromWireSpec } from "../gamespecSchema";
 import { isMcpStationSlug } from "../mcpstation";
+import type { ToolDef } from "../types";
 import { fetchServerDigest, type FetchLike, type ServerDigest } from "./digest";
 import type { SpecModel } from "./foundry";
 import { GENERATOR_INSTRUCTIONS, buildGeneratorInput, buildRepairInput } from "./prompt";
@@ -9,9 +10,21 @@ export interface StoredSpec {
   specId: string;
   toolsHash: string;
   spec: GameSpec;
+  /** The tool list the spec was validated against. Plays judge designs against it. */
+  tools: ToolDef[];
   /** True once the reference designs have been proven through the judge (proveSpec). */
   validated: boolean;
   createdAt: number;
+}
+
+/** Reads a stored spec by its id. This is all a play needs. */
+export interface SpecReader {
+  getById(specId: string): Promise<StoredSpec | null>;
+}
+
+/** Reads a stored spec by its id. This is all a play needs. */
+export interface SpecReader {
+  getById(specId: string): Promise<StoredSpec | null>;
 }
 
 /** Where generated specs live, keyed by tool-list hash. Blob storage in production. */
@@ -122,6 +135,7 @@ export async function generateGameSpec(slug: unknown, deps: GenerateDeps): Promi
     specId: computeSpecId(result.spec),
     toolsHash,
     spec: result.spec,
+    tools: digest.tools,
     validated,
     createdAt: (deps.now ?? Date.now)(),
   };
