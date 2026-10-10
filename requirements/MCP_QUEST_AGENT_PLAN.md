@@ -35,7 +35,10 @@ developer writes a new mode.
 4. **Untrusted input end to end.** Tool descriptions and record data are prompt-injection
    surface. The agent gets read-only tools, an allowlisted catalog, and no route to Dataverse
    or the prize engine.
-5. **Prizes are earned only on validated or approved specs.**
+5. **Prizes come from the shared prize engine, based on a score out of 100.** The agent has no
+   say in points, tiers or prizes (see "Scoring and prizes").
+6. **MCP Station only.** The page and the agent name a catalog slug; the endpoint is built in
+   code from a fixed host.
 
 ## Options considered
 
@@ -63,8 +66,8 @@ developer writes a new mode.
 | Foundry hosted (container) agent | More control and more to maintain. Revisit if the loop needs custom tools |
 | Call a model directly from the Function | Possible fallback if Foundry is unavailable in the target cloud |
 
-Verify before building the route: Foundry and the chosen model are available in the cloud
-this deployment runs in (commercial, GCC or GCC High).
+Cloud: **commercial** (decided). Confirm the chosen Foundry model is deployable in the
+target region before Phase 1.
 
 ## Architecture
 
@@ -149,13 +152,73 @@ cave scene: an old sage by a fire hands the player the Power Platform.
 - Needs a progress signal from `generate`: stream stages (SSE) or poll a job id. The Code Site
   can poll, which keeps the static-host choice.
 
+## Scoring and prizes
+
+Decided 2026-10-10. Prizes come from the existing engine; the game only supplies a score.
+
+**Points.** Every generated game is scored out of **100**, set by the engine, not the agent.
+The 100 is split evenly across the spec's cases, and each case splits between choosing the
+right product and the build that passes its requirements (the hand-built weighting today is
+30 and 100 per case; the exact split is tuned in playtest). Time and hint penalties come off
+the total and the score is clamped to 0-100 and rounded.
+
+**Who gets a prize.** Everyone who submits. Gating on a pass no longer applies to generated
+games: a score under 70 still earns one entry. Each submitted play mints a Prize Claim with
+source `mcpquest`, and the player scans the QR to the **Prize Wheel**, exactly as in IoT,
+Plinko and the hand-built MCP Quest. `claim-prize` is unchanged for the wheel and instant prize.
+
+**Grand-prize entries by score** (`src/mcpquest/entryTier.ts`, tested):
+
+| Score | Tier | Grand-prize entries |
+|---|---|---|
+| 90-100 | top | the most the campaign allows |
+| 70-89 | mid | one fewer than the most |
+| 0-69 | base | one |
+
+"The most the campaign allows" is the campaign's `andy_maxentriespercontact`. With a cap of 1
+every tier is 1; with a cap of 2 the tiers are 2 / 1 / 1. A contact's existing entries count
+against the cap, so a repeat player can be capped below their tier.
+
+**What has to change in the engine** (a shared-engine change, not MCP Quest-only):
+
+1. Today one claim creates exactly one Grand Prize Entry (`createGrandPrizeEntryForClaim`).
+   It must create N entries for a claim, still stopping at the per-contact cap, and still one
+   check-in code per contact.
+2. The claim must carry N. Add an entry-count column on Prize Claim (the engine doc currently
+   says MCP Quest never adds columns to Prize Claim; that rule needs an owner exception, or the
+   count lives on the play row and `claim-prize` reads it through the play).
+3. The campaign must have a cap set. If `andy_maxentriespercontact` is empty there is no
+   "most allowed"; require it for the active campaign (or add a separate per-game maximum).
+4. The score used is the server-side judged score, never anything the page sends.
+5. The existing pass-only claim minting and `passScore` do not apply to generated games.
+
+Interpretation to confirm: the tiers are grand-prize **entries**, not different prize types.
+If you meant different Grand Prize types per tier, items 1-3 change to "claim carries a tier".
+
+## MCP Station only
+
+The visitor picks from MCP Station's public catalog (`GET https://www.mcpstation.io/api/catalog`,
+15 servers at the 2026-10-09 spike). Nothing else is reachable.
+
+- `src/mcpquest/mcpstation.ts` builds `https://www.mcpstation.io/mcp/<slug>` from a validated
+  slug and rejects any other host, scheme, port, credentials, query or path (tested).
+- The Foundry agent's MCP tool is configured with that endpoint only, per request.
+- **Snapshot at generation.** The generate step captures the server's tool list and read-tool
+  data (the existing `capture-mcp-snapshot` logic) and stores it with the spec. Plays replay
+  the snapshot, so a play never depends on MCP Station being up, and the data matches what the
+  spec's requirements were validated against. Refresh by regenerating, which gives a new `specId`.
+- MCP Station writes are simulated and discarded, so write tools in predicates are safe to
+  reference (they only appear in test runs of a player's design).
+- Rate budget: 1000 requests/min is shared across all stations (spike). Generation reads a
+  bounded number of records, and plays use the snapshot, so event load does not hit MCP Station.
+
 ## Security and abuse
 
 | Risk | Control |
 |---|---|
-| Arbitrary MCP URL (SSRF, data exfiltration) | Allowlisted catalog only; the page sends a server id, never a URL |
+| Arbitrary MCP URL (SSRF, data exfiltration) | MCP Station only; the page sends a catalog slug, never a URL; endpoint built in code (`mcpstation.ts`) |
 | Prompt injection via tool descriptions or data | Agent is read-only and has no other tools; output is validated data, not instructions; judge never takes scoring input from the agent at run time |
-| Rigged or trivial game | Validation loop; unvalidated specs are playable but not prize-eligible; optional operator approval flag |
+| Rigged or trivial game | Validation loop before a spec is served. Prizes depend on the engine's score, so a trivially easy spec still caps at the campaign's per-contact entry limit |
 | Cost and abuse of `generate` | Cache by `toolsHash`; per-IP and global rate limit (open item in the engine doc); generate is not callable without a catalog id |
 | Foundry credentials | Function App managed identity; nothing in the browser or repo |
 | Leaderboard fairness | Board key is `specId`; a regenerated spec starts a new board |
@@ -168,18 +231,29 @@ cave scene: an old sage by a fire hands the player the Power Platform.
 | 1. Spike | `generate` route calling Foundry for `it-ticketing` and one differently shaped catalog server; measure latency, cost, and how often the first output validates | ≥ 80% of first attempts validate (or after one repair), and the validation loop catches deliberately broken specs |
 | 2. Judge | GameSpec interpreter: build outcomes from the call log, evaluate predicates; generic tool-call-log runners replace the incident-specific `Outcome` for spec games | The hand-built cases re-expressed as GameSpecs score identically to today's judge |
 | 3. Storage and start | Spec blob store, `specId` on the play row, `start { specId }`, cache by `toolsHash` | A play survives a Function restart; a repeat pick is a cache hit |
+| 3b. Engine tiers | `entryTier.ts` ✅ (tested). Multi-entry claims in `claim-prize`, entry count on the claim, cap required on the campaign, 100-point scoring in the judge | A 95 play on a cap-5 campaign yields 5 entries and one wheel spin; a 75 yields 4; a 40 yields 1 |
 | 4. Console UI | Catalog picker, cave build screen (see above) with staged progress, designers driven by spec | Walk-up flow works at 800×480 |
-| 5. Hardening | Rate limit, approval flag, retention, deploy wiring, playtest | Docs updated; plan items to Verify, then Done after live checks |
+| 5. Hardening | Rate limit, retention, deploy wiring, playtest | Docs updated; plan items to Verify, then Done after live checks |
+
+## Decided
+
+| Question | Answer |
+|---|---|
+| Cloud | Commercial |
+| Prizes | From the game engine by score out of 100: 90-100 the most entries allowed, 70-89 one fewer, under 70 one entry; Prize Wheel via QR as in the other games |
+| MCP source | MCP Station only |
+| Catalog or any URL | MCP Station catalog slugs only |
+| Write tools | Safe: MCP Station writes are simulated |
 
 ## Open questions
 
-1. **Cloud.** Which cloud does the deployment run in? Foundry/model availability differs in GCC
-   and GCC High.
-2. **Prize eligibility.** Validated-only, or operator-approved-only?
-3. **Latency.** Is a 20–60 s build screen acceptable (the cave scene is designed for it), or pre-generate specs per catalog server?
-4. **Selection.** Fixed catalog (this plan assumes it) or any URL (needs much more hardening)?
-5. **Write tools.** Specs may reference write tools in flow predicates (they are simulated).
-   Confirm that is acceptable for servers whose writes are not simulated, or restrict
-   spec games to servers we proxy from a snapshot.
-6. **Judge reuse.** Re-express the 13 hand-built cases as GameSpecs (single judge) or keep two
+1. **Entries vs prize types.** Are the score tiers grand-prize entries (this plan) or different
+   Grand Prize types?
+2. **Campaign cap.** What is `andy_maxentriespercontact` for the event? It defines "the most
+   allowed", and the tiers collapse at 1 or 2.
+3. **Latency.** Is a 20-60 s build screen acceptable (the cave scene is designed for it), or
+   pre-generate specs for each MCP Station server before the event?
+4. **Judge reuse.** Re-express the 13 hand-built cases as GameSpecs (single judge) or keep two
    judges side by side?
+5. **Hand-built mode prizes.** Keep the existing pass-gated mint for the hand-built mode, or
+   move it to the same score tiers?
