@@ -9,7 +9,7 @@ export interface StoredSpec {
   specId: string;
   toolsHash: string;
   spec: GameSpec;
-  /** True once the reference designs have been proven through the judge (Phase 2). */
+  /** True once the reference designs have been proven through the judge (proveSpec). */
   validated: boolean;
   createdAt: number;
 }
@@ -84,23 +84,40 @@ export async function generateGameSpec(slug: unknown, deps: GenerateDeps): Promi
     }
   };
 
+  // Checking one answer: shape and tool-list validation first, then (when a judge is supplied)
+  // the proof that its reference designs behave. Both kinds of complaint go back to the model.
+  type Checked = { spec: GameSpec; problems: [] } | { spec?: undefined; problems: string[]; code: "invalid_spec" | "unproven_spec" };
+  const evaluate = async (output: unknown): Promise<Checked> => {
+    const result = check(output);
+    if (!result.ok) return { problems: result.errors, code: "invalid_spec" };
+    if (result.spec.server.id !== slug) return { problems: [`spec.server.id must be "${slug}"`], code: "invalid_spec" };
+    if (deps.prove) {
+      const proof = await deps.prove(result.spec, digest);
+      if (!proof.ok) return { problems: proof.problems, code: "unproven_spec" };
+    }
+    return { spec: result.spec, problems: [] };
+  };
+
   let output = await ask();
-  let result = check(output);
-  if (!result.ok) {
-    // One repair attempt: the validator's complaints go back to the model.
-    output = await ask({ input, output }, buildRepairInput(result.errors));
-    result = check(output);
+  let checked = await evaluate(output);
+  if (!checked.spec) {
+    // One repair attempt: the validator's or the judge's complaints go back to the model.
+    output = await ask({ input, output }, buildRepairInput(checked.problems));
+    checked = await evaluate(output);
   }
-  if (!result.ok) throw new GenerateError("invalid_spec", "The generated game was not valid.", result.errors);
-  if (result.spec.server.id !== slug) throw new GenerateError("invalid_spec", "The generated game names a different server.", [`spec.server.id must be "${slug}"`]);
-
-  let validated = false;
-  if (deps.prove) {
-    const proof = await deps.prove(result.spec, digest);
-    if (!proof.ok) throw new GenerateError("unproven_spec", "The generated game could not be proven solvable.", proof.problems);
-    validated = true;
+  if (!checked.spec) {
+    throw checked.code === "unproven_spec"
+      ? new GenerateError("unproven_spec", "The generated game could not be proven solvable.", checked.problems)
+      : new GenerateError(
+          "invalid_spec",
+          checked.problems.some((p) => p.startsWith("spec.server.id must be"))
+            ? "The generated game names a different server."
+            : "The generated game was not valid.",
+          checked.problems,
+        );
   }
-
+  const result = { spec: checked.spec };
+  const validated = !!deps.prove;
   const stored: StoredSpec = {
     specId: computeSpecId(result.spec),
     toolsHash,

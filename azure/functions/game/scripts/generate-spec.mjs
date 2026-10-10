@@ -63,6 +63,7 @@ const loggingModel = {
   },
 };
 
+const judge = await load("specJudge.js");
 const memory = new Map();
 const store = {
   async get(s, hash) { return memory.get(`${s}:${hash}`) ?? null; },
@@ -72,7 +73,12 @@ const store = {
 console.log(`[Generate] ${slug} via ${endpoint} (${model})`);
 const started = Date.now();
 try {
-  const result = await service.generateGameSpec(slug, { model: loggingModel, store, fetchFn: fetch });
+  const result = await service.generateGameSpec(slug, {
+    model: loggingModel,
+    store,
+    fetchFn: fetch,
+    prove: async (spec, digest) => judge.proveSpec(spec, digest.tools),
+  });
   const spec = result.stored.spec;
   writeFileSync(out, JSON.stringify(result.stored, null, 2) + "\n");
   console.log(`[PASS] Valid spec in ${((Date.now() - started) / 1000).toFixed(1)}s, ${result.modelCalls} model call(s).`);

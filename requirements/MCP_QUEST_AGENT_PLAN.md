@@ -320,6 +320,32 @@ audience, and the role the managed identity needs.
 (slug from the catalog only, with a per-IP and global rate limit before it is exposed, since it
 costs money); the live spike against two MCP Station servers.
 
+## Spec judge (built, offline-tested)
+
+Code: `azure/functions/game/src/mcpquest/specJudge.ts`, 12 tests. It is the fixed interpreter for a
+GameSpec: no model, no network, deterministic.
+
+- **Design formats.** Run cases: `{trigger, steps:[{id, tool, args}]}` where an arg is a literal
+  or `{fromInput: key}`. Design cases: any JSON object read by `design` paths.
+- **Running a design** builds the log of tool calls it makes in a scenario without contacting
+  any server. A design whose trigger differs from the scenario's does not fire. Calls to tools or
+  arguments that do not exist, bad enum values and missing required arguments are reported as
+  problems and never counted. At most 40 steps.
+- **Checks** (`called` min/max, `not-called`, `before`, `all`/`any`/`not`, `design`) read that
+  log. Strings compare trimmed and case-insensitively; paths cannot reach prototypes.
+- **`proveSpec`** per case: the reference pass design meets every requirement, the reference
+  fail design misses at least one, and a do-nothing design also misses at least one. The
+  generator runs it after validation and feeds any problems back to the model for its one
+  repair attempt; a spec that still fails is not stored.
+- **Result:** all 8 specs generated so far (3 servers) prove clean. Caveat: the model wrote both
+  the checks and the reference designs, so this shows the specs are internally consistent and
+  use only real tools, not that they are fun or fair to a human.
+
+**Not yet wired.** The play service (`start` / `choose` / `test` / `submit`) still only serves
+the hand-built cases. Playing a generated spec needs: a stored spec per play (`specId` on the
+play row), designers that emit the run-design format above, and the 100-point scoring over a
+spec's cases. That is Phase 3-4.
+
 ## Security and abuse
 
 | Risk | Control |
@@ -337,7 +363,7 @@ costs money); the live spike against two MCP Station servers.
 |---|---|---|
 | 0. Schema ✅ | `gamespec.ts`, `gamespecSchema.ts`, 18 tests | Validator rejects bad specs, accepts a realistic one |
 | 1. Spike | Generator service and Foundry client ✅ (tests with fakes). Remaining: blob spec store, `generate` route, live run. `generate` route calling Foundry for `it-ticketing` and one differently shaped catalog server; measure latency, cost, and how often the first output validates | ≥ 80% of first attempts validate (or after one repair), and the validation loop catches deliberately broken specs |
-| 2. Judge | GameSpec interpreter: build outcomes from the call log, evaluate predicates; generic tool-call-log runners replace the incident-specific `Outcome` for spec games | The hand-built cases re-expressed as GameSpecs score identically to today's judge |
+| 2. Judge ✅ (offline) | specJudge.ts interpreter and proveSpec built and tested; play-service wiring is Phase 3. GameSpec interpreter: build outcomes from the call log, evaluate predicates; generic tool-call-log runners replace the incident-specific `Outcome` for spec games | The hand-built cases re-expressed as GameSpecs score identically to today's judge |
 | 3. Storage and start | Spec blob store, `specId` on the play row, `start { specId }`, cache by `toolsHash` | A play survives a Function restart; a repeat pick is a cache hit |
 | 3b. Entries and scoring | `entryTier.ts` ✅ (tested, game-side). 100-point scoring in the judge; carry N to the claim (option A above, pending your call) | On a cap-5 campaign a 95 yields 5 entries and one wheel spin, a 75 yields 4, a 40 yields 1, and a contact never exceeds 5 across plays |
 | 4. Console UI | Catalog picker, cave build screen (see above) with staged progress, designers driven by spec | Walk-up flow works at 800×480 |
