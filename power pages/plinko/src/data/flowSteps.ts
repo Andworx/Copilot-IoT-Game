@@ -12,7 +12,7 @@ export interface FlowStep {
 /** Idle-screen story, in the order a real drop travels through the system. */
 export const FLOW_STEPS: FlowStep[] = [
   { id: "drop", label: "Drop your puck", caption: "Let it go from any slot along the top of the board.", tier: "edge" },
-  { id: "lights", label: "Chase the buckets", caption: "A light sweeps across the buckets. Land in the lit one for bonus entries.", tier: "edge" },
+  { id: "lights", label: "Chase the buckets", caption: "This screen sweeps a light across the buckets. Land in the lit one for bonus entries.", tier: "platform" },
   { id: "sensor", label: "IR sensor", caption: "An infrared beam across each bucket breaks when the puck lands.", tier: "edge" },
   { id: "pi", label: "Raspberry Pi", caption: "Records your bucket and which bucket was lit, then sends it to the cloud.", tier: "edge", icon: "pi" },
   { id: "hub", label: "Azure IoT Hub", caption: "Receives the landing event securely from the board.", tier: "cloud", icon: "iothub" },

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ChaseBoard } from "./ChaseBoard";
 import { FLOW_STEP_MS, FLOW_STEPS, type FlowStep } from "../data/flowSteps";
 
 const icons = import.meta.glob<string>("../assets/icons/*.svg", { eager: true, query: "?url", import: "default" });
@@ -34,8 +35,8 @@ function StepGlyph({ step }: { step: FlowStep }) {
 
 /**
  * Idle attract screen: the system's step-by-step path for one drop, with a light
- * travelling through the steps in the order they happen. Pure animation -- it shows
- * no live LED state (the Pi owns the chase lights; see PLINKO_GAME_PLAN.md §3).
+ * travelling through the steps in the order they happen. The bucket row above it is the
+ * live chase light (see ChaseBoard); the board has no LEDs.
  */
 export function FlowInfographic() {
   const [active, setActive] = useState(0);
@@ -54,6 +55,8 @@ export function FlowInfographic() {
         <span className="eyebrow">Copilot Plinko</span>
         <h1>Drop a puck. Hit the lit bucket for bonus entries.</h1>
       </header>
+
+      <ChaseBoard />
 
       <div className="flow-track" data-wrap={active === 0} style={{ ["--index" as string]: active, ["--count" as string]: FLOW_STEPS.length }}>
         <div className="flow-line" aria-hidden="true" />

@@ -16,6 +16,7 @@ import "./functions/prizeTypes";
 import "./functions/bulkCreatePrizes";
 import "./functions/prizeCount";
 import "./functions/telemetry";
+import "./functions/plinkoChase";
 import "./functions/directlineToken";
 import "./functions/preferences";
 import "./functions/consentMaintenance";

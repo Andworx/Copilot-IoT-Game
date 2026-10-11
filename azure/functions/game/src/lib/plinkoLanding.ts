@@ -30,13 +30,12 @@ interface ProfileRow {
   andy_litbucketentries?: number | null;
   andy_standardbucketentries?: number | null;
   andy_gamemodeactive?: boolean | null;
-  andy_activelitbucket?: number | null;
 }
 
-async function getProfile(slug: string): Promise<PlinkoProfile | null> {
+export async function getProfile(slug: string): Promise<PlinkoProfile | null> {
   const response = await dataverseFetch(
     `${PROFILES_SET}?$select=andy_plinkoprofileid,andy_profileslug,andy_numberofbuckets,andy_litbucketentries,` +
-      `andy_standardbucketentries,andy_gamemodeactive,andy_activelitbucket` +
+      `andy_standardbucketentries,andy_gamemodeactive` +
       `&$filter=statecode eq 0 and andy_profileslug eq '${escapeODataString(slug)}'&$top=1`
   );
   const row = ((await response.json()) as { value: ProfileRow[] }).value[0];
@@ -48,7 +47,6 @@ async function getProfile(slug: string): Promise<PlinkoProfile | null> {
     litBucketEntries: row.andy_litbucketentries ?? 2,
     standardBucketEntries: row.andy_standardbucketentries ?? 1,
     gameModeActive: row.andy_gamemodeactive !== false,
-    activeLitBucket: row.andy_activelitbucket ?? null,
   };
 }
 
@@ -73,7 +71,7 @@ function resultFromPlay(landing: PlinkoLanding, profile: PlinkoProfile, play: Pl
   const claimToken = play.andy_PrizeClaim?.andy_claim_token;
   if (!claimToken) return null;
   const bucket = play.andy_bucketnumber ?? landing.bucket;
-  const litBucket = play.andy_illuminatedbucketnumber ?? landing.litBucket ?? bucket;
+  const litBucket = play.andy_illuminatedbucketnumber ?? bucket;
   return {
     stationSlug: landing.stationSlug,
     eventId: landing.eventId,
