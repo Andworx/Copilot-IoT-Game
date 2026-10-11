@@ -220,6 +220,12 @@ progress when it deploys are built from the new data: refresh between events, no
 
 - **Rate limiting.** The routes are anonymous. Per-play caps bound abuse once a play exists, but
   starting plays is unbounded. Put a per-IP limit in front (API Management or the front door).
+- **Event close-out and deletes.** The Prize Claim and Campaign lookups on a play are **Restrict
+  delete** (as exported from Development on 2026-10-10): a claim or campaign cannot be deleted while a
+  play points at it. Nothing in the Function App deletes claims today, but check any close-out,
+  clean-up or consent-maintenance step after the event: delete the plays first, or the claim or
+  campaign delete will be refused. Claim Token is deliberately off the play form and the all-plays
+  view (the column and the game's writes remain); add it back to the form if staff need it.
 - **Retention.** Plays carry a nickname and a score. Align retention with the consent
   maintenance schedule, or delete plays with the campaign.
 - **Operations app.** A model-driven app with views (recent plays, passes without a claim,
