@@ -76,7 +76,7 @@ like IoT Game Win.
 | `andy_hardwareeventid` | Text (100) | Yes | Pi-generated UUID. **Alternate key**: duplicate deliveries upsert the same row. |
 | `andy_bucket` | Whole number | Yes | Bucket the puck landed in (1-based). |
 | `andy_litbucket` | Whole number | Yes | Bucket the chase lights had lit at landing (1-based). |
-| `andy_islitbucket` | Yes/No | Yes | `bucket == litBucket`, stored so views can filter on it. |
+| `andy_islitbucket` | Yes/No | Yes | `bucket == litBucket`, stored so views can filter on it. The backend scores the lit bucket as the chase position at `landedAt` (`CHASE_STEP_MS`, one bucket per step, wrapping); the Pi's `litBucket` is ignored. The display reads the schedule and server clock from `GET /api/plinko-chase?station=<slug>`. |
 | `andy_entriesawarded` | Whole number | Yes | Snapshot of the station setting when the play was accepted. |
 | `andy_landedtime` | DateTime | Yes | Pi timestamp. The server receive time is `createdon`. |
 | `andy_firmwareversion` | Text | No | Troubleshooting. |
@@ -164,7 +164,8 @@ A separate Power Pages Code Site (site name `Plinko`), in the `Plinko` solution.
 - **Idle:** a how-it-works infographic. The ten steps run from dropping the puck,
   through the chase-light buckets, IR sensor, Pi, IoT Hub, Functions, Dataverse and SignalR, to
   this screen and the player's phone. A light travels through them in order, and each
-  step's caption appears below. It shows no live LED state; the Pi owns the lights.
+  step's caption appears below. Above the steps, a row of buckets shows the live **chase
+  light**, which is the lit bucket that counts. The board itself has no LEDs.
 - **Win:** on `plinkoResult` for its station, a full-screen celebration with falling
   Power Platform logo confetti (the same pattern as the Game Box Control grand-prize
   reveal). It shows the landed bucket, the lit bucket, the entries awarded, the prize

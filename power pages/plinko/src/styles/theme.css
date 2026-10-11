@@ -97,6 +97,34 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   list-style: none;
 }
 
+.chase-board {
+  display: flex;
+  justify-content: center;
+  gap: clamp(8px, 1.2vw, 20px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chase-board li {
+  display: grid;
+  place-items: center;
+  width: clamp(48px, 7vw, 120px);
+  height: clamp(56px, 8vh, 110px);
+  border: 2px solid var(--color-border);
+  border-top: 0;
+  border-radius: 0 0 14px 14px;
+  color: var(--color-text-muted);
+  font-size: clamp(18px, 2vw, 32px);
+  font-weight: 800;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s, color 0.12s;
+}
+.chase-board li[data-lit="true"] {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 28%, transparent);
+  color: var(--color-text-bright);
+  box-shadow: 0 0 28px var(--color-primary-glow);
+}
+
 .flow-step {
   --tier: var(--tier-edge);
   display: grid;
