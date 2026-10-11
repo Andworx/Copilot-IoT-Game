@@ -14,7 +14,7 @@ export const FLOW_STEPS: FlowStep[] = [
   { id: "drop", label: "Drop your puck", caption: "Let it go from any slot along the top of the board.", tier: "edge" },
   { id: "lights", label: "Chase the buckets", caption: "This screen sweeps a light across the buckets. Land in the lit one for bonus entries.", tier: "platform" },
   { id: "sensor", label: "IR sensor", caption: "An infrared beam across each bucket breaks when the puck lands.", tier: "edge" },
-  { id: "pi", label: "Raspberry Pi", caption: "Records the landed bucket and landing time, then sends them to the cloud.", tier: "edge", icon: "pi" }
+  { id: "pi", label: "Raspberry Pi", caption: "Records the landed bucket and landing time, then sends them to the cloud.", tier: "edge", icon: "pi" },
   { id: "hub", label: "Azure IoT Hub", caption: "Receives the landing event securely from the board.", tier: "cloud", icon: "iothub" },
   { id: "functions", label: "Azure Functions", caption: "Checks the event is real and new, then creates your prize claim.", tier: "cloud", icon: "functions" },
   { id: "dataverse", label: "Dataverse", caption: "Stores the play, the claim and your grand-prize entries.", tier: "platform", icon: "dataverse" },
