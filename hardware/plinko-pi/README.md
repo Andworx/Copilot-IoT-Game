@@ -17,7 +17,7 @@ When the input stays active for the debounce window, `plinko_trigger.py` emits:
   "eventId": "<uuid>",
   "bucket": 1,
   "litBucket": 1,
-  "bucketCount": 5,
+  "bucketCount": 6,
   "landedAt": "2026-10-02T12:00:00+00:00",
   "firmware": "plinko-pi/v0.2"
 }
