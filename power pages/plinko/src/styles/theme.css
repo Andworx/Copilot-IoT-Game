@@ -1,21 +1,26 @@
-/* Plinko booth display. Tokens follow the copilotiotgame kiosk (KIOSK_UI_SPEC.md §1);
-   target is a landscape booth monitor, with a stacked layout for narrow screens. */
+/* Plinko booth display, in the Andworx palette: royal blue #2a3380, light blue #7ad3e1,
+   yellow #f3eb4a, purple #7b53da. Target is a landscape booth monitor, with a stacked
+   layout for narrow screens. */
 
 :root {
   --font-mono: "IBM Plex Mono", "Consolas", monospace;
-  --color-bg: #080c08;
-  --color-surface: #0f160f;
-  --color-surface-2: #161e16;
-  --color-border: #243224;
-  --color-text: #c8d4c8;
-  --color-text-muted: #7a8a7a;
-  --color-text-bright: #e8f0e8;
-  --color-primary: #f59e0b;
-  --color-primary-glow: rgba(245, 158, 11, 0.45);
-  --color-accent: #22c55e;
-  --tier-edge: #22c55e;
-  --tier-cloud: #4c8dff;
-  --tier-platform: #b67cff;
+  --brand-royal: #2a3380;
+  --brand-sky: #7ad3e1;
+  --brand-yellow: #f3eb4a;
+  --brand-purple: #7b53da;
+  --color-bg: #0d1140;
+  --color-surface: #151b58;
+  --color-surface-2: #1c2470;
+  --color-border: #3a47a6;
+  --color-text: #dfe5ff;
+  --color-text-muted: #9ea9e6;
+  --color-text-bright: #ffffff;
+  --color-primary: var(--brand-yellow);
+  --color-primary-glow: rgba(243, 235, 74, 0.5);
+  --color-accent: var(--brand-sky);
+  --tier-edge: var(--brand-sky);
+  --tier-cloud: #a9b8ff;
+  --tier-platform: #ad94ff;
 }
 
 * { box-sizing: border-box; }
@@ -35,9 +40,45 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   min-height: 100vh;
   overflow: hidden;
   display: grid;
+  grid-template-rows: auto 1fr;
+  padding: clamp(16px, 3vw, 48px);
+  background: radial-gradient(ellipse at 50% 0%, var(--brand-royal) 0, var(--color-bg) 72%);
+}
+
+.topbar { display: flex; align-items: center; justify-content: space-between; }
+.brand { height: clamp(28px, 4vh, 52px); width: auto; }
+
+/* Hidden in plain sight: low contrast so the booth screen reads as buckets, not a settings UI. */
+.gear {
+  display: grid;
   place-items: center;
-  padding: clamp(16px, 4vw, 64px);
-  background: radial-gradient(ellipse at 50% 0%, #12301a 0, var(--color-bg) 70%);
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-bright);
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.2s, background 0.2s;
+}
+.gear:hover, .gear:focus-visible { opacity: 0.9; background: #ffffff1f; }
+.gear svg { width: 24px; height: 24px; fill: currentColor; }
+
+.stage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(24px, 6vh, 72px);
+  padding-bottom: clamp(16px, 4vh, 48px);
+}
+.stage h1 {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--color-text-bright);
+  font-size: clamp(26px, 3.6vw, 64px);
+  line-height: 1.12;
+  text-align: center;
 }
 
 .eyebrow {
@@ -51,14 +92,49 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 
 /* ============ Idle: how-it-works infographic ============ */
 
-.flow { width: min(1600px, 100%); display: grid; gap: clamp(24px, 4vh, 56px); }
+.flow { width: 100%; display: grid; gap: clamp(20px, 3vh, 40px); }
 
-.flow-header h1 {
-  margin: 10px 0 0;
+.flow-header h2 {
+  margin: 0;
   color: var(--color-text-bright);
-  font-size: clamp(24px, 3.2vw, 52px);
-  line-height: 1.15;
+  font-size: clamp(22px, 2.4vw, 40px);
 }
+
+/* Guide: the infographic in a panel opened from the gear. */
+.guide {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 48px);
+  overflow-y: auto;
+  background: #070a2ae6;
+}
+.guide-panel {
+  position: relative;
+  width: min(1600px, 100%);
+  padding: clamp(20px, 3vw, 48px);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: linear-gradient(180deg, var(--color-surface-2), var(--color-bg));
+  box-shadow: 0 30px 90px #00000099;
+}
+.guide-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-bright);
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+}
+.guide-close:hover { background: #ffffff1f; }
 
 .flow-track { --icon: clamp(56px, 5.5vw, 88px); position: relative; padding: 12px 0 0; }
 
@@ -80,7 +156,7 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   height: 18px;
   margin: -8px 0 0 -9px;
   border-radius: 50%;
-  background: #fff7d6;
+  background: #fffde0;
   box-shadow: 0 0 14px 6px var(--color-primary-glow), 0 0 40px 12px var(--color-primary-glow);
   transition: left 0.9s cubic-bezier(0.45, 0, 0.2, 1), top 0.9s cubic-bezier(0.45, 0, 0.2, 1), opacity 0.3s;
   z-index: 1;
@@ -100,7 +176,9 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 .chase-board {
   display: flex;
   justify-content: center;
-  gap: clamp(8px, 1.2vw, 20px);
+  align-items: flex-end;
+  gap: clamp(10px, 1.6vw, 28px);
+  width: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -108,21 +186,25 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 .chase-board li {
   display: grid;
   place-items: center;
-  width: clamp(48px, 7vw, 120px);
-  height: clamp(56px, 8vh, 110px);
-  border: 2px solid var(--color-border);
+  flex: 1 1 0;
+  max-width: 240px;
+  height: clamp(160px, 42vh, 460px);
+  border: 4px solid var(--color-border);
   border-top: 0;
-  border-radius: 0 0 14px 14px;
+  border-radius: 0 0 28px 28px;
+  background: color-mix(in srgb, var(--brand-royal) 55%, transparent);
   color: var(--color-text-muted);
-  font-size: clamp(18px, 2vw, 32px);
+  font-size: clamp(40px, 6vw, 112px);
   font-weight: 800;
-  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s, color 0.12s;
+  transition: background 0.1s, border-color 0.1s, box-shadow 0.1s, color 0.1s, transform 0.1s;
 }
+.chase-board[data-ready="false"] li { opacity: 0.35; }
 .chase-board li[data-lit="true"] {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 28%, transparent);
-  color: var(--color-text-bright);
-  box-shadow: 0 0 28px var(--color-primary-glow);
+  border-color: var(--brand-yellow);
+  background: var(--brand-yellow);
+  color: var(--brand-royal);
+  box-shadow: 0 0 60px 8px var(--color-primary-glow);
+  transform: translateY(-10px);
 }
 
 .flow-step {
@@ -216,7 +298,7 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   place-items: center;
   overflow-y: auto;
   padding: 16px;
-  background: radial-gradient(circle at 50% 45%, #0f2f4dcc 0, #07121fe8 62%, #030914f2 100%);
+  background: radial-gradient(circle at 50% 45%, #2a3380d9 0, #0d1140ec 62%, #070a2af2 100%);
 }
 
 .win-card {
@@ -230,13 +312,14 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   padding: clamp(20px, 3vw, 48px);
   border: 1px solid #ffffff38;
   border-radius: 16px;
-  background: #f8fbfff2;
-  color: #10233a;
+  background: #fafbfff2;
+  color: #1a2160;
   box-shadow: 0 34px 90px #0206178a;
   animation: win-pop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.2);
 }
-.win .eyebrow { color: #b42318; }
-.win-card h2 { margin: 8px 0 12px; color: #07121f; font-size: clamp(36px, 5vw, 76px); line-height: 1; }
+.win .eyebrow { color: var(--brand-purple); }
+.win-brand { display: block; height: clamp(24px, 3.4vh, 40px); width: auto; margin: 0 0 18px; }
+.win-card h2 { margin: 8px 0 12px; color: var(--brand-royal); font-size: clamp(36px, 5vw, 76px); line-height: 1; }
 .win-bucket-line { margin: 0 0 20px; font-size: clamp(18px, 1.8vw, 28px); }
 
 .bucket-row {
@@ -252,10 +335,10 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   display: grid;
   place-items: center;
   height: clamp(56px, 7vw, 96px);
-  border: 2px solid #c7d3e0;
+  border: 2px solid #c6cdf0;
   border-top: 0;
   border-radius: 0 0 10px 10px;
-  color: #5b6b7f;
+  color: #5a63a8;
   font-size: clamp(18px, 2vw, 30px);
   font-weight: 800;
 }
@@ -265,11 +348,11 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #b45309;
+  color: var(--brand-purple);
 }
-.bucket-row li[data-lit="true"] { border-color: var(--color-primary); background: #fff4dc; box-shadow: 0 0 24px var(--color-primary-glow); }
-.bucket-row li[data-landed="true"] { border-color: #1f8a70; background: #1f8a70; color: #fff; }
-.bucket-row li[data-landed="true"] small { color: #fff4dc; }
+.bucket-row li[data-lit="true"] { border-color: #d6cc12; background: #fdf9b8; box-shadow: 0 0 24px var(--color-primary-glow); }
+.bucket-row li[data-landed="true"] { border-color: var(--brand-royal); background: var(--brand-royal); color: #fff; }
+.bucket-row li[data-landed="true"] small { color: var(--brand-yellow); }
 .bucket-row li[data-landed="true"]::after {
   content: "";
   position: absolute;
@@ -282,9 +365,9 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 }
 
 .win-awards { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; padding: 0; list-style: none; font-size: clamp(16px, 1.5vw, 22px); }
-.win-awards li { padding: 10px 16px; border: 1px dashed #7a8ca4; border-radius: 10px; background: #edf4fb; }
+.win-awards li { padding: 10px 16px; border: 1px dashed var(--brand-purple); border-radius: 10px; background: #eef0ff; }
 .win-awards strong { font-size: 1.3em; }
-.win-lit .win-awards li:first-child { border-color: #b45309; background: #fff4dc; }
+.win-lit .win-awards li:first-child { border-color: #d6cc12; background: #fdf9b8; }
 
 .win-qr { display: grid; justify-items: center; gap: 10px; text-align: center; }
 .qr-block {
@@ -295,25 +378,25 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   padding: 10px;
   border-radius: 12px;
   background: #fff;
-  box-shadow: 0 10px 30px #10233a26;
+  box-shadow: 0 10px 30px #2a338040;
 }
 .qr-block img { width: 100%; height: 100%; image-rendering: pixelated; }
 .qr-caption { margin: 6px 0 0; font-size: clamp(16px, 1.5vw, 22px); font-weight: 700; }
-.qr-note { margin: 0; color: #4b5d73; font-size: 14px; }
+.qr-note { margin: 0; color: #4a529a; font-size: 14px; }
 
 .win-footer { display: flex; align-items: center; gap: 16px; margin-top: 8px; }
 .btn-secondary {
   min-width: 120px;
   padding: 10px 18px;
-  border: 1px solid #7a8ca4;
+  border: 1px solid var(--brand-royal);
   border-radius: 8px;
   background: transparent;
-  color: #10233a;
+  color: var(--brand-royal);
   font-size: 16px;
   cursor: pointer;
 }
-.btn-secondary:hover { background: #e3ebf5; }
-.reset-timer { color: #4b5d73; font-size: 14px; }
+.btn-secondary:hover { background: #e6e9ff; }
+.reset-timer { color: #4a529a; font-size: 14px; }
 
 .confetti-field { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .confetti-piece {

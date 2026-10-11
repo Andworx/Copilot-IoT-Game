@@ -6,6 +6,9 @@ import {
   checkFreshness,
   isPlinkoLanding,
   judgePlinkoLanding,
+  lockHolds,
+  lockPath,
+  parsePlinkoLock,
   parsePlinkoLanding,
   resolveLitBucket,
   type PlinkoLanding,
@@ -115,4 +118,29 @@ test("an inactive station ignores landings", () => {
 test("a stale landing is rejected", () => {
   const stale = landing({ landedAt: new Date(NOW.getTime() - MAX_LANDING_AGE_MS - 5000) });
   assert.equal(judgePlinkoLanding(stale, profile, NOW).accepted, false);
+});
+
+test("a win holds the board until it is released, expires, or is claimed", () => {
+  const lock = { eventId: "e1", claimToken: "t1", expiresAt: 10_000, released: false };
+  assert.equal(lockHolds(lock, true, 5_000), true);
+  assert.equal(lockHolds({ ...lock, released: true }, true, 5_000), false, "skipped on the display");
+  assert.equal(lockHolds(lock, true, 10_000), false, "backstop expiry");
+  assert.equal(lockHolds(lock, false, 5_000), false, "claimed on the phone");
+  assert.equal(lockHolds(null, true, 5_000), false, "no lock");
+});
+
+test("parsePlinkoLock rejects malformed documents", () => {
+  assert.equal(parsePlinkoLock({ eventId: "e1" }), null);
+  assert.equal(parsePlinkoLock(null), null);
+  assert.deepEqual(parsePlinkoLock({ eventId: "e", claimToken: "t", expiresAt: 1, released: false }), {
+    eventId: "e",
+    claimToken: "t",
+    expiresAt: 1,
+    released: false,
+  });
+});
+
+test("lockPath is a safe blob path per station", () => {
+  assert.equal(lockPath("plinko-default"), "plinko/lock-plinko-default.json");
+  assert.equal(lockPath("../Evil Station"), "plinko/lock----evil-station.json");
 });

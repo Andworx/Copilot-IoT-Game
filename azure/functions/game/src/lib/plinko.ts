@@ -134,3 +134,37 @@ export function judgePlinkoLanding(landing: PlinkoLanding, profile: PlinkoProfil
 export function playName(stationSlug: string, bucket: number, landedAt: Date): string {
   return `${stationSlug} · bucket ${bucket} · ${landedAt.toISOString()}`.slice(0, 200);
 }
+
+/** How long a win holds the screen. The display resets after 45 s, so this is only a backstop. */
+export const LOCK_TTL_MS = 60 * 1000;
+
+/** One win at a time per station: the QR on screen holds the board until it is claimed or cleared. */
+export interface PlinkoLock {
+  eventId: string;
+  claimToken: string;
+  expiresAt: number;
+  released: boolean;
+}
+
+export function parsePlinkoLock(value: unknown): PlinkoLock | null {
+  const v = value as Partial<PlinkoLock> | null;
+  if (
+    !v ||
+    typeof v.eventId !== "string" ||
+    typeof v.claimToken !== "string" ||
+    typeof v.expiresAt !== "number" ||
+    typeof v.released !== "boolean"
+  ) {
+    return null;
+  }
+  return { eventId: v.eventId, claimToken: v.claimToken, expiresAt: v.expiresAt, released: v.released };
+}
+
+/** True while the lock's win is still on screen: not released, not expired, and its claim not yet claimed. */
+export function lockHolds(lock: PlinkoLock | null, claimUnclaimed: boolean, now: number = Date.now()): boolean {
+  return !!lock && !lock.released && now < lock.expiresAt && claimUnclaimed;
+}
+
+export function lockPath(stationSlug: string): string {
+  return `plinko/lock-${stationSlug.toLowerCase().replace(/[^a-z0-9_-]/g, "-").slice(0, 60)}.json`;
+}
