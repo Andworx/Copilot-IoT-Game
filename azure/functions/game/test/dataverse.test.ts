@@ -3,6 +3,7 @@ import { ConfidentialClientApplication } from "@azure/msal-node";
 import { describe, it, mock } from "node:test";
 import {
   buildGrandPrizeDrawingSlices,
+  buildClaimLookupPath,
   buildContactCreatePayload,
   buildGrandPrizeEntryPayload,
   buildIotGameWinCreatePayload,
@@ -17,7 +18,17 @@ import {
 } from "../src/lib/dataverse";
 
 describe("createSourcedPrizeClaim", () => {
-  it("atomically upserts concurrent claims by the unique claim-token key", async (t) => {
+  const CAMPAIGN = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+  const SOURCE = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+  const TOKEN = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+
+  /**
+   * A stand-in for Dataverse that behaves like the real Prize Claim table: there is no alternate
+   * key on the claim token, so addressing a row by it is rejected with HTTP 400 (checked live), and
+   * the only way in is a plain POST. `lookupGate` holds the first N token lookups until all N have
+   * arrived, to make N requests race past the "does it exist yet" check together.
+   */
+  function fakeDataverse(t: import("node:test").TestContext, options: { lookupGate?: number } = {}) {
     process.env.DATAVERSE_CLIENT_ID = "00000000-0000-0000-0000-000000000001";
     process.env.DATAVERSE_TENANT_ID = "00000000-0000-0000-0000-000000000002";
     process.env.DATAVERSE_CLIENT_SECRET = "test-only";
@@ -26,38 +37,118 @@ describe("createSourcedPrizeClaim", () => {
       expiresOn: new Date(Date.now() + 3600000),
     }));
 
-    const claimToken = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
-    const prizeClaimId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
-    const requests: Array<{ url: string; init: RequestInit }> = [];
-    let claimCreated = false;
-    t.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
-      const url = String(input);
-      const request = init ?? {};
-      requests.push({ url, init: request });
-      if (url.includes("andy_contestcampaigns")) return Response.json({ value: [] });
-      if (url.includes("andy_contestsources")) {
-        return Response.json({ value: [{ andy_contestsourceid: "cccccccc-cccc-4ccc-8ccc-cccccccccccc" }] });
-      }
-      if (url.includes("andy_prizeclaims?")) return Response.json({ value: [{ andy_prizeclaimid: prizeClaimId }] });
-      if (claimCreated) return new Response(null, { status: 412 });
-      claimCreated = true;
-      return new Response(null, {
-        status: 201,
-        headers: { "OData-EntityId": `https://example.crm.dynamics.com/api/data/v9.2/andy_prizeclaims(${prizeClaimId})` },
-      });
-    });
+    const rows: Array<{ id: string; token: string }> = [];
+    const calls: Array<{ method: string; url: string; body?: Record<string, unknown> }> = [];
+    let gateArrivals = 0;
+    let openGate: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => (openGate = resolve));
 
+    t.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+      const url = decodeURIComponent(String(input));
+      const method = init?.method ?? "GET";
+      const body = init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : undefined;
+      calls.push({ method, url, body });
+
+      if (url.includes("andy_contestcampaigns")) return Response.json({ value: [{ andy_contestcampaignid: CAMPAIGN }] });
+      if (url.includes("andy_contestsources")) {
+        return Response.json({ value: [{ andy_contestsourceid: SOURCE, andy_sourcekey: "mcpquest" }] });
+      }
+      if (url.includes("andy_prizeclaims(")) {
+        return new Response(
+          JSON.stringify({ error: { message: "The key in the request URI is not valid for resource andy_prizeclaim" } }),
+          { status: 400 },
+        );
+      }
+      if (method === "POST" && url.endsWith("andy_prizeclaims")) {
+        const id = String(body?.andy_prizeclaimid);
+        if (rows.some((row) => row.id === id)) return new Response("duplicate primary id", { status: 400 });
+        rows.push({ id, token: String(body?.andy_claim_token) });
+        return new Response(null, {
+          status: 204,
+          headers: { "OData-EntityId": `https://example.crm.dynamics.com/api/data/v9.2/andy_prizeclaims(${id})` },
+        });
+      }
+      if (url.includes("andy_prizeclaims?")) {
+        if (options.lookupGate && gateArrivals < options.lookupGate) {
+          gateArrivals += 1;
+          if (gateArrivals === options.lookupGate) openGate();
+          await gate;
+        }
+        const token = /andy_claim_token eq '([^']+)'/.exec(url)?.[1];
+        // Rows are returned earliest first, as the query's $orderby asks.
+        return Response.json({ value: rows.filter((r) => r.token === token).map((r) => ({ andy_prizeclaimid: r.id })) });
+      }
+      throw new Error(`unexpected request: ${method} ${url}`);
+    });
+    return { rows, calls };
+  }
+
+  it("creates the claim with a plain POST, linked to the source and campaign, and never addresses a row by token", async (t) => {
+    const { rows, calls } = fakeDataverse(t);
+    const result = await createSourcedPrizeClaim({ claimToken: TOKEN, contestSourceKey: "mcpquest", name: "MCP Quest win" });
+
+    assert.equal(rows.length, 1);
+    assert.deepEqual(result, { prizeClaimId: rows[0].id, existed: false });
+    const posts = calls.filter((c) => c.method === "POST");
+    assert.equal(posts.length, 1);
+    assert.equal(posts[0].body?.andy_prizeclaimid, TOKEN);
+    assert.equal(posts[0].body?.andy_claim_token, TOKEN);
+    assert.equal(posts[0].body?.andy_claim_status, 435700000);
+    assert.equal(posts[0].body?.["andy_Campaign@odata.bind"], `/andy_contestcampaigns(${CAMPAIGN})`);
+    assert.equal(posts[0].body?.["andy_Contest_Source@odata.bind"], `/andy_contestsources(${SOURCE})`);
+    assert.equal(calls.some((c) => c.method === "PATCH" || /andy_prizeclaims\(/.test(c.url)), false);
+  });
+
+  it("returns the existing claim for a repeat call and creates nothing new", async (t) => {
+    const { rows, calls } = fakeDataverse(t);
+    const first = await createSourcedPrizeClaim({ claimToken: TOKEN, contestSourceKey: "mcpquest", name: "MCP Quest win" });
+    const second = await createSourcedPrizeClaim({ claimToken: TOKEN, contestSourceKey: "mcpquest", name: "MCP Quest win" });
+
+    assert.equal(second.prizeClaimId, first.prizeClaimId);
+    assert.equal(second.existed, true);
+    assert.equal(rows.length, 1);
+    assert.equal(calls.filter((c) => c.method === "POST").length, 1);
+  });
+
+  it("uses the claim token as a stable primary id when two requests race", async (t) => {
+    const { rows, calls } = fakeDataverse(t, { lookupGate: 2 });
     const results = await Promise.all([
-      createSourcedPrizeClaim({ claimToken, contestSourceKey: "mcpquest", name: "MCP Quest win" }),
-      createSourcedPrizeClaim({ claimToken, contestSourceKey: "mcpquest", name: "MCP Quest win" }),
+      createSourcedPrizeClaim({ claimToken: TOKEN, contestSourceKey: "mcpquest", name: "MCP Quest win" }),
+      createSourcedPrizeClaim({ claimToken: TOKEN, contestSourceKey: "mcpquest", name: "MCP Quest win" }),
     ]);
 
-    assert.deepEqual(results.map((result) => result.prizeClaimId), [prizeClaimId, prizeClaimId]);
-    assert.deepEqual(results.map((result) => result.existed).sort(), [false, true]);
-    const upserts = requests.filter(({ init }) => init.method === "PATCH");
-    assert.equal(upserts.length, 2);
-    assert.ok(upserts.every(({ url }) => url.includes(`andy_prizeclaims(andy_claim_token='${claimToken}')`)));
-    assert.ok(upserts.every(({ init }) => new Headers(init.headers).get("If-None-Match") === "*"));
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].id, TOKEN);
+    assert.equal(results[0].prizeClaimId, rows[0].id);
+    assert.equal(results[1].prizeClaimId, rows[0].id);
+    assert.deepEqual(results.map((r) => r.existed).sort(), [false, true]);
+    assert.equal(calls.filter((call) => call.method === "POST").length, 2);
+  });
+
+  it("fails with the Dataverse status when the claim cannot be created", async (t) => {
+    fakeDataverse(t);
+    t.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("andy_contestcampaigns")) return Response.json({ value: [{ andy_contestcampaignid: CAMPAIGN }] });
+      if (url.includes("andy_contestsources")) {
+        return Response.json({ value: [{ andy_contestsourceid: SOURCE, andy_sourcekey: "mcpquest" }] });
+      }
+      if (url.includes("andy_prizeclaims?")) return Response.json({ value: [] });
+      if (init?.method === "POST") return new Response("privilege missing", { status: 403 });
+      throw new Error(`unexpected request: ${url}`);
+    });
+    await assert.rejects(
+      () => createSourcedPrizeClaim({ claimToken: TOKEN, contestSourceKey: "mcpquest", name: "MCP Quest win" }),
+      /POST andy_prizeclaims failed: 403/,
+    );
+  });
+
+  it("looks claims up earliest-first, for the writer and for claim-prize alike", () => {
+    const path = buildClaimLookupPath(TOKEN);
+    assert.match(path, /\$orderby=createdon asc,andy_prizeclaimid asc/);
+    assert.match(path, /\$top=1$/);
+    const expanded = buildClaimLookupPath(TOKEN, "andy_prizeclaimid,andy_claim_status", 1, "andy_Contest_Source($select=andy_sourcekey)");
+    assert.match(expanded, /\$expand=andy_Contest_Source\(\$select=andy_sourcekey\)/);
   });
 });
 

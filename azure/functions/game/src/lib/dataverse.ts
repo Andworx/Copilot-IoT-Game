@@ -323,6 +323,10 @@ export async function createGameWin(
  * The claim is anchored to the active Contest Campaign and the named Contest Source, so
  * `claim-prize` and the grand-prize drawing treat it exactly like an IoT or Plinko claim.
  * The caller supplies the token so that a retry can reuse it.
+ *
+ * `andy_prizeclaim` has no alternate key on the claim token (a key-addressed write is rejected by
+ * Dataverse with HTTP 400), so use the token as the deterministic primary id on the plain POST.
+ * Concurrent creates then collide on the primary key, and the losing request reuses the created row.
  */
 export async function createSourcedPrizeClaim(input: {
   claimToken: string;
@@ -335,12 +339,15 @@ export async function createSourcedPrizeClaim(input: {
   const [campaign, contestSource] = await Promise.all([fetchActiveContestCampaign(), fetchContestSourceByKey(sourceKey)]);
   if (!contestSource) throw new Error(`No active Contest Source row found for source key "${sourceKey}"`);
 
-  const path = `${PRIZE_CLAIMS_SET}(andy_claim_token='${input.claimToken}')`;
-  const response = await dataverseFetchRaw(path, {
-    method: "PATCH",
-    headers: { "If-None-Match": "*" },
+  const existing = await getPrizeClaimIdsByToken(input.claimToken);
+  if (existing.length > 0) return { prizeClaimId: existing[0], existed: true };
+
+  const prizeClaimId = input.claimToken.toLowerCase();
+  const response = await dataverseFetchRaw(PRIZE_CLAIMS_SET, {
+    method: "POST",
     body: JSON.stringify(
       buildPrizeClaimCreatePayload({
+        prizeClaimId,
         claimToken: input.claimToken,
         deviceSlug: sourceKey,
         name: input.name,
@@ -350,26 +357,42 @@ export async function createSourcedPrizeClaim(input: {
       })
     ),
   });
-  if (response.status === 412) {
-    const prizeClaimId = await getPrizeClaimIdByToken(input.claimToken);
-    if (prizeClaimId) return { prizeClaimId, existed: true };
-  } else if (!response.ok) {
+  if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Dataverse PATCH ${path} failed: ${response.status} ${body}`);
+    if (response.status === 400 || response.status === 409) {
+      try {
+        const ids = await getPrizeClaimIdsByToken(input.claimToken);
+        if (ids.some((id) => id.toLowerCase() === prizeClaimId)) {
+          return { prizeClaimId, existed: true };
+        }
+      } catch {
+        // Preserve the create error if the follow-up read also fails.
+      }
+    }
+    throw new Error(`Dataverse POST ${PRIZE_CLAIMS_SET} failed: ${response.status} ${body}`);
   }
-  const prizeClaimId =
-    parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId")) ??
-    (await getPrizeClaimIdByToken(input.claimToken));
-  if (!prizeClaimId) throw new Error("Dataverse did not return the upserted Prize Claim id");
-  return { prizeClaimId, existed: response.status !== 201 };
+  const createdId = parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId"));
+  if (createdId?.toLowerCase() !== prizeClaimId) {
+    throw new Error("Dataverse did not return the deterministic Prize Claim id");
+  }
+  return { prizeClaimId, existed: false };
 }
 
-async function getPrizeClaimIdByToken(claimToken: string): Promise<string | null> {
-  const response = await dataverseFetch(
-    `${PRIZE_CLAIMS_SET}?$select=andy_prizeclaimid&$filter=andy_claim_token eq '${claimToken}'&$top=1`
+/**
+ * Where a claim is looked up by its token. Stable ordering also resolves any legacy duplicate rows.
+ */
+export function buildClaimLookupPath(claimToken: string, select = "andy_prizeclaimid", top = 1, expand = ""): string {
+  return (
+    `${PRIZE_CLAIMS_SET}?$filter=andy_claim_token eq '${claimToken}'` +
+    `&$select=${select}${expand ? `&$expand=${expand}` : ""}` +
+    `&$orderby=createdon asc,andy_prizeclaimid asc&$top=${top}`
   );
+}
+
+async function getPrizeClaimIdsByToken(claimToken: string): Promise<string[]> {
+  const response = await dataverseFetch(buildClaimLookupPath(claimToken, "andy_prizeclaimid", 5));
   const body = (await response.json()) as { value: Array<{ andy_prizeclaimid: string }> };
-  return body.value[0]?.andy_prizeclaimid ?? null;
+  return body.value.map((row) => row.andy_prizeclaimid);
 }
 
 /** The active campaign's per-contact entry cap: "the most allowed" a game's tiers are measured against. */
@@ -421,6 +444,7 @@ function normalizeContestSourceKey(sourceKey: string | undefined): string {
 export function buildPrizeClaimCreatePayload(input: {
   claimToken: string;
   deviceSlug: string;
+  prizeClaimId?: string;
   /** Primary name of the claim. Defaults to the IoT form, `IoT <slug> <time>`. */
   name?: string;
   campaignId?: string | null;
@@ -429,6 +453,7 @@ export function buildPrizeClaimCreatePayload(input: {
 }): Record<string, string | number> {
   const timestamp = (input.now ?? new Date()).toISOString();
   return {
+    ...(input.prizeClaimId ? { andy_prizeclaimid: input.prizeClaimId } : {}),
     andy_name: input.name ?? `IoT ${input.deviceSlug} ${timestamp}`,
     andy_claim_token: input.claimToken,
     andy_claim_status: PRIZE_CLAIM_STATUS_UNCLAIMED,
@@ -1477,8 +1502,12 @@ export async function claimGameWin(
   }
 
   const prizeClaimResponse = await dataverseFetch(
-    `${PRIZE_CLAIMS_SET}?$filter=andy_claim_token eq '${claimToken}'` +
-      `&$select=andy_prizeclaimid,andy_claim_status,_andy_campaign_value&$expand=${PRIZE_CLAIM_CONTEST_SOURCE_NAV}($select=andy_sourcekey)&$top=1`
+    buildClaimLookupPath(
+      claimToken,
+      "andy_prizeclaimid,andy_claim_status,_andy_campaign_value",
+      1,
+      `${PRIZE_CLAIM_CONTEST_SOURCE_NAV}($select=andy_sourcekey)`
+    )
   );
   const prizeClaimBody = (await prizeClaimResponse.json()) as {
     value: Array<{
