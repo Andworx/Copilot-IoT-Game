@@ -84,7 +84,7 @@ const STAGES: Stage[] = [
     short: "Plain rules score your design out of 100",
     where: "function",
     detail:
-      "When you submit, fixed server-side rules replay your design against the saved tool list and score it out of 100. There is no AI in the scoring, so the same design always earns the same score.",
+      "When you submit, fixed rules replay your design against the saved tool list and score it out of 100. There is no AI in scoring; the same design with the same number of hints used always earns the same score.",
     guard: "Your design runs against the saved tool list, never the real system.",
   },
   {
