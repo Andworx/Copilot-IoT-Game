@@ -78,22 +78,22 @@ race_z = 3.0;           // channel top is this far below the top surface (wires 
 cover_t = 3.1;          // magnet pocket + 1 mm skin
 cover_gap = 0.2;        // between cover back and body front
 cover_top_clear = 0.2;  // cover top sits this far below the top surface
-mag_d = 6.0;            // disc magnet diameter (6 x 2 mm default)
-mag_h = 2.0;            // disc magnet thickness
+mag_d = 6.0;            // disc magnet diameter (6 x 1.74 mm)
+mag_h = 1.74;           // disc magnet thickness
 mag_fit = 0.15;         // added to magnet diameter for a glue-in pocket
-mag_depth = 2.1;        // pocket depth in body and cover
+mag_depth = 1.9;        // pocket depth in body and cover: the magnet sits fully inside, 0.16 mm for glue
 mag_x_inset = 4.25;     // magnet centre from each side
-mag_z_inset = 5.0;      // magnet centre from bottom and top
+mag_z_inset = 5.0;      // magnet centre from the tile bottom and top; a middle row sits halfway
 align_pin_d = 3.0;
 align_pin_h = 2.0;
 align_pin_clear = 0.3;
-align_pin_x_inset = 14.0;
+align_pin_x_inset = 16.5;  // clear of both towers (the right one is 14.4 wide) so the upper pins sit in the front wedge
 align_pin_z = 4.0;
 
 /* [Logo - see logos/logos.json; run logos/build_logo_layers.py after changing it] */
 logo = "power-apps";    // [microsoft, power-platform, power-apps, power-automate, power-pages, dataverse, ai-builder, copilot, azure, azure-functions, azure-iot-hub, azure-signalr, none]
 logo_style = "inlay";   // [inlay, cutout] inlay: multi-colour logo in the cover face (AMS); cutout: logo cut through, body colour shows
-logo_size = 18.0;       // logo fits in this square
+logo_size = 26.0;       // logo fits in this square
 logo_inlay_depth = 0.6; // inlay thickness at the cover front (3 layers at 0.2 mm)
 logo_colour = 0;        // part = "cover_colour": which logo colour layer to export
 logo_clean = 0.05;      // removes slivers thinner than 2x this (mm) from the logo layers
@@ -137,8 +137,6 @@ tile_off = (shell_w - tile_w) / 2;
 shell_d = slot_gap - front_clear;
 z_top = face_h;
 body_y0 = cover_t + cover_gap;               // body front face (below the top surface)
-cover_top = z_top - cover_top_clear;
-logo_z = cover_top / 2;
 insert_z = z_top / 2;
 
 beam_z = z_top + beam_h;
@@ -154,6 +152,10 @@ ir_pocket_y0 = beam_y - ir_pocket_w / 2;     // the pocket is a channel from her
 groove_y0 = beam_y - groove_w / 2;
 groove_y1 = beam_y + groove_w / 2;
 funnel_rise = (groove_y0 - body_y0) * tan(funnel_angle);
+// The tile covers the full height of the body's front face (the funnel's front edge), held by
+// three rows of magnets and pins at the top and bottom so the top cannot tip in.
+cover_top = z_top + funnel_rise - cover_top_clear;
+logo_z = cover_top / 2;
 pocket_z0 = beam_z + ir_hole_from_end + ir_clear / 2 - ir_pocket_h;  // pocket floor (wire end)
 tower_in_h = beam_z + ir_hole_from_end + ir_clear / 2 + ir_roof;
 tower_out_h = tower_in_h + tower_slope_rise;
@@ -165,7 +167,8 @@ race_z0 = z_top - race_z - race_w;           // channel floor
 race_y0 = shell_d - race_d;
 
 mag_xs = [mag_x_inset, tile_w - mag_x_inset];       // tile coordinates; add tile_off on the body
-mag_zs = [mag_z_inset, z_top - mag_z_inset];
+mag_zs = [mag_z_inset, cover_top / 2, cover_top - mag_z_inset];
+align_zs = [align_pin_z, cover_top - align_pin_z];
 align_xs = [align_pin_x_inset, tile_w - align_pin_x_inset];
 
 assert(slot_gap >= min_slot_gap - 0.001, str("Slot gap too small for the IR housings: need ", min_slot_gap, " mm"));
@@ -279,9 +282,9 @@ module body() {
   difference() {
     union() {
       translate([0, body_y0, 0]) cube([shell_w, shell_d - body_y0, z_top]);
-      // Towers run only around the beam, from just in front of the pocket to the rear face.
-      xz_extrude(ir_pocket_y0 - 2, shell_d - ir_pocket_y0 + 2) tower_profile(0, tx_w);
-      xz_extrude(ir_pocket_y0 - 2, shell_d - ir_pocket_y0 + 2) tower_profile(shell_w, shell_w - rx_w);
+      // Towers run the full depth to the front face, so the tile's top magnets have solid body behind them.
+      xz_extrude(body_y0, shell_d - body_y0) tower_profile(0, tx_w);
+      xz_extrude(body_y0, shell_d - body_y0) tower_profile(shell_w, shell_w - rx_w);
       funnel();
     }
 
@@ -300,8 +303,8 @@ module body() {
     // Cover magnets and alignment-pin holes.
     for (x = mag_xs, z = mag_zs)
       translate([x + tile_off, body_y0 - eps, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth + eps);
-    for (x = align_xs)
-      translate([x + tile_off, body_y0 - eps, align_pin_z]) rotate([-90, 0, 0])
+    for (x = align_xs, z = align_zs)
+      translate([x + tile_off, body_y0 - eps, z]) rotate([-90, 0, 0])
         cylinder(d = align_pin_d + align_pin_clear, h = align_pin_h + 0.5 + eps);
   }
 }
@@ -313,8 +316,8 @@ module cover() {
   difference() {
     union() {
       cube([tile_w, cover_t, cover_top]);
-      for (x = align_xs)
-        translate([x, cover_t - eps, align_pin_z]) rotate([-90, 0, 0])
+      for (x = align_xs, z = align_zs)
+        translate([x, cover_t - eps, z]) rotate([-90, 0, 0])
           cylinder(d = align_pin_d, h = cover_gap + align_pin_h + eps);
     }
     if (logo_style == "cutout") face_extrude(-eps, cover_t + 2 * eps, logo_z) logo_2d();

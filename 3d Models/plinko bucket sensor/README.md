@@ -138,7 +138,7 @@ Neither part needs supports.
 | `exports/stl/guide_slot1..6.stl` | Marking guide per bucket (below). Labelled `B<n>  <width> mm`, `FLOOR`, `M3`, `W`. |
 | `exports/stl/puck.stl` | Our puck: 48.9 x 16 mm, rounded edge, smooth faces, no decal. Two sealed magnet cavities. |
 | `exports/stl/fit_test.stl` | Receiver end only, to check the housing fit (passed). |
-| `exports/covers/<logo>/` | Magnetic tiles: **one size (78.58 x 24.8 mm) that fits every bucket**, so the 12 logos make up one shared set. Engraved with the logo name on the back. |
+| `exports/covers/<logo>/` | Magnetic tiles: **one size (78.58 x 38.2 mm) that fits every bucket**, so the 12 logos make up one shared set. Engraved with the logo name on the back. |
 
 ### Puck magnets
 
