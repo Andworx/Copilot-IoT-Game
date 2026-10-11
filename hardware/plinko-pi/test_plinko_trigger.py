@@ -31,13 +31,15 @@ class LandingDetectorTests(unittest.TestCase):
 
     def test_stable_block_emits_one_landing_until_released(self):
         clock = Clock()
+        utc_clock = [datetime(2026, 10, 2, 12, 0, tzinfo=timezone.utc)]
         detector = LandingDetector(
             debounce_ms=200,
             now=lambda: clock.value,
-            utcnow=lambda: datetime(2026, 10, 2, 12, 0, tzinfo=timezone.utc),
+            utcnow=lambda: utc_clock[0],
         )
         self.assertIsNone(detector.sample(True, "plinko-1", 3, 2, 5, "test"))
         clock.advance(0.2)
+        utc_clock[0] = datetime(2026, 10, 2, 12, 0, 0, 200000, tzinfo=timezone.utc)
         event = detector.sample(True, "plinko-1", 3, 2, 5, "test")
         self.assertIsNotNone(event)
         self.assertEqual(event.to_payload()["type"], "plinkoLanding")

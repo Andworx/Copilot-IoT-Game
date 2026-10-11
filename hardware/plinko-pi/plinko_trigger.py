@@ -80,6 +80,7 @@ class LandingDetector:
         self._now = now
         self._utcnow = utcnow
         self._candidate_since: Optional[float] = None
+        self._candidate_landed_at: Optional[datetime] = None
         self._blocked = False
 
     def sample(
@@ -97,21 +98,24 @@ class LandingDetector:
                 return None
             if self._candidate_since is None:
                 self._candidate_since = now
+                self._candidate_landed_at = self._utcnow()
                 return None
             if now - self._candidate_since + 1e-9 < self._debounce_s:
                 return None
             self._blocked = True
+            assert self._candidate_landed_at is not None
             return LandingEvent(
                 station_slug=station_slug,
                 bucket=bucket,
                 lit_bucket=lit_bucket,
                 bucket_count=bucket_count,
                 firmware=firmware,
-                landed_at=self._utcnow().isoformat(),
+                landed_at=self._candidate_landed_at.isoformat(),
                 event_id=str(uuid4()),
             )
 
         self._candidate_since = None
+        self._candidate_landed_at = None
         self._blocked = False
         return None
 
