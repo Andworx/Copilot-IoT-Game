@@ -38,8 +38,10 @@ await page.route((u) => u.pathname === "/spec.json", (r) =>
 let failed = false;
 try {
   await page.goto(`${site}/?specUrl=/spec.json`);
+  await page.click(".server-picker label.mode");
   await page.fill("#nickname", "WALKER");
-  await page.click("button:has-text('Start')");
+  await page.click("button:has-text('Build my mission')");
+  await page.click("button:has-text('Begin the mission')");
   await page.waitForSelector(".cases");
   ({ failed } = await playThrough(page, saved, mode));
 } catch (error) {
