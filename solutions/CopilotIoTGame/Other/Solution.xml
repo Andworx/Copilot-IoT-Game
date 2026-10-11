@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26085.172" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26085.172" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26085.00172">
+<ImportExportXml version="9.2.26091.167" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26091.167" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26091.00167">
   <SolutionManifest>
     <UniqueName>CopilotIoTGame</UniqueName>
     <LocalizedNames>
@@ -87,6 +87,8 @@
       <RootComponent type="1" schemaName="andy_iottelemetryevent" behavior="0" />
       <RootComponent type="1" schemaName="andy_prizeclaim" behavior="1" />
       <RootComponent type="1" schemaName="andy_prizes" behavior="1" />
+      <RootComponent type="1" schemaName="knowledgearticle" behavior="1" />
+      <RootComponent type="1" schemaName="msdyn_kbattachment" behavior="1" />
       <RootComponent type="20" id="{1cc6d8d0-83ab-f111-aaac-3833c5e08f78}" behavior="0" />
       <RootComponent type="29" id="{9302fd6b-20c4-f111-aaad-000d3a9d6391}" behavior="0" />
       <RootComponent type="36" id="{6db65f51-beba-f111-aaaf-3833c5e7f0a0}" behavior="0" />
@@ -121,6 +123,10 @@
         <Dependent type="1" schemaName="andy_grandprizeentry" displayName="Grand Prize Entry" />
       </MissingDependency>
       <MissingDependency>
+        <Required type="1" schemaName="andy_mcpquestplay" displayName="MCP Quest Play" solution="Active" />
+        <Dependent type="1" schemaName="andy_contestcampaign" displayName="Contest Campaign" />
+      </MissingDependency>
+      <MissingDependency>
         <Required type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" solution="Active" />
         <Dependent type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" />
       </MissingDependency>
@@ -135,6 +141,16 @@
       <MissingDependency>
         <Required type="1" schemaName="andy_prizetypes" displayName="Prize Types" solution="Active" />
         <Dependent type="80" schemaName="andy_CopilotIotGameBackend" displayName="Copilot IoT Game Backend" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="1" schemaName="knowledgearticle" displayName="KnowledgeArticle" parentSchemaName="" solution="msdynce_KnowledgeManagementHarvestingSolution (9.0.26044.3023)" />
+        <Dependent type="1" schemaName="knowledgearticle" displayName="KnowledgeArticle" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="1" schemaName="msdyn_kbattachment" displayName="Knowledge Article Attachment" solution="msdynce_KnowledgeManagementFeatures (9.0.26085.3002)">
+          <package appName="msdynce_KnowledgeManagement" version="9.0.26085.3002">msdynce_KnowledgeManagementAnchor (9.0.26085.3002)</package>
+        </Required>
+        <Dependent type="1" schemaName="msdyn_kbattachment" displayName="Knowledge Article Attachment" />
       </MissingDependency>
       <MissingDependency>
         <Required type="10" schemaName="andy_contestsourcecap_CampaignName_andy_contestcampaign" displayName="andy_contestsourcecap_CampaignName_andy_contestcampaign" parentSchemaName="andy_contestcampaign" parentDisplayName="Contest Campaign" solution="Active" />
@@ -253,6 +269,30 @@
         <Dependent type="26" schemaName="Active Prizes" displayName="Active Prizes" parentSchemaName="andy_prizes" parentDisplayName="Prizes" id="{e67dc58d-7eac-4598-8ab8-0df85285c168}" />
       </MissingDependency>
       <MissingDependency>
+        <Required type="2" schemaName="msdyn_contentstore" displayName="File storage content reference" parentSchemaName="knowledgearticle" parentDisplayName="Knowledge Article" solution="msdynce_KnowledgeManagementPatch (9.0.26085.3002)">
+          <package appName="msdynce_KnowledgeManagement" version="9.0.26085.3002">msdynce_KnowledgeManagementAnchor (9.0.26085.3002)</package>
+        </Required>
+        <Dependent type="26" schemaName="MCP Quest bot Answers" displayName="MCP Quest bot Answers" parentSchemaName="knowledgearticle" parentDisplayName="Knowledge Article" id="{e45c28c1-ef90-4339-9246-cd96fe759bf9}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="msdyn_contentstore" displayName="File storage content reference" parentSchemaName="knowledgearticle" parentDisplayName="Knowledge Article" solution="msdynce_KnowledgeManagementPatch (9.0.26085.3002)">
+          <package appName="msdynce_KnowledgeManagement" version="9.0.26085.3002">msdynce_KnowledgeManagementAnchor (9.0.26085.3002)</package>
+        </Required>
+        <Dependent type="DVFileSearchAttribute" displayName="ppages_f93ef7a8-ef42-44a7-a4e3-72488ff34d69.msdyn_contentstore" id.uniquename="ppages_f93ef7a8-ef42-44a7-a4e3-72488ff34d69.msdyn_contentstore" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="msdyn_fileattachment" displayName="File Attachment" parentSchemaName="msdyn_kbattachment" parentDisplayName="Knowledge Article Attachment" solution="msdynce_KnowledgeManagementFeatures (9.0.26085.3002)">
+          <package appName="msdynce_KnowledgeManagement" version="9.0.26085.3002">msdynce_KnowledgeManagementAnchor (9.0.26085.3002)</package>
+        </Required>
+        <Dependent type="26" schemaName="MCP Quest bot Answers" displayName="MCP Quest bot Answers" parentSchemaName="msdyn_kbattachment" parentDisplayName="Knowledge Article Attachment" id="{ea184f8e-96e3-46dd-b3ac-8a723f1d0686}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="2" schemaName="msdyn_fileattachment" displayName="File Attachment" parentSchemaName="msdyn_kbattachment" parentDisplayName="Knowledge Article Attachment" solution="msdynce_KnowledgeManagementFeatures (9.0.26085.3002)">
+          <package appName="msdynce_KnowledgeManagement" version="9.0.26085.3002">msdynce_KnowledgeManagementAnchor (9.0.26085.3002)</package>
+        </Required>
+        <Dependent type="DVFileSearchAttribute" displayName="ppages_7d302b48-45a6-487b-a444-0de36c7f26a5.msdyn_fileattachment" id.uniquename="ppages_7d302b48-45a6-487b-a444-0de36c7f26a5.msdyn_fileattachment" />
+      </MissingDependency>
+      <MissingDependency>
         <Required type="2" schemaName="statecode" displayName="Status" parentSchemaName="andy_contestsource" parentDisplayName="Contest Source" solution="Active" />
         <Dependent type="26" schemaName="Active Contest Sources" displayName="Active Contest Sources" parentSchemaName="andy_contestsource" parentDisplayName="Contest Source" id="{35237ed5-0f2b-4646-9244-9f871bb1a375}" />
       </MissingDependency>
@@ -307,6 +347,214 @@
       <MissingDependency>
         <Required type="connectionreference" displayName="new_sharedcommondataserviceforapps_489da" solution="Active" id.connectionreferencelogicalname="new_sharedcommondataserviceforapps_489da" />
         <Dependent type="29" displayName="Prize Engine | Deactivate Prize" id="{9302fd6b-20c4-f111-aaad-000d3a9d6391}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{4f592e09-444a-451e-8cff-345e7e6f1e15}" />
+        <Dependent type="powerpagecomponent" id="{28aef704-9fe3-4423-854c-4b35b84169eb}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{4f592e09-444a-451e-8cff-345e7e6f1e15}" />
+        <Dependent type="powerpagecomponent" id="{80f78876-ea72-4e77-84cc-666b84ba6c92}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{4f592e09-444a-451e-8cff-345e7e6f1e15}" />
+        <Dependent type="powerpagecomponent" id="{85e359ae-414e-4bfa-aa96-d1ae3a552b8a}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{5c058b4f-05c8-4cf6-b78c-b923257fdc21}" />
+        <Dependent type="powerpagecomponent" id="{9ac9f16d-d8cf-4ec4-afbe-514c7b087f78}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{5c058b4f-05c8-4cf6-b78c-b923257fdc21}" />
+        <Dependent type="powerpagecomponent" id="{e55e8959-1e8b-4a7d-9335-9cdc3226bc00}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{608e323d-552c-4827-a5dc-871dceea2ae0}" />
+        <Dependent type="powerpagecomponent" id="{9ac9f16d-d8cf-4ec4-afbe-514c7b087f78}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{608e323d-552c-4827-a5dc-871dceea2ae0}" />
+        <Dependent type="powerpagecomponent" id="{e55e8959-1e8b-4a7d-9335-9cdc3226bc00}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{70e100da-9bf5-4231-a563-2c0ccf7b78cf}" />
+        <Dependent type="powerpagecomponent" id="{9ac9f16d-d8cf-4ec4-afbe-514c7b087f78}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{70e100da-9bf5-4231-a563-2c0ccf7b78cf}" />
+        <Dependent type="powerpagecomponent" id="{d9f3f878-4dbe-4e9e-9c62-a477560b8536}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{d53595ba-99e3-49eb-9386-55d0dfa6f3e4}" />
+        <Dependent type="powerpagecomponent" id="{28aef704-9fe3-4423-854c-4b35b84169eb}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{d53595ba-99e3-49eb-9386-55d0dfa6f3e4}" />
+        <Dependent type="powerpagecomponent" id="{80f78876-ea72-4e77-84cc-666b84ba6c92}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{d53595ba-99e3-49eb-9386-55d0dfa6f3e4}" />
+        <Dependent type="powerpagecomponent" id="{85e359ae-414e-4bfa-aa96-d1ae3a552b8a}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagecomponent" solution="Active" id="{efaaa0fc-a483-4935-adcc-3fe47bdec2c3}" />
+        <Dependent type="powerpagecomponent" id="{9ac9f16d-d8cf-4ec4-afbe-514c7b087f78}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{066bdb95-0fff-487a-96a9-84e2cf7dad1d}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{219dfc92-28b2-4d0b-9c3f-118da52cd8e0}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{231d916f-399c-4010-bfc1-1bf7c3e3bf55}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{24d6df06-f0c3-452a-a834-267c47d1693d}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{28aef704-9fe3-4423-854c-4b35b84169eb}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{436b3ea0-5447-408f-947d-5bed2ba2cae5}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{4a1bda43-d52b-47c1-ac42-51ed7ce2fc68}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{4d9c7182-61bf-4ef9-b7b9-88aeef562549}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{4eab0020-694f-49b3-92cf-4e111d4cabfd}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{68c2031c-0111-4862-ac47-1a23f6f7ff25}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{6d5c5b22-6a67-4310-90ab-4b2cd9f5f7cd}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{6dccc95a-bb66-49f5-8243-8667fce2c9e4}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{746d0eed-a3df-4ac5-9de6-756b613e6abb}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{7cfdd162-1325-4ef8-bf00-88ee91bdbc5f}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{80f78876-ea72-4e77-84cc-666b84ba6c92}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{85e359ae-414e-4bfa-aa96-d1ae3a552b8a}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{9088d10b-8aec-43cf-93ed-42b568ab9aa0}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{9258c48d-2b28-4c4b-8bd9-d7fbe64da279}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{9da70634-899b-4c35-90c3-ecb4e9323252}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{4fb95e05-e635-4f0c-a0e3-4065f5dfb72a}" />
+        <Dependent type="powerpagecomponent" id="{b1381f41-7ca6-4e6f-8682-e95bc8e982e1}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{09316b64-3fb0-4f5a-adce-14e6091d5338}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{1a848d42-37db-4c19-8d60-ad5aa6b20ec0}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{335b0dc0-d93b-4c28-8b58-d1d2506cbe55}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{4086c053-a365-4564-b3f0-ab916f21a58d}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{5d9efefd-32d1-4302-8ad2-fc5e7ac6a444}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{8e97cac8-2495-40ce-953e-01231d95a93c}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{8f1b14e8-154c-47f3-a131-68afe3573188}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{9730ba92-3aca-40dc-9634-064c4db1805f}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{9ac9f16d-d8cf-4ec4-afbe-514c7b087f78}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{a6e31324-623c-4ccd-960f-3040b06b4803}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{ae13e5a7-51a2-4070-b80d-bd030425dc03}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{b9c6bb7e-18dc-400c-ad12-1482c44af94d}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{c955108f-a30a-4542-acf5-0c50bd9f146a}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{d4a50156-c86b-4f7c-b707-b4f866a4d94d}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{d9f3f878-4dbe-4e9e-9c62-a477560b8536}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{e55e8959-1e8b-4a7d-9335-9cdc3226bc00}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{e6c42691-6dfe-4569-9003-5e1c06ce0fea}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{f1e4bd66-ca58-4a6e-8907-6e31b37ef6be}" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="powerpagesite" solution="Active" id="{87d349fa-f76a-4949-8151-0d43f67b9d41}" />
+        <Dependent type="powerpagecomponent" id="{f63839ac-b0f3-4b2f-ad37-4a24ef3b4c4a}" />
       </MissingDependency>
       <MissingDependency>
         <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.20)" id.uniquename="AppChannel">
