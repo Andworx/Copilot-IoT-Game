@@ -21,7 +21,6 @@
           <cell name="andy_issubmitted" width="150" />
           <cell name="andy_ispassed" width="150" />
           <cell name="andy_isclaimissued" width="150" />
-          <cell name="andy_claimtoken" width="150" />
           <cell name="andy_score" width="150" />
           <cell name="andy_durationseconds" width="150" />
           <cell name="andy_toolcalls" width="150" />
@@ -53,7 +52,6 @@
           <attribute name="andy_issubmitted" />
           <attribute name="andy_ispassed" />
           <attribute name="andy_isclaimissued" />
-          <attribute name="andy_claimtoken" />
           <attribute name="andy_score" />
           <attribute name="andy_durationseconds" />
           <attribute name="andy_toolcalls" />

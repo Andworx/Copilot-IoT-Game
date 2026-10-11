@@ -8,7 +8,7 @@
     <ReferencingEntityName>andy_MCPQuestPlay</ReferencingEntityName>
     <ReferencedEntityName>andy_prizeclaim</ReferencedEntityName>
     <CascadeAssign>NoCascade</CascadeAssign>
-    <CascadeDelete>RemoveLink</CascadeDelete>
+    <CascadeDelete>Restrict</CascadeDelete>
     <CascadeArchive>RemoveLink</CascadeArchive>
     <CascadeReparent>NoCascade</CascadeReparent>
     <CascadeShare>NoCascade</CascadeShare>

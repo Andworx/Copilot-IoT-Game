@@ -14,6 +14,8 @@ import {
   PLAYS_SET_DEFAULT,
   PLAY_COLUMNS,
   PRIZE_CLAIM_NAV_DEFAULT,
+  ENTRIES_AWARDED_MAX,
+  ENTRIES_AWARDED_MIN,
   buildCompletePayload,
   buildCreatePayload,
   parsePlayRow,
@@ -655,4 +657,21 @@ test("a stored play row round-trips through the parser", () => {
   assert.equal(row.state.cases.routing.misses, 1);
   assert.equal(row.state.calls, 3);
   assert.equal(row.submitted, false);
+});
+
+test("entries awarded is only written when the Dataverse column can hold it", () => {
+  const base = {
+    passed: false, score: 10, durationSeconds: 5, callCount: 0, hintsUsed: 0, testCount: 0,
+    claimToken: null, resultJson: "{}", submittedAt: 0, state: { v: 1 as const, cases: {}, hints: [], calls: 0 },
+  };
+  const key = PLAY_COLUMNS.entriesAwarded;
+  // The exported column is 1 to 100. A play with no claim (an unproven game) must leave it unset.
+  assert.equal(ENTRIES_AWARDED_MIN, 1);
+  assert.equal(ENTRIES_AWARDED_MAX, 100);
+  assert.equal(key in buildCompletePayload({ ...base, entriesAwarded: 0 }), false);
+  assert.equal(key in buildCompletePayload({ ...base, entriesAwarded: -2 }), false);
+  assert.equal(key in buildCompletePayload({ ...base, entriesAwarded: Number.NaN }), false);
+  assert.equal(buildCompletePayload({ ...base, entriesAwarded: 1 })[key], 1);
+  assert.equal(buildCompletePayload({ ...base, entriesAwarded: 3 })[key], 3);
+  assert.equal(buildCompletePayload({ ...base, entriesAwarded: 500 })[key], 100, "clamped to the column's maximum");
 });

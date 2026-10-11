@@ -224,5 +224,9 @@ progress when it deploys are built from the new data: refresh between events, no
   maintenance schedule, or delete plays with the campaign.
 - **Operations app.** A model-driven app with views (recent plays, passes without a claim,
   plays by station), as for Plinko.
-- **Deploy wiring.** `POWER_MCPQUEST_WEBSITE_ID`, build and deploy steps, and a
-  `PAC_COMMANDS.md` section when this moves to `main`.
+- **Deploy wiring.** Done on `main`: `deploy-apps.yml` has an `mcpquest` leg that uses
+  `POWER_MCPQUEST_WEBSITE_ID` (defaulting to the Development site uploaded on 2026-10-09), and
+  `PAC_COMMANDS.md` has an MCPQuest section. The leg only runs when `power pages/mcpquest/` changes.
+  Note the site imports its judge and types from `azure/functions/game/src/mcpquest/` through the
+  `@mcpquest` alias, so a change to only that shared code does not redeploy the site (see
+  docs/CI_CD.md).

@@ -117,14 +117,6 @@
                       </cell>
                     </row>
                     <row>
-                      <cell id="{3e373a82-06a4-44c3-aecd-cf4199271076}">
-                        <labels>
-                          <label description="Claim Token" languagecode="1033" />
-                        </labels>
-                        <control id="andy_claimtoken" classid="{4273edbd-ac1d-40d3-9fb2-095c621b552d}" datafieldname="andy_claimtoken" />
-                      </cell>
-                    </row>
-                    <row>
                       <cell id="{4a7f839c-f045-4604-b0b8-5de49bc400e5}">
                         <labels>
                           <label description="Score" languagecode="1033" />
@@ -177,7 +169,7 @@
                         <labels>
                           <label description="Result JSON" languagecode="1033" />
                         </labels>
-                        <control id="andy_resultjson" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_resultjson" disabled="false" />
+                        <control id="andy_resultjson" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_resultjson" disabled="true" />
                       </cell>
                     </row>
                     <row>
@@ -185,7 +177,7 @@
                         <labels>
                           <label description="State JSON" languagecode="1033" />
                         </labels>
-                        <control id="andy_statejson" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_statejson" disabled="false" />
+                        <control id="andy_statejson" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_statejson" disabled="true" />
                       </cell>
                     </row>
                   </rows>
