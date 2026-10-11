@@ -22,6 +22,7 @@ import { ResultScreen } from "./components/ResultScreen";
 import { CaseWorkspace } from "./components/CaseWorkspace";
 import { McpStatus } from "./components/McpStatus";
 import { BuildScreen } from "./components/BuildScreen";
+import { HowItsMade } from "./components/HowItsMade";
 
 type Phase = "idle" | "building" | "playing" | "submitting" | "result";
 
@@ -153,6 +154,7 @@ function Game({ apis }: { apis: Apis }) {
   const [selectedCall, setSelectedCall] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [howOpen, setHowOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [board, setBoard] = useState<LeaderboardEntry[] | null>(null);
@@ -353,6 +355,11 @@ function Game({ apis }: { apis: Apis }) {
           <h1>MCP Quest</h1>
           {session ? <p className="muted">{session.modeTitle}</p> : null}
         </div>
+        <div className="topbar-actions">
+          <button type="button" className="how-open" onClick={() => setHowOpen(true)}>
+            How is this made?
+          </button>
+        </div>
         {phase === "playing" || phase === "submitting" ? (
           <dl className="stats" aria-label="Run status">
             <div>
@@ -370,6 +377,8 @@ function Game({ apis }: { apis: Apis }) {
           </dl>
         ) : null}
       </header>
+
+      <HowItsMade open={howOpen} onClose={() => setHowOpen(false)} />
 
       <main>
         {api.kind !== "live" && phase !== "idle" ? (
@@ -416,7 +425,7 @@ function Game({ apis }: { apis: Apis }) {
 
         {(phase === "playing" || phase === "submitting") && session ? (
           <div className={session.objectives.some((o) => o.kind === "build") ? "play-grid is-build" : "play-grid"}>
-            <McpStatus server={session.mcpServer} kind={api.kind} />
+            <McpStatus server={session.mcpServer} kind={api.kind} generatedFrom={session.generatedFrom} />
             {session.objectives.some((o) => o.kind === "build") ? (
               <CaseWorkspace
                 session={session}
