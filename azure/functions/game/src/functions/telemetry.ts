@@ -1,6 +1,8 @@
 import { apiSurface, backgroundWorkEnabled } from "../lib/apiSurface";
 import { app, output, InvocationContext, RetryOptions } from "@azure/functions";
 import { createTelemetryEvent } from "../lib/dataverse";
+import { isPlinkoLanding, PLINKO_RESULT_TARGET } from "../lib/plinko";
+import { recordPlinkoLanding } from "../lib/plinkoLanding";
 import {
   buildSignalRMessages,
   parsePayload,
@@ -19,6 +21,9 @@ import {
  * The kiosk page receives `SendTelemetryUpdate` (every reading) and `TriggerAgentHelp`
  * (readings where the panel isn't restored) on the same hub it already uses for
  * deviceChanged. A Dataverse failure never blocks the SignalR broadcast.
+ *
+ * The Plinko Pi shares this pipeline: a `type: "plinkoLanding"` message is judged and recorded
+ * by lib/plinkoLanding.ts and broadcast as `plinkoResult` instead of a panel update.
  *
  * Settings: IoTHubEventHubConnectionString (Event Hub-compatible endpoint connection
  * string), IOT_EVENTHUB_NAME, IOT_EVENTHUB_CONSUMER_GROUP. The consumer group must be
@@ -59,6 +64,7 @@ export async function iotTelemetry(events: unknown[], context: InvocationContext
 
   const signalRMessages: SignalRMessage[] = [];
   const dataverseWrites: Promise<void>[] = [];
+  const plinkoWork: Promise<void>[] = [];
 
   events.forEach((event, index) => {
     const payload = parsePayload(event);
@@ -67,6 +73,29 @@ export async function iotTelemetry(events: unknown[], context: InvocationContext
       return;
     }
     const deviceId = resolveDeviceId(payload, systemProperties?.[index]);
+
+    if (isPlinkoLanding(payload)) {
+      plinkoWork.push(
+        recordPlinkoLanding(payload).then(
+          (outcome) => {
+            if (outcome.status === "accepted") {
+              signalRMessages.push({ target: PLINKO_RESULT_TARGET, arguments: [outcome.result] });
+              context.log(
+                `Plinko landing from ${deviceId}: station ${outcome.result.stationSlug} bucket ${outcome.result.bucket}` +
+                  `${outcome.duplicate ? " (redelivered)" : ""}`
+              );
+            } else {
+              context.warn(`Rejected Plinko landing from ${deviceId}: ${outcome.reason}`);
+            }
+          },
+          (error) => {
+            // Rethrown below so the Event Hub retry policy replays the batch (the play is idempotent).
+            throw new Error(`Plinko landing from ${deviceId} failed: ${String(error)}`);
+          }
+        )
+      );
+      return;
+    }
     signalRMessages.push(...buildSignalRMessages(payload, deviceId));
 
     // Only real events get a history row (state changes and wins), not heartbeats or mode changes.
@@ -78,6 +107,8 @@ export async function iotTelemetry(events: unknown[], context: InvocationContext
       );
     }
   });
+
+  await Promise.all(plinkoWork);
 
   if (signalRMessages.length > 0) {
     context.extraOutputs.set(signalROutput, signalRMessages);

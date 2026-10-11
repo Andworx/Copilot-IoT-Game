@@ -23,4 +23,4 @@ export const PRIZE_WHEEL_URL =
 export const STATION_SLUG =
   new URLSearchParams(window.location.search).get("station") ??
   (import.meta.env.VITE_PLINKO_STATION as string | undefined) ??
-  "plinko-1";
+  "plinko-default";

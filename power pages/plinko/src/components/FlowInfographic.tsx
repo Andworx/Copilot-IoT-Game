@@ -8,8 +8,25 @@ function StepGlyph({ step }: { step: FlowStep }) {
   return (
     <svg viewBox="0 0 40 40" aria-hidden="true">
       {step.id === "drop" && <><circle cx="20" cy="22" r="10" /><path d="M20 2v8M15 7l5 5 5-5" /></>}
-      {step.id === "lights" && <><circle cx="8" cy="20" r="4" /><circle cx="20" cy="20" r="5" className="lit" /><circle cx="32" cy="20" r="4" /></>}
-      {step.id === "switch" && <><rect x="6" y="24" width="28" height="10" rx="1" /><path d="M10 24 30 14" /><circle cx="31" cy="13" r="3" /></>}
+      {step.id === "lights" && (
+        <g className="bucket-glyph">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <g key={i} className="bucket" style={{ ["--i" as string]: i }}>
+              <rect className={`bucket-light${i === 2 ? " rest" : ""}`} x={3.2 + i * 7.2} y="19" width="4.6" height="14" />
+              <path d={`M${2.4 + i * 7.2} 12v21h6.2V12`} />
+            </g>
+          ))}
+        </g>
+      )}
+      {step.id === "sensor" && (
+        <>
+          <rect x="3" y="12" width="9" height="16" rx="2" />
+          <rect x="28" y="12" width="9" height="16" rx="2" />
+          <circle cx="7.5" cy="20" r="2" className="lit" />
+          <circle cx="32.5" cy="20" r="2" />
+          <path d="M16 20h8" className="beam" />
+        </>
+      )}
       {step.id === "phone" && <><rect x="12" y="4" width="16" height="32" rx="3" /><rect x="16" y="11" width="8" height="8" /></>}
     </svg>
   );

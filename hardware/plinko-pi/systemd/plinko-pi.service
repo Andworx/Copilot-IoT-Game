@@ -11,8 +11,8 @@ User=pi
 WorkingDirectory=/home/pi/plinko-pi
 # Optional: without .env the Pi logs landings locally instead of sending them.
 EnvironmentFile=-/home/pi/plinko-pi/.env
-# System python: lgpio comes from apt (python3-lgpio), so no venv is needed.
-ExecStart=/usr/bin/python3 /home/pi/plinko-pi/plinko_trigger.py
+# The venv (created with --system-site-packages) holds azure-iot-device and still sees the apt lgpio.
+ExecStart=/home/pi/plinko-pi/.venv/bin/python /home/pi/plinko-pi/plinko_trigger.py
 Restart=on-failure
 RestartSec=5
 

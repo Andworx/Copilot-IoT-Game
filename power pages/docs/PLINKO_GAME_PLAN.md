@@ -162,7 +162,7 @@ Typed in `power pages/plinko/src/types/plinko.ts`.
 A separate Power Pages Code Site (site name `Plinko`), in the `Plinko` solution.
 
 - **Idle:** a how-it-works infographic. The ten steps run from dropping the puck,
-  through the chase lights, switch, Pi, IoT Hub, Functions, Dataverse and SignalR, to
+  through the chase-light buckets, IR sensor, Pi, IoT Hub, Functions, Dataverse and SignalR, to
   this screen and the player's phone. A light travels through them in order, and each
   step's caption appears below. It shows no live LED state; the Pi owns the lights.
 - **Win:** on `plinkoResult` for its station, a full-screen celebration with falling

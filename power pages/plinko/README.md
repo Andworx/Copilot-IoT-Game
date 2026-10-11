@@ -11,7 +11,7 @@ Power Pages **Code Site** (React 19 + Vite) for the physical Plinko board, site 
 
 The screen listens for `plinkoResult` on the shared `gamebox` SignalR hub
 (`src/types/plinko.ts`) and ignores other stations. Pick the station with
-`?station=<andy_stationslug>` (default `plinko-1`).
+`?station=<andy_stationslug>` (default `plinko-default`).
 
 ## Structure
 
@@ -45,7 +45,7 @@ defaults in `src/lib/apiConfig.ts`.
 
 - `VITE_API_BASE_URL` points to the Functions backend. Defaults to `https://func-aw-iot-game-v2.azurewebsites.net`.
 - `VITE_PRIZE_WHEEL_URL` points to the player phone Prize Wheel Code Site. Defaults to `https://andworxprizewheel.powerappsportals.com`.
-- `VITE_PLINKO_STATION` sets the default station slug when `?station=` is absent. Defaults to `plinko-1`.
+- `VITE_PLINKO_STATION` sets the default station slug when `?station=` is absent. Defaults to `plinko-default`.
 
 The display listens for `plinkoResult` messages on the shared `gamebox` SignalR hub and ignores events for other stations when the event includes `station` or `stationSlug`.
 
