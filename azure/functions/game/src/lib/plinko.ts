@@ -5,6 +5,8 @@
  * See power pages/docs/PLINKO_GAME_PLAN.md §4.
  */
 
+import { litBucketAt } from "./plinkoChase";
+
 export const PLINKO_LANDING_TYPE = "plinkoLanding";
 export const PLINKO_RESULT_TARGET = "plinkoResult";
 export const PLINKO_CONTEST_SOURCE_KEY = "plinko";
@@ -18,7 +20,6 @@ export interface PlinkoLanding {
   stationSlug: string;
   eventId: string;
   bucket: number;
-  litBucket: number | null;
   bucketCount: number | null;
   landedAt: Date;
   firmware: string | null;
@@ -31,7 +32,6 @@ export interface PlinkoProfile {
   litBucketEntries: number;
   standardBucketEntries: number;
   gameModeActive: boolean;
-  activeLitBucket: number | null;
 }
 
 /** The `plinkoResult` the booth display receives. */
@@ -75,7 +75,6 @@ export function parsePlinkoLanding(payload: unknown): { landing: PlinkoLanding }
       stationSlug,
       eventId,
       bucket,
-      litBucket: positiveInt(p.litBucket),
       bucketCount: positiveInt(p.bucketCount),
       landedAt,
       firmware: typeof p.firmware === "string" ? p.firmware.slice(0, 100) : null,
@@ -92,15 +91,11 @@ export function checkFreshness(landedAt: Date, now: Date = new Date()): string |
 }
 
 /**
- * The lit bucket for scoring. The Plinko Profile's `activelitbucket` is the booth's source of
- * truth; the Pi only has a configured placeholder until it can read the display's chase lights,
- * so the profile wins when it holds a valid bucket.
+ * The lit bucket for scoring: where the display's chase light was when the puck landed. The Pi
+ * has no lights and its `litBucket` is ignored; the chase is a function of time (plinkoChase.ts).
  */
-export function resolveLitBucket(profile: PlinkoProfile, landing: PlinkoLanding, bucketCount: number): number | null {
-  const inRange = (n: number | null): n is number => n !== null && n >= 1 && n <= bucketCount;
-  if (inRange(profile.activeLitBucket)) return profile.activeLitBucket;
-  if (inRange(landing.litBucket)) return landing.litBucket;
-  return null;
+export function resolveLitBucket(landing: PlinkoLanding, bucketCount: number): number {
+  return litBucketAt(landing.landedAt.getTime(), bucketCount);
 }
 
 export function entriesFor(profile: PlinkoProfile, bucket: number, litBucket: number): number {
@@ -124,8 +119,7 @@ export function judgePlinkoLanding(landing: PlinkoLanding, profile: PlinkoProfil
     return { accepted: false, reason: `bucket ${landing.bucket} is outside 1..${bucketCount}` };
   }
 
-  const litBucket = resolveLitBucket(profile, landing, bucketCount);
-  if (litBucket === null) return { accepted: false, reason: "no valid lit bucket" };
+  const litBucket = resolveLitBucket(landing, bucketCount);
 
   return {
     accepted: true,

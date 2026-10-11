@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { litBucketAt } from "../src/lib/plinkoChase";
 import {
   MAX_LANDING_AGE_MS,
   checkFreshness,
@@ -20,8 +21,10 @@ const profile: PlinkoProfile = {
   litBucketEntries: 2,
   standardBucketEntries: 1,
   gameModeActive: true,
-  activeLitBucket: 3,
 };
+
+const LANDED_AT = new Date("2026-10-11T19:59:58.123456+00:00");
+const LIT_AT_LANDING = litBucketAt(LANDED_AT.getTime(), 6);
 
 function wire(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -29,9 +32,9 @@ function wire(overrides: Record<string, unknown> = {}): Record<string, unknown> 
     stationSlug: "plinko-default",
     eventId: "0b8f6a3e-6c1d-4a39-9f4c-3f1f0b1e2a77",
     bucket: 2,
-    litBucket: 1,
     bucketCount: 6,
     landedAt: "2026-10-11T19:59:58.123456+00:00",
+    litBucket: 1,
     firmware: "plinko-pi/v0.2",
     ...overrides,
   };
@@ -75,19 +78,27 @@ test("checkFreshness rejects replays and clocks far in the future", () => {
   assert.match(checkFreshness(new Date(NOW.getTime() + 10 * 60 * 1000), NOW) ?? "", /future/);
 });
 
-test("the profile's active lit bucket wins over the Pi's placeholder", () => {
-  assert.equal(resolveLitBucket(profile, landing({ litBucket: 1 }), 6), 3);
-  assert.equal(resolveLitBucket({ ...profile, activeLitBucket: null }, landing({ litBucket: 5 }), 6), 5);
-  assert.equal(resolveLitBucket({ ...profile, activeLitBucket: 9 }, landing({ litBucket: null }), 6), null);
+test("the chase sweeps buckets 1..N in order, one per step, then wraps", () => {
+  const seq = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => litBucketAt(i * 1000 + 250, 6));
+  for (let i = 1; i < seq.length; i++) assert.equal(seq[i], (seq[i - 1] % 6) + 1);
+  assert.ok(seq.every((b) => b >= 1 && b <= 6));
+});
+
+test("the lit bucket is where the chase was when the puck landed, not what the Pi says", () => {
+  const decision = judgePlinkoLanding(landing(), profile, NOW);
+  assert.ok(decision.accepted);
+  assert.equal(decision.litBucket, LIT_AT_LANDING);
+  assert.equal(resolveLitBucket(landing(), 6), LIT_AT_LANDING);
 });
 
 test("a non-lit bucket earns the standard entries", () => {
-  const decision = judgePlinkoLanding(landing({ bucket: 2 }), profile, NOW);
-  assert.deepEqual(decision, { accepted: true, bucket: 2, litBucket: 3, bucketCount: 6, entriesAwarded: 1 });
+  const other = (LIT_AT_LANDING % 6) + 1;
+  const decision = judgePlinkoLanding(landing({ bucket: other }), profile, NOW);
+  assert.deepEqual(decision, { accepted: true, bucket: other, litBucket: LIT_AT_LANDING, bucketCount: 6, entriesAwarded: 1 });
 });
 
 test("the lit bucket earns the lit entries", () => {
-  const decision = judgePlinkoLanding(landing({ bucket: 3 }), profile, NOW);
+  const decision = judgePlinkoLanding(landing({ bucket: LIT_AT_LANDING }), profile, NOW);
   assert.equal(decision.accepted && decision.entriesAwarded, 2);
 });
 
