@@ -87,7 +87,7 @@ Everything after the claim token is the existing engine. `claim-prize` reads the
 | Tool calls | Reads replay the snapshot. Writes return the same "simulated" success the public server gives. |
 | Writes by the player | Only read tools are callable directly. Write tools run only inside a test run of something the player built. |
 | Concurrency | `If-Match` on the row's ETag. One automatic retry on a lost race. |
-| Idempotency | A repeat `submit` returns the stored result and never mints a second claim. A failed claim is completed by submitting again. |
+| Idempotency | A repeat `submit` returns the stored result and never mints a second claim. A failed claim is completed by submitting again. The claim is created with a plain POST after a lookup by token, because Prize Claim has no alternate key on the token (a key-addressed write is rejected with HTTP 400). If two requests race past the lookup, both rows exist, and the play link and `claim-prize` both use the earliest row for the token, so the pair cannot be claimed twice. |
 | Time | Server clock only. Actions after the mode's limit (plus 30 s grace) are refused; `submit` still grades, with the duration capped. |
 | Limits | 40 direct tool calls and 6 test runs per case per play, enforced in the stored state. |
 | Token | HMAC-signed play id and expiry, secret `MCPQUEST_TOKEN_SECRET`. Rotating it ends plays in progress. |
