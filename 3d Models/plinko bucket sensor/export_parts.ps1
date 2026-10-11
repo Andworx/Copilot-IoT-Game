@@ -62,9 +62,10 @@ Invoke-OpenScad @("-o", (Join-Path $StlDir "fit_test.stl"), "-D", "part=`"fit_te
 # together in Bambu Studio as one object with multiple parts and assign a filament
 # to each; the file names carry the colour to match.
 if (-not $SkipCovers) {
-    # Logo-free reference cover: validate_covers.py checks each set adds up to it.
-    Invoke-OpenScad @("-o", (Join-Path $CoverDir "_plain_cover.stl"), "-D", "part=`"cover`"", "-D", "logo=`"none`"", "-D", "slot=$Slot", $Source)
+    # Logo-free reference covers (one per logo, carrying the same name text): validate_covers.py
+    # checks each logo's parts add up to its reference.
     foreach ($Logo in $LogoTable) {
+        Invoke-OpenScad @("-o", (Join-Path $CoverDir "_plain_$($Logo.name).stl"), "-D", "part=`"cover`"", "-D", "logo=`"none`"", "-D", "cover_label_logo=`"$($Logo.name)`"", "-D", "slot=$Slot", $Source)
         $Folder = Join-Path $CoverDir $Logo.name
         if (Test-Path $Folder) { Remove-Item -Recurse -Force $Folder }
         New-Item -ItemType Directory -Path $Folder | Out-Null

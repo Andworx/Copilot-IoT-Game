@@ -2,8 +2,8 @@
 
 - every part is watertight and fits the build volume;
 - colour layers sit only in the inlay layers at the cover face (print Z 0..depth);
-- base + colour layers add up to the plain cover's volume (exports/covers/_plain_cover.stl,
-  logo = "none"), so the layers neither overlap each other or the base nor leave gaps;
+- base + colour layers add up to the plain cover's volume (exports/covers/_plain_<logo>.stl,
+  logo = "none" with the same name text), so the layers neither overlap each other or the base nor leave gaps;
 - colour layers below MIN_COLOUR_VOLUME (specks left by colours painted over) are deleted.
 
 Usage: python validate_covers.py [logo-name ...]   (default: every folder in exports/covers)
@@ -21,7 +21,8 @@ VOLUME_TOL = 0.002     # fraction of the plain cover volume
 MIN_COLOUR_VOLUME = 0.5  # mm^3; smaller colour layers are deleted
 
 
-def check(folder, plain_volume):
+def check(folder):
+    plain_volume = trimesh.load_mesh(COVERS / f"_plain_{folder.name}.stl").volume
     parts = {p.name: trimesh.load_mesh(p) for p in sorted(folder.glob("*.stl"))}
     problems = []
     # A colour almost entirely painted over leaves only unprintable specks: delete it.
@@ -55,8 +56,7 @@ def check(folder, plain_volume):
 def main():
     names = sys.argv[1:]
     folders = [COVERS / n for n in names] if names else sorted(p for p in COVERS.iterdir() if p.is_dir())
-    plain_volume = trimesh.load_mesh(COVERS / "_plain_cover.stl").volume
-    problems = [p for f in folders for p in check(f, plain_volume)]
+    problems = [p for f in folders for p in check(f)]
     for p in problems:
         print("  FAIL", p)
     sys.exit(1 if problems else 0)

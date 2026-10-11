@@ -101,6 +101,7 @@ logo_clean = 0.05;      // removes slivers thinner than 2x this (mm) from the lo
 /* [Labels and drill guide] */
 label = true;           // engrave the bucket number and width on each part (hidden faces)
 label_depth = 0.6;
+cover_label_logo = "";  // logo whose name goes on the cover back; empty = the cover's own logo (set for the plain reference cover)
 guide_t = 4.0;          // plate thickness
 guide_h = 40.0;         // plate height, resting on the bucket floor
 guide_point_h = 3.5;    // height of the marking points
@@ -130,6 +131,9 @@ include <logos/generated/logo_data.scad>;
 // ============================================================
 slot_w_eff = slot > 0 ? slot_widths[slot - 1] : slot_w;
 shell_w = slot_w_eff - 2 * side_clear;
+// Covers are universal magnetic tiles: one size (the narrowest bucket's insert), centred on any body.
+tile_w = min(slot_widths) - 2 * side_clear;
+tile_off = (shell_w - tile_w) / 2;
 shell_d = slot_gap - front_clear;
 z_top = face_h;
 body_y0 = cover_t + cover_gap;               // body front face (below the top surface)
@@ -160,9 +164,9 @@ min_slot_gap = ir_pocket_w + 2.0 + front_clear;
 race_z0 = z_top - race_z - race_w;           // channel floor
 race_y0 = shell_d - race_d;
 
-mag_xs = [mag_x_inset, shell_w - mag_x_inset];
+mag_xs = [mag_x_inset, tile_w - mag_x_inset];       // tile coordinates; add tile_off on the body
 mag_zs = [mag_z_inset, z_top - mag_z_inset];
-align_xs = [align_pin_x_inset, shell_w - align_pin_x_inset];
+align_xs = [align_pin_x_inset, tile_w - align_pin_x_inset];
 
 assert(slot_gap >= min_slot_gap - 0.001, str("Slot gap too small for the IR housings: need ", min_slot_gap, " mm"));
 assert(ir_lip_h <= ir_z, "Lip taller than the housing");
@@ -215,7 +219,7 @@ module logo_2d(name = logo, layer = -1) {
 
 // Extrude a 2D shape (X across, Y up) along +Y of the model, centred across the insert at height z.
 module face_extrude(y0, depth, z) {
-  translate([shell_w / 2, y0 + depth, z]) rotate([90, 0, 0]) linear_extrude(depth) children();
+  translate([tile_w / 2, y0 + depth, z]) rotate([90, 0, 0]) linear_extrude(depth) children();
 }
 
 // Extrude a 2D XZ profile through the full depth of the insert.
@@ -295,9 +299,9 @@ module body() {
 
     // Cover magnets and alignment-pin holes.
     for (x = mag_xs, z = mag_zs)
-      translate([x, body_y0 - eps, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth + eps);
+      translate([x + tile_off, body_y0 - eps, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth + eps);
     for (x = align_xs)
-      translate([x, body_y0 - eps, align_pin_z]) rotate([-90, 0, 0])
+      translate([x + tile_off, body_y0 - eps, align_pin_z]) rotate([-90, 0, 0])
         cylinder(d = align_pin_d + align_pin_clear, h = align_pin_h + 0.5 + eps);
   }
 }
@@ -308,7 +312,7 @@ module body() {
 module cover() {
   difference() {
     union() {
-      cube([shell_w, cover_t, cover_top]);
+      cube([tile_w, cover_t, cover_top]);
       for (x = align_xs)
         translate([x, cover_t - eps, align_pin_z]) rotate([-90, 0, 0])
           cylinder(d = align_pin_d, h = cover_gap + align_pin_h + eps);
@@ -317,9 +321,11 @@ module cover() {
     else face_extrude(-eps, logo_inlay_depth + eps, logo_z) logo_2d();
     for (x = mag_xs, z = mag_zs)
       translate([x, cover_t - mag_depth, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth + eps);
-    if (label)  // back face, readable from behind
-      translate([shell_w / 2, cover_t + eps, cover_top / 2]) rotate([90, 0, 0]) linear_extrude(0.4 + eps)
-        mirror([1, 0, 0]) label_text(str("B", slot > 0 ? slot : 0), 7);
+    label_src = cover_label_logo != "" ? cover_label_logo : logo;
+    cover_text = label_src != "none" ? logo_entry(label_src)[1] : "";
+    if (label && cover_text != "")  // back face: the logo name, readable from behind
+      translate([tile_w / 2, cover_t + eps, cover_top / 2]) rotate([90, 0, 0]) linear_extrude(0.4 + eps)
+        mirror([1, 0, 0]) label_text(cover_text, 5.5);
   }
 }
 
@@ -329,7 +335,7 @@ module cover_colour(k) face_extrude(0, logo_inlay_depth, logo_z) logo_2d(logo, k
 // Cover with its logo in colour, for previews only.
 module cover_coloured(name = logo) {
   colours = logo_colours(name);
-  color("dimgray") translate([0, eps, 0]) cube([shell_w, cover_t, cover_top]);
+  color("dimgray") translate([0, eps, 0]) cube([tile_w, cover_t, cover_top]);
   for (k = [0 : 1 : len(colours) - 1])
     color(colours[k]) face_extrude(-0.3, 0.3, logo_z) logo_2d(name, k);
 }
@@ -350,7 +356,7 @@ module beam_mock() {
 }
 
 module magnet_mocks() {
-  color("gray") for (x = mag_xs, z = mag_zs) {
+  color("gray") for (x = mag_xs, z = mag_zs) translate([tile_off, 0, 0]) {
     translate([x, body_y0, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
     translate([x, cover_t - mag_h, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
   }
@@ -363,7 +369,7 @@ module puck_mock(x = shell_w / 2) {
 
 module assembly(explode = 0) {
   color("white") body();
-  translate([0, -explode, 0]) cover_coloured();
+  translate([tile_off, -explode, 0]) cover_coloured();
   ir_mock(tx_w, 1, tx_wall_in);
   ir_mock(shell_w - rx_w, -1, rx_wall_in);
   if (explode == 0) { beam_mock(); puck_mock(); }
@@ -372,7 +378,7 @@ module assembly(explode = 0) {
 // Every logo in logos.json on its own cover, viewed from the front.
 module cover_set(columns = 3) {
   for (i = [0 : len(LOGOS) - 1])
-    translate([(i % columns) * (shell_w + 10), 0, -floor(i / columns) * (cover_top + 10)])
+    translate([(i % columns) * (tile_w + 10), 0, -floor(i / columns) * (cover_top + 10)])
       cover_coloured(LOGOS[i][0]);
 }
 

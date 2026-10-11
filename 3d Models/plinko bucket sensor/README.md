@@ -134,11 +134,11 @@ Neither part needs supports.
 
 | File | What |
 |---|---|
-| `exports/stl/body_slot1..6.stl` | Body per bucket (insert widths 88.1, 79.4, 80.6, 78.6, 80.8 and 85.7 mm). Engraved `B<n>  <width> mm` on the underside. |
+| `exports/stl/body_slot1..6.stl` | Body per bucket (insert widths 88.1, 79.4, 80.6, 78.6, 80.8 and 85.7 mm). Engraved `B<n>  <width> mm` on the underside. The tile magnets are measured from the body's centre, so a wider body just shows a bit of body each side of the tile. |
 | `exports/stl/guide_slot1..6.stl` | Marking guide per bucket (below). Labelled `B<n>  <width> mm`, `FLOOR`, `M3`, `W`. |
 | `exports/stl/puck.stl` | Our puck: 48.9 x 16 mm, rounded edge, smooth faces, no decal. Two sealed magnet cavities. |
 | `exports/stl/fit_test.stl` | Receiver end only, to check the housing fit (passed). |
-| Covers | Engraved `B<n>` on the back face. Build per bucket: `.\export_parts.ps1 -Slot n`. |
+| `exports/covers/<logo>/` | Magnetic tiles: **one size (78.58 x 24.8 mm) that fits every bucket**, so the 12 logos make up one shared set. Engraved with the logo name on the back. |
 
 ### Puck magnets
 
