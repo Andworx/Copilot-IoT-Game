@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { API_BASE_URL, MCP_SERVER_URL, resolveApiKind, resolveStation } from "./config";
+import { API_BASE_URL, MCP_SERVER_URL, resolveApiKind, resolveSpecId, resolveSpecUrl, resolveStation } from "./config";
+import { initialDesignText } from "@mcpquest/specDesigns";
 import { createHttpApi } from "./api/httpApi";
 import { DEFAULT_MISSION, findMission } from "@mcpquest/missions";
 import type { CallRecord, GameApi, LeaderboardEntry, SessionInfo, SubmitResult } from "@mcpquest/types";
@@ -31,6 +32,12 @@ interface Apis {
  */
 async function loadApis(): Promise<Apis> {
   if (import.meta.env.VITE_MCPQUEST_API !== "live") {
+    const specUrl = resolveSpecUrl();
+    if (specUrl) {
+      const { createSpecPreviewApi } = await import("./api/specPreviewApi");
+      const api = createSpecPreviewApi(specUrl);
+      return { primary: api, preview: null };
+    }
     const kind = resolveApiKind();
     if (kind !== "live") {
       const [{ createMockApi }, { createMcpApi }] = await Promise.all([
@@ -111,6 +118,8 @@ function Game({ apis }: { apis: Apis }) {
   const station = useMemo(() => resolveStation(), []);
 
   const [modeSlug, setModeSlug] = useState<string>(() => {
+    const specId = resolveSpecId();
+    if (specId) return `spec:${specId}`;
     const requested = new URLSearchParams(window.location.search).get("mode");
     return requested ? findMission(requested).slug : DEFAULT_MISSION;
   });
@@ -167,7 +176,15 @@ function Game({ apis }: { apis: Apis }) {
       setApi(used);
       setNickname(name);
       setSession(next);
-      setAnswers({});
+      // A generated game's cases start from an empty design, so a case left alone can still be submitted.
+      setAnswers(
+        Object.fromEntries(
+          next.objectives.flatMap((o) => {
+            const text = initialDesignText(o);
+            return text ? [[o.id, text] as const] : [];
+          }),
+        ),
+      );
       setHints({});
       setCalls([]);
       setSelectedCall(null);

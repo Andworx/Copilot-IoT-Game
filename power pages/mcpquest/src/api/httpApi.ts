@@ -49,7 +49,11 @@ export function createHttpApi(baseUrl: string): GameApi {
 
   return {
     kind: "live",
-    start: (nickname, station, mode) => post<SessionInfo>("start", { nickname, station, mode }),
+    // A generated game's mission slug is `spec:<id>`; the route takes the id as `spec`.
+    start: (nickname, station, mode) =>
+      mode.startsWith("spec:")
+        ? post<SessionInfo>("start", { nickname, station, spec: mode.slice(5) })
+        : post<SessionInfo>("start", { nickname, station, mode }),
     call: (session, tool, args) =>
       post<CallResult>("call", { sessionToken: session.token, tool, arguments: args }),
     hint: async (session, objectiveId) => {

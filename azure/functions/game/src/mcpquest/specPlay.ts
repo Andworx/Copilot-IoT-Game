@@ -1,6 +1,7 @@
 import type { GameSpec } from "./gamespec";
 import { judgeCase, runDesign } from "./specJudge";
 import type { StoredSpec } from "./generate/service";
+import { designFieldsOf } from "./specDesigns";
 import type { CaseReport, DesignCatalog, Objective, RunTrace, ScoreBreakdown, SessionInfo, TestReport } from "./types";
 
 /**
@@ -58,6 +59,8 @@ export function specSession(stored: StoredSpec): Omit<SessionInfo, "token" | "st
     caseTitle: c.title,
     label: c.title,
     scenarios: c.scenarios.map((s) => ({ name: s.name, trigger: s.trigger, input: s.input })),
+    judging: c.judging,
+    ...(c.judging === "design" ? { designFields: designFieldsOf(c) } : {}),
   }));
   return {
     modeSlug: specModeSlug(stored.specId),
@@ -89,11 +92,24 @@ export function parseSpecDesign(text: unknown): Record<string, unknown> | null {
   }
 }
 
+/**
+ * Whether a design does anything at all: a run case makes at least one valid call in some
+ * scenario, a settings case has at least one value. Requirements such as "do not submit the
+ * draft" are met by doing nothing, so without real work a case earns no credit and its
+ * criteria are not shown as met.
+ */
+export function didWork(c: GameSpec["cases"][number], design: Record<string, unknown>, tools: StoredSpec["tools"]): boolean {
+  if (c.judging === "design") return Object.keys(design).length > 0;
+  return c.scenarios.some((scenario) => runDesign(design, scenario, tools).calls.length > 0);
+}
+
 /** Runs a design against one case and reports it the way the designers' test panel expects. */
 export function testSpecCase(stored: StoredSpec, caseId: string, design: Record<string, unknown>, testsLeft: number): TestReport {
   const c = stored.spec.cases.find((x) => x.id === caseId);
   if (!c) throw new Error("Unknown case.");
-  const verdict = judgeCase(c, design, stored.tools);
+  const raw = judgeCase(c, design, stored.tools);
+  const worked = didWork(c, design, stored.tools);
+  const verdict = worked ? raw : { ...raw, requirements: raw.requirements.map((r) => ({ ...r, ok: false })), passed: false };
   const runs: RunTrace[] | undefined =
     c.judging === "run"
       ? c.scenarios.map((scenario) => {
@@ -141,9 +157,9 @@ export function gradeSpec(spec: GameSpec, stored: StoredSpec, answers: Record<st
 
   for (const c of spec.cases) {
     const design = parseSpecDesign(answers[c.id]);
-    const verdict = design
-      ? judgeCase(c, design, stored.tools)
-      : { requirements: c.requirements.map((r) => ({ id: r.id, text: r.text, ok: false })), passed: false, problems: [] };
+    const judged = design && didWork(c, design, stored.tools) ? judgeCase(c, design, stored.tools) : null;
+    // No design, or one that does nothing, earns no credit even for requirements it meets by default.
+    const verdict = judged ?? { requirements: c.requirements.map((r) => ({ id: r.id, text: r.text, ok: false })), passed: false, problems: [] };
     const met = verdict.requirements.filter((r) => r.ok).length;
     const points = share * (met / Math.max(1, c.requirements.length));
     earned += points;

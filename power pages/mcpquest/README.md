@@ -57,6 +57,8 @@ npm run build    # tsc -b && vite build
 |---|---|
 | `?mode=fixit` (default) / `incident-queue` | Preselects the mission on the start screen. |
 | `?station=<slug>` | Identifies the physical device, sent on `start`. Defaults to `default`. |
+| `?spec=<16 hex>` | Plays a generated game by id on the live backend (mission `spec:<id>`). |
+| `?specUrl=<url>` | Plays a saved generated game (a file written by `generate-spec.mjs`) in the browser, with no backend. Not in live builds. |
 | `?api=mcp` (default) / `preview` / `live`, or `VITE_MCPQUEST_API` | Backend, see below. |
 | `VITE_MCPQUEST_MCP_URL` | MCP server for the `mcp` backend. Defaults to the public MCP Station `it-ticketing` server. |
 | `VITE_API_BASE_URL` | Functions backend. Defaults to the same host as the Plinko display. |

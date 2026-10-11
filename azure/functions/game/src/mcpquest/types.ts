@@ -46,6 +46,13 @@ export interface Objective {
    * (record ids, categories). Facts, not answers: checks refer to them by key.
    */
   scenarios?: { name: string; trigger: string; input: Record<string, string | number | boolean> }[];
+  /**
+   * Generated games: how the case is judged. "run" executes a design against the scenarios (an
+   * action sequence); "design" inspects the design's settings, listed in `designFields`.
+   */
+  judging?: "run" | "design";
+  /** Generated, design-judged cases: the settings the player fills in. */
+  designFields?: { path: string; kind: "text" | "number" | "boolean"; label: string }[];
 }
 
 export type ReportField = "category" | "priority" | "state" | "group";

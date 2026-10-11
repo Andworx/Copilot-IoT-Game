@@ -22,8 +22,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Power Apps | 2 | 7 | 0 | 0 | 9 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 2 | 1 | 0 | 3 |
-| MCP Quest (new game) | 0 | 11 | 4 | 0 | 15 |
-| Totals | 26 | 56 | 17 | 2 | 101 |
+| MCP Quest (new game) | 0 | 12 | 4 | 0 | 16 |
+| Totals | 26 | 57 | 17 | 2 | 102 |
 
 ## Dataverse
 
@@ -246,6 +246,7 @@ Design: [MCP_QUEST_PLAN.md](MCP_QUEST_PLAN.md). Single-player, player-called too
 | Station device build and leaderboard display | Hardware / display | ⬜ TODO | Device choice and spectator-screen decision are open items in MCP_QUEST_PLAN.md. |
 | Agent-generated games: GameSpec schema and validator | Azure Functions | ⬜ Verify | `src/mcpquest/gamespec.ts` and `gamespecSchema.ts` with 18 tests. Declarative spec an agent returns; validated against the server's real tool list. Not wired to anything yet. Plan: [MCP_QUEST_AGENT_PLAN.md](MCP_QUEST_AGENT_PLAN.md). |
 | Agent-generated games: Foundry generator service and client | Azure Functions | ⬜ Verify | 2026-10-10: `src/mcpquest/generate/` reads an MCP Station server, asks Foundry for a strict-schema GameSpec, validates it against the real tool list with one repair attempt, caches by tool-list hash. 13 unit tests with fakes; no route, no blob store, and never run against live Foundry or MCP Station (the build environment cannot reach either). Owner steps: Foundry project and model, managed identity access, app settings. See MCP_QUEST_AGENT_PLAN.md "Foundry integration". |
+| Agent-generated games: generic designers and local spec play | Code Site + Azure Functions | ⬜ Verify | 2026-10-10: action-sequence designer (flow, app, site, agent) and settings form (report, table, security), sampled records panel, `?spec=` / `?specUrl=`, `walk-spec.mjs`. 172 unit tests; six real generated specs (18 cases) built through the UI in headless Chromium and scored 100; found and fixed a do-nothing scoring flaw. Not deployed. Remaining: console picker, cave build screen, result copy for generated games. |
 | Agent-generated games: generate, servers and status routes with rate limit | Azure Functions | ⬜ Verify | 2026-10-10: `GET servers`, `POST generate { server, jobId }` (about 25 s) and `GET generate/status`; catalog-only, cached by tool list, per-client and global hourly limits in blob counters with ETag preconditions, one build per server at a time. 163 unit tests; exercised live against real Foundry and MCP Station with in-memory state (22 s build, 0.6 s cache hit, 429 on the third build). Not deployed: needs a blob container, `MCPQUEST_SPEC_BLOB_URL`, `FOUNDRY_ENDPOINT`/`FOUNDRY_MODEL`, role assignments, and the Foundry private endpoint in Bicep. |
 | Agent-generated games: spec judge, spec play and blob spec store | Azure Functions | ⬜ Verify | 2026-10-10: `specJudge.ts` proves generated specs (reference pass passes, fail fails, do-nothing fails); `specPlay.ts` plays them through the existing service (`start { spec }`, hint, test, submit; 100 points; entry tiers against the campaign cap); `mcpquestSpecStore.ts` stores specs in blob storage by managed identity and re-validates on read. 144 unit tests; 6 real generated specs played end to end in memory. Not deployed: needs a storage container and `MCPQUEST_SPEC_BLOB_URL`, the Function's identity as Storage Blob Data Contributor, `andy_entriesawarded` live, and a `generate` route. Known gap: data discovery (see MCP_QUEST_AGENT_PLAN.md). |
 | Agent-generated games: score tiers and MCP Station allowlist | Azure Functions | ⬜ Verify | `entryTier.ts` (90-100 max entries, 70-89 one fewer, under 70 one) and `mcpstation.ts` (catalog slug to endpoint, rejects other hosts), 6 tests. Not wired into the engine yet. |

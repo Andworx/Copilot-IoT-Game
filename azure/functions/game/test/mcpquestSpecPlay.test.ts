@@ -409,3 +409,43 @@ test("blob store input checks", async () => {
   assert.match(url[0], /resource=https%3A%2F%2Fstorage\.azure\.com%2F/);
   await assert.rejects(() => storageToken({} as any), /No managed identity/);
 });
+
+test("doing nothing earns nothing, even for requirements an empty design happens to meet", async () => {
+  // Requirements that are met by default: never call add_comment, never set the status to Closed.
+  const lazy: CaseSpec = {
+    ...flowCase,
+    id: "lazy-flow",
+    requirements: [
+      { id: "no-comment", text: "Leave no comment", check: { op: "not-called", call: { tool: "add_comment" } } },
+      { id: "read", text: "Read the incident", check: { op: "called", call: { tool: "get_incident" } } },
+    ],
+  };
+  const lazyReport: CaseSpec = {
+    ...reportCase,
+    id: "lazy-report",
+    requirements: [
+      { id: "not-closed", text: "Not closed", check: { op: "not", of: { op: "design", path: "state", equals: "Closed" } } },
+      { id: "p", text: "Priority 1", check: { op: "design", path: "priority", equals: "1" } },
+    ],
+  };
+  const spec: GameSpec = { ...storedSpec().spec, cases: [lazy, lazyReport] };
+  const stored: StoredSpec = { ...storedSpec(), spec, specId: computeSpecId(spec) };
+  const h = harness({ stored });
+  const s = await h.service.start({ nickname: "TESTER", station: "t", spec: stored.specId });
+
+  const none = JSON.stringify({ trigger: "record-created", steps: [] });
+  const t = await h.service.test(s.token, "lazy-flow", none);
+  assert.deepEqual(t.criteria.map((c) => c.ok), [false, false], "an empty flow is not shown as meeting anything");
+  const tr = await h.service.test(s.token, "lazy-report", "{}");
+  assert.deepEqual(tr.criteria.map((c) => c.ok), [false, false]);
+
+  const empty = await h.service.submit(s.token, { "lazy-flow": none, "lazy-report": "{}" });
+  assert.equal(empty.score.total, 0);
+
+  // One real step and one real setting: now the default-met requirements count too.
+  const h2 = harness({ stored });
+  const s2 = await h2.service.start({ nickname: "TESTER", station: "t", spec: stored.specId });
+  const flow = JSON.stringify({ trigger: "record-created", steps: [{ tool: "get_incident", args: { incident_id: "INC0001" } }] });
+  const done = await h2.service.submit(s2.token, { "lazy-flow": flow, "lazy-report": JSON.stringify({ priority: "1" }) });
+  assert.equal(done.score.total, 100);
+});

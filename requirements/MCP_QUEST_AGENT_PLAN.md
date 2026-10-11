@@ -439,8 +439,48 @@ one client; and the rate limit protects cost, not abuse of the unauthenticated c
 status reads, so put API Management or the front door's per-IP limit in front of the public
 surface before an open event (already an open item in the engine doc).
 
-**Still not built.** Designers that emit the run-design format, the console picker and cave
-screen, and the Bicep for the private endpoint.
+## Designers for generated games (built, driven in a real browser)
+
+Two generic designers cover every case, because a generated game's data is not the incident
+data the hand-built designers were written around.
+
+| Case is judged by | Designer | Writes |
+|---|---|---|
+| Running the design (flow, app, site, agent) | **Action sequence**: a start, then ordered tool steps. Each step picks one of the server's tools; arguments are typed (choices, numbers, yes/no, text) and may use "the scenario's value" instead of a typed one. Required arguments are always shown, optional ones sit in a collapsible. | `{ trigger, steps: [{ id, tool, args }] }` |
+| Inspecting the design (report, table, security) | **Settings form**: one field per setting the case's checks read, labelled from the setting's name. | a plain object, nested by path |
+
+- **What the player is told.** Each case lists its plain-language requirements, its scenarios
+  and the facts they supply, the server's tools, the sampled records, and (for settings cases)
+  the names of the settings. It never includes the values the checks compare against: those
+  are for the player to work out from the brief, the requirements and the samples.
+- **Shared model.** `azure/functions/game/src/mcpquest/specDesigns.ts` holds the design
+  shapes, field derivation, path handling and coercion, next to the judge that reads them, and
+  the site imports it through the `@mcpquest` alias. 8 tests, including that a design built
+  only with these helpers satisfies the judge.
+- **Product framing.** The case's designer sets the product shown (Power Automate, Power Apps,
+  Power Pages, Copilot Studio, Power BI, Dataverse) and the words used for its start. There is
+  no product-choice step: the spec gives the product.
+- **Playing locally.** `?specUrl=<url of a stored spec file>` plays a saved game in the
+  browser with the same rules and judge, with no backend (dev and test builds only; excluded
+  from `VITE_MCPQUEST_API=live` builds). `?spec=<specId>` plays a generated game by id on the
+  live backend.
+
+**Driven through the real UI, 2026-10-10.** `power pages/mcpquest/scripts/walk-spec.mjs`
+plays a stored spec in headless Chromium, building each case's reference solution only with
+the designers' own controls, testing it, and submitting. All six saved specs (18 cases: flow,
+app, agent and report designers, three servers) built, met every requirement and scored 100
+with 3 entries; an untouched submit scored 0 with 1 entry; no console errors.
+
+**A flaw this found, and the fix.** An untouched submit on the expense game first scored 31:
+requirements such as "do not submit the draft" are met by doing nothing. A case now earns no
+credit, and its criteria are not shown as met, until the design actually does something (a
+valid tool call in some scenario, or at least one setting). The proof's do-nothing check is
+unchanged and still rejects specs where an empty design meets every requirement.
+
+**Still not built.** The console picker and cave screen, the Bicep for the private endpoint,
+and the leaderboard and result copy for generated games (the result screen still says
+"Prize needs every answer correct" text from the hand-built mode in its low-score branch).
+
 
 ## Security and abuse
 

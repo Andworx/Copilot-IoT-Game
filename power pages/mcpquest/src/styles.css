@@ -1552,3 +1552,28 @@ label {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Generated games: optional tool arguments and the sample records panel. */
+.more-args {
+  margin-top: 0.5rem;
+}
+
+.more-args > summary,
+.samples > summary {
+  cursor: pointer;
+  color: var(--muted, #9fb0b8);
+  font-size: 0.9rem;
+}
+
+.arg-field select[aria-label^="Where"] {
+  margin-bottom: 0.35rem;
+}
+
+.samples {
+  margin-top: 1rem;
+}
+
+.samples .raw {
+  max-height: 14rem;
+  overflow: auto;
+}
