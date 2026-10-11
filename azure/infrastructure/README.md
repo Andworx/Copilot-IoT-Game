@@ -323,6 +323,7 @@ standalone files an owner runs, not added to `main.bicep`.
 | Piece | File | Deployed by | Scope |
 |---|---|---|---|
 | `mcpquest-specs` container and a lifecycle rule that expires `jobs/`, `limits/` and `locks/` after a day | `modules/game-function-hosting.bicep` (via `main.bicep`) | The infra workflow (`what-if`, then `deploy`) | `rg-aw-azcom-iot-copilot` |
+| CORS origin `https://mcpquest.powerappsportals.com` for the MCP Quest Code Site (it was missing, so every `/api/mcpquest/*` call from the site would have been blocked) | `main.prod.bicepparam` (`gameFunctionCorsOrigins`) | The infra workflow, which then runs `Test-GameFunctionSiteConfig.ps1` against live | `rg-aw-azcom-iot-copilot` |
 | Private DNS zones and VNet links for Foundry (`privatelink.cognitiveservices`, `.openai`, `.services.ai`) | `foundry-private-dns.bicep` | An owner | `rg-aw-azcom-iot-copilot` |
 | The Foundry private endpoint `iot-copilot-pe` and its DNS zone group, plus **Foundry User** for the Function App identity | `foundry-private-endpoint.bicep` | An owner | `rg-aw-ed-azcom-foundry` |
 | **Storage Blob Data Contributor** for the Function App identity, on the container only | `mcpquest-storage-access.bicep` | An owner | `rg-aw-azcom-iot-copilot` |

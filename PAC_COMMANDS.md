@@ -168,5 +168,32 @@ pac pages upload-code-site --rootPath "."
 
 The build also needs `azure/functions/game/src/mcpquest/`, which holds the shared contract.
 
-Authenticate to the intended Dataverse environment first. Activate an initial
-inactive site through Power Pages, then verify the public site.
+Authenticate to the intended Dataverse environment first, and check you are where you think
+you are (the site above lives in Development):
+
+```powershell
+pac auth list              # the active profile is starred
+pac org who                # the environment the next command will change
+```
+
+An initial or inactive site must be activated once, then verified at its public URL:
+
+```powershell
+pac pages activate --webSiteId 4fb95e05-e635-4f0c-a0e3-4065f5dfb72a
+```
+
+#### When the CI upload fails with `powerpagecomponent ... Does Not Exist`
+
+The `Deploy MCP Quest Code Site` job can end with `XRM Network error: Entity
+'powerpagecomponent' With Id = ... Does Not Exist` even though the log also says
+`Power Pages website upload succeeded`. It is an intermittent Dataverse race while the upload
+removes the previous build's bundle files, and `Deploy-CodeSite.ps1` deliberately fails the run on
+any record error so a half-applied code site is never reported as deployed.
+
+1. Re-run just the failed job: `gh run rerun <run id> --failed`. It usually passes on a second try.
+2. If it fails again, upload by hand with the commands above (fresh `download-code-site`, then
+   `upload-code-site`, never a reused `.powerpages-site` folder), then open the site and confirm
+   the new start screen loads.
+3. Do not delete or re-create the website: its ID is the default in `deploy-apps.yml` and the
+   `POWER_MCPQUEST_WEBSITE_ID` variable, and its address (`mcpquest.powerappsportals.com`) is the
+   origin the Function App's CORS list allows, so a new site would be blocked until both changed.

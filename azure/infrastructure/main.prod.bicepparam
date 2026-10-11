@@ -27,6 +27,7 @@ param gameFunctionCorsOrigins = [
   'https://andworxprizewheel.powerappsportals.com'
   'https://copilotiotgame.powerappsportals.com'
   'https://plinko.powerappsportals.com'
+  'https://mcpquest.powerappsportals.com'
   'https://dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatformusercontent.com'
 ]
 param gameStorageAccountName = 'stawazcomiotgamev2'
