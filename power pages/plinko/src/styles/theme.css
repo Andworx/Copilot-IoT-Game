@@ -58,7 +58,7 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   border-radius: 50%;
   background: transparent;
   color: var(--color-text-bright);
-  opacity: 0.22;
+  opacity: 0.5;
   cursor: pointer;
   transition: opacity 0.2s, background 0.2s;
 }
