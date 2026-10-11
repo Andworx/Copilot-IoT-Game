@@ -2,7 +2,6 @@ import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { KioskInfoPage } from "./pages/KioskInfoPage";
 import { KioskDevicePage } from "./pages/KioskDevicePage";
 import { PlaySpinPage } from "./pages/PlaySpinPage";
-import { SolutionArchitecturePage } from "./pages/SolutionArchitecturePage";
 import { useDeviceSync } from "./hooks/useDeviceSync";
 
 /**
@@ -27,7 +26,8 @@ export default function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/kiosk/info" replace />} />
       <Route path="/kiosk/info" element={<KioskInfoPage activeSlug={activeSlug} />} />
-      <Route path="/kiosk/solution" element={<SolutionArchitecturePage activeSlug={activeSlug} />} />
+      {/* The standalone solution page folded into the Info view's Standard/Advanced toggle (#256). Redirect preserves QR/deep links. */}
+      <Route path="/kiosk/solution" element={<Navigate to="/kiosk/info?view=advanced" replace />} />
       <Route path="/kiosk/:deviceSlug" element={<KeyedKioskDevicePage />} />
       <Route path="/play-spin" element={<PlaySpinPage />} />
     </Routes>

@@ -32,6 +32,69 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  changes:
+    name: Detect changed components
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.decide.outputs.backend }}
+      any_frontend: ${{ steps.decide.outputs.any_frontend }}
+      frontend_matrix: ${{ steps.decide.outputs.frontend_matrix }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Decide which deploy legs are needed
+        id: decide
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          # Manual runs redeploy everything; otherwise diff this push's range.
+          force_all=false
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            force_all=true
+            files=""
+          else
+            base="$BEFORE_SHA"
+            if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+              base="$(git rev-parse --verify --quiet HEAD~1 || true)"
+            fi
+            if [ -z "$base" ]; then
+              force_all=true   # no comparable base (first push): be safe and deploy all
+              files=""
+            else
+              files="$(git diff --name-only "$base" "$HEAD_SHA")"
+            fi
+          fi
+          echo "Changed files:"; echo "${files:-<none / forced>}"
+          matches() { [ -n "$files" ] && printf '%s\n' "$files" | grep -qE "$1"; }
+          # Shared deploy logic or this workflow itself => redeploy everything.
+          if matches '^\.github/workflows/deploy-apps\.yml$' || matches '^azure/infrastructure/scripts/Deploy-CodeSite\.ps1$'; then
+            force_all=true
+          fi
+          want() { [ "$force_all" = true ] && return 0; matches "$1"; }
+
+          if want '^azure/functions/game/|^azure/infrastructure/(staff-api\.bicep|staff-api\.prod\.json|modules/staff-resources\.bicep|scripts/Deploy-StaffApi\.ps1)$'; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          include=""
+          add() { include="${include}{\"kind\":\"$1\",\"label\":\"$2\",\"artifact\":\"$3\"},"; }
+          want '^power apps/game-box-control/' && add "code-app" "Code App" "code-app" || true
+          want '^power pages/copilotiotgame/' && add "kiosk" "kiosk Code Site" "power-pages-kiosk" || true
+          want '^power pages/prize wheel/' && add "prize-wheel" "Prize Wheel Code Site" "power-pages-prize-wheel" || true
+          want '^power pages/plinko/' && add "plinko" "Plinko Code Site" "power-pages-plinko" || true
+          want '^power pages/mcpquest/' && add "mcpquest" "MCP Quest Code Site" "power-pages-mcpquest" || true
+          include="${include%,}"
+          echo "frontend_matrix={\"include\":[${include}]}" >> "$GITHUB_OUTPUT"
+          if [ -n "$include" ]; then echo "any_frontend=true" >> "$GITHUB_OUTPUT"; else echo "any_frontend=false" >> "$GITHUB_OUTPUT"; fi
+          echo "Resolved deploy plan: backend=$( [ "$force_all" = true ] && echo forced ) frontend_matrix={\"include\":[${include}]}"
+
   build-function:
     name: Build Function App
     runs-on: ubuntu-latest
@@ -230,8 +293,8 @@ jobs:
 
   deploy-backends:
     name: Deploy and verify backends
-    needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AZURE_MIGRATION_FREEZE != 'true'
+    needs: [build, changes]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AZURE_MIGRATION_FREEZE != 'true' && needs.changes.outputs.backend == 'true'
     runs-on: windows-latest
     timeout-minutes: 20
     environment: production
@@ -322,28 +385,24 @@ jobs:
           remote-build: false
   deploy-frontends:
     name: Deploy ${{ matrix.label }}
-    needs: [build, deploy-backends]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.STAFF_API_CUTOVER_READY == 'true' && vars.AZURE_MIGRATION_FREEZE != 'true'
+    needs: [build, changes, deploy-backends]
+    # always() so a skipped (unchanged) backend does not skip the frontends; the
+    # result guards still block a frontend deploy when a backend change failed.
+    if: >-
+      always()
+      && github.event_name != 'pull_request'
+      && github.ref == 'refs/heads/main'
+      && vars.STAFF_API_CUTOVER_READY == 'true'
+      && vars.AZURE_MIGRATION_FREEZE != 'true'
+      && needs.build.result == 'success'
+      && needs.changes.result == 'success'
+      && needs.changes.outputs.any_frontend == 'true'
+      && needs.deploy-backends.result != 'failure'
+      && needs.deploy-backends.result != 'cancelled'
     strategy:
       fail-fast: false
       max-parallel: 1
-      matrix:
-        include:
-          - kind: code-app
-            label: Code App
-            artifact: code-app
-          - kind: kiosk
-            label: kiosk Code Site
-            artifact: power-pages-kiosk
-          - kind: prize-wheel
-            label: Prize Wheel Code Site
-            artifact: power-pages-prize-wheel
-          - kind: plinko
-            label: Plinko Code Site
-            artifact: power-pages-plinko
-          - kind: mcpquest
-            label: MCP Quest Code Site
-            artifact: power-pages-mcpquest
+      matrix: ${{ fromJSON(needs.changes.outputs.frontend_matrix) }}
     runs-on: windows-latest
     timeout-minutes: 20
     environment: production
@@ -429,9 +488,13 @@ jobs:
           FRONTEND_RESULT: ${{ needs.deploy-frontends.result }}
           CUTOVER_READY: ${{ vars.STAFF_API_CUTOVER_READY || 'false' }}
         run: |
-          test "$BACKEND_RESULT" = success
-          if test "$CUTOVER_READY" = true; then test "$FRONTEND_RESULT" = success; fi
-          echo 'All required application deployments passed.'
+          # Unchanged components are skipped (selective deploy), which is a pass;
+          # only a real failure/cancellation of a leg that ran should fail the run.
+          case "$BACKEND_RESULT" in failure|cancelled) echo "::error::Backend deploy $BACKEND_RESULT"; exit 1 ;; esac
+          if test "$CUTOVER_READY" = true; then
+            case "$FRONTEND_RESULT" in failure|cancelled) echo "::error::Frontend deploy $FRONTEND_RESULT"; exit 1 ;; esac
+          fi
+          echo "All required application deployments passed (backend=$BACKEND_RESULT, frontend=$FRONTEND_RESULT)."
       - uses: azure/login@v3
         if: env.STAFF_API_CUTOVER_READY == 'true'
         with:
