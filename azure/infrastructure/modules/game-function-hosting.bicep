@@ -4,6 +4,8 @@ param planName string
 param storageAccountName string
 param packageContainerName string
 param packageContainerUrl string
+// MCP Quest generated games: specs, plus short-lived job status, locks and rate-limit counters.
+param specContainerName string = 'mcpquest-specs'
 param functionAppName string
 param resourceTags object
 param functionAppTags object = {}
@@ -51,6 +53,57 @@ resource packageContainer 'Microsoft.Storage/storageAccounts/blobServices/contai
     denyEncryptionScopeOverride: false
     publicAccess: 'None'
   }
+}
+
+// Holds `by-id/` and `by-hash/` (the generated specs, kept) and `jobs/`, `limits/` and `locks/`
+// (state that only matters for minutes). Private: no public access, reached by the Function
+// App's managed identity over the storage private endpoint.
+resource specContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobs
+  name: specContainerName
+  properties: {
+    defaultEncryptionScope: '$account-encryption-key'
+    denyEncryptionScopeOverride: false
+    publicAccess: 'None'
+  }
+}
+
+// Lifecycle rules run about once a day, so state expires within one to two days. The account had
+// no management policy when this was written; this rule only touches the three state prefixes.
+resource lifecycle 'Microsoft.Storage/storageAccounts/managementPolicies@2023-05-01' = {
+  parent: storage
+  name: 'default'
+  properties: {
+    policy: {
+      rules: [
+        {
+          enabled: true
+          name: 'expire-mcpquest-state'
+          type: 'Lifecycle'
+          definition: {
+            actions: {
+              baseBlob: {
+                delete: {
+                  daysAfterModificationGreaterThan: 1
+                }
+              }
+            }
+            filters: {
+              blobTypes: [
+                'blockBlob'
+              ]
+              prefixMatch: [
+                '${specContainerName}/jobs/'
+                '${specContainerName}/limits/'
+                '${specContainerName}/locks/'
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+  dependsOn: [specContainer]
 }
 
 resource plan 'Microsoft.Web/serverfarms@2024-04-01' = {
@@ -124,3 +177,5 @@ output functionAppName string = app.name
 output planId string = plan.id
 output storageAccountId string = storage.id
 output storageAccountName string = storage.name
+output specContainerName string = specContainer.name
+output specContainerUrl string = '${storage.properties.primaryEndpoints.blob}${specContainer.name}'

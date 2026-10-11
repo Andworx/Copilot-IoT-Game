@@ -36,6 +36,8 @@ param gameFunctionCorsOrigins array
 param gameStorageAccountName string
 param gameStoragePackageContainerName string
 param gameStoragePackageContainerUrl string
+// MCP Quest generated games (specs, job status, locks, rate-limit counters).
+param mcpQuestSpecContainerName string = 'mcpquest-specs'
 
 param gameAppInsightsName string
 param gameFailureAnomaliesAlertName string
@@ -160,6 +162,7 @@ module gameFunctionHosting 'modules/game-function-hosting.bicep' = {
     storageAccountName: gameStorageAccountName
     packageContainerName: gameStoragePackageContainerName
     packageContainerUrl: gameStoragePackageContainerUrl
+    specContainerName: mcpQuestSpecContainerName
     functionAppName: gameFunctionAppName
     resourceTags: gameFunctionResourceTags
     functionAppTags: gameFunctionAppTags
@@ -365,6 +368,8 @@ output eventHubName string = eventHub.outputs.eventHubName
 output signalRName string = signalR.outputs.name
 output gameFunctionAppName string = gameFunctionHosting.outputs.functionAppName
 output gameStorageAccountName string = gameFunctionHosting.outputs.storageAccountName
+// The value for the MCPQUEST_SPEC_BLOB_URL app setting.
+output mcpQuestSpecContainerUrl string = gameFunctionHosting.outputs.specContainerUrl
 output gameAppInsightsName string = gameAppInsights.outputs.name
 output smartDetectionActionGroupName string = smartDetectionActionGroup.outputs.name
 output gameFailureAnomaliesAlertName string = gameFailureAnomaliesAlert.outputs.name

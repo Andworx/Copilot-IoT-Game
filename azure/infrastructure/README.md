@@ -309,6 +309,83 @@ separately validated hardening step.
 4. Merge an infrastructure change. Review the automatic reconciliation summary, approve it with
    the manual `deploy` action, then rerun `what-if` to confirm Azure matches Bicep.
 
+## Foundry private endpoint and MCP Quest access
+
+MCP Quest builds missions with a model on the Foundry (Azure AI Services) account
+`foundry-aw--ed-azcomm-eastus2`, which lives in `rg-aw-ed-azcom-foundry` with its firewall set to
+deny by default. The Function App reaches it over a private endpoint, and stores generated games in
+a private container on its own storage account.
+
+**Who owns what.** The CI deploy identity is limited to `rg-aw-azcom-iot-copilot` and can assign only
+the Event Hubs Data Receiver role, so the parts that sit outside that boundary are written as
+standalone files an owner runs, not added to `main.bicep`.
+
+| Piece | File | Deployed by | Scope |
+|---|---|---|---|
+| `mcpquest-specs` container and a lifecycle rule that expires `jobs/`, `limits/` and `locks/` after a day | `modules/game-function-hosting.bicep` (via `main.bicep`) | The infra workflow (`what-if`, then `deploy`) | `rg-aw-azcom-iot-copilot` |
+| Private DNS zones and VNet links for Foundry (`privatelink.cognitiveservices`, `.openai`, `.services.ai`) | `foundry-private-dns.bicep` | An owner | `rg-aw-azcom-iot-copilot` |
+| The Foundry private endpoint `iot-copilot-pe` and its DNS zone group, plus **Foundry User** for the Function App identity | `foundry-private-endpoint.bicep` | An owner | `rg-aw-ed-azcom-foundry` |
+| **Storage Blob Data Contributor** for the Function App identity, on the container only | `mcpquest-storage-access.bicep` | An owner | `rg-aw-azcom-iot-copilot` |
+
+The DNS and endpoint files describe resources that already exist (they were created by hand). They are
+written to match them, so a `what-if` should report no change: that is the check that the Bicep is
+faithful, not a deployment.
+
+### Verified against the live resources (2026-10-10)
+
+- The endpoint is `Approved`, group `account`, with three private IPs in `iot-demo-vnet/private-endpoint`.
+- The three zones sit in the same group as the other `privatelink` zones, are linked to `iot-demo-vnet`
+  (which uses Azure-provided DNS), and their A records match the endpoint's IPs.
+- The Function App is integrated into `iot-demo-vnet/function-integration`, the same VNet.
+- `what-if` of `foundry-private-dns.bicep`: no changes. Of `foundry-private-endpoint.bicep`: only
+  provider-owned read-only values differ (`etag`, `id`, `provisioningState`, `type`,
+  `isIPv6EnabledPrivateEndpoint`), the same noise `deploy-infra.yml` already ignores for the other
+  endpoints; with a principal id it adds one role assignment. Of `main.bicep`: the only difference
+  from `main` is the two creates in the first row of the table.
+- Not provable from outside the VNet: resolution and traffic from inside it. The first real check is the
+  deployed Function App calling Foundry (`POST /api/mcpquest/generate`).
+
+### Running it (an owner, once)
+
+Merge, then let the infra workflow create the container (`what-if`, review, `deploy`). Then:
+
+```powershell
+$principal = az functionapp show -g rg-aw-azcom-iot-copilot -n func-aw-iot-game-v2 --query identity.principalId -o tsv
+$env:FUNCTION_APP_PRINCIPAL_ID = $principal
+
+# Preview, then deploy, each file. Expect no changes except the role assignments.
+az deployment group what-if -g rg-aw-azcom-iot-copilot -f azure/infrastructure/foundry-private-dns.bicep -p azure/infrastructure/foundry-private-dns.prod.bicepparam
+az deployment group what-if -g rg-aw-ed-azcom-foundry -f azure/infrastructure/foundry-private-endpoint.bicep -p azure/infrastructure/foundry-private-endpoint.prod.bicepparam
+az deployment group what-if -g rg-aw-azcom-iot-copilot -f azure/infrastructure/mcpquest-storage-access.bicep -p functionAppPrincipalId=$principal
+
+# Then the same three with `create` instead of `what-if`, once the preview reads as expected.
+```
+
+App settings are merged, never replaced, by both workflows, so set these once (none are secrets):
+
+```powershell
+az functionapp config appsettings set -g rg-aw-azcom-iot-copilot -n func-aw-iot-game-v2 --settings `
+  MCPQUEST_SPEC_BLOB_URL=https://stawazcomiotgamev2.blob.core.windows.net/mcpquest-specs `
+  FOUNDRY_ENDPOINT=https://foundry-aw--ed-azcomm-eastus2.openai.azure.com/openai/v1 `
+  FOUNDRY_MODEL=gpt-6-sol
+```
+
+`MCPQUEST_TOKEN_SECRET` (a random value of 48 or more characters) must also be set as a secret; it
+signs play tokens and salts the rate-limit client hash. It is not recorded here and was not present
+on the Function App when this was written.
+
+### Things to know
+
+- The Foundry account allows public access with default action `Deny` and one IP rule (the home
+  address used for testing). Private traffic through the endpoint bypasses that rule. Once the
+  Function App is confirmed working, public access can be turned off; that also closes local testing.
+- The account also carries an unrelated VNet rule for `vnet-core/subnet1` in its own group. It is left
+  as is.
+- The endpoint is in `eastus` with the VNet; the account is in `eastus2`. That is fine for private link.
+- To bring the endpoint under CI later, grant the deploy identity Contributor on `iot-copilot-pe`
+  and the role-assignment condition for the two roles above in `Initialize-InfraIdentities.ps1`,
+  and add `privateDnsZoneConfigs[2]` to the ignored what-if paths (it has three zone configs).
+
 ## Known gaps and things worth changing later
 
 - **Event Hub retention** is 1 hour or 1 day (Azure reports both). If the game Function App is
