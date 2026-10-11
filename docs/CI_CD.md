@@ -380,27 +380,34 @@ credential and branch gates, not separate deployment targets.
 
 ## Application workflow: flow
 
-1. Work on a feature branch and open a PR to `main`. Four credential-free jobs build the
-   Function App, Game Box Control Code App, kiosk Code Site and PrizeWheel Code Site in
-   parallel. The `Build apps` aggregation job remains the single required branch-protection
-   check. PRs never deploy.
-2. Merge the PR. Pushes to `main` touching any deployed app or the workflow build
-   all apps and retain deployment artifacts for 14 days. Documentation-only
-   pushes do not deploy.
-3. `Deploy and verify backends` uses the `production` environment, checks required settings,
-   provisions and deploys the staff Function App, and requires an unauthenticated request to
-   return 401. With `STAFF_API_CUTOVER_READY=true`, it then deploys the public Function App.
-   After that backend gate passes, three isolated jobs push the Code App and upload both Code
-   Sites in parallel. With the flag unset/false, only the staff backend is released. The final
-   `Deploy production apps` aggregation job fails unless every required deployment succeeds.
-   The Function ZIP contains only host/package metadata, compiled code, and production dependencies.
+1. Work on a feature branch and open a PR to `main`. Six credential-free jobs build the
+   Function App, Game Box Control Code App, and the kiosk, PrizeWheel, Plinko and MCP Quest
+   Code Sites in parallel. The `Build apps` aggregation job remains the single required
+   branch-protection check. PRs never deploy, and every component is built on every PR.
+2. Merge the PR. A `Detect changed components` job diffs the push and selects only the apps
+   whose files changed, so an unchanged app is never redeployed (saving runner minutes and
+   avoiding needless Code Site uploads). A change to the workflow itself or to the shared
+   `Deploy-CodeSite.ps1`, or a manual **Run workflow** (`workflow_dispatch`), redeploys
+   everything. All components are still **built** on every run (artifacts retained 14 days);
+   only the deploy legs are selective. Documentation-only pushes do not deploy.
+3. `Deploy and verify backends` runs only when the Function App or staff-api provisioning
+   files changed. It uses the `production` environment, checks required settings, provisions
+   and deploys the staff Function App, and requires an unauthenticated request to return 401.
+   With `STAFF_API_CUTOVER_READY=true`, it then deploys the public Function App. When the
+   backend is unchanged the job is skipped and the frontend deploys proceed on the current
+   backend; when it runs, it remains the gate the frontends wait on. Only the **changed**
+   Code App / Code Sites upload (each an isolated job, one at a time). With
+   `STAFF_API_CUTOVER_READY` unset/false, only the staff backend is released. The final
+   `Deploy production apps` aggregation job treats a skipped (unchanged) leg as a pass and
+   fails only if a leg that ran failed. The Function ZIP contains only host/package metadata,
+   compiled code, and production dependencies.
 4. Validate the live kiosk and backend, then update related plan items from Verify
    to Done. A successful upload alone does not prove the application works.
 
 Workflow runs are serialized and a running release is not cancelled by a new push. Within one
-run, independent builds run together, the backend deploy and health check form the release gate,
-and the three frontend deploys then run together. The infrastructure workflow is independent and
-can run at the same time. When application code depends on a new infrastructure resource, deploy
+run, all builds run together, the backend deploy and health check form the release gate (when
+the backend changed), and the changed frontend deploys then run one at a time. The
+infrastructure workflow is independent and can run at the same time. When application code depends on a new infrastructure resource, deploy
 and validate that infrastructure first, then merge or dispatch the application release. This is
 not an atomic release: a frontend may fail after the backend is updated, so keep backend changes
 compatible with the previous frontend during rollout.
