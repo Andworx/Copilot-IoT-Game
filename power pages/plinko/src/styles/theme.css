@@ -37,23 +37,26 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 
 .plinko-screen {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   padding: clamp(16px, 3vw, 48px);
   background: radial-gradient(ellipse at 50% 0%, var(--brand-royal) 0, var(--color-bg) 72%);
 }
 
-.topbar { display: flex; align-items: center; justify-content: space-between; }
-.brand { height: clamp(28px, 4vh, 52px); width: auto; }
+.topbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.brand { grid-column: 2; display: block; height: clamp(72px, 12vh, 150px); width: auto; }
+.gear { grid-column: 3; justify-self: end; }
 
 /* Hidden in plain sight: low contrast so the booth screen reads as buckets, not a settings UI. */
 .gear {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
+  padding: 0;
   border: 0;
   border-radius: 50%;
   background: transparent;
@@ -63,7 +66,7 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   transition: opacity 0.2s, background 0.2s;
 }
 .gear:hover, .gear:focus-visible { opacity: 0.9; background: #ffffff1f; }
-.gear svg { width: 24px; height: 24px; fill: currentColor; }
+.gear svg { display: block; width: 32px; height: 32px; fill: none; stroke: currentColor; }
 
 .stage {
   display: grid;
@@ -188,7 +191,7 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   place-items: center;
   flex: 1 1 0;
   max-width: 240px;
-  height: clamp(160px, 42vh, 460px);
+  height: clamp(140px, 38vh, 440px);
   border: 4px solid var(--color-border);
   border-top: 0;
   border-radius: 0 0 28px 28px;

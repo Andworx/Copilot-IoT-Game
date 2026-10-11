@@ -84,7 +84,9 @@ export default function App() {
         <img className="brand" src={logoWhite} alt="Andworx" />
         <button type="button" className="gear" onClick={() => setGuideOpen(true)} aria-label="How it works">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8.4 5.1-1.7-1a7 7 0 0 0 0-1.2l1.7-1a.7.7 0 0 0 .2-.9l-1.6-2.8a.7.7 0 0 0-.9-.3l-1.9.7a7 7 0 0 0-1-.6l-.3-2a.7.7 0 0 0-.7-.6h-3.2a.7.7 0 0 0-.7.6l-.3 2a7 7 0 0 0-1 .6l-1.9-.7a.7.7 0 0 0-.9.3L3.4 9.5a.7.7 0 0 0 .2.9l1.7 1a7 7 0 0 0 0 1.2l-1.7 1a.7.7 0 0 0-.2.9l1.6 2.8c.2.3.6.4.9.3l1.9-.7c.3.2.6.4 1 .6l.3 2c0 .3.4.6.7.6h3.2c.4 0 .7-.3.7-.6l.3-2c.4-.2.7-.4 1-.6l1.9.7c.3.1.7 0 .9-.3l1.6-2.8c.2-.3.1-.7-.2-.9Z" />
+            <circle cx="12" cy="12" r="6.4" strokeWidth="2.4" />
+            <circle cx="12" cy="12" r="9.2" strokeWidth="3.2" strokeDasharray="3.6 3.6" />
+            <circle cx="12" cy="12" r="2.4" strokeWidth="2" />
           </svg>
         </button>
       </header>
