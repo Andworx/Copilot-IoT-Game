@@ -10,7 +10,7 @@ Plinko display page (Power Pages).
 
 **Pucks:** 49.56 mm diameter x 9.92 mm thick, falling face-on to the board. They can land anywhere
 in the 48.85 mm depth, so one flat beam would miss most of them. Each body therefore has a
-**funnel**: the top slopes (40 degrees) down into a 20 mm groove at mid-depth, and the beam crosses
+**funnel**: the top slopes (47 degrees; 40 stalled on the board) down into a 20 mm groove at mid-depth, and the beam crosses
 the groove. A puck lands on a slope, slides into the groove and blocks the beam. The bodies are
 therefore full depth (48 mm), one per bucket width (`body_slotN.stl`).
 

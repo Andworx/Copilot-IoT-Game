@@ -38,7 +38,7 @@ front_clear = 0.5;      // clearance to the acrylic
 face_h = 25.0;          // height of the top surface the puck rests on
 
 /* [Funnel - the top slopes into a central groove so a puck lands under the beam at any depth] */
-funnel_angle = 40;      // slope of the funnel faces from horizontal; must exceed the friction angle of PLA on the puck
+funnel_angle = 47;      // slope of the funnel faces from horizontal. 40 stalled, 47 slides (tested); keep under ~53, where a 16 mm puck jams tilted in the gap
 groove_w = 20.0;        // flat groove at the bottom, puck_t + 4 or more
 
 /* [Puck - measured 2026-10-10] */
