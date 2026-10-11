@@ -1,7 +1,8 @@
 import { useState } from "react";
-import type { LeaderboardEntry } from "@mcpquest/types";
+import type { LeaderboardEntry, ServerOption } from "@mcpquest/types";
 import { MISSIONS, findMission } from "@mcpquest/missions";
 import { Leaderboard } from "./Leaderboard";
+import { ServerPicker } from "./ServerPicker";
 
 interface Props {
   isPreview: boolean;
@@ -13,6 +14,11 @@ interface Props {
   modeSlug: string;
   onModeChange: (slug: string) => void;
   onStart: (nickname: string) => void;
+  /** Systems a mission can be built from. Left out on backends that only serve fixed missions. */
+  servers?: ServerOption[] | null;
+  serverError?: string | null;
+  selectedServer?: string | null;
+  onSelectServer?: (slug: string | null) => void;
 }
 
 const NICKNAME_PATTERN = /^[A-Za-z0-9 _.-]{3,12}$/;
@@ -27,6 +33,10 @@ export function StartScreen({
   modeSlug,
   onModeChange,
   onStart,
+  servers,
+  serverError,
+  selectedServer = null,
+  onSelectServer,
 }: Props) {
   const [nickname, setNickname] = useState(initialNickname);
   const trimmed = nickname.trim();
@@ -46,12 +56,15 @@ export function StartScreen({
         <fieldset className="mode-picker">
           <legend>Choose your mission</legend>
           {MISSIONS.map((m) => (
-            <label key={m.slug} className={m.slug === modeSlug ? "mode active" : "mode"}>
+            <label key={m.slug} className={m.slug === modeSlug && !selectedServer ? "mode active" : "mode"}>
               <input
                 type="radio"
                 name="mode"
-                checked={m.slug === modeSlug}
-                onChange={() => onModeChange(m.slug)}
+                checked={m.slug === modeSlug && !selectedServer}
+                onChange={() => {
+                  onSelectServer?.(null);
+                  onModeChange(m.slug);
+                }}
                 disabled={busy}
               />
               <span>
@@ -61,6 +74,16 @@ export function StartScreen({
             </label>
           ))}
         </fieldset>
+
+        {onSelectServer ? (
+          <ServerPicker
+            servers={servers ?? null}
+            error={serverError ?? null}
+            selected={selectedServer}
+            disabled={busy}
+            onSelect={onSelectServer}
+          />
+        ) : null}
 
         <ul className="rules">
           <li>
@@ -100,7 +123,7 @@ export function StartScreen({
               aria-describedby="nickname-help"
             />
             <button type="submit" className="primary" disabled={!valid || busy}>
-              {busy ? "Starting…" : "Start"}
+              {busy ? "Starting…" : selectedServer ? "Build my mission" : "Start"}
             </button>
           </div>
           <p id="nickname-help" className="muted">

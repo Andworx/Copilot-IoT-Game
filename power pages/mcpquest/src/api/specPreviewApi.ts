@@ -1,7 +1,7 @@
 import { entriesForScore } from "@mcpquest/entryTier";
 import type { StoredSpec } from "@mcpquest/generate/service";
 import { SPEC_RULES, gradeSpec, parseSpecDesign, specSession, testSpecCase } from "@mcpquest/specPlay";
-import type { GameApi, SessionInfo, SubmitResult } from "@mcpquest/types";
+import type { BuildStage, GameApi, SessionInfo, SubmitResult } from "@mcpquest/types";
 
 /**
  * Plays a saved generated game entirely in the browser, with the same rules and judge the
@@ -103,6 +103,31 @@ export function createSpecPreviewApi(specUrl: string, entryCap = 3): GameApi {
 
     async leaderboard() {
       return [];
+    },
+
+    // The one saved game stands in for the catalog, and the build is a short staged pause, so
+    // the picker and the build screen can be tried without a backend.
+    async listServers() {
+      const stored = await load();
+      return [
+        {
+          slug: stored.spec.server.id,
+          name: stored.spec.server.name,
+          description: "A saved game, built earlier, for trying the page without a backend.",
+          toolCount: stored.tools.length,
+        },
+      ];
+    },
+
+    async buildGame(_slug, onStage) {
+      const stored = await load();
+      const stages: BuildStage[] = ["reading", "designing", "checking", "proving", "saving"];
+      for (const stage of stages) {
+        onStage(stage);
+        await new Promise((resolve) => setTimeout(resolve, 900));
+      }
+      onStage("done");
+      return { specId: stored.specId, title: stored.spec.title, cached: false };
     },
   };
 }

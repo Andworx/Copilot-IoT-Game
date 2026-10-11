@@ -334,7 +334,8 @@ test("the catalog keeps valid slugs, clips text, and survives a brief outage", a
   const parsed = parseCatalog(rows);
   assert.deepEqual(parsed.map((s) => s.slug), ["it-ticketing", "freight-tracking"]);
   assert.equal(parsed[0].toolCount, 3);
-  assert.ok(parsed[0].description.length <= 240);
+  assert.ok(parsed[0].description.length <= 160);
+  assert.match(parsed[0].description, /…$/, "clipped text says so");
   assert.doesNotMatch(parsed[0].description, /\n/);
 
   let fail = false;

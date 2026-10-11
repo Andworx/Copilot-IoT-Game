@@ -3,7 +3,16 @@ import { API_BASE_URL, MCP_SERVER_URL, resolveApiKind, resolveSpecId, resolveSpe
 import { initialDesignText } from "@mcpquest/specDesigns";
 import { createHttpApi } from "./api/httpApi";
 import { DEFAULT_MISSION, findMission } from "@mcpquest/missions";
-import type { CallRecord, GameApi, LeaderboardEntry, SessionInfo, SubmitResult } from "@mcpquest/types";
+import type {
+  BuildStage,
+  BuiltGame,
+  CallRecord,
+  GameApi,
+  LeaderboardEntry,
+  ServerOption,
+  SessionInfo,
+  SubmitResult,
+} from "@mcpquest/types";
 import { formatDuration } from "./format";
 import { StartScreen } from "./components/StartScreen";
 import { ObjectivesPanel } from "./components/ObjectivesPanel";
@@ -12,8 +21,19 @@ import { ResponseViewer } from "./components/ResponseViewer";
 import { ResultScreen } from "./components/ResultScreen";
 import { CaseWorkspace } from "./components/CaseWorkspace";
 import { McpStatus } from "./components/McpStatus";
+import { BuildScreen } from "./components/BuildScreen";
 
-type Phase = "idle" | "playing" | "submitting" | "result";
+type Phase = "idle" | "building" | "playing" | "submitting" | "result";
+
+const STAGE_ORDER: Record<BuildStage, number> = {
+  reading: 0,
+  designing: 1,
+  repairing: 1,
+  checking: 2,
+  proving: 3,
+  saving: 4,
+  done: 5,
+};
 
 function messageOf(error: unknown, fallback: string): string {
   return error instanceof Error && error.message ? error.message : fallback;
@@ -137,6 +157,13 @@ function Game({ apis }: { apis: Apis }) {
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [board, setBoard] = useState<LeaderboardEntry[] | null>(null);
   const [boardError, setBoardError] = useState<string | null>(null);
+  // Building a mission from a system
+  const [servers, setServers] = useState<ServerOption[] | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [selectedServer, setSelectedServer] = useState<string | null>(null);
+  const [buildStage, setBuildStage] = useState<BuildStage | null>(null);
+  const [built, setBuilt] = useState<BuiltGame | null>(null);
+  const [buildError, setBuildError] = useState<string | null>(null);
 
   const elapsed = useElapsedSeconds(session, phase === "playing");
 
@@ -157,21 +184,21 @@ function Game({ apis }: { apis: Apis }) {
     if (phase === "idle") void loadBoard(modeSlug);
   }, [phase, modeSlug, loadBoard]);
 
-  const start = async (name: string) => {
+  const start = async (name: string, mission: string = modeSlug) => {
     setBusy(true);
     setError(null);
     try {
       let used = api;
       let next: SessionInfo;
       try {
-        next = await api.start(name, station, modeSlug);
+        next = await api.start(name, station, mission);
       } catch (startError) {
         if (api.kind !== "mcp" || !apis.preview) throw startError;
         used = apis.preview;
         setFallbackNote(
           `Could not reach the MCP server (${messageOf(startError, "unknown error")}). Using the offline preview for this play.`,
         );
-        next = await apis.preview.start(name, station, modeSlug);
+        next = await apis.preview.start(name, station, mission);
       }
       setApi(used);
       setNickname(name);
@@ -195,6 +222,51 @@ function Game({ apis }: { apis: Apis }) {
     } finally {
       setBusy(false);
     }
+  };
+
+  // The systems a mission can be built from, loaded once for backends that offer it.
+  useEffect(() => {
+    if (!apis.primary.listServers || servers !== null || serverError !== null) return;
+    let cancelled = false;
+    apis.primary.listServers().then(
+      (list) => {
+        if (!cancelled) setServers(list);
+      },
+      () => {
+        if (!cancelled) setServerError("The list of systems is unavailable right now. The classic missions still work.");
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [apis.primary, servers, serverError]);
+
+  /** Builds a mission from the chosen system, showing the cave while it works. */
+  const build = async (name: string) => {
+    if (!selectedServer || !api.buildGame) return;
+    setNickname(name);
+    setBuilt(null);
+    setBuildError(null);
+    setBuildStage("reading");
+    setError(null);
+    setPhase("building");
+    try {
+      const outcome = await api.buildGame(selectedServer, (stage) =>
+        // Stages only move forward, even if a status poll arrives late.
+        setBuildStage((prev) => (prev && STAGE_ORDER[prev] > STAGE_ORDER[stage] ? prev : stage)),
+      );
+      setBuilt(outcome);
+      setBuildStage("done");
+    } catch (e) {
+      setBuildError(messageOf(e, "The game could not be built. Please try again."));
+    }
+  };
+
+  const leaveCave = () => {
+    setPhase("idle");
+    setBuilt(null);
+    setBuildError(null);
+    setBuildStage(null);
   };
 
   const runTool = async (tool: string, args: Record<string, unknown>) => {
@@ -315,7 +387,24 @@ function Game({ apis }: { apis: Apis }) {
             initialNickname={nickname}
             modeSlug={modeSlug}
             onModeChange={setModeSlug}
-            onStart={(name) => void start(name)}
+            onStart={(name) => (selectedServer ? void build(name) : void start(name))}
+            servers={apis.primary.listServers ? servers : undefined}
+            serverError={serverError}
+            selectedServer={selectedServer}
+            onSelectServer={apis.primary.listServers ? setSelectedServer : undefined}
+          />
+        ) : null}
+
+        {phase === "building" ? (
+          <BuildScreen
+            serverName={servers?.find((s) => s.slug === selectedServer)?.name ?? selectedServer ?? "the system"}
+            stage={buildStage}
+            title={built?.title ?? null}
+            error={buildError ?? (built ? error : null)}
+            starting={busy}
+            onBegin={() => built && void start(nickname, `spec:${built.specId}`)}
+            onBack={leaveCave}
+            onRetry={() => void build(nickname)}
           />
         ) : null}
 

@@ -1,7 +1,7 @@
 import type { GameSpec } from "./gamespec";
 import { judgeCase, runDesign } from "./specJudge";
 import type { StoredSpec } from "./generate/service";
-import { designFieldsOf } from "./specDesigns";
+import { PRODUCT_FOR_DESIGNER, designFieldsOf } from "./specDesigns";
 import type { CaseReport, DesignCatalog, Objective, RunTrace, ScoreBreakdown, SessionInfo, TestReport } from "./types";
 
 /**
@@ -168,7 +168,8 @@ export function gradeSpec(spec: GameSpec, stored: StoredSpec, answers: Record<st
     reports.push({
       objectiveId: c.id,
       caseTitle: c.title,
-      bestProduct: c.designer,
+      chosenProduct: PRODUCT_FOR_DESIGNER[c.designer].name,
+      bestProduct: PRODUCT_FOR_DESIGNER[c.designer].name,
       misses: 0,
       criteria: verdict.requirements.map((r) => ({ label: r.text, ok: r.ok })),
       why: "",

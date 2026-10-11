@@ -64,6 +64,29 @@ npm run build    # tsc -b && vite build
 | `VITE_API_BASE_URL` | Functions backend. Defaults to the same host as the Plinko display. |
 | `VITE_PRIZE_WHEEL_URL` | Player phone Prize Wheel site the claim QR points at. |
 
+## Missions built from a system
+
+On a backend that offers it (`live`, and `?specUrl=` for a saved game), the start screen lists
+the MCP Station systems. Choosing one builds a mission for it (about 25 seconds, shown as the
+cave scene), then **Begin the mission** starts the play. Design and rules:
+[requirements/MCP_QUEST_AGENT_PLAN.md](../../requirements/MCP_QUEST_AGENT_PLAN.md).
+
+Try it end to end without deploying anything:
+
+```powershell
+# azure/functions/game (after npm ci && npm run build, and az login)
+$env:FOUNDRY_ENDPOINT = "https://<resource>.openai.azure.com/openai/v1"; $env:FOUNDRY_MODEL = "<deployment>"
+node scripts/dev-server.mjs --stage-delay 1200
+
+# power pages/mcpquest
+$env:VITE_API_BASE_URL = "http://localhost:7071"; npm run dev      # then open /?api=live
+
+# power pages/mcpquest, in a third terminal: the whole journey in a headless browser
+node scripts/walk-build.mjs "Freight Tracking"
+```
+
+`scripts/walk-spec.mjs <stored-spec.json> [pass|none]` plays a saved game with no backend.
+
 ## Backends
 
 The page talks to a `GameApi` interface (`src/types.ts`) with three implementations:

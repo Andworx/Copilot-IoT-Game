@@ -21,6 +21,14 @@ export interface CatalogClient {
   has(slug: string): Promise<boolean>;
 }
 
+/** Clips at a word boundary so a description never ends mid-word. */
+function clip(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > max * 0.6 ? cut.slice(0, space) : cut).replace(/[\s,;:.-]+$/, "")}…`;
+}
+
 export function parseCatalog(body: unknown): CatalogServer[] {
   const rows = Array.isArray(body) ? body : [];
   const out: CatalogServer[] = [];
@@ -28,11 +36,11 @@ export function parseCatalog(body: unknown): CatalogServer[] {
     if (!row || typeof row !== "object") continue;
     const r = row as Record<string, unknown>;
     if (!isMcpStationSlug(r.slug)) continue;
-    const text = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : "");
+    const text = (v: unknown, max: number) => (typeof v === "string" ? clip(v.replace(/\s+/g, " ").trim(), max) : "");
     out.push({
       slug: r.slug,
       name: text(r.name, 80) || r.slug,
-      description: text(r.public_description ?? r.description, 240),
+      description: text(r.public_description ?? r.description, 160),
       toolCount: Array.isArray(r.tools) ? r.tools.length : 0,
     });
   }

@@ -220,6 +220,24 @@ export interface CallResult {
   wire?: WireTrace;
 }
 
+/** An MCP server a visitor can build a mission from. */
+export interface ServerOption {
+  slug: string;
+  name: string;
+  description: string;
+  toolCount: number;
+}
+
+/** Where a build has got to. `repairing` is a second pass over the same stage as `designing`. */
+export type BuildStage = "reading" | "designing" | "repairing" | "checking" | "proving" | "saving" | "done";
+
+export interface BuiltGame {
+  specId: string;
+  title: string;
+  /** True when the game already existed and nothing was built. */
+  cached: boolean;
+}
+
 export interface GameApi {
   /**
    * "preview": simulated tools, no MCP. "mcp": real MCP server, scored in the browser.
@@ -235,4 +253,8 @@ export interface GameApi {
   test(session: SessionInfo, objectiveId: string, design: string): Promise<TestReport>;
   submit(session: SessionInfo, answers: Record<string, string>): Promise<SubmitResult>;
   leaderboard(modeSlug: string): Promise<LeaderboardEntry[]>;
+  /** The servers a mission can be built from. Absent on backends that only serve fixed missions. */
+  listServers?(): Promise<ServerOption[]>;
+  /** Builds a mission from a server (about 25 seconds), reporting each stage as it is reached. */
+  buildGame?(slug: string, onStage: (stage: BuildStage) => void): Promise<BuiltGame>;
 }

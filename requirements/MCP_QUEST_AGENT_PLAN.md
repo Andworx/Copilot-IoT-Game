@@ -477,9 +477,52 @@ credit, and its criteria are not shown as met, until the design actually does so
 valid tool call in some scenario, or at least one setting). The proof's do-nothing check is
 unchanged and still rejects specs where an empty design meets every requirement.
 
-**Still not built.** The console picker and cave screen, the Bicep for the private endpoint,
-and the leaderboard and result copy for generated games (the result screen still says
-"Prize needs every answer correct" text from the hand-built mode in its low-score branch).
+## The visitor journey in the page (built, driven end to end)
+
+1. **Start screen.** The classic missions, then "Or build a mission from a system": the MCP
+   Station catalog (`GET servers`) as compact tiles in a scrolling grid, with the name and tool
+   count. The name field and button are pinned to the bottom of the screen so they are always
+   in reach, including on an 800 by 480 kiosk. The button says "Build my mission" once a
+   system is chosen. If the list cannot be loaded the classic missions still work.
+2. **Build screen** (`BuildScreen.tsx`). A pixel-art cave: an old sage by a fire. The sage
+   speaks a line for each stage, typed out (instant with reduced motion), and the six products
+   are handed over one at a time as the build really reaches each stage: Dataverse after the
+   server is read, Power Automate once the mission is designed, Power Apps when it has been
+   checked, Copilot Studio when it has been proved solvable, Power BI when it is saved, and
+   Power Pages as the last, when the mission is ready. A repair pass shows as the sage thinking
+   again. When it is ready the sage says "It is dangerous to go alone. Take the Platform.", the
+   mission's title is shown, and **Begin the mission** starts the play (the clock does not start
+   until then). A failed build says "The sage is out of ideas. Try another cave." with the real
+   reason (for example the rate limit), **Try again**, and **Choose another system**. Original
+   art, wording and behaviour: no Nintendo assets, names or text.
+3. **Play.** The designers above, with the sampled records panel. Direct tool calls and product
+   choice are not offered.
+4. **Result.** Case results with the product named, no speed or tool-call rows (they do not
+   apply), the entries earned, and the Prize Wheel QR as in every other game. A game that was
+   not proven shows its score and says there is no code, instead of the hand-built wording.
+
+**Client behaviour** (`api/httpApi.ts`): `buildGame` picks a job id, sends `generate`, and polls
+`generate/status` for stages while it runs; stages only move forward. If another visitor is
+already building the same system (HTTP 409) it follows that job instead of starting another.
+
+**Local backend.** `azure/functions/game/scripts/dev-server.mjs` serves the same routes with
+the same code and in-memory state, with `--seed` (preload a stored spec so a build is a cache
+hit), `--stage-delay` (slow the stages so the cave can be watched) and `--fake-model`. It
+builds missions for real when `FOUNDRY_ENDPOINT` and `FOUNDRY_MODEL` are set and `az login` is
+current. `power pages/mcpquest/scripts/walk-build.mjs` drives the whole journey in headless
+Chromium against it and fails on any step or browser error.
+
+**Driven end to end, 2026-10-10** against the dev backend with live Foundry and MCP Station,
+on a system never built before (Time Tracking, 30 tools): the picker listed all 15 systems;
+the build took 26 s with a 1.2 s pause per stage; all six products arrived progressively; the
+mission ("Billing and Project Desk") had three cases (flow, app, agent); each was built through
+the designers, met every requirement, and scored 100 with a prize code. Freight Tracking passed
+the same way. A live build of the site contains no judge, case data or preview backend.
+
+**Still not built.** The Bicep for the private endpoint, deployment of everything above, and a
+live check against the deployed Function App. Open: the hand-built mission list on the start
+screen could be retired or hidden once generated missions are trusted, and the build screen
+disables nothing while a rate limit is in force (Try again just shows the message again).
 
 
 ## Security and abuse
