@@ -45,13 +45,29 @@ export interface GenerateDeps {
    * exists specs are stored with `validated: false` and must not mint prizes.
    */
   prove?: (spec: GameSpec, digest: ServerDigest) => Promise<{ ok: boolean; problems: string[] }>;
+  /** Progress, for a job's status. Failures here never fail the generation. */
+  onStage?: (stage: "reading" | "designing" | "repairing" | "checking" | "proving" | "saving") => Promise<void> | void;
+  /**
+   * Called on a cache miss, before the model is used: the place for the rate limit and the
+   * per-server lock. Throw a GenerateError to refuse. The returned function runs when the
+   * generation ends, however it ends.
+   */
+  admit?: () => Promise<() => Promise<void>>;
 }
 
 export class GenerateError extends Error {
   constructor(
-    readonly code: "bad_server" | "server_unavailable" | "model_unavailable" | "invalid_spec" | "unproven_spec",
+    readonly code:
+      | "bad_server"
+      | "server_unavailable"
+      | "model_unavailable"
+      | "invalid_spec"
+      | "unproven_spec"
+      | "rate_limited"
+      | "in_progress",
     message: string,
     readonly details: string[] = [],
+    readonly meta: { retryAfterSeconds?: number; jobId?: string } = {},
   ) {
     super(message);
     this.name = "GenerateError";
@@ -72,6 +88,15 @@ export interface GenerateResult {
 export async function generateGameSpec(slug: unknown, deps: GenerateDeps): Promise<GenerateResult> {
   if (!isMcpStationSlug(slug)) throw new GenerateError("bad_server", "Unknown MCP server.");
 
+  const stage = async (name: Parameters<NonNullable<GenerateDeps["onStage"]>>[0]) => {
+    try {
+      await deps.onStage?.(name);
+    } catch (error) {
+      console.error("MCP Quest could not report progress", error);
+    }
+  };
+
+  await stage("reading");
   let digest: ServerDigest;
   try {
     digest = await fetchServerDigest(slug, deps.fetchFn);
@@ -85,64 +110,81 @@ export async function generateGameSpec(slug: unknown, deps: GenerateDeps): Promi
   const cached = await deps.store.get(slug, toolsHash);
   if (cached) return { stored: cached, cached: true, modelCalls: 0 };
 
-  const input = buildGeneratorInput(digest, toolsHash);
-  const check = (output: unknown) => validateGameSpec(fromWireSpec(output), { tools: digest.tools, bindToTools: true, requireReference: true });
+  // From here the model is used: take the lock and the rate limit first.
+  const release = deps.admit ? await deps.admit() : null;
+  try {
+    const input = buildGeneratorInput(digest, toolsHash);
+    const check = (output: unknown) => validateGameSpec(fromWireSpec(output), { tools: digest.tools, bindToTools: true, requireReference: true });
 
-  let modelCalls = 0;
-  const ask = async (previous?: { input: string; output: unknown }, repairInput?: string) => {
-    modelCalls += 1;
-    try {
-      return await deps.model.generate({ instructions: GENERATOR_INSTRUCTIONS, input: repairInput ?? input, previous });
-    } catch (error) {
-      console.error("MCP Quest generator model call failed", error);
-      throw new GenerateError("model_unavailable", "The game could not be generated right now.");
+    let modelCalls = 0;
+    const ask = async (previous?: { input: string; output: unknown }, repairInput?: string) => {
+      modelCalls += 1;
+      try {
+        return await deps.model.generate({ instructions: GENERATOR_INSTRUCTIONS, input: repairInput ?? input, previous });
+      } catch (error) {
+        console.error("MCP Quest generator model call failed", error);
+        throw new GenerateError("model_unavailable", "The game could not be generated right now.");
+      }
+    };
+
+    // Checking one answer: shape and tool-list validation first, then (when a judge is supplied)
+    // the proof that its reference designs behave. Both kinds of complaint go back to the model.
+    type Checked = { spec: GameSpec; problems: [] } | { spec?: undefined; problems: string[]; code: "invalid_spec" | "unproven_spec" };
+    const evaluate = async (output: unknown): Promise<Checked> => {
+      await stage("checking");
+      const result = check(output);
+      if (!result.ok) return { problems: result.errors, code: "invalid_spec" };
+      if (result.spec.server.id !== slug) return { problems: [`spec.server.id must be "${slug}"`], code: "invalid_spec" };
+      if (deps.prove) {
+        await stage("proving");
+        const proof = await deps.prove(result.spec, digest);
+        if (!proof.ok) return { problems: proof.problems, code: "unproven_spec" };
+      }
+      return { spec: result.spec, problems: [] };
+    };
+
+    await stage("designing");
+    let output = await ask();
+    let checked = await evaluate(output);
+    if (!checked.spec) {
+      // One repair attempt: the validator's or the judge's complaints go back to the model.
+      await stage("repairing");
+      output = await ask({ input, output }, buildRepairInput(checked.problems));
+      checked = await evaluate(output);
     }
-  };
-
-  // Checking one answer: shape and tool-list validation first, then (when a judge is supplied)
-  // the proof that its reference designs behave. Both kinds of complaint go back to the model.
-  type Checked = { spec: GameSpec; problems: [] } | { spec?: undefined; problems: string[]; code: "invalid_spec" | "unproven_spec" };
-  const evaluate = async (output: unknown): Promise<Checked> => {
-    const result = check(output);
-    if (!result.ok) return { problems: result.errors, code: "invalid_spec" };
-    if (result.spec.server.id !== slug) return { problems: [`spec.server.id must be "${slug}"`], code: "invalid_spec" };
-    if (deps.prove) {
-      const proof = await deps.prove(result.spec, digest);
-      if (!proof.ok) return { problems: proof.problems, code: "unproven_spec" };
+    if (!checked.spec) {
+      throw checked.code === "unproven_spec"
+        ? new GenerateError("unproven_spec", "The generated game could not be proven solvable.", checked.problems)
+        : new GenerateError(
+            "invalid_spec",
+            checked.problems.some((p) => p.startsWith("spec.server.id must be"))
+              ? "The generated game names a different server."
+              : "The generated game was not valid.",
+            checked.problems,
+          );
     }
-    return { spec: result.spec, problems: [] };
-  };
-
-  let output = await ask();
-  let checked = await evaluate(output);
-  if (!checked.spec) {
-    // One repair attempt: the validator's or the judge's complaints go back to the model.
-    output = await ask({ input, output }, buildRepairInput(checked.problems));
-    checked = await evaluate(output);
+    const result = { spec: checked.spec };
+    const validated = !!deps.prove;
+    const stored: StoredSpec = {
+      specId: computeSpecId(result.spec),
+      toolsHash,
+      spec: result.spec,
+      tools: digest.tools,
+      samples: digest.samples.map((s) => ({ tool: s.tool, text: s.text })),
+      validated,
+      createdAt: (deps.now ?? Date.now)(),
+    };
+    await stage("saving");
+    await deps.store.put(slug, stored);
+    return { stored, cached: false, modelCalls };
+  } finally {
+    if (release) {
+      try {
+        await release();
+      } catch (error) {
+        console.error("MCP Quest could not release the generation lock", error);
+      }
+    }
   }
-  if (!checked.spec) {
-    throw checked.code === "unproven_spec"
-      ? new GenerateError("unproven_spec", "The generated game could not be proven solvable.", checked.problems)
-      : new GenerateError(
-          "invalid_spec",
-          checked.problems.some((p) => p.startsWith("spec.server.id must be"))
-            ? "The generated game names a different server."
-            : "The generated game was not valid.",
-          checked.problems,
-        );
-  }
-  const result = { spec: checked.spec };
-  const validated = !!deps.prove;
-  const stored: StoredSpec = {
-    specId: computeSpecId(result.spec),
-    toolsHash,
-    spec: result.spec,
-    tools: digest.tools,
-    samples: digest.samples.map((s) => ({ tool: s.tool, text: s.text })),
-    validated,
-    createdAt: (deps.now ?? Date.now)(),
-  };
-  await deps.store.put(slug, stored);
-  return { stored, cached: false, modelCalls };
 }
 
