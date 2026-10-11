@@ -16,7 +16,7 @@ Dataverse work starts.
 | Where does it run? | Its **own dedicated device** (tablet or small PC in a kiosk browser). It does not use `andy_gameboxstate`, `set-mode`, or the Game Box SignalR hub. |
 | Play model | **Single play per session**, scored, with a **high-score** leaderboard. |
 | Prize engine | Reused as is: `andy_contestsource` / Source Cap, `create-win`, `claim-prize`, Contact upsert, Grand Prize Entry, check-in. |
-| Authoring | Each game mode is **hand-built in the repo** (`modes.ts`, `cases.ts`, the designers) and ships with the Code Site. No generated or declarative scenario packs, and no agent that writes modes. Decided 2026-10-09. A new MCP server means a new mode written here. |
+| Authoring | Each game mode is **hand-built in the repo** (`modes.ts`, `cases.ts`, the designers) and ships with the Code Site. No generated or declarative scenario packs, and no agent that writes modes. Decided 2026-10-09. A new MCP server means a new mode written here. **Partly superseded:** for new servers, an agent-generated, schema-validated GameSpec is planned; see [MCP_QUEST_AGENT_PLAN.md](MCP_QUEST_AGENT_PLAN.md). The hand-built cases stay as the curated mode. |
 
 ## Concept
 

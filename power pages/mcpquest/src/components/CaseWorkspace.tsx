@@ -11,7 +11,17 @@ import {
   type TableDesign,
 } from "@mcpquest/designs";
 import { findProduct } from "@mcpquest/platform";
+import {
+  PRODUCT_FOR_DESIGNER,
+  emptyActionDesign,
+  parseActionDesign,
+  scenarioKeys,
+  scenarioTriggers,
+} from "@mcpquest/specDesigns";
 import type { DesignerKind, GameApi, Objective, SessionInfo, TestReport } from "@mcpquest/types";
+import { ActionSequenceDesigner } from "./ActionSequenceDesigner";
+import { SamplesPanel } from "./SamplesPanel";
+import { SettingsDesigner } from "./SettingsDesigner";
 import { AgentDesigner } from "./AgentDesigner";
 import { AppDesigner } from "./AppDesigner";
 import { FlowDesigner } from "./FlowDesigner";
@@ -100,8 +110,25 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
     }
   };
 
-  const design = (designText ? parseAnyDesign(designer, designText) : null) ?? defaultDesign(designer);
+  // A generated game's cases say how they are judged. They use the two generic designers and
+  // the product is given, so there is no product to choose first.
+  const generated = current.judging !== undefined;
+  const design = generated
+    ? null
+    : (designText ? parseAnyDesign(designer, designText) : null) ?? defaultDesign(designer);
   const update = (next: unknown) => onDesignChange(current.id, JSON.stringify(next));
+  const generatedProduct = PRODUCT_FOR_DESIGNER[designer];
+  const actionDesign = generated
+    ? (designText ? parseActionDesign(designText) : null) ?? emptyActionDesign(scenarioTriggers(current.scenarios))
+    : null;
+  const settingsDesign: unknown = (() => {
+    if (!generated || !designText) return {};
+    try {
+      return JSON.parse(designText) as unknown;
+    } catch {
+      return {};
+    }
+  })();
 
   const stale = state.report !== null && state.testedDesign !== designText;
   const testsLeft = state.report ? state.report.testsLeft : session.maxTests;
@@ -157,7 +184,7 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
           </div>
         ) : null}
 
-        {!state.chosen ? (
+        {!generated && !state.chosen ? (
           <ToolChooser
             disabled={disabled}
             busy={state.busy === "choose"}
@@ -166,27 +193,58 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
           />
         ) : (
           <>
-            <p className="chosen" role="status">
-              <strong>{product?.name}</strong> · {state.message}
-            </p>
+            {generated ? (
+              <p className="chosen" role="status">
+                <strong>{generatedProduct.name}</strong> · build the {generatedProduct.noun}
+              </p>
+            ) : (
+              <p className="chosen" role="status">
+                <strong>{product?.name}</strong> · {state.message}
+              </p>
+            )}
 
-            {designer === "flow" ? (
+            {generated && actionDesign && current.judging === "run" ? (
+              <ActionSequenceDesigner
+                designer={designer}
+                design={actionDesign}
+                tools={session.tools}
+                triggers={scenarioTriggers(current.scenarios)}
+                scenarioKeys={scenarioKeys(current.scenarios)}
+                disabled={disabled}
+                onChange={update}
+              />
+            ) : null}
+            {generated && current.judging === "design" ? (
+              <SettingsDesigner
+                designer={designer}
+                fields={current.designFields ?? []}
+                design={settingsDesign}
+                disabled={disabled}
+                onChange={update}
+              />
+            ) : null}
+
+            {!generated && designer === "flow" ? (
               <FlowDesigner design={design as FlowDesign} catalog={session.catalog} disabled={disabled} onChange={update} />
             ) : null}
-            {designer === "report" ? (
+            {!generated && designer === "report" ? (
               <ReportDesigner design={design as ReportDesign} catalog={session.catalog} disabled={disabled} onChange={update} />
             ) : null}
-            {designer === "app" ? (
+            {!generated && designer === "app" ? (
               <AppDesigner design={design as AppDesign} catalog={session.catalog} disabled={disabled} onChange={update} />
             ) : null}
-            {designer === "site" ? <SiteDesigner design={design as SiteDesign} disabled={disabled} onChange={update} /> : null}
-            {designer === "table" ? (
+            {!generated && designer === "site" ? (
+              <SiteDesigner design={design as SiteDesign} disabled={disabled} onChange={update} />
+            ) : null}
+            {!generated && designer === "table" ? (
               <TableDesigner design={design as TableDesign} catalog={session.catalog} disabled={disabled} onChange={update} />
             ) : null}
-            {designer === "security" ? (
+            {!generated && designer === "security" ? (
               <SecurityDesigner design={design as SecurityDesign} disabled={disabled} onChange={update} />
             ) : null}
-            {designer === "agent" ? <AgentDesigner design={design as AgentDesign} disabled={disabled} onChange={update} /> : null}
+            {!generated && designer === "agent" ? (
+              <AgentDesigner design={design as AgentDesign} disabled={disabled} onChange={update} />
+            ) : null}
 
             <div className="test-bar">
               <button
@@ -206,6 +264,8 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
             {state.report?.runs ? <RunHistory runs={state.report.runs} /> : null}
           </>
         )}
+
+        {session.samples && session.samples.length > 0 ? <SamplesPanel samples={session.samples} /> : null}
 
         {state.error ? (
           <p className="error" role="alert">

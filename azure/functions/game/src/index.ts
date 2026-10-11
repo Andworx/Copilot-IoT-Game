@@ -20,3 +20,4 @@ import "./functions/directlineToken";
 import "./functions/preferences";
 import "./functions/consentMaintenance";
 import "./functions/mcpquest";
+import "./functions/mcpquestGenerate";

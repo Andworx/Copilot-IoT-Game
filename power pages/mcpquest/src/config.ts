@@ -26,6 +26,20 @@ export function resolveApiKind(search: string = window.location.search): ApiKind
   return raw === "live" || raw === "preview" ? raw : "mcp";
 }
 
+/**
+ * `?spec=<16 hex>` plays a generated game by id on the live backend (mission `spec:<id>`).
+ * `?specUrl=<url>` plays a saved spec file in the browser, for trying designers without a backend.
+ */
+export function resolveSpecId(search: string = window.location.search): string | null {
+  const value = new URLSearchParams(search).get("spec");
+  return value && /^[0-9a-f]{16}$/.test(value) ? value : null;
+}
+
+export function resolveSpecUrl(search: string = window.location.search): string | null {
+  const value = new URLSearchParams(search).get("specUrl");
+  return value && /^(https?:\/\/|\/)/.test(value) ? value : null;
+}
+
 /** `?station=<slug>` identifies the physical device, like the Plinko display. */
 export function resolveStation(search: string = window.location.search): string {
   const value = new URLSearchParams(search).get("station")?.trim();

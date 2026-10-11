@@ -57,10 +57,36 @@ npm run build    # tsc -b && vite build
 |---|---|
 | `?mode=fixit` (default) / `incident-queue` | Preselects the mission on the start screen. |
 | `?station=<slug>` | Identifies the physical device, sent on `start`. Defaults to `default`. |
+| `?spec=<16 hex>` | Plays a generated game by id on the live backend (mission `spec:<id>`). |
+| `?specUrl=<url>` | Plays a saved generated game (a file written by `generate-spec.mjs`) in the browser, with no backend. Not in live builds. |
 | `?api=mcp` (default) / `preview` / `live`, or `VITE_MCPQUEST_API` | Backend, see below. |
 | `VITE_MCPQUEST_MCP_URL` | MCP server for the `mcp` backend. Defaults to the public MCP Station `it-ticketing` server. |
 | `VITE_API_BASE_URL` | Functions backend. Defaults to the same host as the Plinko display. |
 | `VITE_PRIZE_WHEEL_URL` | Player phone Prize Wheel site the claim QR points at. |
+
+## Missions built from a system
+
+On a backend that offers it (`live`, and `?specUrl=` for a saved game), the start screen lists
+only the MCP Station systems; the fixed missions are not shown (add `?mode=` to get them back,
+or they appear if the list of systems cannot be loaded). Choosing one builds a mission for it (about 25 seconds, shown as the
+cave scene), then **Begin the mission** starts the play. Design and rules:
+[requirements/MCP_QUEST_AGENT_PLAN.md](../../requirements/MCP_QUEST_AGENT_PLAN.md).
+
+Try it end to end without deploying anything:
+
+```powershell
+# azure/functions/game (after npm ci && npm run build, and az login)
+$env:FOUNDRY_ENDPOINT = "https://<resource>.openai.azure.com/openai/v1"; $env:FOUNDRY_MODEL = "<deployment>"
+node scripts/dev-server.mjs --stage-delay 1200
+
+# power pages/mcpquest
+$env:VITE_API_BASE_URL = "http://localhost:7071"; npm run dev      # then open /?api=live
+
+# power pages/mcpquest, in a third terminal: the whole journey in a headless browser
+node scripts/walk-build.mjs "Freight Tracking"
+```
+
+`scripts/walk-spec.mjs <stored-spec.json> [pass|none]` plays a saved game with no backend.
 
 ## Backends
 

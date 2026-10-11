@@ -8,7 +8,10 @@ import {
   buildIotGameWinCreatePayload,
   buildPrizeClaimCreatePayload,
   createSourcedPrizeClaim,
+  GAME_PLAY_ENTRY_TABLES,
+  MAX_ENTRIES_PER_CLAIM,
   normalizeContestantEmail,
+  planGrandPrizeEntryCount,
   selectGrandPrizeWinningSlice,
   summarizePrizeCounts,
 } from "../src/lib/dataverse";
@@ -251,5 +254,34 @@ describe("summarizePrizeCounts", () => {
 
   it("returns zeros when there are no active types", () => {
     assert.deepEqual(summarizePrizeCounts([]), { total: 0, available: 0, byType: [] });
+  });
+});
+
+describe("planGrandPrizeEntryCount", () => {
+  it("defaults to one entry when no game awarded a number", () => {
+    for (const requested of [null, undefined, 0, -3, NaN]) assert.equal(planGrandPrizeEntryCount(requested, 5, 0), 1);
+    assert.equal(planGrandPrizeEntryCount(null, null, 0), 1);
+  });
+
+  it("creates what the game awarded, clamped to the cap minus existing entries", () => {
+    assert.equal(planGrandPrizeEntryCount(5, 5, 0), 5);
+    assert.equal(planGrandPrizeEntryCount(4, 5, 2), 3);
+    assert.equal(planGrandPrizeEntryCount(5, 5, 4), 1);
+  });
+
+  it("returns 0 once the contact is at the cap, however often they play", () => {
+    assert.equal(planGrandPrizeEntryCount(5, 5, 5), 0);
+    assert.equal(planGrandPrizeEntryCount(1, 5, 7), 0);
+  });
+
+  it("rounds down fractions and applies a ceiling when the campaign has no cap", () => {
+    assert.equal(planGrandPrizeEntryCount(2.9, null, 0), 2);
+    assert.equal(planGrandPrizeEntryCount(1000, null, 0), MAX_ENTRIES_PER_CLAIM);
+    assert.equal(planGrandPrizeEntryCount(1000, 0, 0), MAX_ENTRIES_PER_CLAIM);
+  });
+
+  it("reads awarded entries from the Plinko and MCP Quest play tables", () => {
+    assert.ok(GAME_PLAY_ENTRY_TABLES.includes("andy_plinkoplaies"));
+    assert.ok(GAME_PLAY_ENTRY_TABLES.includes("andy_mcpquestplaies"));
   });
 });
