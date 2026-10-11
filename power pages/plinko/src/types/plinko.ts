@@ -15,4 +15,8 @@ export interface PlinkoResult {
   entriesAwarded: number;
   /** Prize Claim bearer token encoded into the QR. */
   claimToken: string;
+  /**
+   * False when staff turned Game Mode off: just show the bucket (no QR, no entries). Absent means on.
+   */
+  gameModeActive?: boolean;
 }

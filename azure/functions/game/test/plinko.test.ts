@@ -89,7 +89,7 @@ test("the chase sweeps buckets 1..N in order, one per step, then wraps", () => {
 
 test("the lit bucket is where the chase was when the puck landed, not what the Pi says", () => {
   const decision = judgePlinkoLanding(landing(), profile, NOW);
-  assert.ok(decision.accepted);
+  assert.ok(decision.accepted && decision.gameModeActive);
   assert.equal(decision.litBucket, LIT_AT_LANDING);
   assert.equal(resolveLitBucket(landing(), 6), LIT_AT_LANDING);
 });
@@ -97,12 +97,19 @@ test("the lit bucket is where the chase was when the puck landed, not what the P
 test("a non-lit bucket earns the standard entries", () => {
   const other = (LIT_AT_LANDING % 6) + 1;
   const decision = judgePlinkoLanding(landing({ bucket: other }), profile, NOW);
-  assert.deepEqual(decision, { accepted: true, bucket: other, litBucket: LIT_AT_LANDING, bucketCount: 6, entriesAwarded: 1 });
+  assert.deepEqual(decision, {
+    accepted: true,
+    gameModeActive: true,
+    bucket: other,
+    litBucket: LIT_AT_LANDING,
+    bucketCount: 6,
+    entriesAwarded: 1,
+  });
 });
 
 test("the lit bucket earns the lit entries", () => {
   const decision = judgePlinkoLanding(landing({ bucket: LIT_AT_LANDING }), profile, NOW);
-  assert.equal(decision.accepted && decision.entriesAwarded, 2);
+  assert.equal(decision.accepted && decision.gameModeActive && decision.entriesAwarded, 2);
 });
 
 test("a bucket beyond the station's count is rejected", () => {
@@ -110,9 +117,16 @@ test("a bucket beyond the station's count is rejected", () => {
   assert.equal(decision.accepted, false);
 });
 
-test("an inactive station ignores landings", () => {
+test("with Game Mode off the bucket is shown but nothing is earned", () => {
   const decision = judgePlinkoLanding(landing(), { ...profile, gameModeActive: false }, NOW);
-  assert.equal(decision.accepted, false);
+  assert.deepEqual(decision, { accepted: true, gameModeActive: false, bucket: 2, bucketCount: 6 });
+});
+
+test("with Game Mode off a bad landing is still rejected", () => {
+  const off = { ...profile, gameModeActive: false };
+  assert.equal(judgePlinkoLanding(landing({ bucket: 9 }), off, NOW).accepted, false);
+  const stale = landing({ landedAt: new Date(NOW.getTime() - MAX_LANDING_AGE_MS - 5000) });
+  assert.equal(judgePlinkoLanding(stale, off, NOW).accepted, false);
 });
 
 test("a stale landing is rejected", () => {

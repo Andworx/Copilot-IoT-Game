@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { BucketHit } from "./components/BucketHit";
 import { ChaseBoard } from "./components/ChaseBoard";
 import { GuideDialog } from "./components/GuideDialog";
 import { WinCelebration } from "./components/WinCelebration";
 import { useSignalR } from "./context/SignalRContext";
 import { STATION_SLUG } from "./lib/apiConfig";
+import { useChase } from "./lib/chase";
 import { releaseWin, useWinStillActive } from "./lib/lock";
 import logoWhite from "./assets/brand/andworx-white.svg";
 import type { PlinkoResult } from "./types/plinko";
@@ -26,18 +28,23 @@ function isPlinkoResult(value: unknown): value is PlinkoResult {
 export default function App() {
   const { connection, isConnected } = useSignalR();
   const [result, setResult] = useState<PlinkoResult | null>(null);
+  const chase = useChase();
+  // Staff can flip Game Mode from the Game Box Control app; the server pushes the change here.
+  const [gameModeOverride, setGameModeOverride] = useState<boolean | null>(null);
+  const gameModeActive = gameModeOverride ?? chase?.gameModeActive ?? true;
   const [guideOpen, setGuideOpen] = useState(false);
   const closeGuide = useCallback(() => setGuideOpen(false), []);
   const shown = useRef<PlinkoResult | null>(null);
   shown.current = result;
   // Skip or the countdown ending: free the board for the next drop, then clear the screen.
   const dismiss = useCallback(() => {
-    if (shown.current) releaseWin(shown.current);
+    // A Game Mode off "hit" holds nothing on the server, so there is nothing to release.
+    if (shown.current && shown.current.gameModeActive !== false) releaseWin(shown.current);
     setResult(null);
   }, []);
   // Claimed on the phone (or expired on the server): the backend has already freed the board.
   const clear = useCallback(() => setResult(null), []);
-  useWinStillActive(result, clear);
+  useWinStillActive(result && result.gameModeActive !== false ? result : null, clear);
 
   useEffect(() => {
     if (!connection) return;
@@ -48,20 +55,42 @@ export default function App() {
       }
       if (payload.stationSlug !== STATION_SLUG) return;
       // One win at a time: the backend refuses new drops while a QR is up, and so does the screen.
-      if (shown.current && shown.current.eventId !== payload.eventId) return;
+      if (shown.current && shown.current.gameModeActive !== false && shown.current.eventId !== payload.eventId) return;
       setGuideOpen(false);
       setResult(payload);
     };
+    const modeHandler = (payload: unknown) => {
+      const v = payload as { stationSlug?: unknown; gameModeActive?: unknown } | null;
+      if (v && v.stationSlug === STATION_SLUG && typeof v.gameModeActive === "boolean") setGameModeOverride(v.gameModeActive);
+    };
     connection.on("plinkoResult", handler);
-    return () => connection.off("plinkoResult", handler);
+    connection.on("plinkoGameModeChanged", modeHandler);
+    return () => {
+      connection.off("plinkoResult", handler);
+      connection.off("plinkoGameModeChanged", modeHandler);
+    };
   }, [connection]);
 
-  // Dev-only preview: number keys simulate a landing in that bucket (bucket 3 lit).
+  // Dev-only preview: number keys simulate a landing in that bucket (bucket 3 lit); H shows the Game Mode off screen.
   useEffect(() => {
     if (!import.meta.env.DEV) return;
     const onKey = (e: KeyboardEvent) => {
       const bucket = Number(e.key);
       if (e.key === "Escape") clear();
+      if (e.key === "h") {
+        // Game Mode off preview: just the bucket.
+        setResult({
+          stationSlug: STATION_SLUG,
+          eventId: crypto.randomUUID(),
+          bucket: 4,
+          litBucket: 0,
+          bucketCount: DEMO_BUCKET_COUNT,
+          entriesAwarded: 0,
+          claimToken: "",
+          gameModeActive: false,
+        });
+        return;
+      }
       if (!Number.isInteger(bucket) || bucket < 1 || bucket > DEMO_BUCKET_COUNT) return;
       const litBucket = 3;
       setResult({
@@ -92,12 +121,13 @@ export default function App() {
       </header>
 
       <section className="stage">
-        <h1>Drop a puck. Hit the lit bucket for bonus entries.</h1>
-        <ChaseBoard />
+        <h1>{gameModeActive ? "Drop a puck. Hit the lit bucket for bonus entries." : "Drop a puck. See which bucket you hit."}</h1>
+        <ChaseBoard chase={chase} gameModeActive={gameModeActive} />
       </section>
 
       {guideOpen && <GuideDialog onClose={closeGuide} />}
-      {result && <WinCelebration result={result} onDone={dismiss} />}
+      {result && result.gameModeActive === false && <BucketHit result={result} onDone={dismiss} />}
+      {result && result.gameModeActive !== false && <WinCelebration result={result} onDone={dismiss} />}
       <div className="connection" data-connected={isConnected} title={isConnected ? "Live" : "Reconnecting"}>
         <span aria-hidden="true" />
         {isConnected ? "Live" : "Reconnecting…"}

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { staffRequest } from "./apiConfig";
+import { StaffOperationUnavailableError, staffRequest } from "./apiConfig";
 import GrandPrizeCheckIn from "./GrandPrizeCheckIn";
 import GrandPrizeDrawing from "./GrandPrizeDrawing";
 import PrizeManagement from "./PrizeManagement";
@@ -20,6 +20,13 @@ interface KioskState {
 }
 
 const DEMO_INFO_KEY = "__demo-info__";
+
+/** The Plinko Station (andy_plinkoprofile slug) this app controls. */
+const PLINKO_STATION = "plinko-default";
+
+interface PlinkoState {
+  gameModeActive: boolean;
+}
 
 /**
  * Staff control device for the Copilot IoT Game kiosk (GAME_MODE_PLAN.md §4a).
@@ -47,6 +54,9 @@ export default function App() {
   const [settingKey, setSettingKey] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [gameModeBusy, setGameModeBusy] = useState(false);
+  const [plinko, setPlinko] = useState<PlinkoState | null>(null);
+  const [plinkoBusy, setPlinkoBusy] = useState(false);
+  const [plinkoNote, setPlinkoNote] = useState<string | null>(null);
   const [visited, setVisited] = useState<Set<Screen>>(new Set(["controls"]));
   const [screen, setScreen] = useState<Screen>("controls");
   const [presentationMode, setPresentationMode] = useState(false);
@@ -111,6 +121,37 @@ export default function App() {
     } finally {
       setTogglingId(null);
     }
+  }
+
+  /** Reads (no gameModeActive) or sets the Plinko station's Game Mode. Never throws: the card shows the note. */
+  const callPlinko = useCallback(async (gameModeActive?: boolean): Promise<PlinkoState | null> => {
+    setPlinkoNote(null);
+    try {
+      const res = await staffRequest("/api/plinko-game-mode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(gameModeActive === undefined ? { station: PLINKO_STATION } : { station: PLINKO_STATION, gameModeActive }),
+      });
+      if (!res.ok) throw new Error(`plinko-game-mode failed: ${res.status}`);
+      const body = (await res.json()) as { gameModeActive?: boolean } | null;
+      if (typeof body?.gameModeActive !== "boolean") throw new Error("Unexpected Plinko response");
+      return { gameModeActive: body.gameModeActive };
+    } catch (err) {
+      setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : "Could not reach the Plinko station.");
+      return null;
+    }
+  }, []);
+
+  useEffect(() => {
+    void callPlinko().then(setPlinko);
+  }, [callPlinko]);
+
+  async function togglePlinkoGameMode() {
+    if (!plinko) return;
+    setPlinkoBusy(true);
+    const next = await callPlinko(!plinko.gameModeActive);
+    if (next) setPlinko(next);
+    setPlinkoBusy(false);
   }
 
   async function toggleGameMode() {
@@ -223,6 +264,51 @@ export default function App() {
                 }}
               >
                 {gameModeBusy ? "Saving…" : gameModeEnabled ? "Turn Off" : "Turn On"}
+              </button>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "1rem",
+                padding: "1rem",
+                borderRadius: 8,
+                border: "1px solid #d1d5db",
+                background: !plinko ? "#f3f4f6" : plinko.gameModeActive ? "#f0fdf4" : "#fdecea",
+                marginBottom: "1.5rem",
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 600 }}>
+                  Plinko Game Mode: {plinko ? (plinko.gameModeActive ? "ON" : "OFF") : "unavailable"}
+                </div>
+                <div style={{ fontSize: "0.85rem", color: "#555" }}>
+                  {plinkoNote
+                    ? plinkoNote
+                    : plinko?.gameModeActive
+                      ? "Drops are scored: the display shows the QR code, entries and prize wheel spin."
+                      : "The display just shows which bucket the puck landed in — no QR, no entries, nothing recorded."}
+                </div>
+              </div>
+              <button
+                onClick={togglePlinkoGameMode}
+                disabled={plinkoBusy || !plinko}
+                aria-label={`Turn Plinko Game Mode ${plinko?.gameModeActive ? "off" : "on"}`}
+                style={{
+                  padding: "0.6rem 1.2rem",
+                  borderRadius: 6,
+                  border: "none",
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: plinko?.gameModeActive ? "#16a34a" : "#9ca3af",
+                  cursor: plinkoBusy ? "wait" : plinko ? "pointer" : "not-allowed",
+                  opacity: plinkoBusy || !plinko ? 0.6 : 1,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {plinkoBusy ? "Saving…" : plinko?.gameModeActive ? "Turn Off" : "Turn On"}
               </button>
             </div>
 

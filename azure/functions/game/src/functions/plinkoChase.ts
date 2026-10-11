@@ -17,7 +17,12 @@ export async function plinkoChase(request: HttpRequest, context: InvocationConte
     if (!profile || profile.bucketCount === null) return { status: 404, jsonBody: { error: "Unknown station" } };
     return {
       headers: { "Cache-Control": "no-store" },
-      jsonBody: { serverTime: Date.now(), stepMs: CHASE_STEP_MS, bucketCount: profile.bucketCount },
+      jsonBody: {
+        serverTime: Date.now(),
+        stepMs: CHASE_STEP_MS,
+        bucketCount: profile.bucketCount,
+        gameModeActive: profile.gameModeActive,
+      },
     };
   } catch (error) {
     context.error("plinko-chase failed", error);

@@ -10,6 +10,8 @@ export function litBucketAt(timeMs: number, bucketCount: number, stepMs: number)
 interface ChaseSchedule {
   bucketCount: number;
   stepMs: number;
+  /** False when staff have turned Game Mode off for this station. */
+  gameModeActive: boolean;
   /** Server clock minus this device's clock, so the light matches the backend's. */
   offsetMs: number;
 }
@@ -21,17 +23,22 @@ async function fetchSchedule(): Promise<ChaseSchedule> {
   const sentAt = Date.now();
   const response = await fetch(`${API_BASE_URL}/api/plinko-chase?station=${encodeURIComponent(STATION_SLUG)}`, { cache: "no-store" });
   if (!response.ok) throw new Error(`plinko-chase ${response.status}`);
-  const body = (await response.json()) as { serverTime: number; stepMs: number; bucketCount: number };
+  const body = (await response.json()) as { serverTime: number; stepMs: number; bucketCount: number; gameModeActive?: boolean };
   const receivedAt = Date.now();
   // Assume the server stamped the reply halfway through the round trip.
-  return { bucketCount: body.bucketCount, stepMs: body.stepMs, offsetMs: body.serverTime - (sentAt + receivedAt) / 2 };
+  return {
+    bucketCount: body.bucketCount,
+    stepMs: body.stepMs,
+    gameModeActive: body.gameModeActive !== false,
+    offsetMs: body.serverTime - (sentAt + receivedAt) / 2,
+  };
 }
 
 /**
  * The chase light for this station: which bucket is lit right now. Null until the schedule has
  * loaded (or if the backend is unreachable), so the screen never shows a made-up lit bucket.
  */
-export function useChase(): { litBucket: number; bucketCount: number } | null {
+export function useChase(): { litBucket: number; bucketCount: number; gameModeActive: boolean } | null {
   const [schedule, setSchedule] = useState<ChaseSchedule | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -62,5 +69,9 @@ export function useChase(): { litBucket: number; bucketCount: number } | null {
   }, []);
 
   if (!schedule) return null;
-  return { litBucket: litBucketAt(now + schedule.offsetMs, schedule.bucketCount, schedule.stepMs), bucketCount: schedule.bucketCount };
+  return {
+    litBucket: litBucketAt(now + schedule.offsetMs, schedule.bucketCount, schedule.stepMs),
+    bucketCount: schedule.bucketCount,
+    gameModeActive: schedule.gameModeActive,
+  };
 }

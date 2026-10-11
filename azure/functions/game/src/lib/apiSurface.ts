@@ -4,7 +4,7 @@ import { requireStaff } from "./staffAuth";
 const staffOnly = new Set([
   "set-mode", "toggle-device", "set-game-mode", "bulk-create-prizes",
   "prize-types", "prize-count", "grand-prize-check-in", "grand-prize-draw",
-  "grand-prize-drawing-state", "grand-prize-drawing-slices",
+  "grand-prize-drawing-state", "grand-prize-drawing-slices", "plinko-game-mode",
 ]);
 const shared = new Set(["kiosk-state", "device-profiles", "create-win", "claim-prize"]);
 const publicOnly = new Set([

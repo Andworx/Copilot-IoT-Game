@@ -176,6 +176,11 @@ A separate Power Pages Code Site (site name `Plinko`), in the `Plinko` solution.
   `POST /api/plinko-release` and polls `GET /api/plinko-lock` to clear itself once the
   prize is claimed. Skipping only clears the screen: the claim stays valid until it expires.
 - **Station:** set with `?station=<slug>` (default `plinko-1`).
+- **Game Mode:** staff switch it from the Game Box Control app (`POST /api/plinko-game-mode`, backed by
+  the Plinko Profile's `andy_gamemodeactive`). Off: a landing is still validated and broadcast, but the
+  backend creates no claim or play and holds no lock; the display just shows the bucket that was hit
+  (`plinkoResult.gameModeActive = false`, empty `claimToken`) for a few seconds. `plinkoGameModeChanged`
+  is broadcast so an open display follows at once, and `plinko-chase` reports the current mode on load.
 - **Dev preview:** in `npm run dev`, keys `1`–`5` simulate a landing (bucket 3 lit) and
   `Esc` clears it.
 

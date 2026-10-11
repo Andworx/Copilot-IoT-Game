@@ -29,7 +29,7 @@ const PLAY_PRIZE_CLAIM_NAV = "andy_PrizeClaim"; // on andy_plinkoplay, -> andy_p
 const PLAY_PROFILE_NAV = "andy_Profile"; // on andy_plinkoplay, -> andy_plinkoprofile
 const PRIZE_CLAIM_STATUS_UNCLAIMED = 435700000;
 
-/** The station profile, the active campaign and the contest source rarely change; reuse them briefly. */
+/** The active campaign and contest source rarely change; reuse them briefly. */
 const LOOKUP_CACHE_MS = 60 * 1000;
 
 export type PlinkoOutcome =
@@ -45,18 +45,15 @@ interface ProfileRow {
   andy_gamemodeactive?: boolean | null;
 }
 
-const profileCache = new Map<string, { at: number; profile: PlinkoProfile | null }>();
-
-export async function getProfile(slug: string, now: number = Date.now()): Promise<PlinkoProfile | null> {
-  const hit = profileCache.get(slug);
-  if (hit && now - hit.at < LOOKUP_CACHE_MS) return hit.profile;
+/** Always read fresh: a Game Mode switch has to take effect on the next drop (and the read runs in parallel). */
+export async function getProfile(slug: string): Promise<PlinkoProfile | null> {
   const response = await dataverseFetch(
     `${PROFILES_SET}?$select=andy_plinkoprofileid,andy_profileslug,andy_numberofbuckets,andy_litbucketentries,` +
       `andy_standardbucketentries,andy_gamemodeactive` +
       `&$filter=statecode eq 0 and andy_profileslug eq '${escapeODataString(slug)}'&$top=1`
   );
   const row = ((await response.json()) as { value: ProfileRow[] }).value[0];
-  const profile: PlinkoProfile | null = row
+  return row
     ? {
         id: row.andy_plinkoprofileid,
         slug: row.andy_profileslug,
@@ -66,8 +63,17 @@ export async function getProfile(slug: string, now: number = Date.now()): Promis
         gameModeActive: row.andy_gamemodeactive !== false,
       }
     : null;
-  profileCache.set(slug, { at: now, profile });
-  return profile;
+}
+
+/** Staff switch: turns Game Mode on or off for a station. Returns null for an unknown slug. */
+export async function setPlinkoGameMode(slug: string, gameModeActive: boolean): Promise<PlinkoProfile | null> {
+  const profile = await getProfile(slug);
+  if (!profile) return null;
+  await dataverseFetch(`${PROFILES_SET}(${profile.id})`, {
+    method: "PATCH",
+    body: JSON.stringify({ andy_gamemodeactive: gameModeActive }),
+  });
+  return { ...profile, gameModeActive };
 }
 
 interface PlayRow {
@@ -100,6 +106,7 @@ function resultFromPlay(landing: PlinkoLanding, profile: PlinkoProfile, play: Pl
     bucketCount: profile.bucketCount ?? landing.bucketCount ?? bucket,
     entriesAwarded: play.andy_entriesawarded ?? 1,
     claimToken,
+    gameModeActive: true,
   };
 }
 
@@ -184,12 +191,30 @@ export async function recordPlinkoLanding(payload: unknown, now: Date = new Date
       : { status: "rejected", reason: `play for event ${landing.eventId} has no prize claim token` };
   }
 
+  const decision = judgePlinkoLanding(landing, profile, now);
+  if (!decision.accepted) return { status: "rejected", reason: decision.reason };
+
+  if (!decision.gameModeActive) {
+    // Game Mode off: show the bucket, record nothing, hold nothing.
+    return {
+      status: "accepted",
+      duplicate: false,
+      result: {
+        stationSlug: landing.stationSlug,
+        eventId: landing.eventId,
+        bucket: decision.bucket,
+        litBucket: 0,
+        bucketCount: decision.bucketCount,
+        entriesAwarded: 0,
+        claimToken: "",
+        gameModeActive: false,
+      },
+    };
+  }
+
   if (lock && !lock.released && now.getTime() < lock.expiresAt && (await claimIsUnclaimed(lock.claimToken))) {
     return { status: "rejected", reason: `a win is still on screen (event ${lock.eventId}); landing ignored` };
   }
-
-  const decision = judgePlinkoLanding(landing, profile, now);
-  if (!decision.accepted) return { status: "rejected", reason: decision.reason };
 
   const claimToken = crypto.randomUUID();
   const { prizeClaimId } = await createSourcedPrizeClaim({
@@ -242,6 +267,7 @@ export async function recordPlinkoLanding(payload: unknown, now: Date = new Date
       bucketCount: decision.bucketCount,
       entriesAwarded: decision.entriesAwarded,
       claimToken,
+      gameModeActive: true,
     },
   };
 }
