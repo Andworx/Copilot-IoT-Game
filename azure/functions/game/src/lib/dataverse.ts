@@ -318,6 +318,18 @@ export async function createGameWin(
   return { claimToken };
 }
 
+const lookupCache = new Map<string, { at: number; value: unknown }>();
+
+/** Small in-memory TTL cache for rarely-changing lookups on a latency-sensitive path. ttl <= 0 disables it. */
+async function cachedLookup<T>(key: string, ttlMs: number, load: () => Promise<T>): Promise<T> {
+  if (ttlMs <= 0) return load();
+  const hit = lookupCache.get(key);
+  if (hit && Date.now() - hit.at < ttlMs) return hit.value as T;
+  const value = await load();
+  lookupCache.set(key, { at: Date.now(), value });
+  return value;
+}
+
 /**
  * Mints an unclaimed Prize Claim for a game that has no IoT device (MCP Quest and similar).
  * The claim is anchored to the active Contest Campaign and the named Contest Source, so
@@ -333,14 +345,24 @@ export async function createSourcedPrizeClaim(input: {
   contestSourceKey: string;
   name: string;
   now?: Date;
+  /** The token was just generated here, so no claim can hold it: skip the lookup-by-token round trip. */
+  freshToken?: boolean;
+  /** Reuse the active campaign and contest source for this long (ms) instead of reading them every call. */
+  lookupCacheMs?: number;
 }): Promise<{ prizeClaimId: string; existed: boolean }> {
   if (!isGuidLike(input.claimToken)) throw new Error("claimToken must be a GUID");
   const sourceKey = normalizeContestSourceKey(input.contestSourceKey);
-  const [campaign, contestSource] = await Promise.all([fetchActiveContestCampaign(), fetchContestSourceByKey(sourceKey)]);
+  const ttl = input.lookupCacheMs ?? 0;
+  const [campaign, contestSource] = await Promise.all([
+    cachedLookup("campaign", ttl, fetchActiveContestCampaign),
+    cachedLookup(`source:${sourceKey}`, ttl, () => fetchContestSourceByKey(sourceKey)),
+  ]);
   if (!contestSource) throw new Error(`No active Contest Source row found for source key "${sourceKey}"`);
 
-  const existing = await getPrizeClaimIdsByToken(input.claimToken);
-  if (existing.length > 0) return { prizeClaimId: existing[0], existed: true };
+  if (!input.freshToken) {
+    const existing = await getPrizeClaimIdsByToken(input.claimToken);
+    if (existing.length > 0) return { prizeClaimId: existing[0], existed: true };
+  }
 
   const prizeClaimId = input.claimToken.toLowerCase();
   const response = await dataverseFetchRaw(PRIZE_CLAIMS_SET, {

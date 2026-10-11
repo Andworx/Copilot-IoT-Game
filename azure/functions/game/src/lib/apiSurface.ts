@@ -8,7 +8,7 @@ const staffOnly = new Set([
 ]);
 const shared = new Set(["kiosk-state", "device-profiles", "create-win", "claim-prize"]);
 const publicOnly = new Set([
-  "negotiate", "plinko-chase", "pick-random-mode", "prizes", "directline-token", "preferences",
+  "negotiate", "plinko-chase", "plinko-lock", "plinko-release", "pick-random-mode", "prizes", "directline-token", "preferences",
   "mcpquest-start", "mcpquest-call", "mcpquest-hint", "mcpquest-choose", "mcpquest-test",
   "mcpquest-submit", "mcpquest-leaderboard", "mcpquest-servers", "mcpquest-generate",
   "mcpquest-generate-status",

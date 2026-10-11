@@ -171,8 +171,10 @@ A separate Power Pages Code Site (site name `Plinko`), in the `Plinko` solution.
   reveal). It shows the landed bucket, the lit bucket, the entries awarded, the prize
   wheel spin, and a QR for the shared prize wheel (`?token=`).
 - **Leaving the win screen:** a **Skip** button or a 45 s countdown returns to idle. A
-  newer landing replaces the one on screen. Skipping only clears the screen: the claim
-  stays valid until it expires.
+  win on screen holds the board: the backend ignores new landings until the QR is claimed
+  on the phone, skipped, or its hold expires (60 s). The display reports a skip to
+  `POST /api/plinko-release` and polls `GET /api/plinko-lock` to clear itself once the
+  prize is claimed. Skipping only clears the screen: the claim stays valid until it expires.
 - **Station:** set with `?station=<slug>` (default `plinko-1`).
 - **Dev preview:** in `npm run dev`, keys `1`–`5` simulate a landing (bucket 3 lit) and
   `Esc` clears it.

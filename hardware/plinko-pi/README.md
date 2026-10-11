@@ -56,7 +56,7 @@ Settings (environment variables or CLI options; see `.env.example`):
 | `PLINKO_STATION_SLUG` | `plinko-default` | Station identifier in telemetry. |
 | `PLINKO_BUCKET_PINS` | `17,27,22,23,24,25` | BCM pins for buckets 1..N; N is the bucket count. |
 | `PLINKO_LIT_BUCKET` | `1` | Informational only: the backend derives the lit bucket from the display's chase. |
-| `PLINKO_DEBOUNCE_MS` | `200` | Stable blocked time required before a landing. |
+| `PLINKO_DEBOUNCE_MS` | `50` | Stable blocked time required before a landing. |
 | `PLINKO_LOCKOUT_MS` | `1000` | After a landing, other buckets are ignored this long (a puck passing a neighbouring beam). |
 | `PLINKO_POLL_MS` | `20` | Poll interval. |
 

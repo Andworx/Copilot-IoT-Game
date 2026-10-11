@@ -64,7 +64,8 @@ export async function iotTelemetry(events: unknown[], context: InvocationContext
 
   const signalRMessages: SignalRMessage[] = [];
   const dataverseWrites: Promise<void>[] = [];
-  const plinkoWork: Promise<void>[] = [];
+  let plinkoChain: Promise<void> = Promise.resolve();
+  const plinkoErrors: string[] = [];
 
   events.forEach((event, index) => {
     const payload = parsePayload(event);
@@ -75,25 +76,24 @@ export async function iotTelemetry(events: unknown[], context: InvocationContext
     const deviceId = resolveDeviceId(payload, systemProperties?.[index]);
 
     if (isPlinkoLanding(payload)) {
-      plinkoWork.push(
-        recordPlinkoLanding(payload).then(
-          (outcome) => {
-            if (outcome.status === "accepted") {
-              signalRMessages.push({ target: PLINKO_RESULT_TARGET, arguments: [outcome.result] });
-              context.log(
-                `Plinko landing from ${deviceId}: station ${outcome.result.stationSlug} bucket ${outcome.result.bucket}` +
-                  `${outcome.duplicate ? " (redelivered)" : ""}`
-              );
-            } else {
-              context.warn(`Rejected Plinko landing from ${deviceId}: ${outcome.reason}`);
-            }
-          },
-          (error) => {
-            // Rethrown below so the Event Hub retry policy replays the batch (the play is idempotent).
-            throw new Error(`Plinko landing from ${deviceId} failed: ${String(error)}`);
+      // One after another: two landings in a batch must not both pass the one-win-on-screen check.
+      plinkoChain = plinkoChain.then(async () => {
+        try {
+          const outcome = await recordPlinkoLanding(payload);
+          if (outcome.status === "accepted") {
+            signalRMessages.push({ target: PLINKO_RESULT_TARGET, arguments: [outcome.result] });
+            context.log(
+              `Plinko landing from ${deviceId}: station ${outcome.result.stationSlug} bucket ${outcome.result.bucket}` +
+                `${outcome.duplicate ? " (redelivered)" : ""}`
+            );
+          } else {
+            context.warn(`Rejected Plinko landing from ${deviceId}: ${outcome.reason}`);
           }
-        )
-      );
+        } catch (error) {
+          // Rethrown below so the Event Hub retry policy replays the batch (the play is idempotent).
+          plinkoErrors.push(`Plinko landing from ${deviceId} failed: ${String(error)}`);
+        }
+      });
       return;
     }
     signalRMessages.push(...buildSignalRMessages(payload, deviceId));
@@ -108,7 +108,8 @@ export async function iotTelemetry(events: unknown[], context: InvocationContext
     }
   });
 
-  await Promise.all(plinkoWork);
+  await plinkoChain;
+  if (plinkoErrors.length > 0) throw new Error(plinkoErrors.join("; "));
 
   if (signalRMessages.length > 0) {
     context.extraOutputs.set(signalROutput, signalRMessages);

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { PRIZE_WHEEL_URL } from "../lib/apiConfig";
+import logoBlue from "../assets/brand/andworx-blue.svg";
 import type { PlinkoResult } from "../types/plinko";
 
 /** Long enough to pull out a phone and scan; unclaimed tokens stay valid after reset. */
@@ -77,6 +78,7 @@ export function WinCelebration({ result, onDone }: WinCelebrationProps) {
 
       <div className="win-card">
         <div className="win-result">
+          <img className="win-brand" src={logoBlue} alt="Andworx" />
           <span className="eyebrow">{isLit ? "Lit bucket!" : "Nice drop!"}</span>
           <h2 id="win-title">Congratulations!</h2>
           <p className="win-bucket-line">
