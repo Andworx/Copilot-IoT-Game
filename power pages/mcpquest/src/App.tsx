@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { API_BASE_URL, MCP_SERVER_URL, resolveApiKind, resolveSpecId, resolveSpecUrl, resolveStation } from "./config";
 import { initialDesignText } from "@mcpquest/specDesigns";
-import { createHttpApi } from "./api/httpApi";
+import { ApiError, createHttpApi } from "./api/httpApi";
 import { DEFAULT_MISSION, findMission } from "@mcpquest/missions";
 import type {
   BuildStage,
@@ -164,6 +164,7 @@ function Game({ apis }: { apis: Apis }) {
   const [buildStage, setBuildStage] = useState<BuildStage | null>(null);
   const [built, setBuilt] = useState<BuiltGame | null>(null);
   const [buildError, setBuildError] = useState<string | null>(null);
+  const [buildRetryAfter, setBuildRetryAfter] = useState<number | null>(null);
 
   const elapsed = useElapsedSeconds(session, phase === "playing");
 
@@ -247,6 +248,7 @@ function Game({ apis }: { apis: Apis }) {
     setNickname(name);
     setBuilt(null);
     setBuildError(null);
+    setBuildRetryAfter(null);
     setBuildStage("reading");
     setError(null);
     setPhase("building");
@@ -259,6 +261,7 @@ function Game({ apis }: { apis: Apis }) {
       setBuildStage("done");
     } catch (e) {
       setBuildError(messageOf(e, "The game could not be built. Please try again."));
+      setBuildRetryAfter(e instanceof ApiError ? (e.detail.retryAfterSeconds ?? null) : null);
     }
   };
 
@@ -266,6 +269,7 @@ function Game({ apis }: { apis: Apis }) {
     setPhase("idle");
     setBuilt(null);
     setBuildError(null);
+    setBuildRetryAfter(null);
     setBuildStage(null);
   };
 
@@ -392,6 +396,7 @@ function Game({ apis }: { apis: Apis }) {
             serverError={serverError}
             selectedServer={selectedServer}
             onSelectServer={apis.primary.listServers ? setSelectedServer : undefined}
+            showClassic={new URLSearchParams(window.location.search).has("mode")}
           />
         ) : null}
 
@@ -401,6 +406,7 @@ function Game({ apis }: { apis: Apis }) {
             stage={buildStage}
             title={built?.title ?? null}
             error={buildError ?? (built ? error : null)}
+            retryAfterSeconds={buildRetryAfter}
             starting={busy}
             onBegin={() => built && void start(nickname, `spec:${built.specId}`)}
             onBack={leaveCave}

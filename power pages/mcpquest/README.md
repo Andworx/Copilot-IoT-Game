@@ -67,7 +67,8 @@ npm run build    # tsc -b && vite build
 ## Missions built from a system
 
 On a backend that offers it (`live`, and `?specUrl=` for a saved game), the start screen lists
-the MCP Station systems. Choosing one builds a mission for it (about 25 seconds, shown as the
+only the MCP Station systems; the fixed missions are not shown (add `?mode=` to get them back,
+or they appear if the list of systems cannot be loaded). Choosing one builds a mission for it (about 25 seconds, shown as the
 cave scene), then **Begin the mission** starts the play. Design and rules:
 [requirements/MCP_QUEST_AGENT_PLAN.md](../../requirements/MCP_QUEST_AGENT_PLAN.md).
 

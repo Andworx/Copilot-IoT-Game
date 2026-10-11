@@ -479,11 +479,14 @@ unchanged and still rejects specs where an empty design meets every requirement.
 
 ## The visitor journey in the page (built, driven end to end)
 
-1. **Start screen.** The classic missions, then "Or build a mission from a system": the MCP
-   Station catalog (`GET servers`) as compact tiles in a scrolling grid, with the name and tool
-   count. The name field and button are pinned to the bottom of the screen so they are always
-   in reach, including on an 800 by 480 kiosk. The button says "Build my mission" once a
-   system is chosen. If the list cannot be loaded the classic missions still work.
+1. **Start screen.** Only the MCP Station catalog (`GET servers`): compact tiles in a scrolling
+   grid with the name and tool count, beside a short "How it works". The hand-built missions
+   are not offered (decided 2026-10-10). The name field and button are pinned to the bottom of
+   the screen so they are always in reach, including on an 800 by 480 kiosk, and the button
+   reads "Choose a system" and stays off until one is chosen, then "Build my mission". The
+   fixed missions return in two cases only: when the list of systems cannot be loaded (so
+   there is still something to play), and for an operator who opens the page with `?mode=`.
+   The hand-built judge and cases remain in the code and tests; only the start screen changed.
 2. **Build screen** (`BuildScreen.tsx`). A pixel-art cave: an old sage by a fire. The sage
    speaks a line for each stage, typed out (instant with reduced motion), and the six products
    are handed over one at a time as the build really reaches each stage: Dataverse after the
@@ -493,7 +496,10 @@ unchanged and still rejects specs where an empty design meets every requirement.
    again. When it is ready the sage says "It is dangerous to go alone. Take the Platform.", the
    mission's title is shown, and **Begin the mission** starts the play (the clock does not start
    until then). A failed build says "The sage is out of ideas. Try another cave." with the real
-   reason (for example the rate limit), **Try again**, and **Choose another system**. Original
+   reason (for example the rate limit), **Try again**, and **Choose another system**. When the
+   build was refused by the rate limit, **Try again** is disabled and counts down
+   ("Try again in 4:59") using the `Retry-After` time the route returns, and says that missions
+   someone has already built open straight away. Original
    art, wording and behaviour: no Nintendo assets, names or text.
 3. **Play.** The designers above, with the sampled records panel. Direct tool calls and product
    choice are not offered.
@@ -520,9 +526,7 @@ the designers, met every requirement, and scored 100 with a prize code. Freight 
 the same way. A live build of the site contains no judge, case data or preview backend.
 
 **Still not built.** The Bicep for the private endpoint, deployment of everything above, and a
-live check against the deployed Function App. Open: the hand-built mission list on the start
-screen could be retired or hidden once generated missions are trusted, and the build screen
-disables nothing while a rate limit is in force (Try again just shows the message again).
+live check against the deployed Function App.
 
 
 ## Security and abuse

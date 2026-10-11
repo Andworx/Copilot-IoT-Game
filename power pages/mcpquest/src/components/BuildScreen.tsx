@@ -15,6 +15,8 @@ interface Props {
   /** Set when the build finished: the mission is ready to begin. */
   title: string | null;
   error: string | null;
+  /** When the build was refused for rate limiting: seconds until it may be tried again. */
+  retryAfterSeconds: number | null;
   starting: boolean;
   onBegin: () => void;
   onBack: () => void;
@@ -100,6 +102,29 @@ function useTypewriter(text: string): string {
   return shown;
 }
 
+/** Seconds left until `seconds` from now have passed; 0 once they have. Restarts when `seconds` changes. */
+function useCountdown(seconds: number | null): number {
+  const [remaining, setRemaining] = useState(seconds ?? 0);
+  useEffect(() => {
+    if (!seconds || seconds <= 0) {
+      setRemaining(0);
+      return;
+    }
+    const end = Date.now() + seconds * 1000;
+    const tick = () => setRemaining(Math.max(0, Math.ceil((end - Date.now()) / 1000)));
+    tick();
+    const id = window.setInterval(tick, 250);
+    return () => window.clearInterval(id);
+  }, [seconds]);
+  return remaining;
+}
+
+function clock(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
 function Sage() {
   const rects = useMemo(
     () =>
@@ -136,8 +161,10 @@ function Fire() {
   );
 }
 
-export function BuildScreen({ serverName, stage, title, error, starting, onBegin, onBack, onRetry }: Props) {
+export function BuildScreen({ serverName, stage, title, error, retryAfterSeconds, starting, onBegin, onBack, onRetry }: Props) {
   const failed = error !== null;
+  const wait = useCountdown(failed ? retryAfterSeconds : null);
+  const limited = failed && wait > 0;
   const done = !failed && stage === "done" && title !== null;
   const progress = stage ? ORDER[stage] : 0;
   const line = failed
@@ -191,9 +218,12 @@ export function BuildScreen({ serverName, stage, title, error, starting, onBegin
           <p className="error" role="alert">
             {error}
           </p>
-          <button type="button" className="primary" onClick={onRetry}>
-            Try again
+          <button type="button" className="primary" disabled={limited} onClick={onRetry}>
+            {limited ? `Try again in ${clock(wait)}` : "Try again"}
           </button>
+          {limited ? (
+            <p className="muted">Missions someone has already built open straight away, so you can choose another system now.</p>
+          ) : null}
           <button type="button" className="link" onClick={onBack}>
             Choose another system
           </button>

@@ -6,13 +6,14 @@ interface Props {
   selected: string | null;
   disabled: boolean;
   onSelect: (slug: string | null) => void;
+  heading?: string;
 }
 
 /** The systems a mission can be built from. Choosing one makes a new mission just for that system. */
-export function ServerPicker({ servers, error, selected, disabled, onSelect }: Props) {
+export function ServerPicker({ servers, error, selected, disabled, onSelect, heading = "Or build a mission from a system" }: Props) {
   return (
     <fieldset className="server-picker">
-      <legend>Or build a mission from a system</legend>
+      <legend>{heading}</legend>
       {error ? (
         <p className="muted" role="status">
           {error}

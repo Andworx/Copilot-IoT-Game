@@ -1832,3 +1832,15 @@ label {
     display: none;
   }
 }
+
+.how {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--muted);
+}
+
+.how strong {
+  color: var(--text);
+}
