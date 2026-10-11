@@ -69,6 +69,7 @@ export function specSession(stored: StoredSpec): Omit<SessionInfo, "token" | "st
     objectives,
     tools: stored.tools,
     samples: stored.samples,
+    generatedFrom: { serverName: spec.server.name, toolCount: stored.tools.length },
     catalog: EMPTY_CATALOG,
     parSeconds: SPEC_RULES.parSeconds,
     maxSeconds: SPEC_RULES.maxSeconds,

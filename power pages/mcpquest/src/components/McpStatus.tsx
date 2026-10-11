@@ -3,6 +3,8 @@ import type { McpServerInfo } from "@mcpquest/types";
 interface Props {
   server?: McpServerInfo;
   kind: "preview" | "mcp" | "live";
+  /** A generated mission: built from a system, then played against its saved tool list. */
+  generatedFrom?: { serverName: string; toolCount: number };
 }
 
 function hostAndPath(url: string): string {
@@ -14,7 +16,19 @@ function hostAndPath(url: string): string {
   }
 }
 
-export function McpStatus({ server, kind }: Props) {
+export function McpStatus({ server, kind, generatedFrom }: Props) {
+  if (!server && generatedFrom) {
+    return (
+      <div className="mcp-status" role="status">
+        <span className="dot" aria-hidden="true" />
+        <span>
+          <strong>Built from {generatedFrom.serverName}</strong> · {generatedFrom.toolCount} tools · your designs are
+          checked against its saved tool list, so nothing is changed on the real system.
+        </span>
+      </div>
+    );
+  }
+
   if (!server) {
     return (
       <div className="mcp-status mcp-off" role="status">

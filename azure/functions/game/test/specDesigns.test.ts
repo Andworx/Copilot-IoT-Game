@@ -171,4 +171,8 @@ test("the session tells the player what to fill in, and nothing about the checks
   assert.deepEqual(report.designFields?.map((f) => f.path), ["status", "minAmount", "filters[0].open", "title"]);
   // The field list names the settings but never the values the checks compare against.
   assert.doesNotMatch(JSON.stringify(session), /Submitted|876\.25|"equals"|"contains"|fromInput/);
+
+  // It says which system the mission was built from, without exposing the server's address.
+  assert.deepEqual(session.generatedFrom, { serverName: "IT", toolCount: tools.length });
+  assert.doesNotMatch(JSON.stringify(session.generatedFrom), /https?:/);
 });

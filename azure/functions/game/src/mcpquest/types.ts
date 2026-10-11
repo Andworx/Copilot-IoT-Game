@@ -83,6 +83,11 @@ export interface SessionInfo {
   catalog: DesignCatalog;
   /** Present when tool calls go to a real MCP server. */
   mcpServer?: McpServerInfo;
+  /**
+   * Generated games: the system the mission was built from. Plays never call that server; designs
+   * are checked against the tool list saved when the mission was built.
+   */
+  generatedFrom?: { serverName: string; toolCount: number };
   /** Server clock, epoch milliseconds, at the moment the session started. */
   startedAt: number;
   /** Server clock when this response was produced; used to correct client skew. */
