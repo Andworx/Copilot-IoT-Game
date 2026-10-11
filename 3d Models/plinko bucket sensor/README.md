@@ -10,7 +10,7 @@ Plinko display page (Power Pages).
 
 **Pucks:** 49.56 mm diameter x 9.92 mm thick, falling face-on to the board. They can land anywhere
 in the 48.85 mm depth, so one flat beam would miss most of them. Each body therefore has a
-**funnel**: the top slopes (40 degrees) down into a 14 mm groove at mid-depth, and the beam crosses
+**funnel**: the top slopes (40 degrees) down into a 20 mm groove at mid-depth, and the beam crosses
 the groove. A puck lands on a slope, slides into the groove and blocks the beam. The bodies are
 therefore full depth (48 mm), one per bucket width (`body_slotN.stl`).
 
@@ -130,18 +130,40 @@ The STLs are exported in print orientation:
 Neither part needs supports.
 
 
-## Funnel, puck and per-bucket bodies
+## Funnel, puck, drill guides and per-bucket bodies
 
 | File | What |
 |---|---|
-| `exports/stl/body_slot1..6.stl` | Body per bucket (insert widths 88.1, 79.4, 80.6, 78.6, 80.8 and 85.7 mm). |
-| `exports/stl/puck.stl` | Our own puck: 48.9 x 9.5 mm, solid, rounded edge, smooth faces. No decal backing, which is what sticks on the pegs. |
+| `exports/stl/body_slot1..6.stl` | Body per bucket (insert widths 88.1, 79.4, 80.6, 78.6, 80.8 and 85.7 mm). Engraved `B<n>  <width> mm` on the underside. |
+| `exports/stl/guide_slot1..6.stl` | Marking guide per bucket (below). Labelled `B<n>  <width> mm`, `FLOOR`, `M3`, `W`. |
+| `exports/stl/puck.stl` | Our puck: 48.9 x 16 mm, rounded edge, smooth faces, no decal. Two sealed magnet cavities. |
 | `exports/stl/fit_test.stl` | Receiver end only, to check the housing fit (passed). |
+| Covers | Engraved `B<n>` on the back face. Build per bucket: `.\export_parts.ps1 -Slot n`. |
 
-- Bucket 4 (79.38 mm) is the tightest: 51.9 mm of clear width between the towers for the 49.56 mm
-  puck, so about 1 mm each side. Do not go below 78 mm without slimming the towers further.
-- Covers and previews are built for one bucket at a time: `.\export_parts.ps1 -Slot 2` (default 4).
-  A cover is as wide as its bucket, so build covers per bucket once the logos are chosen.
+### Puck magnets
+
+Each puck has two cavities, 18.19 mm across, each sized for **two** 17.89 x 4.92 mm discs stacked
+(four magnets, about 34 g added). Print flat, **pause at Z = 13.07 mm** (the print echoes the
+value), drop the magnets in with the **same polarity facing up in every puck**, and resume; the
+rest of the layer bridges over them. Use `magnet_stack = 1` for half the weight. Magnets that
+face each other will pull pucks together when they touch, so keep the polarity the same.
+
+Thickness: 16 mm. The gap allows more, but the groove (`groove_w`, 20 mm) has to stay at least
+the thickness plus 2 mm, and a puck that almost fills the gap will rub both faces.
+
+### Marking guide
+
+Per bucket. Sit it on the bucket floor between the dividers with the points toward the backboard
+(the printed text faces you, `FLOOR` at the bottom) and press or tap it: three 3.5 mm points
+dent the backboard at the two M3 screw positions and the wire exit. Drill from the dents. If a
+printed point is too soft for your wood, set `guide_holes = true` for 2.2 mm through holes and
+mark with a punch or brad nail instead. Wire exit dent only: choose your own hole size
+(`wire_hole_d` suggests 8 mm).
+
+### Notes
+
+- Bucket 4 (79.38 mm) is the tightest: 51.9 mm of clear width between the towers for the
+  49.56 mm original puck. Do not go below 78 mm without slimming the towers further.
 - Not yet tested on the board: whether pucks slide off the funnel faces at 40 degrees (lower
   `funnel_angle` loses the slide, higher makes it taller), and whether the 2 mm receiver aperture
   rejects enough reflected IR.

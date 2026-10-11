@@ -26,7 +26,7 @@
 // colour parts loaded as parts of the same object. Neither needs supports.
 
 /* [Part] */
-part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck]
+part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide]
 
 /* [Bucket slot - board numbers 2026-09-30 (4 x 5 x 0.5 in); MEASURE] */
 slot_widths = [88.89, 80.21, 81.38, 79.38, 81.63, 86.54]; // measured 2026-10-10, buckets 1..6 left to right
@@ -39,11 +39,11 @@ face_h = 25.0;          // height of the top surface the puck rests on
 
 /* [Funnel - the top slopes into a central groove so a puck lands under the beam at any depth] */
 funnel_angle = 40;      // slope of the funnel faces from horizontal; must exceed the friction angle of PLA on the puck
-groove_w = 14.0;        // flat groove at the bottom, a bit wider than the puck is thick
+groove_w = 20.0;        // flat groove at the bottom, puck_t + 4 or more
 
 /* [Puck - measured 2026-10-10] */
 puck_d = 49.56;
-puck_t = 9.92;
+puck_t = 16.0;          // OUR puck (the original was 9.92); keep equal to puck_print_t
 
 /* [Body] */
 end_block_w = 8.5;      // solid ends: magnets, heat-set inserts
@@ -97,6 +97,24 @@ logo_size = 18.0;       // logo fits in this square
 logo_inlay_depth = 0.6; // inlay thickness at the cover front (3 layers at 0.2 mm)
 logo_colour = 0;        // part = "cover_colour": which logo colour layer to export
 logo_clean = 0.05;      // removes slivers thinner than 2x this (mm) from the logo layers
+
+/* [Labels and drill guide] */
+label = true;           // engrave the bucket number and width on each part (hidden faces)
+label_depth = 0.6;
+guide_t = 4.0;          // plate thickness
+guide_h = 40.0;         // plate height, resting on the bucket floor
+guide_point_h = 3.5;    // height of the marking points
+guide_point_d = 5.0;    // point base diameter
+guide_holes = false;    // true: through holes (2.2 mm) for a punch or brad instead of printed points
+wire_hole_d = 8.0;      // suggested exit hole diameter, engraved as a ring around the guide mark
+
+/* [Puck magnets - printed in a pause; 17.89 x 4.92 mm discs] */
+magnet_d = 17.89;
+magnet_t = 4.92;
+magnet_fit = 0.3;       // added to the diameter and thickness for the pocket
+magnet_x = 12.5;        // each cavity's centre from the puck centre (two cavities)
+magnet_stack = 2;       // magnets stacked in each cavity
+magnets = true;
 
 /* [Heat-set inserts - M3 x 5.7 typical] */
 insert_hole_d = 4.0;
@@ -152,6 +170,7 @@ assert(tx_wall_in > ir_lip_out + 1.0, "Wall too thin in front of the lip");
 assert(rx_aperture_d < lens_hole_d, "Receiver aperture must be narrower than the lens counterbore");
 assert(ir_pocket_y0 >= body_y0 + 2.0, "IR pocket front wall too thin");
 assert(puck_t + 2 <= groove_w, "Groove too narrow for the puck");
+assert(puck_print_t - magnet_stack * magnet_t - magnet_fit >= 4, "Magnet stack leaves too little skin");
 assert(flat_w >= puck_d + 2, str("Towers leave only ", flat_w, " mm for the puck"));
 assert(pocket_z0 >= z_top - 0.01, str("Wire end of the housing sits ", z_top - pocket_z0, " mm below the top surface; raise beam_h"));
 assert(beam_h < puck_d - 8, "Beam too high to be blocked reliably by a resting puck");
@@ -203,6 +222,10 @@ module face_extrude(y0, depth, z) {
 module xz_extrude(y0 = 0, depth = shell_d) {
   translate([0, y0 + depth, 0]) rotate([90, 0, 0]) linear_extrude(depth) children();
 }
+
+// Engraved text helpers (3D, in place). All depths go into the part.
+module label_text(txt, size) text(txt, size = size, halign = "center", valign = "center", font = "Liberation Sans:style=Bold");
+label_string = str("B", slot > 0 ? slot : 0, "  ", slot_w_eff, " mm");
 
 // ============================================================
 // BODY
@@ -261,6 +284,9 @@ module body() {
     ir_pocket(tx_w, 1, tx_wall_in, tx_hole_d);
     ir_pocket(shell_w - rx_w, -1, rx_wall_in, rx_aperture_d);
     raceway();
+    if (label)  // underside, readable from below
+      translate([shell_w / 2, (body_y0 + shell_d) / 2, -eps]) linear_extrude(label_depth + eps)
+        mirror([0, 1, 0]) label_text(label_string, 7);
 
     // M3 heat-set inserts in the rear face, one per end.
     for (x = [end_block_w / 2, shell_w - end_block_w / 2])
@@ -291,6 +317,9 @@ module cover() {
     else face_extrude(-eps, logo_inlay_depth + eps, logo_z) logo_2d();
     for (x = mag_xs, z = mag_zs)
       translate([x, cover_t - mag_depth, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth + eps);
+    if (label)  // back face, readable from behind
+      translate([shell_w / 2, cover_t + eps, cover_top / 2]) rotate([90, 0, 0]) linear_extrude(0.4 + eps)
+        mirror([1, 0, 0]) label_text(str("B", slot > 0 ? slot : 0), 7);
   }
 }
 
@@ -349,17 +378,63 @@ module cover_set(columns = 3) {
 
 // Our own puck: smooth faces on a low raised ring (the original decal backing sticks), rounded edge, solid so it blocks IR.
 puck_print_d = 48.9;
-puck_print_t = 9.5;
+puck_print_t = 16.0;     // thicker is steadier in the chute and holds more magnet; groove_w must be >= this + 2
 module puck() {
   r = puck_print_d / 2;
   edge = 1.6;
-  rotate_extrude($fn = 96) union() {
-    square([r - edge, puck_print_t]);
-    translate([0, edge]) square([r, puck_print_t - 2 * edge]);
-    translate([r - edge, edge]) circle(r = edge, $fn = 32);
-    translate([r - edge, puck_print_t - edge]) circle(r = edge, $fn = 32);
+  difference() {
+    rotate_extrude($fn = 96) union() {
+      square([r - edge, puck_print_t]);
+      translate([0, edge]) square([r, puck_print_t - 2 * edge]);
+      translate([r - edge, edge]) circle(r = edge, $fn = 32);
+      translate([r - edge, puck_print_t - edge]) circle(r = edge, $fn = 32);
+    }
+    // Two sealed magnet cavities, centred in the thickness: pause the print once the cavities are
+    // open (just before they bridge over) and drop the magnets in, same polarity for every puck.
+    if (magnets) for (x = [-magnet_x, magnet_x])
+      translate([x, 0, (puck_print_t - magnet_stack * magnet_t - magnet_fit) / 2])
+        cylinder(d = magnet_d + magnet_fit, h = magnet_stack * magnet_t + magnet_fit, $fn = 64);
   }
 }
+// Z at which to pause the print, from the bed (puck printed flat).
+echo(str("Puck: pause at Z = ", (puck_print_t + magnet_stack * magnet_t + magnet_fit) / 2, " mm to insert ", 2 * magnet_stack, " magnets"));
+
+// ============================================================
+// DRILL / MARKING GUIDE (per bucket)
+// ============================================================
+// Sits on the bucket floor between the dividers, against the backboard; press it in to dent the
+// three hole positions (two M3 screws, one wire exit). Built in board coordinates: X from the
+// left divider, Z up from the floor, Y into the backboard.
+guide_pts = [
+  [side_clear + end_block_w / 2, insert_z, "M3"],
+  [slot_w_eff - side_clear - end_block_w / 2, insert_z, "M3"],
+  [slot_w_eff / 2, race_z0 + race_w / 2, "WIRE"]
+];
+module guide() {
+  w = slot_w_eff - 0.4;
+  difference() {
+    union() {
+      translate([0.2, 0, 0]) cube([w, guide_t, guide_h]);
+      if (!guide_holes) for (pt = guide_pts)
+        translate([pt[0], guide_t - eps, pt[1]]) rotate([-90, 0, 0])
+          cylinder(d1 = guide_point_d, d2 = 0.5, h = guide_point_h + eps, $fn = 32);
+    }
+    if (guide_holes) for (pt = guide_pts)
+      translate([pt[0], -eps, pt[1]]) rotate([-90, 0, 0]) cylinder(d = 2.2, h = guide_t + 2 * eps, $fn = 24);
+    if (label) {
+      // Back face (facing you): bucket, width, and which way is down.
+      translate([slot_w_eff / 2, label_depth + eps, guide_h - 9]) rotate([90, 0, 0]) linear_extrude(label_depth + eps)
+        label_text(label_string, 6);
+      translate([slot_w_eff / 2, label_depth + eps, 4]) rotate([90, 0, 0]) linear_extrude(label_depth + eps)
+        label_text("FLOOR", 4);
+      for (pt = guide_pts)
+        translate([pt[0], label_depth + eps, pt[1] - (pt[2] == "WIRE" ? 0 : 0)]) rotate([90, 0, 0]) linear_extrude(label_depth + eps)
+          label_text(pt[2] == "WIRE" ? "W" : "M3", 3.2);
+    }
+  }
+}
+// Printed with the points up: the back face lies on the bed.
+module print_flat_guide() translate([0, guide_h, 0]) rotate([90, 0, 0]) guide();
 
 module print_flat_body() translate([0, 0, shell_d]) rotate([-90, 0, 0]) body();
 // Receiver end only (the harder fit: pocket, aperture tube, wire drop, raceway stub, M3 insert), for a quick test print.
@@ -380,6 +455,7 @@ module print_flat_cover_colour(k) rotate([90, 0, 0]) cover_colour(k);
 if (part == "body") print_flat_body();
 else if (part == "fit_test") fit_test();
 else if (part == "puck") puck();
+else if (part == "guide") print_flat_guide();
 else if (part == "cover") print_flat_cover();
 else if (part == "cover_colour") print_flat_cover_colour(logo_colour);
 else if (part == "cover_set") cover_set();

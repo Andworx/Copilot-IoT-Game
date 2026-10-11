@@ -49,6 +49,10 @@ foreach ($SlotNumber in 1..6) {
     Write-Host "== body slot $SlotNumber"
     Invoke-OpenScad @("-o", (Join-Path $StlDir "body_slot$SlotNumber.stl"), "-D", "part=`"body`"", "-D", "slot=$SlotNumber", $Source) -ShowEcho
 }
+foreach ($SlotNumber in 1..6) {
+    Write-Host "== drill guide slot $SlotNumber"
+    Invoke-OpenScad @("-o", (Join-Path $StlDir "guide_slot$SlotNumber.stl"), "-D", "part=`"guide`"", "-D", "slot=$SlotNumber", $Source)
+}
 Write-Host "== puck"
 Invoke-OpenScad @("-o", (Join-Path $StlDir "puck.stl"), "-D", "part=`"puck`"", $Source)
 Write-Host "== fit test (receiver end only)"
