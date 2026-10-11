@@ -162,7 +162,7 @@ export function ResultScreen({
               {result.entries ? (
                 <p>
                   <strong>
-                    {result.entries.awarded} grand prize {result.entries.awarded === 1 ? "entry" : "entries"}
+                    Up to {result.entries.awarded} grand prize {result.entries.awarded === 1 ? "entry" : "entries"}
                   </strong>{" "}
                   for a score of {score.percent} out of 100.
                 </p>
