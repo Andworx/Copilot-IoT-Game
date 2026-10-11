@@ -325,10 +325,8 @@ export async function createGameWin(
  * The caller supplies the token so that a retry can reuse it.
  *
  * `andy_prizeclaim` has no alternate key on the claim token (a key-addressed write is rejected by
- * Dataverse with HTTP 400), so there is no atomic upsert. The token is looked up first and the claim
- * is made with a plain POST, as every other claim is. If two requests race past the lookup, both
- * rows exist, and every reader picks the earliest row for the token (here, and in `claim-prize`),
- * so the pair still behaves as one claim and cannot be claimed twice.
+ * Dataverse with HTTP 400), so use the token as the deterministic primary id on the plain POST.
+ * Concurrent creates then collide on the primary key, and the losing request reuses the created row.
  */
 export async function createSourcedPrizeClaim(input: {
   claimToken: string;
@@ -344,10 +342,12 @@ export async function createSourcedPrizeClaim(input: {
   const existing = await getPrizeClaimIdsByToken(input.claimToken);
   if (existing.length > 0) return { prizeClaimId: existing[0], existed: true };
 
+  const prizeClaimId = input.claimToken.toLowerCase();
   const response = await dataverseFetchRaw(PRIZE_CLAIMS_SET, {
     method: "POST",
     body: JSON.stringify(
       buildPrizeClaimCreatePayload({
+        prizeClaimId,
         claimToken: input.claimToken,
         deviceSlug: sourceKey,
         name: input.name,
@@ -359,19 +359,27 @@ export async function createSourcedPrizeClaim(input: {
   });
   if (!response.ok) {
     const body = await response.text();
+    if (response.status === 400 || response.status === 409) {
+      try {
+        const ids = await getPrizeClaimIdsByToken(input.claimToken);
+        if (ids.some((id) => id.toLowerCase() === prizeClaimId)) {
+          return { prizeClaimId, existed: true };
+        }
+      } catch {
+        // Preserve the create error if the follow-up read also fails.
+      }
+    }
     throw new Error(`Dataverse POST ${PRIZE_CLAIMS_SET} failed: ${response.status} ${body}`);
   }
   const createdId = parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId"));
-  // Read back by token and take the earliest, so two racing requests agree on one claim.
-  const ids = await getPrizeClaimIdsByToken(input.claimToken);
-  const prizeClaimId = ids[0] ?? createdId;
-  if (!prizeClaimId) throw new Error("Dataverse did not return the created Prize Claim id");
-  return { prizeClaimId, existed: createdId !== null && prizeClaimId !== createdId };
+  if (createdId?.toLowerCase() !== prizeClaimId) {
+    throw new Error("Dataverse did not return the deterministic Prize Claim id");
+  }
+  return { prizeClaimId, existed: false };
 }
 
 /**
- * Where a claim is looked up by its token. Always the earliest row, so that a duplicate made by a
- * race (see `createSourcedPrizeClaim`) can never be claimed separately from the original.
+ * Where a claim is looked up by its token. Stable ordering also resolves any legacy duplicate rows.
  */
 export function buildClaimLookupPath(claimToken: string, select = "andy_prizeclaimid", top = 1, expand = ""): string {
   return (
@@ -436,6 +444,7 @@ function normalizeContestSourceKey(sourceKey: string | undefined): string {
 export function buildPrizeClaimCreatePayload(input: {
   claimToken: string;
   deviceSlug: string;
+  prizeClaimId?: string;
   /** Primary name of the claim. Defaults to the IoT form, `IoT <slug> <time>`. */
   name?: string;
   campaignId?: string | null;
@@ -444,6 +453,7 @@ export function buildPrizeClaimCreatePayload(input: {
 }): Record<string, string | number> {
   const timestamp = (input.now ?? new Date()).toISOString();
   return {
+    ...(input.prizeClaimId ? { andy_prizeclaimid: input.prizeClaimId } : {}),
     andy_name: input.name ?? `IoT ${input.deviceSlug} ${timestamp}`,
     andy_claim_token: input.claimToken,
     andy_claim_status: PRIZE_CLAIM_STATUS_UNCLAIMED,

@@ -60,7 +60,8 @@ describe("createSourcedPrizeClaim", () => {
         );
       }
       if (method === "POST" && url.endsWith("andy_prizeclaims")) {
-        const id = `00000000-0000-4000-8000-${String(rows.length + 1).padStart(12, "0")}`;
+        const id = String(body?.andy_prizeclaimid);
+        if (rows.some((row) => row.id === id)) return new Response("duplicate primary id", { status: 400 });
         rows.push({ id, token: String(body?.andy_claim_token) });
         return new Response(null, {
           status: 204,
@@ -90,6 +91,7 @@ describe("createSourcedPrizeClaim", () => {
     assert.deepEqual(result, { prizeClaimId: rows[0].id, existed: false });
     const posts = calls.filter((c) => c.method === "POST");
     assert.equal(posts.length, 1);
+    assert.equal(posts[0].body?.andy_prizeclaimid, TOKEN);
     assert.equal(posts[0].body?.andy_claim_token, TOKEN);
     assert.equal(posts[0].body?.andy_claim_status, 435700000);
     assert.equal(posts[0].body?.["andy_Campaign@odata.bind"], `/andy_contestcampaigns(${CAMPAIGN})`);
@@ -108,19 +110,19 @@ describe("createSourcedPrizeClaim", () => {
     assert.equal(calls.filter((c) => c.method === "POST").length, 1);
   });
 
-  it("makes racing requests agree on the earliest claim, so a pair can never be claimed separately", async (t) => {
-    const { rows } = fakeDataverse(t, { lookupGate: 2 });
+  it("uses the claim token as a stable primary id when two requests race", async (t) => {
+    const { rows, calls } = fakeDataverse(t, { lookupGate: 2 });
     const results = await Promise.all([
       createSourcedPrizeClaim({ claimToken: TOKEN, contestSourceKey: "mcpquest", name: "MCP Quest win" }),
       createSourcedPrizeClaim({ claimToken: TOKEN, contestSourceKey: "mcpquest", name: "MCP Quest win" }),
     ]);
 
-    // Both got past the lookup, so two rows exist (the role cannot delete claims)...
-    assert.equal(rows.length, 2);
-    // ...but both calls, and so the play's link, point at the same, earliest, row.
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].id, TOKEN);
     assert.equal(results[0].prizeClaimId, rows[0].id);
     assert.equal(results[1].prizeClaimId, rows[0].id);
     assert.deepEqual(results.map((r) => r.existed).sort(), [false, true]);
+    assert.equal(calls.filter((call) => call.method === "POST").length, 2);
   });
 
   it("fails with the Dataverse status when the claim cannot be created", async (t) => {
