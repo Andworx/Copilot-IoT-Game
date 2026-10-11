@@ -14,6 +14,8 @@ import {
   PLAYS_SET_DEFAULT,
   PLAY_COLUMNS,
   PRIZE_CLAIM_NAV_DEFAULT,
+  ENTRIES_AWARDED_MAX,
+  ENTRIES_AWARDED_MIN,
   buildCompletePayload,
   buildCreatePayload,
   parsePlayRow,
@@ -289,7 +291,7 @@ test("session tokens verify, expire and resist tampering", () => {
 // ---- play service ------------------------------------------------------------------------
 
 function memoryStore() {
-  const rows = new Map<string, PlayRow & { score?: number; durationSeconds?: number }>();
+  const rows = new Map<string, PlayRow & { score?: number; durationSeconds?: number; entriesAwarded?: number }>();
   let counter = 0;
   const store: PlayStore & { rows: typeof rows; failNextSave: number } = {
     rows,
@@ -325,7 +327,7 @@ function memoryStore() {
       if (row.etag !== etag) throw new ConflictError();
       Object.assign(row, {
         submitted: true, passed: play.passed, claimToken: play.claimToken, resultJson: play.resultJson,
-        score: play.score, durationSeconds: play.durationSeconds, state: play.state,
+        score: play.score, entriesAwarded: play.entriesAwarded, durationSeconds: play.durationSeconds, state: play.state,
         etag: String(Number(row.etag) + 1),
       });
     },
@@ -352,7 +354,7 @@ function memoryStore() {
   return store;
 }
 
-function harness() {
+function harness(maxEntries: () => Promise<number> = async () => 3) {
   const store = memoryStore();
   const issued: string[] = [];
   const clock = { now: 1_800_000_000_000 };
@@ -373,6 +375,7 @@ function harness() {
     signToken: (playId, expiresAt) => signPlayToken({ playId, expiresAt }),
     verifyToken: (token, now) => verifyPlayToken(token, now),
     activeCampaignId: async () => null,
+    maxEntries,
     now: () => clock.now,
     newSeed: (() => {
       let n = 0;
@@ -443,14 +446,52 @@ test("a failed claim can be completed by submitting again, without a second clai
   assert.equal(retried.claimToken, h.issued[0]);
 });
 
-test("a play that does not pass records a score and mints no claim", async () => {
+test("a play that does not pass still earns a claim, worth one entry", async () => {
   const h = harness();
   const session = await h.service.start({ nickname: "TRYER", station: "tablet-1", mode: "fixit" });
   h.clock.now += 5_000;
   const result = await h.service.submit(session.token, {});
   assert.equal(result.score.passed, false);
-  assert.equal(result.claimToken, undefined);
-  assert.equal(h.issued.length, 0);
+  assert.ok(result.score.percent < 70);
+  assert.deepEqual(result.entries, { tier: "base", awarded: 1 });
+  assert.ok(result.claimToken);
+  assert.equal(h.issued.length, 1);
+  assert.equal([...h.store.rows.values()].at(-1)!.entriesAwarded, 1);
+});
+
+test("a perfect play earns the campaign maximum, and the score is out of 100", async () => {
+  const h = harness();
+  const { session, answers } = await playPerfectly(h);
+  h.clock.now += 60_000;
+  const result = await h.service.submit(session.token, answers);
+  assert.ok(result.score.percent >= 90 && result.score.percent <= 100, `percent ${result.score.percent}`);
+  assert.deepEqual(result.entries, { tier: "top", awarded: 3 });
+  assert.equal([...h.store.rows.values()].at(-1)!.entriesAwarded, 3);
+});
+
+test("entries follow the cap read from the campaign, and fall back to one if it is unavailable", async () => {
+  const big = harness(async () => 5);
+  const a = await playPerfectly(big);
+  big.clock.now += 60_000;
+  assert.equal((await big.service.submit(a.session.token, a.answers)).entries?.awarded, 5);
+
+  for (const cap of [async () => { throw new Error("Dataverse is down"); }, async () => 0, async () => Number.NaN]) {
+    const h = harness(cap);
+    const p = await playPerfectly(h);
+    h.clock.now += 60_000;
+    assert.equal((await h.service.submit(p.session.token, p.answers)).entries?.awarded, 1);
+  }
+});
+
+test("a repeat submit returns the same entries and does not recompute them", async () => {
+  let cap = 3;
+  const h = harness(async () => cap);
+  const { session, answers } = await playPerfectly(h);
+  h.clock.now += 60_000;
+  const first = await h.service.submit(session.token, answers);
+  cap = 1;
+  const again = await h.service.submit(session.token, answers);
+  assert.deepEqual(again.entries, first.entries);
 });
 
 test("a tampered or unknown session token is rejected", async () => {
@@ -570,7 +611,7 @@ test("the payloads only write columns that exist", { skip: !haveExport }, () => 
     ),
     ...Object.keys(
       buildCompletePayload({
-        passed: true, score: 1, durationSeconds: 1, callCount: 0, hintsUsed: 0, testCount: 0,
+        passed: true, score: 1, entriesAwarded: 1, durationSeconds: 1, callCount: 0, hintsUsed: 0, testCount: 0,
         claimToken: null, resultJson: "{}", submittedAt: 0, state,
       }),
     ),
@@ -616,4 +657,21 @@ test("a stored play row round-trips through the parser", () => {
   assert.equal(row.state.cases.routing.misses, 1);
   assert.equal(row.state.calls, 3);
   assert.equal(row.submitted, false);
+});
+
+test("entries awarded is only written when the Dataverse column can hold it", () => {
+  const base = {
+    passed: false, score: 10, durationSeconds: 5, callCount: 0, hintsUsed: 0, testCount: 0,
+    claimToken: null, resultJson: "{}", submittedAt: 0, state: { v: 1 as const, cases: {}, hints: [], calls: 0 },
+  };
+  const key = PLAY_COLUMNS.entriesAwarded;
+  // The exported column is 1 to 100. A play with no claim (an unproven game) must leave it unset.
+  assert.equal(ENTRIES_AWARDED_MIN, 1);
+  assert.equal(ENTRIES_AWARDED_MAX, 100);
+  assert.equal(key in buildCompletePayload({ ...base, entriesAwarded: 0 }), false);
+  assert.equal(key in buildCompletePayload({ ...base, entriesAwarded: -2 }), false);
+  assert.equal(key in buildCompletePayload({ ...base, entriesAwarded: Number.NaN }), false);
+  assert.equal(buildCompletePayload({ ...base, entriesAwarded: 1 })[key], 1);
+  assert.equal(buildCompletePayload({ ...base, entriesAwarded: 3 })[key], 3);
+  assert.equal(buildCompletePayload({ ...base, entriesAwarded: 500 })[key], 100, "clamped to the column's maximum");
 });

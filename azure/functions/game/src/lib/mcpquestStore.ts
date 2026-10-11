@@ -33,6 +33,7 @@ export const PLAY_COLUMNS = {
   isClaimIssued: "andy_isclaimissued",
   claimToken: "andy_claimtoken",
   score: "andy_score",
+  entriesAwarded: "andy_entriesawarded",
   durationSeconds: "andy_durationseconds",
   toolCalls: "andy_toolcalls",
   hintsUsed: "andy_hintsused",
@@ -125,11 +126,23 @@ export function buildCreatePayload(play: NewPlay): Record<string, unknown> {
   };
 }
 
+/**
+ * The Entries Awarded column accepts 1 to 100 in Dataverse (as exported from Development), so a
+ * play that earned none (a game that was not proven, with no claim) leaves it unset rather than
+ * writing 0, which the table would reject and fail the whole submit.
+ */
+export const ENTRIES_AWARDED_MIN = 1;
+export const ENTRIES_AWARDED_MAX = 100;
+
 export function buildCompletePayload(play: CompletedPlay): Record<string, unknown> {
+  const entries = Math.trunc(play.entriesAwarded);
   return {
     [C.isSubmitted]: true,
     [C.isPassed]: play.passed,
     [C.score]: play.score,
+    ...(Number.isFinite(entries) && entries >= ENTRIES_AWARDED_MIN
+      ? { [C.entriesAwarded]: Math.min(entries, ENTRIES_AWARDED_MAX) }
+      : {}),
     [C.durationSeconds]: play.durationSeconds,
     [C.toolCalls]: play.callCount,
     [C.hintsUsed]: play.hintsUsed,

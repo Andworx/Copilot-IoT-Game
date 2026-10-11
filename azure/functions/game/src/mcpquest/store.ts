@@ -42,6 +42,8 @@ export interface NewPlay {
 export interface CompletedPlay {
   passed: boolean;
   score: number;
+  /** Grand-prize entries earned, from the 0-100 score and the campaign cap. */
+  entriesAwarded: number;
   durationSeconds: number;
   callCount: number;
   hintsUsed: number;
@@ -74,7 +76,7 @@ export interface PlayStore {
   rankOf(modeSlug: string, score: number, durationSeconds: number): Promise<number>;
 }
 
-/** Issues the shared engine's Prize Claim for a passing play. Idempotent per token. */
+/** Issues the shared engine's Prize Claim for a submitted play. Idempotent per token. */
 export interface ClaimIssuer {
   issue(input: { claimToken: string; station: string; modeSlug: string; nickname: string }): Promise<{ prizeClaimId: string }>;
 }

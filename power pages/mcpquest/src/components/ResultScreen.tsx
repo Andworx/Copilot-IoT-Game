@@ -50,6 +50,7 @@ export function ResultScreen({
   }, [result.claimToken]);
 
   const correctCount = score.objectives.filter((o) => o.correct).length;
+  const generated = session.modeSlug.startsWith("spec:");
 
   return (
     <div className="result-grid">
@@ -58,9 +59,11 @@ export function ResultScreen({
         <h2 id="result-title">
           {score.passed
             ? `Nice work, ${nickname}.`
-            : correctCount === score.objectives.length
-              ? `All correct, ${nickname}, but short of the prize score.`
-              : `${correctCount} of ${score.objectives.length} correct, ${nickname}.`}
+            : generated
+              ? `${correctCount} of ${score.objectives.length} cases complete, ${nickname}.`
+              : correctCount === score.objectives.length
+                ? `All correct, ${nickname}, but short of the prize score.`
+                : `${correctCount} of ${score.objectives.length} correct, ${nickname}.`}
         </h2>
 
         <p className="big-score" aria-label={`Score ${score.total}`}>
@@ -69,7 +72,7 @@ export function ResultScreen({
         </p>
         <p className="muted">
           {result.rank ? `Rank #${result.rank} · ` : ""}
-          {formatDuration(score.durationSeconds)} · {score.callCount} tool {score.callCount === 1 ? "call" : "calls"} · {score.hintsUsed}{" "}
+          {formatDuration(score.durationSeconds)} · {generated ? "" : `${score.callCount} tool ${score.callCount === 1 ? "call" : "calls"} · `}{score.hintsUsed}{" "}
           {score.hintsUsed === 1 ? "hint" : "hints"}
         </p>
 
@@ -96,14 +99,18 @@ export function ResultScreen({
                 <td className="num">+{o.points}</td>
               </tr>
             ))}
-            <tr>
-              <th scope="row">Speed bonus</th>
-              <td className="num">+{score.timeBonus}</td>
-            </tr>
-            <tr>
-              <th scope="row">Extra tool calls</th>
-              <td className="num">−{score.efficiencyPenalty}</td>
-            </tr>
+            {generated ? null : (
+              <>
+                <tr>
+                  <th scope="row">Speed bonus</th>
+                  <td className="num">+{score.timeBonus}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Extra tool calls</th>
+                  <td className="num">−{score.efficiencyPenalty}</td>
+                </tr>
+              </>
+            )}
             <tr>
               <th scope="row">Hints</th>
               <td className="num">−{score.hintPenalty}</td>
@@ -125,8 +132,8 @@ export function ResultScreen({
                   <li key={c.objectiveId} className={allMet ? "fix-ok" : "fix-miss"}>
                     <p className="fix-case">{c.caseTitle}</p>
                     <p>
-                      <strong>Tool:</strong> {c.chosenProduct ?? "none chosen"}
-                      {c.chosenProduct === c.bestProduct ? " ✓" : ` (best fit: ${c.bestProduct})`}
+                      <strong>{generated ? "Product:" : "Tool:"}</strong> {c.chosenProduct ?? "none chosen"}
+                      {generated ? "" : c.chosenProduct === c.bestProduct ? " ✓" : ` (best fit: ${c.bestProduct})`}
                       {c.misses > 0 ? ` · ${c.misses} wrong ${c.misses === 1 ? "choice" : "choices"}` : ""}
                     </p>
                     <ul className="criteria">
@@ -145,13 +152,21 @@ export function ResultScreen({
           </div>
         ) : null}
 
-        {score.passed ? (
+        {result.claimToken ? (
           <div className="claim">
             <div className="qr-card">
               {qrUrl ? <img src={qrUrl} alt="Scan to claim your instant prize" /> : <span>QR loading</span>}
             </div>
             <div>
               <h3>Claim your prize</h3>
+              {result.entries ? (
+                <p>
+                  <strong>
+                    Up to {result.entries.awarded} grand prize {result.entries.awarded === 1 ? "entry" : "entries"}
+                  </strong>{" "}
+                  for a score of {score.percent} out of 100.
+                </p>
+              ) : null}
               <p>Scan the code with your phone to spin for your instant prize.</p>
               {isPreview ? (
                 <p className="preview-note">Test mode: this code is a placeholder and will not redeem.</p>
@@ -160,7 +175,9 @@ export function ResultScreen({
           </div>
         ) : (
           <p className="muted">
-            {session.objectives.some((o) => o.kind === "build")
+            {generated
+              ? "This mission was not checked for prizes, so there is no code to scan. Your score is still on the board."
+              : session.objectives.some((o) => o.kind === "build")
               ? `Prize needs every solution to meet all of its requirements and at least ${session.passScore} points. Give it another go.`
               : `Prize needs every answer correct and at least ${session.passScore} points. Give it another go.`}
           </p>

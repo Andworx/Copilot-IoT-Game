@@ -250,6 +250,11 @@ export async function gradeObjectives(session: JudgeSession, answers: Record<str
   return { graded, reports };
 }
 
+/** The most a play could earn: every objective's points plus the full time bonus. */
+export function maxScoreOf(session: JudgeSession): number {
+  return [...session.keys.values()].reduce((sum, t) => sum + t.objective.points, 0) + TIME_BONUS_MAX;
+}
+
 export function computeScore(session: JudgeSession, graded: GradedObjective[], durationSeconds: number): ScoreBreakdown {
   const par = session.parSeconds;
   const timeBonus = Math.round(TIME_BONUS_MAX * Math.min(1, Math.max(0, (2 * par - durationSeconds) / (1.5 * par))));
@@ -264,6 +269,7 @@ export function computeScore(session: JudgeSession, graded: GradedObjective[], d
     efficiencyPenalty,
     hintPenalty,
     total,
+    percent: Math.max(0, Math.min(100, Math.round((total / maxScoreOf(session)) * 100))),
     passed: graded.every((o) => o.correct) && total >= session.passScore,
     durationSeconds,
     callCount: session.calls,

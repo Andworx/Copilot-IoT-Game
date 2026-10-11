@@ -41,6 +41,18 @@ export interface Objective {
   caseTitle?: string;
   /** Short name used in the score breakdown. Falls back to the prompt. */
   label?: string;
+  /**
+   * Generated games only: the situations a design is tested in, with the facts each supplies
+   * (record ids, categories). Facts, not answers: checks refer to them by key.
+   */
+  scenarios?: { name: string; trigger: string; input: Record<string, string | number | boolean> }[];
+  /**
+   * Generated games: how the case is judged. "run" executes a design against the scenarios (an
+   * action sequence); "design" inspects the design's settings, listed in `designFields`.
+   */
+  judging?: "run" | "design";
+  /** Generated, design-judged cases: the settings the player fills in. */
+  designFields?: { path: string; kind: "text" | "number" | "boolean"; label: string }[];
 }
 
 export type ReportField = "category" | "priority" | "state" | "group";
@@ -66,6 +78,8 @@ export interface SessionInfo {
   scenario: string;
   objectives: Objective[];
   tools: ToolDef[];
+  /** Generated games: records sampled from the server, so the player can find real ids and values. */
+  samples?: { tool: string; text: string }[];
   catalog: DesignCatalog;
   /** Present when tool calls go to a real MCP server. */
   mcpServer?: McpServerInfo;
@@ -163,6 +177,8 @@ export interface ScoreBreakdown {
   efficiencyPenalty: number;
   hintPenalty: number;
   total: number;
+  /** Score out of 100 (total as a share of the most this play could earn). Drives the entry tier. */
+  percent: number;
   passed: boolean;
   durationSeconds: number;
   callCount: number;
@@ -184,8 +200,10 @@ export interface CaseReport {
 export interface SubmitResult {
   score: ScoreBreakdown;
   cases?: CaseReport[];
-  /** Present only when the play passed; encoded into the prize QR. */
+  /** Encoded into the prize QR. Every submitted play gets one; the score sets the entries. */
   claimToken?: string;
+  /** Grand-prize entries this play earned, and the tier that set them. */
+  entries?: { tier: "top" | "mid" | "base"; awarded: number };
   rank?: number;
 }
 
@@ -200,6 +218,24 @@ export interface CallResult {
   text: string;
   isError: boolean;
   wire?: WireTrace;
+}
+
+/** An MCP server a visitor can build a mission from. */
+export interface ServerOption {
+  slug: string;
+  name: string;
+  description: string;
+  toolCount: number;
+}
+
+/** Where a build has got to. `repairing` is a second pass over the same stage as `designing`. */
+export type BuildStage = "reading" | "designing" | "repairing" | "checking" | "proving" | "saving" | "done";
+
+export interface BuiltGame {
+  specId: string;
+  title: string;
+  /** True when the game already existed and nothing was built. */
+  cached: boolean;
 }
 
 export interface GameApi {
@@ -217,4 +253,8 @@ export interface GameApi {
   test(session: SessionInfo, objectiveId: string, design: string): Promise<TestReport>;
   submit(session: SessionInfo, answers: Record<string, string>): Promise<SubmitResult>;
   leaderboard(modeSlug: string): Promise<LeaderboardEntry[]>;
+  /** The servers a mission can be built from. Absent on backends that only serve fixed missions. */
+  listServers?(): Promise<ServerOption[]>;
+  /** Builds a mission from a server (about 25 seconds), reporting each stage as it is reached. */
+  buildGame?(slug: string, onStage: (stage: BuildStage) => void): Promise<BuiltGame>;
 }

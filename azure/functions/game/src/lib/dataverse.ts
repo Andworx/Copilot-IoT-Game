@@ -372,6 +372,12 @@ async function getPrizeClaimIdByToken(claimToken: string): Promise<string | null
   return body.value[0]?.andy_prizeclaimid ?? null;
 }
 
+/** The active campaign's per-contact entry cap: "the most allowed" a game's tiers are measured against. */
+export async function getActiveCampaignMaxEntries(): Promise<number | null> {
+  const cap = (await fetchActiveContestCampaign())?.maxEntriesPerContact;
+  return typeof cap === "number" && cap > 0 ? cap : null;
+}
+
 /** The active Contest Campaign id, if there is one. Used to scope a game's leaderboard. */
 export async function getActiveContestCampaignId(): Promise<string | null> {
   return (await fetchActiveContestCampaign())?.id ?? null;
@@ -1284,20 +1290,64 @@ async function createAndSendGrandPrizeEmailActivity(input: {
   }
 }
 
+/**
+ * Game play tables that can say how many grand-prize entries a play earned. Each links to
+ * Prize Claim by `andy_prizeclaim` and stores the count in `andy_entriesawarded`. The engine
+ * knows nothing about scores or tiers: a game decides the number, the engine clamps it to the
+ * campaign cap. Games without a row here (IoT) earn one entry, as before.
+ */
+export const GAME_PLAY_ENTRY_TABLES: readonly string[] = [
+  "andy_plinkoplaies",
+  process.env.MCPQUEST_PLAYS_SET || "andy_mcpquestplaies",
+];
+
+/** Safety ceiling when a campaign has no per-contact cap. */
+export const MAX_ENTRIES_PER_CLAIM = 25;
+
+/**
+ * How many entries to create for a claim.
+ * @param requested what the game awarded (anything unusable counts as 1)
+ * @param maxEntriesPerContact the campaign cap, or null/0 for none
+ * @param existing entries the contact already holds in the campaign
+ */
+export function planGrandPrizeEntryCount(requested: number | null | undefined, maxEntriesPerContact: number | null | undefined, existing: number): number {
+  const wanted = typeof requested === "number" && Number.isFinite(requested) && requested >= 1 ? Math.floor(requested) : 1;
+  const ceiling = Math.min(wanted, MAX_ENTRIES_PER_CLAIM);
+  if (!maxEntriesPerContact || maxEntriesPerContact <= 0) return ceiling;
+  return Math.max(0, Math.min(ceiling, maxEntriesPerContact - existing));
+}
+
+/** Entries the claim's game play awarded, or null when no game record says (the usual case for IoT). */
+async function fetchEntriesAwardedForClaim(prizeClaimId: string): Promise<number | null> {
+  for (const set of GAME_PLAY_ENTRY_TABLES) {
+    try {
+      const response = await dataverseFetch(
+        `${set}?$select=andy_entriesawarded&$filter=_andy_prizeclaim_value eq ${prizeClaimId}&$top=1`
+      );
+      const body = (await response.json()) as { value: Array<{ andy_entriesawarded?: number | null }> };
+      const value = body.value[0]?.andy_entriesawarded;
+      if (typeof value === "number") return value;
+    } catch (error) {
+      // Table or column not deployed in this environment: fall back to one entry.
+      console.warn(`Could not read entries awarded from ${set}`, error instanceof Error ? error.message : error);
+    }
+  }
+  return null;
+}
+
 async function createGrandPrizeEntryForClaim(
   contactId: string,
   contestant: ContestantInfo,
-  input: { campaignId?: string | null; contestSourceKey?: string | null; prizeClaimId?: string | null } = {}
+  input: { campaignId?: string | null; contestSourceKey?: string | null; prizeClaimId?: string | null; entriesRequested?: number | null } = {}
 ): Promise<GrandPrizeEntryResult> {
   const campaign = input.campaignId ? await fetchContestCampaignById(input.campaignId) : await fetchActiveContestCampaign();
   if (!campaign) return { status: "skipped", reason: "no_active_campaign" };
 
   const maxEntriesPerContact = campaign.maxEntriesPerContact;
   const existingEntries = await fetchGrandPrizeEntriesForContact(campaign.id, contactId, maxEntriesPerContact && maxEntriesPerContact > 0 ? maxEntriesPerContact : 5000);
-  if (maxEntriesPerContact && maxEntriesPerContact > 0) {
-    if (existingEntries.count >= maxEntriesPerContact) {
-      return { status: "capped", currentEntries: existingEntries.count, maxEntriesPerContact, checkInCode: existingEntries.checkInCode ?? undefined };
-    }
+  const toCreate = planGrandPrizeEntryCount(input.entriesRequested, maxEntriesPerContact, existingEntries.count);
+  if (toCreate === 0 && maxEntriesPerContact && maxEntriesPerContact > 0) {
+    return { status: "capped", currentEntries: existingEntries.count, maxEntriesPerContact, checkInCode: existingEntries.checkInCode ?? undefined };
   }
 
   const contestSource = await fetchContestSourceByKey(
@@ -1305,20 +1355,34 @@ async function createGrandPrizeEntryForClaim(
   );
   const sourceCapId = await fetchContestSourceCap(campaign.id, contestSource?.id ?? null);
   const checkInCode = existingEntries.checkInCode ?? await generateUniqueCheckInCode(campaign.id, campaign.checkInCodePrefix);
-  const response = await dataverseFetch(GRAND_PRIZE_ENTRIES_SET, {
-    method: "POST",
-    body: JSON.stringify(
-      buildGrandPrizeEntryPayload({
-        campaignId: campaign.id,
-        contactId,
-        prizeClaimId: input.prizeClaimId,
-        contestant,
-        sourceCapId,
-        checkInCode,
-      })
-    ),
-  });
-  const entryId = parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId")) ?? undefined;
+  const createEntry = async () => {
+    const response = await dataverseFetch(GRAND_PRIZE_ENTRIES_SET, {
+      method: "POST",
+      body: JSON.stringify(
+        buildGrandPrizeEntryPayload({
+          campaignId: campaign.id,
+          contactId,
+          prizeClaimId: input.prizeClaimId,
+          contestant,
+          sourceCapId,
+          checkInCode,
+        })
+      ),
+    });
+    return parseDataverseIdFromEntityUrl(response.headers.get("OData-EntityId")) ?? undefined;
+  };
+  const entryId = await createEntry();
+  // Extra entries share the contact's check-in code and email: one message per claim, not per entry.
+  let entriesCreated = 1;
+  for (let i = 1; i < toCreate; i++) {
+    try {
+      await createEntry();
+      entriesCreated++;
+    } catch (error) {
+      console.error("Failed to create an additional Grand Prize Entry", error);
+      break;
+    }
+  }
   const emailActivity = entryId
     ? await createAndSendGrandPrizeEmailActivity({
         contactId,
@@ -1345,6 +1409,7 @@ async function createGrandPrizeEntryForClaim(
     emailActivity,
     reminderActivity,
     maxEntriesPerContact: maxEntriesPerContact ?? undefined,
+    entriesCreated,
   };
 }
 
@@ -1356,6 +1421,8 @@ export type GrandPrizeEntryResult =
       emailActivity: { status: "sent" | "scheduled" | "not_configured" | "error"; emailActivityId?: string; delayedSendTime?: string; message?: string };
       reminderActivity: { status: "sent" | "scheduled" | "not_configured" | "error"; emailActivityId?: string; delayedSendTime?: string; message?: string };
       maxEntriesPerContact?: number;
+      /** Entries created for this claim (1 unless the game awarded more). */
+      entriesCreated?: number;
     }
   | { status: "capped"; currentEntries: number; maxEntriesPerContact: number; checkInCode?: string }
   | { status: "skipped"; reason: "no_contact_info" | "no_active_campaign" }
@@ -1449,6 +1516,7 @@ export async function claimGameWin(
   if (contactId) {
     try {
       grandPrizeEntry = await createGrandPrizeEntryForClaim(contactId, contestant, {
+        entriesRequested: await fetchEntriesAwardedForClaim(prizeClaim.andy_prizeclaimid),
         campaignId: prizeClaim._andy_campaign_value ?? null,
         contestSourceKey: prizeClaim[PRIZE_CLAIM_CONTEST_SOURCE_NAV]?.andy_sourcekey ?? null,
         prizeClaimId: prizeClaim.andy_prizeclaimid,
