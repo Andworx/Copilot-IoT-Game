@@ -61,8 +61,11 @@ export function parseGenerateRequest(body: Record<string, unknown>): { slug: str
  */
 export function clientKeyFrom(headers: { get(name: string): string | null }, salt: string): string {
   const forwarded = headers.get("x-forwarded-for") ?? headers.get("x-azure-clientip") ?? "";
-  const first = forwarded.split(",")[0].trim().replace(/:\d+$/, "") || "unknown";
-  return createHash("sha256").update(`${salt}|${first}`).digest("hex").slice(0, 32);
+  const first = forwarded.split(",")[0].trim() || "unknown";
+  const ipv4WithPort = /^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/.exec(first);
+  const bracketedIpv6 = /^\[([0-9a-f:]+)\](?::\d+)?$/i.exec(first);
+  const address = bracketedIpv6?.[1] ?? ipv4WithPort?.[1] ?? first;
+  return createHash("sha256").update(`${salt}|${address}`).digest("hex").slice(0, 32);
 }
 
 export function parseLimit(value: string | undefined, fallback: number): number {
