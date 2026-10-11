@@ -46,8 +46,9 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   background: radial-gradient(ellipse at 50% 0%, var(--brand-royal) 0, var(--color-bg) 72%);
 }
 
-.topbar { display: flex; align-items: center; justify-content: space-between; }
-.brand { display: block; height: clamp(44px, 7.5vh, 88px); width: auto; }
+.topbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.brand { grid-column: 2; display: block; height: clamp(72px, 12vh, 150px); width: auto; }
+.gear { grid-column: 3; justify-self: end; }
 
 /* Hidden in plain sight: low contrast so the booth screen reads as buckets, not a settings UI. */
 .gear {
