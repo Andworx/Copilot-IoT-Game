@@ -26,7 +26,7 @@
 // colour parts loaded as parts of the same object. Neither needs supports.
 
 /* [Part] */
-part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide]
+part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide, funnel_test]
 
 /* [Bucket slot - board numbers 2026-09-30 (4 x 5 x 0.5 in); MEASURE] */
 slot_widths = [88.89, 80.21, 81.38, 79.38, 81.63, 86.54]; // measured 2026-10-10, buckets 1..6 left to right
@@ -442,6 +442,16 @@ module guide() {
 // Printed with the points up: the back face lies on the bed.
 module print_flat_guide() translate([0, guide_h, 0]) rotate([90, 0, 0]) guide();
 
+// Funnel profile only, 40 mm wide, to try slope angles and surface finishes on the real board. Printed
+// lying on its side, so the funnel faces are smooth layer walls instead of stair-stepped slopes.
+module funnel_test(w = 40, base_h = 8) {
+  linear_extrude(w) {
+    translate([body_y0, 0]) square([shell_d - body_y0, base_h]);
+    polygon([[body_y0, base_h - eps], [body_y0, base_h + funnel_rise], [groove_y0, base_h - eps]]);
+    polygon([[shell_d, base_h - eps], [shell_d, base_h + (shell_d - groove_y1) * tan(funnel_angle)], [groove_y1, base_h - eps]]);
+  }
+}
+
 module print_flat_body() translate([0, 0, shell_d]) rotate([-90, 0, 0]) body();
 // Receiver end only (the harder fit: pocket, aperture tube, wire drop, raceway stub, M3 insert), for a quick test print.
 module fit_test() {
@@ -461,6 +471,7 @@ module print_flat_cover_colour(k) rotate([90, 0, 0]) cover_colour(k);
 if (part == "body") print_flat_body();
 else if (part == "fit_test") fit_test();
 else if (part == "puck") puck();
+else if (part == "funnel_test") funnel_test();
 else if (part == "guide") print_flat_guide();
 else if (part == "cover") print_flat_cover();
 else if (part == "cover_colour") print_flat_cover_colour(logo_colour);

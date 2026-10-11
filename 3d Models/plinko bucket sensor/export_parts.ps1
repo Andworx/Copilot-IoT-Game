@@ -53,6 +53,10 @@ foreach ($SlotNumber in 1..6) {
     Write-Host "== drill guide slot $SlotNumber"
     Invoke-OpenScad @("-o", (Join-Path $StlDir "guide_slot$SlotNumber.stl"), "-D", "part=`"guide`"", "-D", "slot=$SlotNumber", $Source)
 }
+foreach ($Angle in 40, 47) {
+    Write-Host "== funnel test $Angle"
+    Invoke-OpenScad @("-o", (Join-Path $StlDir "funnel_test_$Angle.stl"), "-D", "part=`"funnel_test`"", "-D", "funnel_angle=$Angle", $Source)
+}
 Write-Host "== puck"
 Invoke-OpenScad @("-o", (Join-Path $StlDir "puck.stl"), "-D", "part=`"puck`"", $Source)
 Write-Host "== fit test (receiver end only)"
