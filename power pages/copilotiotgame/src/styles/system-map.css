@@ -71,4 +71,35 @@
 .map-legend .planned { color:#9ac8ed; }
 @media (max-width:760px) { .map-intro-row { flex-direction:column; align-items:stretch; padding-right:0; } .walkthrough { flex-direction:column; align-items:stretch; } .walkthrough-controls { justify-content:flex-start; } }
 @media (max-width:600px) { .system-map-page { padding:16px 12px 65px; }.map-page-header { align-items:flex-start; flex-direction:column; }.map-page-actions { align-items:flex-start; }.system-map,.solution-map-page .system-map { display:grid; grid-template-columns:1fr 1fr; gap:10px; height:auto; padding:12px; }.map-band,.map-links { display:none; }.map-node,.solution-map-page .map-node { position:static; transform:none; width:100%; min-width:0; height:94px; }.map-node strong { font-size:12px; }.map-node span { font-size:10px; }.map-node.edge { border-color:#8ddb9e; }.map-node.cloud { border-color:#ebc784; }.map-node.platform { border-color:#9ac8ed; }.map-legend > span:last-child { margin-left:0; }.map-intro { font-size:13px; } }
+@media (max-height:520px) and (orientation:landscape) {
+  html, body, #root { height:100%; overflow:hidden; }
+  .system-map-page { height:100dvh; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:5px; padding:8px 12px 10px; }
+  .map-page-header { flex:0 0 auto; align-items:flex-start; gap:8px; }
+  .map-eyebrow { font-size:8px; letter-spacing:.1em; }
+  .map-page-header h1 { margin-top:2px; font-size:18px; line-height:1.1; }
+  .map-page-actions { gap:4px; }
+  .map-connection { font-size:9px; }
+  .map-page-actions button, .map-details button { padding:5px 8px; font-size:10px; }
+  .map-view-switch { flex:0 0 auto; margin:2px 0 0; }
+  .map-view-option { min-height:30px; padding:4px 10px; font-size:11px; }
+  .map-intro-row { flex:0 0 auto; align-items:center; padding-right:0; gap:8px; }
+  .map-intro-row .map-intro { display:none; }
+  .walkthrough { margin:0; justify-content:flex-end; }
+  .walkthrough.is-active { padding:5px 8px; gap:8px; }
+  .walkthrough-text span { font-size:8px; }
+  .walkthrough-text h2 { margin:1px 0; font-size:13px; line-height:1.1; }
+  .walkthrough-text p { font-size:10px; line-height:1.25; max-height:38px; overflow:hidden; }
+  .walkthrough-controls { gap:5px; max-width:300px; }
+  .walkthrough button { min-height:30px; padding:5px 8px; font-size:10px; }
+  .system-map, .solution-map-page .system-map { flex:1 1 auto; height:auto; min-height:0; }
+  .solution-map-page .map-node { min-width:0; }
+  .map-node { height:48px; gap:2px; padding:3px; }
+  .map-node img, .map-node svg { width:22px; height:18px; }
+  .map-node strong { font-size:10px; line-height:1.05; }
+  .map-node span { font-size:8px; line-height:1.05; }
+  .map-node[data-status=planned]::after { top:-7px; right:3px; font-size:6px; }
+  .map-band > span { top:3px; left:6px; font-size:7px; }
+  .map-legend { flex:0 0 auto; margin:0; gap:8px; padding-right:26px; font-size:8px; line-height:1.2; }
+  .map-how { display:none; }
+}
 @media (prefers-reduced-motion:reduce) { .system-map-page *, .map-details * { animation:none !important; transition:none !important; } }
