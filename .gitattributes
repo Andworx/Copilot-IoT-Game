@@ -4,3 +4,6 @@
 # checkout platform's core.autocrlf setting.
 *.sh text eol=lf
 *.pdf binary
+
+# systemd units are read on the Pi; CRLF corrupts values like ExecStart paths.
+*.service text eol=lf

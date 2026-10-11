@@ -4,11 +4,15 @@ Issue #128. One printed insert per Plinko bucket. It detects a puck resting in t
 bucket with an IR break beam. The insert has no LEDs: the chase lights run on the
 Plinko display page (Power Pages).
 
-**Board:** 24 × 48 in with 6 buckets, each 4 in wide, roughly 5 in tall, and 0.5 in from
-acrylic to backboard.
+**Board (measured 2026-10-10):** 6 buckets with dividers 88.89, 80.21, 81.38, 79.38, 81.63 and
+86.54 mm apart (left to right), 48.85 mm from acrylic to backboard, no pegs in the bucket zone
+(the last peg row is about 88 mm above the buckets; pegs are 51.2 mm, 44 of them).
 
-**Pucks:** 1.5 in in diameter and lighter than an AA battery. That is too light to
-reliably press a micro switch, so a beam detects the puck instead.
+**Pucks:** 49.56 mm diameter x 9.92 mm thick, falling face-on to the board. They can land anywhere
+in the 48.85 mm depth, so one flat beam would miss most of them. Each body therefore has a
+**funnel**: the top slopes (47 degrees; 40 stalled on the board) down into a 20 mm groove at mid-depth, and the beam crosses
+the groove. A puck lands on a slope, slides into the groove and blocks the beam. The bodies are
+therefore full depth (48 mm), one per bucket width (`body_slotN.stl`).
 
 ```
    |<----------------- 4" bucket ----------------->|
@@ -21,13 +25,22 @@ reliably press a micro switch, so a beam detects the puck instead.
 
 | Part | Material | Notes |
 |---|---|---|
-| **Body** | PLA | Sits on the bucket floor. Two M3 screws from behind the backboard go into heat-set inserts in the rear face. Each end has a tower holding one half of an Adafruit 2167 IR break-beam pair (emitter left, receiver right). The tower tops slope so a puck landing on one rolls into the bucket. |
+| **Body** | PLA | Full depth (acrylic to backboard), one per bucket width. Sits on the bucket floor. Two M3 screws from behind the backboard go into heat-set inserts in the rear face. Each end has a tower holding one Adafruit 2167 housing **standing upright** (emitter left, receiver right), pushed in from the rear. The tower tops slope so a puck landing on one rolls into the bucket. |
 | **Cover** | PLA, multi-colour | Swappable, held by four pairs of 6 × 2 mm disc magnets and located by two pins. One cover per logo (below); the logo is a 0.6 mm colour inlay in the face. |
 
-- **IR pockets:** they open to the rear face. Slide the emitter and receiver in from
-  behind; the backboard holds them, and their wires go straight out the back. The
-  receiver looks through a 5 mm-long, 2.5 mm aperture that rejects IR reflected off
-  the acrylic and backboard.
+- **Sensor fit (measured and test-printed 2026-10-08):** housing 7.96 (along the beam) x 9.80 x
+  19.97 mm. A 3.277 mm lens hole sits 4.22 mm from the lens end; the lens tip is 10.86 mm from the
+  housing's rear. A lip around the lens end, 8.97 mm from the rear, stands 1.01 mm proud on the lens
+  side. The lens end points up and the wires leave the bottom; the wire end sits on the top surface,
+  16 mm below the beam. The housing is pushed in from the rear: the lens runs in a slot open to the
+  rear face, and the pocket reaches 1.01 mm further toward the bucket over the top `ir_lip_h` (10 mm).
+  `exports/stl/fit_test.stl` (receiver end only) fit.
+- **Wire raceway:** each housing's wires drop from its bottom end into a 4 × 4 mm channel in the rear
+  face. The channel runs the full width to the centre, where the backboard hole is, so all five
+  conductors per bucket leave in one place. The backboard closes the channel.
+- **Magnets:** four pockets in the body's front face (and four in the cover) take the cover.
+- **IR pockets:** they open to the rear face; slide the housings in from behind. The receiver looks
+  through a 5 mm-long, 2.5 mm aperture that rejects IR reflected off the acrylic.
 - **No moving parts.** The beam is blocked while a puck is in the bucket and clears
   when it's removed. The Pi counts a landing only after the beam has stayed blocked
   for about 150–250 ms, which filters out pucks bouncing through.
@@ -62,7 +75,7 @@ To add a logo, add its SVG to `logos.json` and re-run `export_parts.ps1`. For a
 single-colour cover, run it with `-LogoStyle cutout`: the logo is cut through and the
 body colour shows in it.
 
-Status: **concept / unverified.** The bucket numbers are rough, and the IR housing
+Status: **sensor fit verified with `fit_test.stl`; the board numbers below are still placeholders (board not yet measured).** The bucket numbers are rough, and the IR housing
 orientation is an assumption. Do not batch-print until one insert passes a fit and
 detection test on the board.
 
@@ -81,13 +94,12 @@ Measured from the left divider (X) and the bucket floor (Z); the export prints t
 
 | Hole | X | Z |
 |---|---|---|
-| Emitter wires | 3.1 | 33 |
-| Receiver wires | 98.5 | 33 |
+| Wire exit (all sensor wires) | 50.8 | 20 |
 | M3 screws | 4.65 and 96.95 | 12.5 |
 
 ## Hardware per bucket
 
-- 1 × Adafruit 2167 IR break-beam pair (3 mm)
+- 1 × Adafruit 2167 IR break-beam pair (3 mm); its 5 conductors share one raceway
 - 2 × M3 heat-set inserts (M3 × 5.7) + 2 × M3 screws through the backboard
 - 8 × 6 × 2 mm disc magnets (4 in the body, 4 in each cover). Glue them in and keep the
   polarity consistent so every cover fits every body
@@ -116,3 +128,42 @@ The STLs are exported in print orientation:
   height so the 0.6 mm inlay is exactly 3 layers.
 
 Neither part needs supports.
+
+
+## Funnel, puck, drill guides and per-bucket bodies
+
+| File | What |
+|---|---|
+| `exports/stl/body_slot1..6.stl` | Body per bucket (insert widths 88.1, 79.4, 80.6, 78.6, 80.8 and 85.7 mm). Engraved `B<n>  <width> mm` on the underside. The tile magnets are measured from the body's centre, so a wider body just shows a bit of body each side of the tile. |
+| `exports/stl/guide_slot1..6.stl` | Marking guide per bucket (below). Labelled `B<n>  <width> mm`, `FLOOR`, `M3`, `W`. |
+| `exports/stl/puck.stl` | Our puck: 48.9 x 16 mm, rounded edge, smooth faces, no decal. Two sealed magnet cavities. |
+| `exports/stl/fit_test.stl` | Receiver end only, to check the housing fit (passed). |
+| `exports/covers/<logo>/` | Magnetic tiles: **one size (78.58 x 38.2 mm) that fits every bucket**, so the 12 logos make up one shared set. Engraved with the logo name on the back. |
+
+### Puck magnets
+
+Each puck has two cavities, 18.19 mm across, each sized for **two** 17.89 x 4.92 mm discs stacked
+(four magnets, about 34 g added). Print flat, **pause at Z = 13.07 mm** (the print echoes the
+value), drop the magnets in with the **same polarity facing up in every puck**, and resume; the
+rest of the layer bridges over them. Use `magnet_stack = 1` for half the weight. Magnets that
+face each other will pull pucks together when they touch, so keep the polarity the same.
+
+Thickness: 16 mm. The gap allows more, but the groove (`groove_w`, 20 mm) has to stay at least
+the thickness plus 2 mm, and a puck that almost fills the gap will rub both faces.
+
+### Marking guide
+
+Per bucket. Sit it on the bucket floor between the dividers with the points toward the backboard
+(the printed text faces you, `FLOOR` at the bottom) and press or tap it: three 3.5 mm points
+dent the backboard at the two M3 screw positions and the wire exit. Drill from the dents. If a
+printed point is too soft for your wood, set `guide_holes = true` for 2.2 mm through holes and
+mark with a punch or brad nail instead. Wire exit dent only: choose your own hole size
+(`wire_hole_d` suggests 8 mm).
+
+### Notes
+
+- Bucket 4 (79.38 mm) is the tightest: 51.9 mm of clear width between the towers for the
+  49.56 mm original puck. Do not go below 78 mm without slimming the towers further.
+- Not yet tested on the board: whether pucks slide off the funnel faces at 40 degrees (lower
+  `funnel_angle` loses the slide, higher makes it taller), and whether the 2 mm receiver aperture
+  rejects enough reflected IR.

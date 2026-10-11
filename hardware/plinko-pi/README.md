@@ -1,10 +1,10 @@
-# Plinko Pi Hardware Smoke Verifier
+# Plinko Pi Hardware
 
-This folder contains the first Plinko hardware path: read one active-low bucket
-switch or IR break-beam receiver on a Raspberry Pi, debounce it, and emit a
-`plinkoLanding` message. It is intentionally scoped to proving the Pi, input,
-and wiring before the full multi-bucket board and backend judgement path are
-connected.
+Runs on the `iotplinko` Pi 3B. It reads one Adafruit 2167 IR break-beam receiver
+per bucket, debounces each, and emits a `plinkoLanding` message.
+
+1. `sensor_check.py` - live per-sensor monitor for proving wiring and sensors.
+2. `plinko_trigger.py` - the landing reporter (all buckets), run by `systemd/plinko-pi.service`.
 
 ## Message shape
 
@@ -17,9 +17,9 @@ When the input stays active for the debounce window, `plinko_trigger.py` emits:
   "eventId": "<uuid>",
   "bucket": 1,
   "litBucket": 1,
-  "bucketCount": 5,
+  "bucketCount": 6,
   "landedAt": "2026-10-02T12:00:00+00:00",
-  "firmware": "plinko-pi-smoke/v0.1"
+  "firmware": "plinko-pi/v0.2"
 }
 ```
 
@@ -30,26 +30,45 @@ of sent to IoT Hub. That is the expected mode for the first wiring check.
 first single-input bench test does not drive chase lights; set `PLINKO_LIT_BUCKET`
 to the bucket value when you only need a known lit-bucket win payload.
 
-## Wiring assumption
+## Wiring
 
-The input is active-low. The Pi enables its internal pull-up; the switch or IR
-receiver output pulls the GPIO to GND when the puck blocks the bucket sensor.
-Never pull a Pi input up to 5 V. If using the Adafruit 2167 break beam receiver,
-power the emitter and receiver as required by the part, but wire the receiver
-signal only to the Pi GPIO input and use the Pi-side pull-up.
+Each bucket has an Adafruit 2167 pair (emitter + receiver). Receivers are
+active-low: the receiver output pulls the GPIO to GND while the beam is blocked,
+and the Pi's internal pull-up holds it high otherwise. **Never pull a signal
+line up to 5 V.**
 
-Defaults are in `config.py` and can be overridden by environment variables or
-CLI options:
+| Bucket | BCM GPIO | Header pin | Receiver wires |
+|---:|---:|---:|---|
+| 1 | 17 | 11 | white (signal) -> pin |
+| 2 | 27 | 13 | white (signal) -> pin |
+| 3 | 22 | 15 | white (signal) -> pin |
+| 4 | 23 | 16 | white (signal) -> pin |
+| 5 | 24 | 18 | white (signal) -> pin |
+| 6 | 25 | 22 | white (signal) -> pin |
+
+Power for every emitter and receiver (red/black): 5 V (header pin 2 or 4) and GND
+(pins 6, 9, 14, 20, 25, 30, 34, 39). Emitters have no signal wire. Bucket 1 is the
+leftmost bucket as viewed from the front. Pins avoid I2C, UART and SPI.
+
+Settings (environment variables or CLI options; see `.env.example`):
 
 | Setting | Default | Notes |
 |---|---:|---|
 | `PLINKO_STATION_SLUG` | `plinko-1` | Station identifier in telemetry. |
-| `PLINKO_BUCKET` | `1` | Bucket number to report for this smoke input. |
-| `PLINKO_LIT_BUCKET` | `1` | Lit bucket to include in the planned event envelope. |
-| `PLINKO_BUCKET_COUNT` | `5` | Total bucket count for range validation downstream. |
-| `PLINKO_INPUT_PIN` | `17` | BCM GPIO input pin. |
-| `PLINKO_DEBOUNCE_MS` | `200` | Stable active time required before a landing. |
+| `PLINKO_BUCKET_PINS` | `17,27,22,23,24,25` | BCM pins for buckets 1..N; N is the bucket count. |
+| `PLINKO_LIT_BUCKET` | `1` | Lit bucket in the event. Placeholder until the display drives it. |
+| `PLINKO_DEBOUNCE_MS` | `200` | Stable blocked time required before a landing. |
+| `PLINKO_LOCKOUT_MS` | `1000` | After a landing, other buckets are ignored this long (a puck passing a neighbouring beam). |
 | `PLINKO_POLL_MS` | `20` | Poll interval. |
+
+## Bench check
+
+```powershell
+ssh pi@iotplinko "cd plinko-pi && python3 sensor_check.py"
+```
+
+Block each beam in turn; it prints BLOCKED / CLEAR with the hold time. If it
+reports `GPIO busy`, another copy is running: `pkill -f '[s]ensor_check.py'`.
 
 ## Local tests
 
@@ -69,8 +88,7 @@ From this folder on the dev machine:
 .\deploy.ps1 -PiHost pi@iotplinko
 ```
 
-For the wiring-only smoke test, the Pi only needs `lgpio`. The current
-`iotplinko` image already has it installed. `azure-iot-device` is optional until
+The Pi needs `lgpio` (installed on the `iotplinko` image, system python 3.13). `azure-iot-device` is optional until
 the IoT Hub send path is enabled; without it, messages are logged locally.
 
 If dependencies are missing, create a virtual environment once, then install
@@ -83,14 +101,24 @@ python3 -m venv .venv
 pip install -r requirements.txt
 ```
 
-Run the smoke verifier:
+Run the reporter by hand:
 
 ```bash
 cd /home/pi/plinko-pi
-. .venv/bin/activate
-python3 plinko_trigger.py --pin 17 --bucket 1 --lit-bucket 1 --bucket-count 5
+python3 plinko_trigger.py
 ```
 
-Trigger the switch or block the beam. A valid wiring path prints a single
-`Telemetry (offline)` log for each stable block, and it does not repeat until
-the switch/beam is released and triggered again.
+Each stable block prints `Detected Plinko landing` and `Telemetry (offline)`
+until `AZURE_IOT_CONNECTION_STRING` is set in `.env`.
+
+### Run on boot
+
+```bash
+sudo cp systemd/plinko-pi.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable systemd-time-wait-sync.service
+sudo systemctl enable --now plinko-pi.service
+journalctl -u plinko-pi.service -f
+```
+
+Stop the service before using `sensor_check.py`, since both claim the pins.

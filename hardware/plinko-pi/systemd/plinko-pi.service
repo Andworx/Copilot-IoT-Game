@@ -1,0 +1,20 @@
+[Unit]
+Description=Plinko Pi bucket sensor landing reporter
+# The Pi has no battery clock; wait for NTP so IoT Hub tokens are stamped correctly
+# (enable systemd-time-wait-sync.service, as on the panel Pi).
+After=network-online.target time-sync.target
+Wants=network-online.target time-sync.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/plinko-pi
+# Optional: without .env the Pi logs landings locally instead of sending them.
+EnvironmentFile=-/home/pi/plinko-pi/.env
+# System python: lgpio comes from apt (python3-lgpio), so no venv is needed.
+ExecStart=/usr/bin/python3 /home/pi/plinko-pi/plinko_trigger.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
