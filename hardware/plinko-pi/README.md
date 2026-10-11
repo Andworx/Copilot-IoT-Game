@@ -13,7 +13,7 @@ When the input stays active for the debounce window, `plinko_trigger.py` emits:
 ```json
 {
   "type": "plinkoLanding",
-  "stationSlug": "plinko-1",
+  "stationSlug": "plinko-default",
   "eventId": "<uuid>",
   "bucket": 1,
   "litBucket": 1,
@@ -54,7 +54,7 @@ Settings (environment variables or CLI options; see `.env.example`):
 
 | Setting | Default | Notes |
 |---|---:|---|
-| `PLINKO_STATION_SLUG` | `plinko-1` | Station identifier in telemetry. |
+| `PLINKO_STATION_SLUG` | `plinko-default` | Station identifier in telemetry. |
 | `PLINKO_BUCKET_PINS` | `17,27,22,23,24,25` | BCM pins for buckets 1..N; N is the bucket count. |
 | `PLINKO_LIT_BUCKET` | `1` | Lit bucket in the event. Placeholder until the display drives it. |
 | `PLINKO_DEBOUNCE_MS` | `200` | Stable blocked time required before a landing. |
@@ -96,7 +96,7 @@ them:
 
 ```bash
 cd /home/pi/plinko-pi
-python3 -m venv .venv
+python3 -m venv --system-site-packages .venv   # keeps the apt lgpio visible
 . .venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -105,7 +105,7 @@ Run the reporter by hand:
 
 ```bash
 cd /home/pi/plinko-pi
-python3 plinko_trigger.py
+.venv/bin/python plinko_trigger.py
 ```
 
 Each stable block prints `Detected Plinko landing` and `Telemetry (offline)`

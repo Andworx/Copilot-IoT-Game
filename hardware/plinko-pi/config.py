@@ -8,7 +8,7 @@ import os
 
 
 FIRMWARE_VERSION = "plinko-pi/v0.2"
-DEFAULT_STATION_SLUG = os.environ.get("PLINKO_STATION_SLUG", "plinko-1")
+DEFAULT_STATION_SLUG = os.environ.get("PLINKO_STATION_SLUG", "plinko-default")
 DEFAULT_BUCKET = int(os.environ.get("PLINKO_BUCKET", "1"))
 DEFAULT_LIT_BUCKET = int(os.environ.get("PLINKO_LIT_BUCKET", str(DEFAULT_BUCKET)))
 DEFAULT_BUCKET_COUNT = int(os.environ.get("PLINKO_BUCKET_COUNT", "5"))
