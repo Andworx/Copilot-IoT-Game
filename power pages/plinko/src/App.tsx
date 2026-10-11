@@ -18,10 +18,10 @@ function isPlinkoResult(value: unknown): value is PlinkoResult {
 
 /**
  * Plinko booth display. Idle: the live chase light across the buckets, with the how-it-works
- * guide behind a gear. When the backend accepts a
- * landing for this station it broadcasts `plinkoResult` on the shared `gamebox` hub and
- * the screen switches to the celebration + QR until the player scans, skips, or the
- * countdown ends. The newest landing always replaces the one on screen.
+ * guide behind a gear. When the backend accepts a landing for this station, it broadcasts
+ * `plinkoResult` on the shared `gamebox` hub and the screen switches to the celebration + QR
+ * until the player scans, skips, or the countdown ends. While that result is shown, newer
+ * landings are held by the backend and ignored by the display.
  */
 export default function App() {
   const { connection, isConnected } = useSignalR();
