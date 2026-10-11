@@ -396,7 +396,7 @@ function Game({ apis }: { apis: Apis }) {
             serverError={serverError}
             selectedServer={selectedServer}
             onSelectServer={apis.primary.listServers ? setSelectedServer : undefined}
-            showClassic={new URLSearchParams(window.location.search).has("mode")}
+            showClassic={new URLSearchParams(window.location.search).has("mode") || Boolean(resolveSpecId())}
           />
         ) : null}
 
