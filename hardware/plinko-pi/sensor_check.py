@@ -30,8 +30,9 @@ def main() -> None:
             lgpio.gpio_claim_input(chip, pin, lgpio.SET_PULL_UP)
         except lgpio.error as exc:
             raise SystemExit(
-                f"GPIO{pin}: {exc}. Another process holds it - likely another sensor_check.py or "
-                "plinko_trigger.py still running. Stop it with: pkill -f '[s]ensor_check.py'"
+                f"GPIO{pin}: {exc}. Another process holds it. Stop another sensor check with: "
+                "pkill -f '[s]ensor_check.py'; or stop the reporter with: "
+                "sudo systemctl stop plinko-pi.service"
             )
     label = {pin: f"b{i + 1}/GPIO{pin}" for i, pin in enumerate(args.pins)}
     state = {pin: lgpio.gpio_read(chip, pin) for pin in args.pins}
