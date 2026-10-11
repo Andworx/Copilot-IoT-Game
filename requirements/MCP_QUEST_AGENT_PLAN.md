@@ -393,8 +393,54 @@ capped at 4 read tools, 5 records, 1 500 characters each, so a game can only ask
 fits in those; a snapshot replay (read-only calls against stored data) remains the upgrade if
 playtests find that too tight.
 
-**Still not built.** Designers that emit the run-design format, the `generate` route with a
-rate limit, and the private endpoint for Foundry.
+## The generate routes (built, tested, exercised live)
+
+Code: `functions/mcpquestGenerate.ts`, `generate/jobs.ts`, `generate/catalog.ts`,
+`generate/http.ts`, `lib/mcpquestBlobJson.ts`; 16 tests in `mcpquestGenerateJobs.test.ts`.
+
+- **`GET /api/mcpquest/servers`** lists the MCP Station catalog (15 servers today), cached 10
+  minutes and served stale during a brief outage. Only catalog servers can be generated.
+- **`POST /api/mcpquest/generate { server, jobId }`** runs the generator and answers in about 25
+  seconds. The page chooses the job id, and `GET .../generate/status?job=` returns the current
+  stage, so the cave screen can show real progress. No queue or background host: the work runs
+  inside the request and status is written to blob storage at each stage.
+- **Cache hits are free.** The same server with the same tool list returns the stored spec in
+  well under a second and spends no allowance. Only a real model call is rate limited.
+- **Rate limit.** Hourly fixed windows in blob counters, using ETags so concurrent instances
+  cannot exceed it: 10 builds per client and 40 in total by default (settings above). A
+  client is a salted hash of the forwarded address, never the address. A refusal is HTTP 429
+  with `Retry-After`, and a client over their own allowance does not use up the shared one.
+- **One build per server.** A lock per server (3 minute expiry, owner-only release) means a
+  second visitor who picks the same server while it is being built gets the running job id
+  (HTTP 409) and polls that, rather than starting and paying for another build.
+- **Failures** answer with fixed, safe messages. Model output, validator complaints and
+  internal errors go to the log only.
+
+**Live check, 2026-10-10** (real catalog, real Foundry, in-memory blobs): unknown server refused
+in 0 s; first build 22 s with stages reading, designing, checking, proving, saving, done; the
+same server again 0.6 s and cached; a different server 13 s; a third build from the same client
+refused with 429 and `Retry-After`.
+
+**Owner runbook for these routes.**
+1. Create a blob container for specs and state (private, no public access) and set
+   `MCPQUEST_SPEC_BLOB_URL` to it. Add a lifecycle rule that deletes `jobs/`, `limits/` and
+   `locks/` blobs after 1 day; keep `by-id/` and `by-hash/`.
+2. Give the public Function App's managed identity **Storage Blob Data Contributor** on that
+   container, and **Foundry User** on the Foundry resource (already needed for the model).
+3. Set `FOUNDRY_ENDPOINT` and `FOUNDRY_MODEL` on the public Function App. Confirm
+   `MCPQUEST_TOKEN_SECRET` is set (it also salts the client hash).
+4. Private networking: the Function reaches Foundry through the private endpoint you created
+   (pull it into `azure/infrastructure/` through the infra workflow), reaches blob storage through
+   its existing private endpoint, and needs outbound access to `www.mcpstation.io`.
+5. Add the public site's origin to the Function App's CORS list if it is not already there.
+
+Two things to watch: instances share one Function App egress address, so MCP Station sees
+one client; and the rate limit protects cost, not abuse of the unauthenticated catalog and
+status reads, so put API Management or the front door's per-IP limit in front of the public
+surface before an open event (already an open item in the engine doc).
+
+**Still not built.** Designers that emit the run-design format, the console picker and cave
+screen, and the Bicep for the private endpoint.
 
 ## Security and abuse
 

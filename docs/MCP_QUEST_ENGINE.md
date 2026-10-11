@@ -129,7 +129,13 @@ All anonymous, on the **public** API surface. The session token is the only iden
 | `/api/mcpquest/choose` | POST | `sessionToken, objectiveId, productId` | `ChooseResult` |
 | `/api/mcpquest/test` | POST | `sessionToken, objectiveId, design` | `TestReport` |
 | `/api/mcpquest/submit` | POST | `sessionToken, answers` | `SubmitResult` (claim token and entries for every submit) |
-| `/api/mcpquest/leaderboard` | GET | `?mode=` | `{ entries }` |
+| `/api/mcpquest/leaderboard` | GET | `?mode=` (a hand-built mission or `spec:<specId>`) | `{ entries }` |
+| `/api/mcpquest/servers` | GET | none | `{ servers: [{ slug, name, description, toolCount }] }`, the MCP Station catalog |
+| `/api/mcpquest/generate` | POST | `server, jobId` | `{ specId, title, cached }` after about 25 s; 429 with `Retry-After` when rate limited, 409 `{ jobId }` when that server is already being built |
+| `/api/mcpquest/generate/status` | GET | `?job=<jobId>` | `{ stage, specId?, title?, error? }`, stages `reading, designing, repairing, checking, proving, saving, done, failed` |
+
+`start` also accepts `spec` (a spec id from `generate`) instead of `mode`. Generated games are described in
+[requirements/MCP_QUEST_AGENT_PLAN.md](../requirements/MCP_QUEST_AGENT_PLAN.md).
 
 Errors are `{ error, code }` with 400 `bad_request`, 401 `unauthorized`, 404 `not_found`,
 409 `time_up` / `already_submitted`, and 503 `claim_unavailable` (the prize could not be set up; submit again).
@@ -142,6 +148,11 @@ Errors are `{ error, code }` with 400 `bad_request`, 401 `unauthorized`, 404 `no
 | `MCPQUEST_PLAYS_SET` | Public Function App | Entity set name of the play table. Default `andy_mcpquestplaies` (as exported). |
 | `MCPQUEST_PRIZE_CLAIM_NAV` | Public Function App | Navigation property of the Prize Claim lookup. Default `andy_PrizeClaim` (case matters). |
 | `MCPQUEST_CAMPAIGN_NAV` | Public Function App | Navigation property of the Campaign lookup. Default `andy_Campaign` (case matters). |
+| `MCPQUEST_SPEC_BLOB_URL` | Public Function App | `https://<account>.blob.core.windows.net/<container>`. Holds generated specs, job status, locks and rate-limit counters. Needed for generated games. |
+| `FOUNDRY_ENDPOINT` | Public Function App | `https://<resource>.openai.azure.com/openai/v1` (or a project endpoint). |
+| `FOUNDRY_MODEL` | Public Function App | Deployment name. Or `FOUNDRY_AGENT_NAME` with a project endpoint. |
+| `MCPQUEST_GENERATE_PER_CLIENT_HOUR` | Public Function App | Builds one client may start per hour. Default 10. Visitors behind one shared address share this. |
+| `MCPQUEST_GENERATE_GLOBAL_HOUR` | Public Function App | Builds all clients together may start per hour. Default 40. |
 | `VITE_MCPQUEST_API=live` | Code Site build | Ships no judge code and uses these routes. |
 | `VITE_API_BASE_URL` | Code Site build | Public Function App base URL. |
 | `VITE_PRIZE_WHEEL_URL` | Code Site build | Where the claim QR points. |
