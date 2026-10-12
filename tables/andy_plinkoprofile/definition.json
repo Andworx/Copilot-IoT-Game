@@ -1,0 +1,64 @@
+{
+  "schemaName": "andy_plinkoprofile",
+  "displayName": "Plinko Profile",
+  "displayCollectionName": "Plinko Profiles",
+  "description": "One row per Plinko board/station. Stores station identity, scoring settings, Game Mode, bucket count, and ordered bucket display icon configuration.",
+  "primaryNameColumn": "andy_profilename",
+  "ownership": "Organization",
+  "isActivity": false,
+  "changeTrackingEnabled": true,
+  "columns": [
+    {
+      "schemaName": "andy_profilename",
+      "displayName": "Profile Name",
+      "description": "Primary name for the Plinko station profile.",
+      "dataType": "String",
+      "required": "Required",
+      "maxLength": 200
+    },
+    {
+      "schemaName": "andy_profileslug",
+      "displayName": "Profile Slug",
+      "description": "Stable station slug used by the display query string and Pi landing payload.",
+      "dataType": "String",
+      "required": "Recommended",
+      "maxLength": 100
+    },
+    {
+      "schemaName": "andy_numberofbuckets",
+      "displayName": "Number of Buckets",
+      "description": "Number of physical buckets on this Plinko board.",
+      "dataType": "Integer",
+      "required": "Recommended"
+    },
+    {
+      "schemaName": "andy_litbucketentries",
+      "displayName": "Lit Bucket Entries",
+      "description": "Grand-prize entries awarded when the puck lands in the currently lit bucket.",
+      "dataType": "Integer",
+      "required": "Recommended"
+    },
+    {
+      "schemaName": "andy_standardbucketentries",
+      "displayName": "Standard Bucket Entries",
+      "description": "Grand-prize entries awarded when the puck lands in any non-lit bucket.",
+      "dataType": "Integer",
+      "required": "Recommended"
+    },
+    {
+      "schemaName": "andy_gamemodeactive",
+      "displayName": "Game Mode Enabled",
+      "description": "When false, drops are shown on the booth display but no Prize Claim, Plinko Play, QR, or entries are created.",
+      "dataType": "Boolean",
+      "required": "Optional"
+    },
+    {
+      "schemaName": "andy_bucketiconsjson",
+      "displayName": "Bucket Icons JSON",
+      "description": "JSON array of ordered bucket icon ids. Supported values: powerapps, dataverse, powerautomate, powerpages, aibuilder, powerplatform. Missing, invalid, or short arrays fall back per bucket.",
+      "dataType": "Memo",
+      "required": "Optional",
+      "maxLength": 2000
+    }
+  ]
+}

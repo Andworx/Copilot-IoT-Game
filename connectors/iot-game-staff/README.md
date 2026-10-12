@@ -21,10 +21,11 @@ Update this README and the operation definitions together when API contracts cha
 
 ## Adding the Plinko Game Mode operation
 
-`PlinkoGameMode` (`POST /api/plinko-game-mode`, body `{ station, gameModeActive? }`) powers the Plinko
-switch in Game Box Control. It was added after the connector was first registered, so the Code App treats
-it as optional: until the connector has it, everything else works and the Plinko card says it needs an
-update. To enable it:
+`PlinkoGameMode` (`POST /api/plinko-game-mode`, body `{ station, gameModeActive?, bucketIcons? }`) powers
+the Plinko switch and bucket icon picker in Game Box Control. `bucketIcons` is an ordered array of
+supported icon ids and is stored on `andy_plinkoprofile.andy_bucketiconsjson`. It was added after the
+connector was first registered, so the Code App treats it as optional: until the connector has it,
+everything else works and the Plinko card says it needs an update. To enable it:
 
 1. In the Power Platform maker portal, edit the existing custom connector and add the
    `/plinko-game-mode` POST operation from `openapi.json` (or re-import the definition).

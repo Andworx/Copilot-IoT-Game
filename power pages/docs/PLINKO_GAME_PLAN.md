@@ -60,6 +60,7 @@ One row per physical board. It also holds the entry settings, so the rules are
 | `andy_bucketcount` | Whole number | Yes | Default 5. Landings outside `1..bucketcount` are rejected. |
 | `andy_litbucketentries` | Whole number | Yes | Default 2. Entries for a lit-bucket landing. |
 | `andy_standardbucketentries` | Whole number | Yes | Default 1. Entries for any other bucket. |
+| `andy_bucketiconsjson` | Multiline text | No | JSON array of ordered bucket icon ids for the booth display. Supported ids: `powerapps`, `dataverse`, `powerautomate`, `powerpages`, `aibuilder`, `powerplatform`. Blank/invalid values fall back per bucket. |
 | `andy_isenabled` | Yes/No | Yes | Disabled stations ignore landings (logged, no claim). |
 | Status | Built-in | | Standard active/inactive. |
 
@@ -181,6 +182,9 @@ A separate Power Pages Code Site (site name `Plinko`), in the `Plinko` solution.
   backend creates no claim or play and holds no lock; the display just shows the bucket that was hit
   (`plinkoResult.gameModeActive = false`, empty `claimToken`) for a few seconds. `plinkoGameModeChanged`
   is broadcast so an open display follows at once, and `plinko-chase` reports the current mode on load.
+- **Bucket icons:** staff pick one supported Power Platform icon per bucket in Game Box Control. The
+  staff route stores the ordered ids in `andy_bucketiconsjson`, and `plinko-chase` returns the normalized
+  list so the booth display can render the same bucket icons without direct Dataverse access.
 - **Dev preview:** in `npm run dev`, keys `1`–`5` simulate a landing (bucket 3 lit) and
   `Esc` clears it.
 

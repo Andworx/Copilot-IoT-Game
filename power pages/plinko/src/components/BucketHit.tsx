@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import logoBlue from "../assets/brand/andworx-blue.svg";
-import type { PlinkoResult } from "../types/plinko";
+import { iconForBucket, type PlinkoResult } from "../types/plinko";
 
 /** Long enough to read from across a booth; there is no QR to scan in this mode. */
 const SHOW_MS = 6000;
@@ -26,6 +26,7 @@ export function BucketHit({ result, onDone }: { result: PlinkoResult; onDone: ()
         <ol className="bucket-row" aria-label="Buckets">
           {buckets.map((b) => (
             <li key={b} data-landed={b === result.bucket}>
+              <img src={iconForBucket(b, result.bucketIcons).src} alt="" aria-hidden="true" />
               <span>{b}</span>
             </li>
           ))}

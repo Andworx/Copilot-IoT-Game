@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { PRIZE_WHEEL_URL } from "../lib/apiConfig";
 import logoBlue from "../assets/brand/andworx-blue.svg";
-import type { PlinkoResult } from "../types/plinko";
+import { iconForBucket, type PlinkoResult } from "../types/plinko";
 
 /** Long enough to pull out a phone and scan; unclaimed tokens stay valid after reset. */
 const RESET_SECONDS = 45;
@@ -89,6 +89,7 @@ export function WinCelebration({ result, onDone }: WinCelebrationProps) {
           <ol className="bucket-row" aria-label="Buckets">
             {buckets.map((b) => (
               <li key={b} data-landed={b === result.bucket} data-lit={b === result.litBucket}>
+                <img src={iconForBucket(b, result.bucketIcons).src} alt="" aria-hidden="true" />
                 <span>{b}</span>
                 {b === result.litBucket && <small>lit</small>}
               </li>

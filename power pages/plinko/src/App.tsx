@@ -32,6 +32,8 @@ export default function App() {
   // Staff can flip Game Mode from the Game Box Control app; the server pushes the change here.
   const [gameModeOverride, setGameModeOverride] = useState<boolean | null>(null);
   const gameModeActive = gameModeOverride ?? chase?.gameModeActive ?? true;
+  const [bucketIconsOverride, setBucketIconsOverride] = useState<string[] | null>(null);
+  const visibleChase = chase ? { ...chase, bucketIcons: bucketIconsOverride ?? chase.bucketIcons } : null;
   const [guideOpen, setGuideOpen] = useState(false);
   const closeGuide = useCallback(() => setGuideOpen(false), []);
   const shown = useRef<PlinkoResult | null>(null);
@@ -60,8 +62,9 @@ export default function App() {
       setResult(payload);
     };
     const modeHandler = (payload: unknown) => {
-      const v = payload as { stationSlug?: unknown; gameModeActive?: unknown } | null;
+      const v = payload as { stationSlug?: unknown; gameModeActive?: unknown; bucketIcons?: unknown } | null;
       if (v && v.stationSlug === STATION_SLUG && typeof v.gameModeActive === "boolean") setGameModeOverride(v.gameModeActive);
+      if (v && v.stationSlug === STATION_SLUG && Array.isArray(v.bucketIcons)) setBucketIconsOverride(v.bucketIcons);
     };
     connection.on("plinkoResult", handler);
     connection.on("plinkoGameModeChanged", modeHandler);
@@ -122,7 +125,7 @@ export default function App() {
 
       <section className="stage">
         <h1>{gameModeActive ? "Drop a puck. Hit the lit bucket for bonus entries." : "Drop a puck. See which bucket you hit."}</h1>
-        <ChaseBoard chase={chase} gameModeActive={gameModeActive} />
+        <ChaseBoard chase={visibleChase} gameModeActive={gameModeActive} />
       </section>
 
       {guideOpen && <GuideDialog onClose={closeGuide} />}

@@ -105,8 +105,9 @@ try {
   await preview.emulateMedia({reducedMotion:"reduce"});
   assert.equal(await preview.locator(".patient-trace").first().evaluate(el=>getComputedStyle(el).animationName),"none");
   await preview.getByRole("button",{name:"Help Fix",exact:true}).click();
-  await preview.locator(".fix-sheet ol").waitFor();
-  assert.equal(await preview.locator(".fix-sheet li").count(),10);
+  await preview.locator(".fix-unavailable").waitFor();
+  assert.equal(await preview.locator(".fix-sheet ol").count(),0);
+  assert.match(await preview.locator(".fix-unavailable").innerText(),/Help Fix is unreachable/);
   await preview.screenshot({path:"test-results/patient-flow/help.png"});
   await preview.getByRole("button",{name:"Close Help Fix"}).click();
   await preview.setViewportSize({width:390,height:844});

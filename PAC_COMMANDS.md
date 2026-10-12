@@ -88,6 +88,32 @@ pac solution pack -z solutions\andy_PrizeEngine.zip -f solutions\PrizeEngine -aw
 pac solution import --path "solutions\andy_PrizeEngine.zip" -pc
 ```
 
+## Plinko Solution
+
+### Plinko Solution — Export
+
+```powershell
+pac solution export --name Plinko --path "solutions" -ow
+```
+
+### Plinko Solution — Unpack
+
+```powershell
+pac solution unpack --zipfile "solutions\Plinko.zip" --folder "solutions\Plinko" --allowWrite -ad
+```
+
+### Plinko Solution — Pack
+
+```powershell
+pac solution pack -z solutions\Plinko.zip -f solutions\Plinko -aw
+```
+
+### Plinko Solution — Import
+
+```powershell
+pac solution import --path "solutions\Plinko.zip" -pc
+```
+
 ## Power Apps Code App — Build & Push
 
 > Code Apps use `pac code push`, not `pac pages upload-code-site` (that command is for

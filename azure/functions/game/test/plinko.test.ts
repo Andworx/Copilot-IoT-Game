@@ -8,6 +8,7 @@ import {
   judgePlinkoLanding,
   lockHolds,
   lockPath,
+  normalizeBucketIcons,
   parsePlinkoLock,
   parsePlinkoLanding,
   resolveLitBucket,
@@ -24,6 +25,7 @@ const profile: PlinkoProfile = {
   litBucketEntries: 2,
   standardBucketEntries: 1,
   gameModeActive: true,
+  bucketIcons: ["powerapps", "dataverse", "powerautomate", "powerpages", "aibuilder", "powerplatform"],
 };
 
 const LANDED_AT = new Date("2026-10-11T19:59:58.123456+00:00");
@@ -132,6 +134,16 @@ test("with Game Mode off a bad landing is still rejected", () => {
 test("a stale landing is rejected", () => {
   const stale = landing({ landedAt: new Date(NOW.getTime() - MAX_LANDING_AGE_MS - 5000) });
   assert.equal(judgePlinkoLanding(stale, profile, NOW).accepted, false);
+});
+
+test("bucket icon JSON is normalized per bucket", () => {
+  assert.deepEqual(normalizeBucketIcons('["dataverse","bad","powerpages"]', 4), [
+    "dataverse",
+    "dataverse",
+    "powerpages",
+    "powerpages",
+  ]);
+  assert.deepEqual(normalizeBucketIcons("not json", 2), ["powerapps", "dataverse"]);
 });
 
 test("a win holds the board until it is released, expires, or is claimed", () => {

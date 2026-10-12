@@ -328,6 +328,7 @@ input:focus-visible {
 .fix-sheet ol { margin: 0; padding-left: 18px; font-size: 0.78rem; line-height: 1.7; color: var(--color-text-bright); }
 .fix-sheet .fix-note { font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 6px; }
 .fix-sheet .fix-response { font-size: 0.78rem; line-height: 1.7; color: var(--color-text-bright); white-space: pre-wrap; max-height: 180px; overflow-y: auto; }
+.fix-sheet .fix-unavailable { font-size: 0.78rem; line-height: 1.5; color: #ffd89a; border-left: 3px solid #f5a524; padding: 6px 0 6px 10px; }
 
 .win-overlay {
   position: absolute; inset: 0; z-index: 3; background: rgba(4, 6, 4, 0.97);

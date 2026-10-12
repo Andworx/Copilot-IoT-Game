@@ -27,9 +27,36 @@ const PLINKO_STATION = "plinko-default";
 interface PlinkoState {
   gameModeActive: boolean;
   bucketCount: number | null;
+  bucketIcons: string[];
 }
 
 type GameKey = "game-box" | "plinko";
+
+const BUCKET_ICONS = {
+  powerapps: { label: "Power Apps", src: "/logos/PowerApps_scalable.svg" },
+  dataverse: { label: "Dataverse", src: "/logos/Dataverse_scalable.svg" },
+  powerautomate: { label: "Power Automate", src: "/logos/PowerAutomate_scalable.svg" },
+  powerpages: { label: "Power Pages", src: "/logos/PowerPages_scalable.svg" },
+  aibuilder: { label: "AI Builder", src: "/logos/AIBuilder_scalable.svg" },
+  powerplatform: { label: "Power Platform", src: "/logos/PowerPlatform_scalable.svg" },
+} as const;
+
+type BucketIconId = keyof typeof BUCKET_ICONS;
+const BUCKET_ICON_IDS = Object.keys(BUCKET_ICONS) as BucketIconId[];
+
+function defaultBucketIcons(bucketCount: number | null): string[] {
+  const count = Math.max(1, Math.floor(bucketCount ?? BUCKET_ICON_IDS.length));
+  return Array.from({ length: count }, (_, index) => BUCKET_ICON_IDS[index % BUCKET_ICON_IDS.length]);
+}
+
+function normalizeBucketIcons(bucketCount: number | null, bucketIcons?: unknown): string[] {
+  const fallback = defaultBucketIcons(bucketCount);
+  if (!Array.isArray(bucketIcons)) return fallback;
+  return fallback.map((defaultIcon, index) => {
+    const icon = bucketIcons[index];
+    return typeof icon === "string" && icon in BUCKET_ICONS ? icon : defaultIcon;
+  });
+}
 
 /**
  * Staff control device for the Copilot IoT Game kiosk (GAME_MODE_PLAN.md §4a).
@@ -137,9 +164,10 @@ export default function App() {
         body: JSON.stringify(gameModeActive === undefined ? { station: PLINKO_STATION } : { station: PLINKO_STATION, gameModeActive }),
       });
       if (!res.ok) throw new Error(`plinko-game-mode failed: ${res.status}`);
-      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null } | null;
+      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[] } | null;
       if (typeof body?.gameModeActive !== "boolean") throw new Error("Unexpected Plinko response");
-      return { gameModeActive: body.gameModeActive, bucketCount: typeof body.bucketCount === "number" ? body.bucketCount : null };
+      const bucketCount = typeof body.bucketCount === "number" ? body.bucketCount : null;
+      return { gameModeActive: body.gameModeActive, bucketCount, bucketIcons: normalizeBucketIcons(bucketCount, body.bucketIcons) };
     } catch (err) {
       setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : "Could not reach the Plinko station.");
       return null;
@@ -163,6 +191,36 @@ export default function App() {
     const next = await callPlinko(!plinko.gameModeActive);
     if (next) setPlinko(next);
     setPlinkoBusy(false);
+  }
+
+  async function savePlinkoBucketIcons(bucketIcons: string[]) {
+    if (!plinko) return;
+    setPlinkoBusy(true);
+    setPlinkoNote(null);
+    try {
+      const res = await staffRequest("/api/plinko-game-mode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ station: PLINKO_STATION, bucketIcons }),
+      });
+      if (!res.ok) throw new Error(`plinko-game-mode failed: ${res.status}`);
+      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[] } | null;
+      if (typeof body?.gameModeActive !== "boolean") throw new Error("Unexpected Plinko response");
+      const bucketCount = typeof body.bucketCount === "number" ? body.bucketCount : plinko.bucketCount;
+      setPlinko({ gameModeActive: body.gameModeActive, bucketCount, bucketIcons: normalizeBucketIcons(bucketCount, body.bucketIcons) });
+    } catch (err) {
+      setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : "Could not save the bucket icons.");
+    } finally {
+      setPlinkoBusy(false);
+    }
+  }
+
+  function pickPlinkoBucketIcon(bucketIndex: number, icon: BucketIconId) {
+    if (!plinko) return;
+    const bucketIcons = normalizeBucketIcons(plinko.bucketCount, plinko.bucketIcons);
+    bucketIcons[bucketIndex] = icon;
+    setPlinko({ ...plinko, bucketIcons });
+    void savePlinkoBucketIcons(bucketIcons);
   }
 
   async function toggleGameMode() {
@@ -379,6 +437,31 @@ export default function App() {
               {plinko?.bucketCount ? ` · ${plinko.bucketCount} buckets` : ""}. Drops are always shown on the booth display;
               Game Mode decides whether they are scored.
             </p>
+            {plinko && (
+              <div className="bucket-config" aria-label="Plinko bucket icons">
+                {normalizeBucketIcons(plinko.bucketCount, plinko.bucketIcons).map((selectedIcon, bucketIndex) => (
+                  <div className="bucket-config-row" key={bucketIndex}>
+                    <div className="bucket-config-label">Bucket {bucketIndex + 1}</div>
+                    <div className="bucket-icon-options">
+                      {BUCKET_ICON_IDS.map((icon) => (
+                        <button
+                          type="button"
+                          key={icon}
+                          className="bucket-icon-button"
+                          data-selected={selectedIcon === icon}
+                          onClick={() => pickPlinkoBucketIcon(bucketIndex, icon)}
+                          disabled={plinkoBusy}
+                          aria-label={`Use ${BUCKET_ICONS[icon].label} for bucket ${bucketIndex + 1}`}
+                          title={BUCKET_ICONS[icon].label}
+                        >
+                          <img src={BUCKET_ICONS[icon].src} alt="" aria-hidden="true" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             </div>
           </div>
         </section>

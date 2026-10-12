@@ -22,6 +22,7 @@ export async function plinkoChase(request: HttpRequest, context: InvocationConte
         stepMs: CHASE_STEP_MS,
         bucketCount: profile.bucketCount,
         gameModeActive: profile.gameModeActive,
+        bucketIcons: profile.bucketIcons,
       },
     };
   } catch (error) {
