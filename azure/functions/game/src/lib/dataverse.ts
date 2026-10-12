@@ -287,7 +287,7 @@ export async function pickRandomEnabledMode(
   // it's the only enabled option -- better to re-select the same mode than throw.
   const candidates = enabled.filter((p) => p.deviceSlug !== current.deviceSlug);
   const pickFrom = candidates.length > 0 ? candidates : enabled;
-  const chosen = pickFrom[Math.floor(Math.random() * pickFrom.length)];
+  const chosen = pickFrom[randomInt(pickFrom.length)];
   await setActiveDeviceProfile(gameBoxStateId, chosen.id);
   return { deviceProfileId: chosen.id, deviceSlug: chosen.deviceSlug, deviceName: chosen.name };
 }
@@ -708,12 +708,15 @@ async function fetchUntakenInstances(typeIds: string[]): Promise<UntakenInstance
 }
 
 function pickWeightedType(types: EligiblePrizeType[]): EligiblePrizeType {
-  const totalWeight = types.reduce((sum, t) => sum + t.weight, 0);
-  const r = Math.random() * totalWeight;
+  const weights = types.map((t) => Math.max(0, Math.floor(t.weight)));
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  if (totalWeight <= 0) return types[randomInt(types.length)];
+
+  const r = randomInt(totalWeight);
   let running = 0;
-  for (const t of types) {
-    running += t.weight;
-    if (r <= running) return t;
+  for (let i = 0; i < types.length; i++) {
+    running += weights[i];
+    if (r < running) return types[i];
   }
   return types[types.length - 1];
 }
@@ -778,7 +781,7 @@ async function selectAndClaimPrize(): Promise<SelectedPrize> {
 
     const chosenType = pickWeightedType(typesWithStock);
     const candidates = instancesByType.get(chosenType.id) ?? [];
-    const chosenInstance = candidates[Math.floor(Math.random() * candidates.length)];
+    const chosenInstance = candidates[randomInt(candidates.length)];
     if (await tryClaimInstance(chosenInstance)) {
       return { typeId: chosenType.id, typeName: chosenType.name, instanceId: chosenInstance.id };
     }
@@ -1038,10 +1041,6 @@ export async function getGrandPrizeDrawingState(): Promise<GrandPrizeDrawingStat
 export async function runGrandPrizeDraw(): Promise<GrandPrizeDrawResult> {
   const lineup = await listGrandPrizeDrawingLineup();
   if (!lineup) throw new Error("no_active_campaign");
-
-  if (latestGrandPrizeDraw?.campaignId === lineup.campaign.id) {
-    return latestGrandPrizeDraw.result;
-  }
 
   const eligibleEntryCount = totalEntriesForDrawing(lineup.slices);
   if (lineup.slices.length === 0 || eligibleEntryCount <= 0) {

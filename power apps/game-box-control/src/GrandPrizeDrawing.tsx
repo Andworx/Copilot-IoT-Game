@@ -91,6 +91,16 @@ function winnerCode(result: DrawResult | null) {
   return result.winnerCode ?? result.entryCode ?? result.registrationCode ?? result.checkInCode ?? result.prizeCode ?? result.drawResultId;
 }
 
+function randomIndex(length: number) {
+  if (length <= 1) return 0;
+  const values = new Uint32Array(1);
+  const max = 0xffffffff - (0xffffffff % length);
+  do {
+    window.crypto.getRandomValues(values);
+  } while (values[0] >= max);
+  return values[0] % length;
+}
+
 export default function GrandPrizeDrawing({ presentationMode = false }: GrandPrizeDrawingProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rotationRef = useRef(0);
@@ -237,7 +247,7 @@ export default function GrandPrizeDrawing({ presentationMode = false }: GrandPri
   }
 
   function previewAnimation() {
-    const sampleWinner = slices[0];
+    const sampleWinner = slices[randomIndex(slices.length)];
     if (!sampleWinner) return;
     const previewResult: DrawResult = {
       drawResultId: "preview",
