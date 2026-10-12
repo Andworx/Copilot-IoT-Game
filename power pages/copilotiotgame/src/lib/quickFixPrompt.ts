@@ -23,7 +23,7 @@ export function buildQuickFixPrompt(
   state: DeviceState,
   cables: PanelCable[] | undefined
 ): string {
-  const actions = restoreActionsFrom(device.restoreSequence, state)
+  const actions = restoreActionsFrom(device.restoreSequence, state, cables)
     .map((action, index) => `${index + 1}. ${action}`)
     .join("\n");
   const controls = device.restoreSequence

@@ -64,14 +64,9 @@ try {
       if (state === "partial") {
         assert.deepEqual(errors, [], `${mode}: unexpected browser errors`);
         await page.getByRole("button", { name: "Help Fix", exact: true }).click();
-        await page.locator(".fix-sheet ol").waitFor();
-        const actions = await page.locator(".fix-sheet li").allTextContents();
-        assert.equal(actions.length, 6 + cableActions.length, `${mode}: help actions`);
-        assert.deepEqual(actions.slice(6), cableActions);
-        for (const step of map.restoreSequence.filter(c => c.physicalPin.startsWith("SW"))) {
-          const name = step.physicalPin === "SW5" ? "Keyed switch 1" : step.physicalPin === "SW6" ? "Keyed switch 2" : `Switch ${step.physicalPin.slice(2)}`;
-          assert.ok(actions.includes(`Turn ${name} ${step.target ? "on" : "off"}`), `${mode}: missing switch action ${step.physicalPin}`);
-        }
+        await page.locator(".fix-unavailable").waitFor();
+        assert.equal(await page.locator(".fix-sheet ol").count(), 0, `${mode}: fallback repair list rendered`);
+        assert.match(await page.locator(".fix-unavailable").innerText(), /Help Fix is unreachable/);
         await page.locator(".fix-sheet").evaluate(async el => { await Promise.all(el.getAnimations().map(animation => animation.finished)); });
         await page.screenshot({ path: `${artifact}/${mode}-help.png` });
         await page.getByRole("button", { name: "Close Help Fix" }).click();

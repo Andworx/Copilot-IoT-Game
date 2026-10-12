@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { DEVICE_PROFILES, restoreActionsFrom } from "../data/deviceProfiles";
+import { DEVICE_PROFILES } from "../data/deviceProfiles";
 import type { DeviceState } from "../types/game";
 import { PanelSurface } from "../components/surfaces/PanelSurface";
 import { HelpFixBar } from "../components/HelpFixBar";
@@ -207,7 +207,6 @@ export function KioskDevicePage() {
       {!win && (
         <HelpFixBar
           isAlert
-          steps={restoreActionsFrom(device.restoreSequence, state).map((action, index) => `${index + 1}. ${action}`)}
           getPrompt={() => buildQuickFixPrompt(device, state, reading?.cables)}
         />
       )}

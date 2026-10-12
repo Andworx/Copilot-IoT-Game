@@ -23,7 +23,7 @@ interface DLActivities {
 
 export type AgentChatStatus = "idle" | "loading" | "done" | "error";
 
-/** Thrown when the server has no Direct Line secret yet, so callers can fall back quietly. */
+/** Thrown when the agent is not configured or reachable, so callers can notify the player. */
 export class AgentUnavailableError extends Error {}
 
 export interface AgentChat {

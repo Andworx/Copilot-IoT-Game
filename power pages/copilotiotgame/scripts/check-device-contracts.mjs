@@ -26,7 +26,7 @@ const { outputFiles } = await esbuild.build({
   platform: "neutral",
 });
 const profileUrl = `data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString("base64")}`;
-const { DEVICE_PROFILES, DEVICE_ORDER, CABLE_RECIPES, cablesMatch, cableActions } = await import(profileUrl);
+const { DEVICE_PROFILES, DEVICE_ORDER, CABLE_RECIPES, cablesMatch, cableActions, restoreActionsFrom } = await import(profileUrl);
 const promptSource = readFileSync(new URL("../src/lib/quickFixPrompt.ts", import.meta.url), "utf8");
 const promptJs = ts.transpileModule(promptSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replace('"../data/deviceProfiles"', JSON.stringify(profileUrl));
 const { buildQuickFixPrompt } = await import(`data:text/javascript;base64,${Buffer.from(promptJs).toString("base64")}`);
@@ -61,8 +61,14 @@ for (const slug of DEVICE_ORDER) {
   assert.match(prompt, /restoration checks the final switch positions and cable connections/);
   assert.match(prompt, /Actions can be completed in any order/);
   assert.doesNotMatch(prompt, /restored in the listed order|change, in order/);
-  for (const action of cableActions(map.requiredCables)) assert.ok(prompt.includes(action));
-  assert.ok(prompt.includes("Remove all other cables"));
+  for (const action of cableActions(map.requiredCables).filter(action => action !== "Remove all other cables")) assert.ok(prompt.includes(action));
+  assert.ok(!prompt.includes("Remove all other cables"), `${slug}: no extras should not ask to remove cables`);
+  const target = Object.fromEntries(device.restoreSequence.map(c => [c.key, c.target]));
+  assert.deepEqual(restoreActionsFrom(device.restoreSequence, target, map.requiredCables), [], `${slug}: satisfied controls and cables should leave no actions`);
+  assert.ok(
+    restoreActionsFrom(device.restoreSequence, target, [...map.requiredCables, { cable: 99, sockets: ["S1", "S1"] }]).includes("Remove all other cables"),
+    `${slug}: extra/invalid cable should ask for removal`
+  );
   const keys = device.restoreSequence.map(c => c.key);
   assert.equal(device.checkWin({}), false, `${slug}: missing telemetry cannot win`);
 
@@ -96,7 +102,6 @@ for (const slug of DEVICE_ORDER) {
       assert.equal(lamps[piLamp.key], expected, `${slug}: lamp ${piLamp.key} diverges from the Pi at mask ${mask}`);
     }
   }
-  const target = Object.fromEntries(device.restoreSequence.map(c => [c.key, c.target]));
   for (const step of device.restoreSequence) {
     assert.equal(device.checkWin({ ...target, [step.key]: !step.target }, map.requiredCables), false, `${slug}: ${step.physicalPin} does not participate in restoration`);
   }

@@ -346,12 +346,50 @@ export function cableActions(required: readonly CableRequirement[]) {
   ];
 }
 
-function socketActionsFrom(sequence: readonly RestoreStep[], _state?: DeviceState) {
-  const slug = Object.keys(RESTORE_SEQUENCES).find(key => RESTORE_SEQUENCES[key as RestoreSequenceKey] === sequence);
-  return slug ? cableActions(CABLE_RECIPES[slug]) : [];
+function cablePairKey(sockets: readonly string[]) {
+  return [...sockets].sort().join("|");
 }
 
-export function restoreActionsFrom(sequence: readonly RestoreStep[], state?: DeviceState) {
+function cableActionsFrom(required: readonly CableRequirement[], actual?: readonly CableRequirement[]) {
+  if (!actual) return cableActions(required);
+  const validActual = actual.filter(cable =>
+    Number.isInteger(cable.cable) && cable.sockets.length === 2 && new Set(cable.sockets).size === 2
+  );
+  const actualPairs = new Set(validActual.map(cable => cablePairKey(cable.sockets)));
+  const requiredPairs = new Set(required.map(cable => cablePairKey(cable.sockets)));
+  const seenPairs = new Set<string>();
+  const seenSockets = new Set<string>();
+  const missing = required.filter(cable => !actualPairs.has(cablePairKey(cable.sockets)));
+  const hasExtra = actual.some(cable => {
+    const valid = Number.isInteger(cable.cable) && cable.sockets.length === 2 && new Set(cable.sockets).size === 2;
+    const pair = valid ? cablePairKey(cable.sockets) : "";
+    const duplicatePair = valid && seenPairs.has(pair);
+    const overlappingSocket = valid && cable.sockets.some(socket => seenSockets.has(socket));
+    if (valid) {
+      seenPairs.add(pair);
+      cable.sockets.forEach(socket => seenSockets.add(socket));
+    }
+    return (
+      !Number.isInteger(cable.cable) ||
+      cable.sockets.length !== 2 ||
+      new Set(cable.sockets).size !== 2 ||
+      !requiredPairs.has(pair) ||
+      duplicatePair ||
+      overlappingSocket
+    );
+  });
+  return [
+    ...missing.map((cable) => `Connect an RJ-45 patch cable between ${socketLabel(cable.sockets[0])} and ${socketLabel(cable.sockets[1])}`),
+    ...(hasExtra ? ["Remove all other cables"] : []),
+  ];
+}
+
+function socketActionsFrom(sequence: readonly RestoreStep[], cables?: readonly CableRequirement[]) {
+  const slug = Object.keys(RESTORE_SEQUENCES).find(key => RESTORE_SEQUENCES[key as RestoreSequenceKey] === sequence);
+  return slug ? cableActionsFrom(CABLE_RECIPES[slug], cables) : [];
+}
+
+export function restoreActionsFrom(sequence: readonly RestoreStep[], state?: DeviceState, cables?: readonly CableRequirement[]) {
   const switches = sequence
     .filter((control) => /^SW[1-4]$/.test(control.physicalPin) && shouldListControl(control, state))
     .sort((a, b) => a.physicalPin.localeCompare(b.physicalPin))
@@ -360,7 +398,7 @@ export function restoreActionsFrom(sequence: readonly RestoreStep[], state?: Dev
     .filter((control) => /^SW[5-6]$/.test(control.physicalPin) && shouldListControl(control, state))
     .sort((a, b) => a.physicalPin.localeCompare(b.physicalPin))
     .map(switchAction);
-  return [...switches, ...keyedSwitches, ...socketActionsFrom(sequence, state)];
+  return [...switches, ...keyedSwitches, ...socketActionsFrom(sequence, cables)];
 }
 
 function faultFrom(sequence: readonly { key: string; target: boolean }[]) {

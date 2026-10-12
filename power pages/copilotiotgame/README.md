@@ -76,8 +76,8 @@ target state, the cables plugged in, and "reply with only a numbered list".
 
 - **Copilot Studio agent.** Help Fix already talks to the agent over Direct Line
   (`hooks/useAgentChat.ts`, ported from the sibling `iot-panel-dashboard`), via
-  `GET /api/directline-token`. Until `DIRECTLINE_SECRET` is set on the Function App the
-  token call returns 503 and the bar falls back to the device's static `steps`. The
+  `GET /api/directline-token`. If the agent token or Direct Line call fails, the bar
+  tells the player Help Fix is unreachable instead of showing static repair steps. The
   agent's own topics are built separately — see `GAME_MODE_PLAN.md` §8.
 - **`/play-spin`.** Unbuilt placeholder — see the Routes table above.
 
@@ -135,7 +135,7 @@ With Vite running on port 5183, run `node tests/check-surfaces.mjs` from this ap
 folder (requires Playwright; see the redesign notes for browser setup). Override
 `KIOSK_TEST_URL` for another port and `PLAYWRIGHT_CHROMIUM_EXECUTABLE` for an installed
 browser. The suite checks 60 fixtures, all ten setup mappings and exact cable
-recipes against Pi definitions, plus Help Fix fallback actions for all twelve modes.
+recipes against Pi definitions, plus the Help Fix unreachable notice for all twelve modes.
 `npm test` also checks that the Help Fix prompt describes final configuration and
 allows actions in any order. Live Pi/page verification remains a separate release check.
 
