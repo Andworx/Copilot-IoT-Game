@@ -139,7 +139,7 @@ Neither part needs supports.
 | `exports/stl/puck.stl` | Our puck: 48.9 x 16 mm, rounded edge, smooth faces, no decal. Two sealed magnet cavities. |
 | `exports/stl/magnet_test.stl` | Fit test: four open pockets with 0.1, 0.2, 0.3 and 0.4 mm of diameter play for the 6 x 1.74 mm magnets. Print this first and pick the pocket the magnet drops into with a little play, then set `mag_fit` to that number. |
 | `exports/stl/magnet_dispenser.stl`, `magnet_pusher.stl`, `magnet_cap_body.stl`, `magnet_cap_tile.stl` | Keeps magnet polarity right and the stack stored: see "Magnets" below. |
-| `exports/stl/plug.stl` | Retaining plug, **12 needed** (one per sensor, emitter and receiver alike). Pushes into the rear of the sensor pocket behind the housing so it cannot slide out; a slot along its underside lets the wires run out, and it is only lightly snug (0.1 mm crush ribs). Pull hole at the rear for a pick. Print with the slot facing up (the STL is already oriented). |
+| `exports/stl/plug.stl` | Retaining plug, **12 needed** (one per sensor, emitter and receiver alike). Pushes into the rear of the sensor pocket behind the housing so it cannot slide out; 5.9 mm long (`plug_len`), with a slot along its underside for the wires, and it is only lightly snug (0.1 mm crush ribs). Pull hole through the middle for a pick. Print with the slot facing up (the STL is already oriented). |
 | `exports/stl/fit_test.stl` | Receiver end only, to check the housing fit (passed). |
 | `exports/covers/<logo>/` | Magnetic tiles: **one size (78.58 x 38.2 mm) that fits every bucket**, so the 12 logos make up one shared set. Engraved with the logo name on the back. |
 

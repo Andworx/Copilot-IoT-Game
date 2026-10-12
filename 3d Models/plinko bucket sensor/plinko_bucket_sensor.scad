@@ -115,6 +115,7 @@ magnet_stack = 2;       // magnets stacked in each cavity
 magnets = true;
 
 /* [Retaining plug - pushes into the rear of each sensor pocket behind the housing] */
+plug_len = 5.9;         // plug length (depth into the pocket), it sits just behind the housing
 plug_wire_h = 4.0;      // wire slot along the underside (Z), so the leads run out under the plug
 plug_wire_w = 5.0;      // wire slot width (X)
 plug_side_clear = 0.3;  // plug narrower than the pocket by this much in total
@@ -454,19 +455,19 @@ module magnet_pusher() {
 plug_w = ir_pocket_x - plug_side_clear;
 plug_h = ir_pocket_h - 0.3;
 plug_y_start = ir_pocket_y0 + ir_pocket_w;                 // just behind the housing
-plug_l = (shell_d - race_d) - plug_y_start - 0.2;
+plug_l = min(plug_len, (shell_d - race_d) - plug_y_start - 0.2);
 module plug() {
   difference() {
     union() {
       cube([plug_w, plug_l, plug_h]);
       // Four short crush ribs, two per side, along the length.
-      for (side = [0, 1], y = [plug_l * 0.2, plug_l * 0.65])
-        translate([side == 0 ? -plug_rib : plug_w - eps, y, 0]) cube([plug_rib + eps, 2.0, plug_h]);
+      for (side = [0, 1], y = [plug_l * 0.15, plug_l * 0.6])
+        translate([side == 0 ? -plug_rib : plug_w - eps, y, 0]) cube([plug_rib + eps, min(2.0, plug_l * 0.25), plug_h]);
     }
     // Wire slot along the underside (z = 0 is the bottom, against the pocket floor).
     translate([(plug_w - plug_wire_w) / 2, -eps, -eps]) cube([plug_wire_w, plug_l + 2 * eps, plug_wire_h + eps]);
-    // Pull hole through the rear end, above the slot.
-    translate([-plug_rib - eps, plug_l - 3.5, plug_wire_h + (plug_h - plug_wire_h) / 2]) rotate([0, 90, 0])
+    // Pull hole through the middle, above the slot.
+    translate([-plug_rib - eps, plug_l / 2, plug_wire_h + (plug_h - plug_wire_h) / 2]) rotate([0, 90, 0])
       cylinder(d = plug_pull_d, h = plug_w + 2 * plug_rib + 2 * eps, $fn = 24);
   }
 }
