@@ -189,21 +189,35 @@ export async function requestDataCopy(contactId: string, now = new Date()): Prom
   return true;
 }
 
-let cachedAppUserId: string | null | undefined;
+let cachedAppUserIds: Set<string> | undefined;
 
-/** Contacts the game created carry Created By = the Function's application user, which is how retention and removal tell them from CRM contacts. */
-export async function getGameAppUserId(): Promise<string | null> {
-  if (cachedAppUserId !== undefined) return cachedAppUserId;
-  const clientId = process.env.DATAVERSE_CLIENT_ID ?? "";
-  if (!isGuidLike(clientId)) return (cachedAppUserId = null);
-  const response = await dataverseFetch(`systemusers?$select=systemuserid&$filter=applicationid eq ${clientId}&$top=1`);
+/**
+ * Application IDs whose Dataverse users count as "the game". DATAVERSE_CLIENT_ID is the legacy app
+ * registration; DATAVERSE_APP_USER_CLIENT_IDS (comma-separated) lists the managed identities of the
+ * game and staff Function Apps. Contacts keep their original Created By, so retention must keep
+ * recognising the legacy user after cutover as well as the new identities.
+ */
+export function gameAppClientIds(env = process.env): string[] {
+  const ids = [env.DATAVERSE_CLIENT_ID ?? "", ...(env.DATAVERSE_APP_USER_CLIENT_IDS ?? "").split(",")]
+    .map((id) => id.trim().toLowerCase())
+    .filter((id) => isGuidLike(id));
+  return [...new Set(ids)];
+}
+
+/** Contacts the game created carry Created By = one of the Functions' application users, which is how retention and removal tell them from CRM contacts. */
+export async function getGameAppUserIds(): Promise<Set<string>> {
+  if (cachedAppUserIds !== undefined) return cachedAppUserIds;
+  const clientIds = gameAppClientIds();
+  if (clientIds.length === 0) return (cachedAppUserIds = new Set());
+  const filter = clientIds.map((id) => `applicationid eq ${id}`).join(" or ");
+  const response = await dataverseFetch(`systemusers?$select=systemuserid&$filter=${filter}`);
   const body = (await response.json()) as { value: Array<{ systemuserid: string }> };
-  return (cachedAppUserId = body.value[0]?.systemuserid ?? null);
+  return (cachedAppUserIds = new Set(body.value.map((row) => row.systemuserid.toLowerCase())));
 }
 
 export async function isGameCreatedContact(contact: ContactRow): Promise<boolean> {
-  const appUserId = await getGameAppUserId();
-  return !!appUserId && contact._createdby_value?.toLowerCase() === appUserId.toLowerCase();
+  const createdBy = contact._createdby_value?.toLowerCase();
+  return !!createdBy && (await getGameAppUserIds()).has(createdBy);
 }
 
 /**
