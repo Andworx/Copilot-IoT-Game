@@ -4,6 +4,12 @@ import GrandPrizeCheckIn from "./GrandPrizeCheckIn";
 import GrandPrizeDrawing from "./GrandPrizeDrawing";
 import PrizeManagement from "./PrizeManagement";
 import SmokeTest from "./SmokeTest";
+import aiBuilderLogo from "./assets/logos/AIBuilder_scalable.svg";
+import dataverseLogo from "./assets/logos/Dataverse_scalable.svg";
+import powerAppsLogo from "./assets/logos/PowerApps_scalable.svg";
+import powerAutomateLogo from "./assets/logos/PowerAutomate_scalable.svg";
+import powerPagesLogo from "./assets/logos/PowerPages_scalable.svg";
+import powerPlatformLogo from "./assets/logos/PowerPlatform_scalable.svg";
 import "./App.css";
 
 interface DeviceProfile {
@@ -33,12 +39,12 @@ interface PlinkoState {
 type GameKey = "game-box" | "plinko";
 
 const BUCKET_ICONS = {
-  powerapps: { label: "Power Apps", src: "/logos/PowerApps_scalable.svg" },
-  dataverse: { label: "Dataverse", src: "/logos/Dataverse_scalable.svg" },
-  powerautomate: { label: "Power Automate", src: "/logos/PowerAutomate_scalable.svg" },
-  powerpages: { label: "Power Pages", src: "/logos/PowerPages_scalable.svg" },
-  aibuilder: { label: "AI Builder", src: "/logos/AIBuilder_scalable.svg" },
-  powerplatform: { label: "Power Platform", src: "/logos/PowerPlatform_scalable.svg" },
+  powerapps: { label: "Power Apps", src: powerAppsLogo },
+  dataverse: { label: "Dataverse", src: dataverseLogo },
+  powerautomate: { label: "Power Automate", src: powerAutomateLogo },
+  powerpages: { label: "Power Pages", src: powerPagesLogo },
+  aibuilder: { label: "AI Builder", src: aiBuilderLogo },
+  powerplatform: { label: "Power Platform", src: powerPlatformLogo },
 } as const;
 
 type BucketIconId = keyof typeof BUCKET_ICONS;

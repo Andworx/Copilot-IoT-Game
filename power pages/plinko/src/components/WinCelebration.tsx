@@ -2,19 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { PRIZE_WHEEL_URL } from "../lib/apiConfig";
 import logoBlue from "../assets/brand/andworx-blue.svg";
-import { iconForBucket, type PlinkoResult } from "../types/plinko";
+import { BUCKET_ICON_LOGOS, iconForBucket, type PlinkoResult } from "../types/plinko";
 
 /** Long enough to pull out a phone and scan; unclaimed tokens stay valid after reset. */
 const RESET_SECONDS = 45;
-
-const CONFETTI_LOGOS = [
-  "/logos/AIBuilder_scalable.svg",
-  "/logos/Dataverse_scalable.svg",
-  "/logos/PowerApps_scalable.svg",
-  "/logos/PowerAutomate_scalable.svg",
-  "/logos/PowerPages_scalable.svg",
-  "/logos/PowerPlatform_scalable.svg",
-];
 
 // Same falling Power Platform logo confetti as the grand-prize winner reveal in Game Box Control.
 const CONFETTI = Array.from({ length: 28 }, (_, index) => ({
@@ -22,7 +13,7 @@ const CONFETTI = Array.from({ length: 28 }, (_, index) => ({
   left: `${(index * 37) % 100}%`,
   delay: `${(index % 8) * 0.32}s`,
   duration: `${5.6 + (index % 5) * 0.45}s`,
-  logo: CONFETTI_LOGOS[index % CONFETTI_LOGOS.length],
+  logo: BUCKET_ICON_LOGOS[index % BUCKET_ICON_LOGOS.length],
 }));
 
 interface WinCelebrationProps {

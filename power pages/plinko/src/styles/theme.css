@@ -102,6 +102,13 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   color: var(--color-text-bright);
   font-size: clamp(22px, 2.4vw, 40px);
 }
+.flow-header p {
+  margin: 8px 0 0;
+  max-width: 74ch;
+  color: var(--color-text-muted);
+  font-size: clamp(14px, 1.2vw, 19px);
+  line-height: 1.45;
+}
 
 /* Guide: the infographic in a panel opened from the gear. */
 .guide {
@@ -224,9 +231,7 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 
 .flow-step {
   --tier: var(--tier-edge);
-  display: grid;
-  justify-items: center;
-  gap: 14px;
+  display: block;
   text-align: center;
   color: var(--color-text-muted);
   font-size: clamp(11px, 0.95vw, 16px);
@@ -234,6 +239,23 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 }
 .flow-step.cloud { --tier: var(--tier-cloud); }
 .flow-step.platform { --tier: var(--tier-platform); }
+.flow-step button {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+.flow-step button:hover .flow-icon {
+  border-color: var(--tier);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tier) 16%, transparent);
+}
 
 .flow-icon {
   position: relative;
@@ -279,7 +301,7 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   grid-template-columns: auto 1fr;
   align-items: baseline;
   gap: 8px 16px;
-  min-height: 150px;
+  min-height: 190px;
   padding: clamp(18px, 2.4vw, 32px);
   border: 1px solid var(--color-border);
   border-radius: 14px;
@@ -288,6 +310,30 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 .flow-caption h2 { grid-column: 1 / -1; margin: 4px 0 0; color: var(--color-text-bright); font-size: clamp(22px, 2.4vw, 40px); }
 .flow-caption p { grid-column: 1 / -1; margin: 0; font-size: clamp(16px, 1.5vw, 24px); line-height: 1.45; }
 .flow-count { color: var(--color-text-muted); font-size: 14px; }
+.flow-controls {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.flow-controls button {
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid color-mix(in srgb, var(--tier-cloud) 60%, var(--color-border));
+  border-radius: 8px;
+  background: #10175a;
+  color: var(--color-text-bright);
+  font-size: clamp(13px, 1vw, 16px);
+  cursor: pointer;
+}
+.flow-controls button:hover { background: #202982; }
+.flow-controls button:disabled { opacity: 0.45; cursor: default; }
+.flow-controls button[aria-pressed="true"] {
+  border-color: var(--brand-yellow);
+  background: #343065;
+  color: #fffce5;
+}
 
 .tier-tag {
   justify-self: start;
@@ -491,7 +537,8 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
   }
   .flow-light { left: 32px; top: calc((var(--index) + 0.5) / var(--count) * 100%); }
   .flow-steps { grid-template-columns: 1fr; gap: 10px; }
-  .flow-step { grid-template-columns: auto 1fr; justify-items: start; align-items: center; text-align: left; font-size: 15px; }
+  .flow-step { text-align: left; font-size: 15px; }
+  .flow-step button { grid-template-columns: auto 1fr; justify-items: start; align-items: center; }
   .win-card { grid-template-columns: 1fr; }
 }
 
