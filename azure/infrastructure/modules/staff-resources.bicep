@@ -113,6 +113,20 @@ resource staff 'Microsoft.Web/sites@2024-04-01' = {
   }
 }
 
+// Entra/RBAC-only management plane: deploys use OIDC (azure/login + Azure/functions-action), so SCM and
+// FTP password authentication are not needed. Issue #115.
+resource scmBasicAuth 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2024-04-01' = {
+  parent: staff
+  name: 'scm'
+  properties: { allow: false }
+}
+
+resource ftpBasicAuth 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2024-04-01' = {
+  parent: staff
+  name: 'ftp'
+  properties: { allow: false }
+}
+
 // Only non-secret outputs. Never output app settings or a storage connection string.
 output functionAppName string = staff.name
 output hostName string = staff.properties.defaultHostName

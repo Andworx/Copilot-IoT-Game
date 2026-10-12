@@ -12,13 +12,15 @@
 
 Please do **not** open public issues for suspected vulnerabilities.
 
-Use GitHub Security Advisories private reporting for `YOUR_ORG_NAME/YOUR_PROJECT_NAME`:
+This is a private repository (`Andworx/Copilot-IoT-Game`). Report suspected vulnerabilities directly to the repository owners (Andworx maintainers) through your internal security contact channel, not through issues, pull requests, or discussions.
 
-1. Open the repository on GitHub.
-2. Go to **Security** -> **Advisories** -> **Report a vulnerability**.
-3. Share reproduction steps, impact, and any known mitigations.
+Include:
 
-If GitHub private reporting is unavailable, contact the maintainers through your internal security contact channel and include the same details.
+- Affected path(s) and commit SHA, where known
+- Reproduction steps and observed impact
+- Any known mitigations
+
+If GitHub private vulnerability reporting is enabled for the repository in future, prefer it: **Security** -> **Advisories** -> **Report a vulnerability**.
 
 ## Response SLA
 
@@ -54,14 +56,15 @@ If you discover exposed secrets, keys, tokens, or credentials:
 
 ## Dependency Updates
 
-This template uses GitHub Dependabot for automated dependency update pull requests:
+GitHub Dependabot opens weekly update pull requests (configuration: `.github/dependabot.yml`) for:
 
-- GitHub Actions dependencies
-- Root-level npm dependencies
+- GitHub Actions workflows
+- Root-level npm dependencies (Playwright)
+- The Function App (`azure/functions/game`), Code Site (`power pages/copilotiotgame`), and both Power Apps (`power apps/*`), with minor and patch updates grouped per project
+- Python requirements for the Raspberry Pi projects (`hardware/plinko-pi`, `hardware/raspberry-pi`)
+- The Dataverse plugin template (NuGet)
 
-Configuration lives in `.github/dependabot.yml`.
-
-Baseline tracking reference: [Andworx/andworx-power-platform-starter-template#5](https://github.com/Andworx/andworx-power-platform-starter-template/issues/5).
+When adding a new package root, add a matching entry to `.github/dependabot.yml`.
 
 ## Dependency and Dependabot Guidance
 

@@ -23,9 +23,88 @@ updates:
     commit-message:
       prefix: "chore(deps)"
 
-  # Add additional npm entries as needed for project-specific package roots.
-  # Examples:
-  # - package-ecosystem: npm
-  #   directory: /apps/my-function-app
-  # - package-ecosystem: npm
-  #   directory: /power pages/my-spa
+  # Project-specific package roots. Minor and patch updates are grouped into one PR per
+  # project per week to keep review noise down; major bumps arrive as separate PRs.
+  - package-ecosystem: npm
+    directory: /azure/functions/game
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      function-app-minor-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: "/power pages/copilotiotgame"
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      code-site-minor-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: "/power apps/game-box-control"
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      game-box-control-minor-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: "/power apps/bulk-add-prizes"
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      bulk-add-prizes-minor-patch:
+        update-types: [minor, patch]
+
+  # Raspberry Pi device software (Python)
+  - package-ecosystem: pip
+    directory: /hardware/plinko-pi
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: pip
+    directory: /hardware/raspberry-pi
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Dataverse plugin template
+  - package-ecosystem: nuget
+    directory: /plugins/dataverse-plugin-template
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(deps)"

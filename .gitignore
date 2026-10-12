@@ -76,3 +76,9 @@ logs/
 
 # Claude Code worktree scaffolding -- never track these, they are separate working copies
 .claude/worktrees/
+
+# Local-only security review output (issue #115) -- never commit
+security-review-local/
+
+# Point-in-time Azure cleanup exports (issue #215): keep new ones local. Already-tracked files are unaffected.
+/output/azure-cleanup/
