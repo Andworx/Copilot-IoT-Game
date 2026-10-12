@@ -76,6 +76,14 @@
                         <control id="andy_activelitbucket" classid="{c6d124ca-7eda-4a60-aea9-7fb8d318b68f}" datafieldname="andy_activelitbucket" />
                       </cell>
                     </row>
+                    <row>
+                      <cell id="{eaff12dd-f9b0-4ee7-96b5-095d2a22d9a6}">
+                        <labels>
+                          <label description="Bucket Icons JSON" languagecode="1033" />
+                        </labels>
+                        <control id="andy_bucketiconsjson" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_bucketiconsjson" />
+                      </cell>
+                    </row>
                   </rows>
                 </section>
               </sections>

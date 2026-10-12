@@ -1,11 +1,12 @@
 import { registerHttp } from "../lib/apiSurface";
 import { output, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { getProfile, setPlinkoGameMode } from "../lib/plinkoLanding";
+import { getProfile, setPlinkoBucketIcons, setPlinkoGameMode } from "../lib/plinkoLanding";
 
 /**
  * POST /api/plinko-game-mode { station, gameModeActive? } -- the Game Box Control app's Plinko switch.
  *
- * With `gameModeActive` the station's Game Mode is set; without it the call only reads the state, so
+ * With `gameModeActive` the station's Game Mode is set; with `bucketIcons` its ordered bucket icon
+ * ids are stored. Without either field the call only reads the state, so
  * the app needs a single connector operation for both. OFF makes the booth display simply show which
  * bucket was hit (no QR, no entries, nothing recorded). Broadcasts `plinkoGameModeChanged` so an open
  * display follows immediately.
@@ -20,7 +21,7 @@ const signalROutput = output.generic({
 });
 
 export async function plinkoGameMode(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  let body: { station?: unknown; gameModeActive?: unknown };
+  let body: { station?: unknown; gameModeActive?: unknown; bucketIcons?: unknown };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -32,23 +33,31 @@ export async function plinkoGameMode(request: HttpRequest, context: InvocationCo
   if (body.gameModeActive !== undefined && typeof body.gameModeActive !== "boolean") {
     return { status: 400, jsonBody: { error: "gameModeActive must be a boolean" } };
   }
+  if (body.bucketIcons !== undefined && !Array.isArray(body.bucketIcons)) {
+    return { status: 400, jsonBody: { error: "bucketIcons must be an array" } };
+  }
   const station = body.station.trim();
 
   try {
-    const profile =
-      typeof body.gameModeActive === "boolean"
-        ? await setPlinkoGameMode(station, body.gameModeActive)
-        : await getProfile(station);
+    let profile = await getProfile(station);
+    if (!profile) return { status: 404, jsonBody: { error: "Unknown station" } };
+    if (typeof body.gameModeActive === "boolean") profile = await setPlinkoGameMode(station, body.gameModeActive);
+    if (body.bucketIcons !== undefined) profile = await setPlinkoBucketIcons(station, body.bucketIcons);
     if (!profile) return { status: 404, jsonBody: { error: "Unknown station" } };
 
-    if (typeof body.gameModeActive === "boolean") {
+    if (typeof body.gameModeActive === "boolean" || body.bucketIcons !== undefined) {
       context.extraOutputs.set(signalROutput, {
         target: "plinkoGameModeChanged",
-        arguments: [{ stationSlug: profile.slug, gameModeActive: profile.gameModeActive }],
+        arguments: [{ stationSlug: profile.slug, gameModeActive: profile.gameModeActive, bucketIcons: profile.bucketIcons }],
       });
     }
     return {
-      jsonBody: { station: profile.slug, gameModeActive: profile.gameModeActive, bucketCount: profile.bucketCount },
+      jsonBody: {
+        station: profile.slug,
+        gameModeActive: profile.gameModeActive,
+        bucketCount: profile.bucketCount,
+        bucketIcons: profile.bucketIcons,
+      },
     };
   } catch (error) {
     context.error("plinko-game-mode failed", error);

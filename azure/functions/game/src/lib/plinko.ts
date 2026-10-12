@@ -32,6 +32,7 @@ export interface PlinkoProfile {
   litBucketEntries: number;
   standardBucketEntries: number;
   gameModeActive: boolean;
+  bucketIcons: string[];
 }
 
 /** The `plinkoResult` the booth display receives. */
@@ -43,11 +44,50 @@ export interface PlinkoResultMessage {
   bucketCount: number;
   entriesAwarded: number;
   claimToken: string;
+  bucketIcons: string[];
   /**
    * False when staff have turned Game Mode off for the station: the display just shows the bucket
    * (no QR, no entries, nothing recorded), and `claimToken` is empty.
    */
   gameModeActive: boolean;
+}
+
+export const PLINKO_BUCKET_ICON_IDS = [
+  "powerapps",
+  "dataverse",
+  "powerautomate",
+  "powerpages",
+  "aibuilder",
+  "powerplatform",
+] as const;
+
+const bucketIconIds = new Set<string>(PLINKO_BUCKET_ICON_IDS);
+
+export function defaultBucketIcons(bucketCount: number | null | undefined): string[] {
+  const count = Math.max(1, Math.floor(bucketCount ?? PLINKO_BUCKET_ICON_IDS.length));
+  return Array.from({ length: count }, (_, index) => PLINKO_BUCKET_ICON_IDS[index % PLINKO_BUCKET_ICON_IDS.length]);
+}
+
+export function normalizeBucketIcons(value: unknown, bucketCount: number | null | undefined): string[] {
+  const count = Math.max(1, Math.floor(bucketCount ?? PLINKO_BUCKET_ICON_IDS.length));
+  const fallback = defaultBucketIcons(count);
+  const source =
+    Array.isArray(value)
+      ? value
+      : typeof value === "string" && value.trim()
+        ? (() => {
+            try {
+              return JSON.parse(value) as unknown;
+            } catch {
+              return null;
+            }
+          })()
+        : null;
+  if (!Array.isArray(source)) return fallback;
+  return Array.from({ length: count }, (_, index) => {
+    const icon = source[index];
+    return typeof icon === "string" && bucketIconIds.has(icon) ? icon : fallback[index];
+  });
 }
 
 export function isPlinkoLanding(payload: unknown): boolean {

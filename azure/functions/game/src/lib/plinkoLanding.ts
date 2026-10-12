@@ -13,6 +13,7 @@ import {
   judgePlinkoLanding,
   lockHolds,
   lockPath,
+  normalizeBucketIcons,
   parsePlinkoLanding,
   parsePlinkoLock,
   playName,
@@ -43,24 +44,32 @@ interface ProfileRow {
   andy_litbucketentries?: number | null;
   andy_standardbucketentries?: number | null;
   andy_gamemodeactive?: boolean | null;
+  andy_bucketiconsjson?: string | null;
 }
 
 /** Always read fresh: a Game Mode switch has to take effect on the next drop (and the read runs in parallel). */
 export async function getProfile(slug: string): Promise<PlinkoProfile | null> {
-  const response = await dataverseFetch(
-    `${PROFILES_SET}?$select=andy_plinkoprofileid,andy_profileslug,andy_numberofbuckets,andy_litbucketentries,` +
-      `andy_standardbucketentries,andy_gamemodeactive` +
-      `&$filter=statecode eq 0 and andy_profileslug eq '${escapeODataString(slug)}'&$top=1`
-  );
+  const baseSelect = "andy_plinkoprofileid,andy_profileslug,andy_numberofbuckets,andy_litbucketentries,andy_standardbucketentries,andy_gamemodeactive";
+  const filter = `&$filter=statecode eq 0 and andy_profileslug eq '${escapeODataString(slug)}'&$top=1`;
+  let response = await dataverseFetchRaw(`${PROFILES_SET}?$select=${baseSelect},andy_bucketiconsjson${filter}`);
+  if (!response.ok) {
+    const body = await response.text();
+    if (!body.includes("andy_bucketiconsjson")) {
+      throw new Error(`Dataverse GET ${PROFILES_SET} failed: ${response.status} ${body}`);
+    }
+    response = await dataverseFetch(`${PROFILES_SET}?$select=${baseSelect}${filter}`);
+  }
   const row = ((await response.json()) as { value: ProfileRow[] }).value[0];
+  const bucketCount = row?.andy_numberofbuckets ?? null;
   return row
     ? {
         id: row.andy_plinkoprofileid,
         slug: row.andy_profileslug,
-        bucketCount: row.andy_numberofbuckets ?? null,
+        bucketCount,
         litBucketEntries: row.andy_litbucketentries ?? 2,
         standardBucketEntries: row.andy_standardbucketentries ?? 1,
         gameModeActive: row.andy_gamemodeactive !== false,
+        bucketIcons: normalizeBucketIcons(row.andy_bucketiconsjson, bucketCount),
       }
     : null;
 }
@@ -74,6 +83,18 @@ export async function setPlinkoGameMode(slug: string, gameModeActive: boolean): 
     body: JSON.stringify({ andy_gamemodeactive: gameModeActive }),
   });
   return { ...profile, gameModeActive };
+}
+
+/** Staff editor: stores one icon id per bucket as JSON on the Plinko Profile row. */
+export async function setPlinkoBucketIcons(slug: string, icons: unknown): Promise<PlinkoProfile | null> {
+  const profile = await getProfile(slug);
+  if (!profile) return null;
+  const bucketIcons = normalizeBucketIcons(icons, profile.bucketCount);
+  await dataverseFetch(`${PROFILES_SET}(${profile.id})`, {
+    method: "PATCH",
+    body: JSON.stringify({ andy_bucketiconsjson: JSON.stringify(bucketIcons) }),
+  });
+  return { ...profile, bucketIcons };
 }
 
 interface PlayRow {
@@ -106,6 +127,7 @@ function resultFromPlay(landing: PlinkoLanding, profile: PlinkoProfile, play: Pl
     bucketCount: profile.bucketCount ?? landing.bucketCount ?? bucket,
     entriesAwarded: play.andy_entriesawarded ?? 1,
     claimToken,
+    bucketIcons: profile.bucketIcons,
     gameModeActive: true,
   };
 }
@@ -207,6 +229,7 @@ export async function recordPlinkoLanding(payload: unknown, now: Date = new Date
         bucketCount: decision.bucketCount,
         entriesAwarded: 0,
         claimToken: "",
+        bucketIcons: profile.bucketIcons,
         gameModeActive: false,
       },
     };
@@ -267,6 +290,7 @@ export async function recordPlinkoLanding(payload: unknown, now: Date = new Date
       bucketCount: decision.bucketCount,
       entriesAwarded: decision.entriesAwarded,
       claimToken,
+      bucketIcons: profile.bucketIcons,
       gameModeActive: true,
     },
   };

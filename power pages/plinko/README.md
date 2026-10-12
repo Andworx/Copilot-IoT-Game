@@ -6,8 +6,8 @@ Power Pages **Code Site** (React 19 + Vite) for the physical Plinko board, site 
 - **Idle** — `FlowInfographic`: how a drop travels from the board through Azure and
   Power Platform, with a light moving through the steps in order.
 - **Win** — `WinCelebration`: Power Platform logo confetti, landed and lit bucket,
-  entries awarded, and a QR to the shared prize wheel. **Skip** or a 45 s countdown
-  returns to idle.
+  configured bucket icons, entries awarded, and a QR to the shared prize wheel.
+  **Skip** or a 45 s countdown returns to idle.
 
 The screen listens for `plinkoResult` on the shared `gamebox` SignalR hub
 (`src/types/plinko.ts`) and ignores other stations. Pick the station with
@@ -48,6 +48,8 @@ defaults in `src/lib/apiConfig.ts`.
 - `VITE_PLINKO_STATION` sets the default station slug when `?station=` is absent. Defaults to `plinko-default`.
 
 The display listens for `plinkoResult` messages on the shared `gamebox` SignalR hub and ignores events for other stations when the event includes `station` or `stationSlug`.
+Bucket icons come from the station profile's `andy_bucketiconsjson` column through
+`GET /api/plinko-chase`, then live updates arrive on `plinkoGameModeChanged`.
 
 ## Deployment
 

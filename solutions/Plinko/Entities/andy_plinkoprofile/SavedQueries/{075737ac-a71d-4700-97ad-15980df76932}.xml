@@ -16,6 +16,7 @@
           <cell name="andy_litbucketentries" width="150" />
           <cell name="andy_standardbucketentries" width="150" />
           <cell name="andy_gamemodeactive" width="150" />
+          <cell name="andy_bucketiconsjson" width="250" />
           <cell name="andy_activelitbucket" width="150" />
         </row>
       </grid>
@@ -36,6 +37,7 @@
           <attribute name="andy_litbucketentries" />
           <attribute name="andy_standardbucketentries" />
           <attribute name="andy_gamemodeactive" />
+          <attribute name="andy_bucketiconsjson" />
           <attribute name="andy_activelitbucket" />
         </entity>
       </fetch>
