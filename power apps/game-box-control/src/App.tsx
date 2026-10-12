@@ -26,7 +26,10 @@ const PLINKO_STATION = "plinko-default";
 
 interface PlinkoState {
   gameModeActive: boolean;
+  bucketCount: number | null;
 }
+
+type GameKey = "game-box" | "plinko";
 
 /**
  * Staff control device for the Copilot IoT Game kiosk (GAME_MODE_PLAN.md §4a).
@@ -54,6 +57,7 @@ export default function App() {
   const [settingKey, setSettingKey] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [gameModeBusy, setGameModeBusy] = useState(false);
+  const [selectedGame, setSelectedGame] = useState<GameKey>("game-box");
   const [plinko, setPlinko] = useState<PlinkoState | null>(null);
   const [plinkoBusy, setPlinkoBusy] = useState(false);
   const [plinkoNote, setPlinkoNote] = useState<string | null>(null);
@@ -133,9 +137,9 @@ export default function App() {
         body: JSON.stringify(gameModeActive === undefined ? { station: PLINKO_STATION } : { station: PLINKO_STATION, gameModeActive }),
       });
       if (!res.ok) throw new Error(`plinko-game-mode failed: ${res.status}`);
-      const body = (await res.json()) as { gameModeActive?: boolean } | null;
+      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null } | null;
       if (typeof body?.gameModeActive !== "boolean") throw new Error("Unexpected Plinko response");
-      return { gameModeActive: body.gameModeActive };
+      return { gameModeActive: body.gameModeActive, bucketCount: typeof body.bucketCount === "number" ? body.bucketCount : null };
     } catch (err) {
       setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : "Could not reach the Plinko station.");
       return null;
@@ -145,6 +149,13 @@ export default function App() {
   useEffect(() => {
     void callPlinko().then(setPlinko);
   }, [callPlinko]);
+
+  async function refreshPlinko() {
+    setPlinkoBusy(true);
+    const next = await callPlinko();
+    if (next) setPlinko(next);
+    setPlinkoBusy(false);
+  }
 
   async function togglePlinkoGameMode() {
     if (!plinko) return;
@@ -221,9 +232,10 @@ export default function App() {
         </header>
         <section hidden={screen !== "controls"} aria-label="Game controls">
           <div className="game-selector">
-            <div><label htmlFor="game-select">Selected game</label><select id="game-select" defaultValue="game-box"><option value="game-box">Game Box</option></select></div>
-            <p>Game Box is the first available game. More games will appear here as they are added.</p>
+            <div><label htmlFor="game-select">Selected game</label><select id="game-select" value={selectedGame} onChange={(e) => setSelectedGame(e.target.value as GameKey)}><option value="game-box">Game Box</option><option value="plinko">Plinko</option></select></div>
+            <p>{selectedGame === "plinko" ? "Plinko is the booth drop board. Switch scoring on or off here." : "Game Box is the IoT panel game. More games will appear here as they are added."}</p>
           </div>
+          <div hidden={selectedGame !== "game-box"}>
           <div className="section-heading"><div><p className="eyebrow">GAME BOX</p><h2>Game controls</h2></div><button className="refresh-button" disabled={loading || gameModeBusy || settingKey !== null || togglingId !== null} onClick={loadState}>{loading ? "Refreshing..." : "Refresh state"}</button></div>
           <div className="control-panel">
             <div
@@ -264,51 +276,6 @@ export default function App() {
                 }}
               >
                 {gameModeBusy ? "Saving…" : gameModeEnabled ? "Turn Off" : "Turn On"}
-              </button>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "1rem",
-                padding: "1rem",
-                borderRadius: 8,
-                border: "1px solid #d1d5db",
-                background: !plinko ? "#f3f4f6" : plinko.gameModeActive ? "#f0fdf4" : "#fdecea",
-                marginBottom: "1.5rem",
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 600 }}>
-                  Plinko Game Mode: {plinko ? (plinko.gameModeActive ? "ON" : "OFF") : "unavailable"}
-                </div>
-                <div style={{ fontSize: "0.85rem", color: "#555" }}>
-                  {plinkoNote
-                    ? plinkoNote
-                    : plinko?.gameModeActive
-                      ? "Drops are scored: the display shows the QR code, entries and prize wheel spin."
-                      : "The display just shows which bucket the puck landed in — no QR, no entries, nothing recorded."}
-                </div>
-              </div>
-              <button
-                onClick={togglePlinkoGameMode}
-                disabled={plinkoBusy || !plinko}
-                aria-label={`Turn Plinko Game Mode ${plinko?.gameModeActive ? "off" : "on"}`}
-                style={{
-                  padding: "0.6rem 1.2rem",
-                  borderRadius: 6,
-                  border: "none",
-                  fontWeight: 600,
-                  color: "#fff",
-                  background: plinko?.gameModeActive ? "#16a34a" : "#9ca3af",
-                  cursor: plinkoBusy ? "wait" : plinko ? "pointer" : "not-allowed",
-                  opacity: plinkoBusy || !plinko ? 0.6 : 1,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {plinkoBusy ? "Saving…" : plinko?.gameModeActive ? "Turn Off" : "Turn On"}
               </button>
             </div>
 
@@ -357,6 +324,62 @@ export default function App() {
                 Dataverse to populate this list (GAME_MODE_PLAN.md §11).
               </p>
             )}
+          </div>
+          </div>
+          <div hidden={selectedGame !== "plinko"}>
+            <div className="section-heading"><div><p className="eyebrow">PLINKO</p><h2>Plinko controls</h2></div><button className="refresh-button" disabled={plinkoBusy} onClick={refreshPlinko}>{plinkoBusy ? "Refreshing..." : "Refresh state"}</button></div>
+            <div className="control-panel">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "1rem",
+                padding: "1rem",
+                borderRadius: 8,
+                border: "1px solid #d1d5db",
+                background: !plinko ? "#f3f4f6" : plinko.gameModeActive ? "#f0fdf4" : "#fdecea",
+                marginBottom: "1rem",
+              }}
+            >
+              <div>
+                <div style={{ fontWeight: 600 }}>
+                  Plinko Game Mode: {plinko ? (plinko.gameModeActive ? "ON" : "OFF") : "unavailable"}
+                </div>
+                <div style={{ fontSize: "0.85rem", color: "#555" }}>
+                  {plinkoNote
+                    ? plinkoNote
+                    : plinko?.gameModeActive
+                      ? "Drops are scored: the display shows the QR code, entries and prize wheel spin."
+                      : "The display just shows which bucket the puck landed in — no QR, no entries, nothing recorded."}
+                </div>
+              </div>
+              <button
+                onClick={togglePlinkoGameMode}
+                disabled={plinkoBusy || !plinko}
+                aria-label={`Turn Plinko Game Mode ${plinko?.gameModeActive ? "off" : "on"}`}
+                style={{
+                  padding: "0.6rem 1.2rem",
+                  borderRadius: 6,
+                  border: "none",
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: plinko?.gameModeActive ? "#16a34a" : "#9ca3af",
+                  cursor: plinkoBusy ? "wait" : plinko ? "pointer" : "not-allowed",
+                  opacity: plinkoBusy || !plinko ? 0.6 : 1,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {plinkoBusy ? "Saving…" : plinko?.gameModeActive ? "Turn Off" : "Turn On"}
+              </button>
+            </div>
+
+            <p className="section-description">
+              Station <code>{PLINKO_STATION}</code>
+              {plinko?.bucketCount ? ` · ${plinko.bucketCount} buckets` : ""}. Drops are always shown on the booth display;
+              Game Mode decides whether they are scored.
+            </p>
+            </div>
           </div>
         </section>
         <section className="tool-panel" hidden={screen !== "smoke"} aria-label="Prize claim smoke test">
