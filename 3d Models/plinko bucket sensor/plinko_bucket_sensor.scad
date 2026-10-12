@@ -26,7 +26,7 @@
 // colour parts loaded as parts of the same object. Neither needs supports.
 
 /* [Part] */
-part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide, funnel_test]
+part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide, funnel_test, plug]
 
 /* [Bucket slot - board numbers 2026-09-30 (4 x 5 x 0.5 in); MEASURE] */
 slot_widths = [88.89, 80.21, 81.38, 79.38, 81.63, 86.54]; // measured 2026-10-10, buckets 1..6 left to right
@@ -116,6 +116,13 @@ magnet_fit = 0.3;       // added to the diameter and thickness for the pocket
 magnet_x = 12.5;        // each cavity's centre from the puck centre (two cavities)
 magnet_stack = 2;       // magnets stacked in each cavity
 magnets = true;
+
+/* [Retaining plug - pushes into the rear of each sensor pocket behind the housing] */
+plug_wire_h = 4.0;      // wire slot along the underside (Z), so the leads run out under the plug
+plug_wire_w = 5.0;      // wire slot width (X)
+plug_side_clear = 0.3;  // plug narrower than the pocket by this much in total
+plug_rib = 0.2;         // crush ribs on the sides; raise for a snugger fit, lower to loosen
+plug_pull_d = 2.5;      // hole through the rear of the plug for a pick or bent wire to pull it out
 
 /* [Heat-set inserts - M3 x 5.7 typical] */
 insert_hole_d = 4.0;
@@ -385,6 +392,33 @@ module cover_set(columns = 3) {
       cover_coloured(LOGOS[i][0]);
 }
 
+// Retaining plug: fills the pocket channel behind the sensor housing. The wire slot runs along its
+// underside, and the last race_d at the rear is left free so the leads can turn down into the
+// raceway. The same part serves emitter and receiver, 12 in total. Printed with the slot facing up.
+plug_w = ir_pocket_x - plug_side_clear;
+plug_h = ir_pocket_h - 0.3;
+plug_y_start = ir_pocket_y0 + ir_pocket_w;                 // just behind the housing
+plug_l = (shell_d - race_d) - plug_y_start - 0.2;
+module plug() {
+  difference() {
+    union() {
+      cube([plug_w, plug_l, plug_h]);
+      // Four short crush ribs, two per side, along the length.
+      for (side = [0, 1], y = [plug_l * 0.2, plug_l * 0.65])
+        translate([side == 0 ? -plug_rib : plug_w - eps, y, 0]) cube([plug_rib + eps, 2.0, plug_h]);
+    }
+    // Wire slot along the underside (z = 0 is the bottom, against the pocket floor).
+    translate([(plug_w - plug_wire_w) / 2, -eps, -eps]) cube([plug_wire_w, plug_l + 2 * eps, plug_wire_h + eps]);
+    // Pull hole through the rear end, above the slot.
+    translate([-plug_rib - eps, plug_l - 3.5, plug_wire_h + (plug_h - plug_wire_h) / 2]) rotate([0, 90, 0])
+      cylinder(d = plug_pull_d, h = plug_w + 2 * plug_rib + 2 * eps, $fn = 24);
+  }
+}
+assert(plug_l > 5, "No room for a plug behind the housing");
+echo(str("Plug ", plug_w, " x ", plug_l, " x ", plug_h, " mm (+ ", plug_rib, " mm ribs each side)"));
+// Printed on its top face with the wire slot facing up.
+module print_flat_plug() translate([0, 0, plug_h]) mirror([0, 0, 1]) plug();
+
 // Our own puck: smooth faces on a low raised ring (the original decal backing sticks), rounded edge, solid so it blocks IR.
 puck_print_d = 48.9;
 puck_print_t = 16.0;     // thicker is steadier in the chute and holds more magnet; groove_w must be >= this + 2
@@ -474,6 +508,7 @@ module print_flat_cover_colour(k) rotate([90, 0, 0]) cover_colour(k);
 if (part == "body") print_flat_body();
 else if (part == "fit_test") fit_test();
 else if (part == "puck") puck();
+else if (part == "plug") print_flat_plug();
 else if (part == "funnel_test") funnel_test();
 else if (part == "guide") print_flat_guide();
 else if (part == "cover") print_flat_cover();
