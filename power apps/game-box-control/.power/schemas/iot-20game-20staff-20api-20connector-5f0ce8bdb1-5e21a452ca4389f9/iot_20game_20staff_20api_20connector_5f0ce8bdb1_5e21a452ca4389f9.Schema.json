@@ -74,7 +74,8 @@
       "host": "dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatform.com",
       "basePath": "/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9/connections/",
       "schemes": [
-        "https"
+        "https",
+        "http"
       ],
       "consumes": [
         "application/json"
@@ -574,6 +575,58 @@
               }
             }
           }
+        },
+        "/{connectionId}/plinko-game-mode": {
+          "post": {
+            "responses": {
+              "default": {
+                "description": "default",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "station": {
+                      "type": "string",
+                      "description": "station"
+                    },
+                    "gameModeActive": {
+                      "type": "boolean",
+                      "description": "gameModeActive"
+                    }
+                  }
+                }
+              }
+            },
+            "summary": "PlinkoGameMode",
+            "operationId": "PlinkoGameMode",
+            "description": "Set the Game Mode of Plinko",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "required": false,
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "station": {
+                      "type": "string",
+                      "description": "station"
+                    },
+                    "gameModeActive": {
+                      "type": "boolean",
+                      "description": "gameModeActive"
+                    }
+                  }
+                }
+              }
+            ]
+          }
         }
       },
       "definitions": {},
@@ -619,13 +672,14 @@
       "useNewApimVersion": "True",
       "createdBy": "{\"id\":\"7fbf89d2-add9-4f92-b782-88e2d0dd7c15\",\"displayName\":\"Ed Williams Labs\",\"email\":\"ed.williams.labs@andworxlabs.com\",\"type\":\"User\",\"userType\":\"NotSpecified\",\"tenantId\":\"7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8\",\"userPrincipalName\":\"ed.williams.labs@andworxlabs.com\"}",
       "modifiedBy": "{\"id\":\"7fbf89d2-add9-4f92-b782-88e2d0dd7c15\",\"displayName\":\"Ed Williams Labs\",\"email\":\"ed.williams.labs@andworxlabs.com\",\"type\":\"User\",\"userType\":\"NotSpecified\",\"tenantId\":\"7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8\",\"userPrincipalName\":\"ed.williams.labs@andworxlabs.com\"}",
-      "allowSharing": false
+      "allowSharing": false,
+      "rateLimit": 0
     },
     "capabilities": [],
     "description": "Entra-authenticated staff operations. Configure the actual staff Function hostname and OAuth connection before use.",
     "apiDefinitions": {
-      "originalSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9.json_original?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-09-29T02%3A23%3A52Z&ske=2026-09-30T02%3A23%3A52Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-09-29T22%3A31%3A48Z&sr=b&sp=r&sig=e5CmDMFsa%2B9vOc3bvQ91OxCfvNXpBqxleyCW1hSsqxo%3D",
-      "modifiedSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9.json?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-09-29T02%3A23%3A52Z&ske=2026-09-30T02%3A23%3A52Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-09-29T22%3A31%3A48Z&sr=b&sp=r&sig=hJUHRaY4IAj5Tqpzcgh%2BVJWdkLE3ZZslV%2FGRAi%2F7k2Y%3D"
+      "originalSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9.json_original?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-10-11T11%3A52%3A25Z&ske=2026-10-12T11%3A52%3A25Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-10-12T01%3A21%3A28Z&sr=b&sp=r&sig=NXe%2FSVBojn0Va9mEC8Dv7YTixrDjaFZu0Ui8KSqrKAw%3D",
+      "modifiedSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9.json?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-10-11T11%3A52%3A25Z&ske=2026-10-12T11%3A52%3A25Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-10-12T01%3A21%3A28Z&sr=b&sp=r&sig=So1dt8NeoJsoTGLGC4FcRwFAj4BZwdiA7FyryhIyHrg%3D"
     },
     "policyTemplateInstances": [],
     "backendService": {
@@ -650,7 +704,7 @@
       "userPrincipalName": "ed.williams.labs@andworxlabs.com"
     },
     "createdTime": "2026-09-29T21:31:09.2300848Z",
-    "changedTime": "2026-09-29T21:31:09.2300848Z",
+    "changedTime": "2026-10-12T00:20:31.764371Z",
     "environment": {
       "id": "/providers/Microsoft.PowerApps/environments/dd045fe3-6b47-e5bd-87e6-680b3cfd3a09",
       "name": "dd045fe3-6b47-e5bd-87e6-680b3cfd3a09"
