@@ -18,3 +18,16 @@ presentation screens poll drawing state; no staff winner details are broadcast o
 the publicly negotiable kiosk SignalR hub.
 
 Update this README and the operation definitions together when API contracts change.
+
+## Adding the Plinko Game Mode operation
+
+`PlinkoGameMode` (`POST /api/plinko-game-mode`, body `{ station, gameModeActive? }`) powers the Plinko
+switch in Game Box Control. It was added after the connector was first registered, so the Code App treats
+it as optional: until the connector has it, everything else works and the Plinko card says it needs an
+update. To enable it:
+
+1. In the Power Platform maker portal, edit the existing custom connector and add the
+   `/plinko-game-mode` POST operation from `openapi.json` (or re-import the definition).
+2. Update the connector's operation list in the Code App binding (`pac code add-data-source`) and keep the
+   regenerated non-secret `.power/schemas` files in source.
+3. Deploy the staff Function App (it ships with the app release workflow).

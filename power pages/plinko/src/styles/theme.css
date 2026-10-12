@@ -77,7 +77,7 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 }
 .stage h1 {
   margin: 0;
-  max-width: 36ch;
+  max-width: 40ch;
   color: var(--color-text-bright);
   font-size: clamp(26px, 3.6vw, 64px);
   line-height: 1.12;
@@ -324,6 +324,23 @@ button:focus-visible { outline: 2px solid var(--tier-cloud); outline-offset: 2px
 .win-brand { display: block; height: clamp(24px, 3.4vh, 40px); width: auto; margin: 0 0 18px; }
 .win-card h2 { margin: 8px 0 12px; color: var(--brand-royal); font-size: clamp(36px, 5vw, 76px); line-height: 1; }
 .win-bucket-line { margin: 0 0 20px; font-size: clamp(18px, 1.8vw, 28px); }
+
+.hit-card {
+  position: relative;
+  z-index: 2;
+  width: min(900px, 100%);
+  padding: clamp(24px, 4vw, 64px);
+  border-radius: 20px;
+  background: #fafbfff2;
+  color: #1a2160;
+  text-align: center;
+  box-shadow: 0 34px 90px #0206178a;
+  animation: win-pop 0.35s cubic-bezier(0.2, 0.9, 0.2, 1.2);
+}
+.hit-card .win-brand { margin: 0 auto 12px; }
+.hit-card .eyebrow { color: var(--brand-purple); }
+.hit-card h2 { margin: 8px 0 24px; color: var(--brand-royal); font-size: clamp(56px, 9vw, 150px); line-height: 1; }
+.hit-card .bucket-row { margin: 0; }
 
 .bucket-row {
   display: grid;

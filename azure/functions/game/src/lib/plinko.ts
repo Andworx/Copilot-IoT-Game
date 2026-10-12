@@ -43,6 +43,11 @@ export interface PlinkoResultMessage {
   bucketCount: number;
   entriesAwarded: number;
   claimToken: string;
+  /**
+   * False when staff have turned Game Mode off for the station: the display just shows the bucket
+   * (no QR, no entries, nothing recorded), and `claimToken` is empty.
+   */
+  gameModeActive: boolean;
 }
 
 export function isPlinkoLanding(payload: unknown): boolean {
@@ -103,13 +108,15 @@ export function entriesFor(profile: PlinkoProfile, bucket: number, litBucket: nu
 }
 
 export type PlinkoDecision =
-  | { accepted: true; bucket: number; litBucket: number; bucketCount: number; entriesAwarded: number }
+  | { accepted: true; gameModeActive: true; bucket: number; litBucket: number; bucketCount: number; entriesAwarded: number }
+  | { accepted: true; gameModeActive: false; bucket: number; bucketCount: number }
   | { accepted: false; reason: string };
 
-/** Everything that can be decided without touching Dataverse. */
+/**
+ * Everything that can be decided without touching Dataverse. With Game Mode off the landing is
+ * still valid (the display shows the bucket) but earns and records nothing.
+ */
 export function judgePlinkoLanding(landing: PlinkoLanding, profile: PlinkoProfile, now: Date = new Date()): PlinkoDecision {
-  if (!profile.gameModeActive) return { accepted: false, reason: `station "${profile.slug}" is not active` };
-
   const stale = checkFreshness(landing.landedAt, now);
   if (stale) return { accepted: false, reason: stale };
 
@@ -119,10 +126,14 @@ export function judgePlinkoLanding(landing: PlinkoLanding, profile: PlinkoProfil
     return { accepted: false, reason: `bucket ${landing.bucket} is outside 1..${bucketCount}` };
   }
 
-  const litBucket = resolveLitBucket(landing, bucketCount);
+  if (!profile.gameModeActive) {
+    return { accepted: true, gameModeActive: false, bucket: landing.bucket, bucketCount };
+  }
 
+  const litBucket = resolveLitBucket(landing, bucketCount);
   return {
     accepted: true,
+    gameModeActive: true,
     bucket: landing.bucket,
     litBucket,
     bucketCount,
