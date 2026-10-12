@@ -3,6 +3,6 @@
 # --system-site-packages instead. Building it via pip needs swig and
 # liblgpio-dev, neither present by default; the apt package already works.
 # See README.md's Setup section.
-gpiozero>=2.0
+gpiozero>=2.0.1.post3
 azure-iot-device>=2.13.0
 python-dotenv>=1.0.0
