@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26084.171" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26084.171" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26084.00171">
+<ImportExportXml version="9.2.26091.167" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26091.167" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26091.00167">
   <SolutionManifest>
     <UniqueName>Plinko</UniqueName>
     <LocalizedNames>
@@ -93,6 +93,10 @@
       </MissingDependency>
       <MissingDependency>
         <Required type="1" schemaName="andy_iotgamewin" displayName="IoT Game Win" solution="Active" />
+        <Dependent type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="1" schemaName="andy_mcpquestplay" displayName="MCP Quest Play" solution="Active" />
         <Dependent type="1" schemaName="andy_prizeclaim" displayName="Prize Claim" />
       </MissingDependency>
       <MissingDependency>

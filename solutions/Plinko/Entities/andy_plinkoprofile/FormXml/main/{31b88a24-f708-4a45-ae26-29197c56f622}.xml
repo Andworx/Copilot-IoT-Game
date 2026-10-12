@@ -5,7 +5,7 @@
     <IntroducedVersion>1.0</IntroducedVersion>
     <FormPresentation>1</FormPresentation>
     <FormActivationState>1</FormActivationState>
-    <form>
+    <form headerdensity="HighWithControls">
       <tabs>
         <tab verticallayout="true" id="{CF5EA955-5BA9-43F6-BE55-23DF1A137E41}" IsUserDefined="1">
           <labels>
@@ -27,7 +27,7 @@
                         <control id="andy_profilename" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="andy_profilename" />
                       </cell>
                     </row>
-                    <row></row>
+                    <row />
                     <row>
                       <cell id="{786b1a31-9091-43e1-ba24-782a4d7bfc97}">
                         <labels>
@@ -77,11 +77,11 @@
                       </cell>
                     </row>
                     <row>
-                      <cell id="{eaff12dd-f9b0-4ee7-96b5-095d2a22d9a6}">
+                      <cell id="{6a06494a-cdc1-4eb6-8ab3-1bd30f7ba740}" locklevel="0" colspan="1" rowspan="1">
                         <labels>
                           <label description="Bucket Icons JSON" languagecode="1033" />
                         </labels>
-                        <control id="andy_bucketiconsjson" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_bucketiconsjson" />
+                        <control id="andy_bucketiconsjson" classid="{E0DECE4B-6FC8-4A8F-A065-082708572369}" datafieldname="andy_bucketiconsjson" disabled="false" />
                       </cell>
                     </row>
                   </rows>
@@ -91,6 +91,51 @@
           </columns>
         </tab>
       </tabs>
+      <header id="{24ea55fa-5391-4a24-ae4e-b759c8ee20e8}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{3d4d9b1b-40ea-4ff6-9613-e0a77ba51275}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{4846c209-812b-47ca-95a8-508f4ae47c2d}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{3f573278-e8bb-4091-ad46-d2172ac0f3d4}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{10127e00-433f-4c83-bfef-773744cfe0b8}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{f9078af2-e495-40ba-b931-511488149016}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{059b17a7-e1f1-49d5-931c-b29fdabb4999}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{0e520640-3911-43d9-b998-d1f7186210ee}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
     </form>
     <IsCustomizable>1</IsCustomizable>
     <CanBeDeleted>1</CanBeDeleted>

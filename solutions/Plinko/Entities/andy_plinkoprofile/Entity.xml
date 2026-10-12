@@ -53,7 +53,7 @@
             <Description description="Currently active lit bucket number" languagecode="1033" />
           </Descriptions>
         </attribute>
-        <attribute PhysicalName="andy_bucketiconsjson">
+        <attribute PhysicalName="andy_BucketIconsJSON">
           <Type>ntext</Type>
           <Name>andy_bucketiconsjson</Name>
           <LogicalName>andy_bucketiconsjson</LogicalName>
@@ -89,7 +89,7 @@
             <displayname description="Bucket Icons JSON" languagecode="1033" />
           </displaynames>
           <Descriptions>
-            <Description description="Ordered JSON array of bucket icon ids used by the Plinko display." languagecode="1033" />
+            <Description description="" languagecode="1033" />
           </Descriptions>
         </attribute>
         <attribute PhysicalName="andy_gamemodeactive">
