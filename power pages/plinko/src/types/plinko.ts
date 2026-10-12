@@ -1,3 +1,10 @@
+import aiBuilderLogo from "../assets/logos/AIBuilder_scalable.svg";
+import dataverseLogo from "../assets/logos/Dataverse_scalable.svg";
+import powerAppsLogo from "../assets/logos/PowerApps_scalable.svg";
+import powerAutomateLogo from "../assets/logos/PowerAutomate_scalable.svg";
+import powerPagesLogo from "../assets/logos/PowerPages_scalable.svg";
+import powerPlatformLogo from "../assets/logos/PowerPlatform_scalable.svg";
+
 /**
  * SignalR `plinkoResult` payload broadcast on the `gamebox` hub after the backend
  * accepts a Plinko landing (issue #128). See power pages/docs/PLINKO_GAME_PLAN.md §4.
@@ -24,15 +31,17 @@ export interface PlinkoResult {
 }
 
 export const BUCKET_ICONS = {
-  powerapps: { label: "Power Apps", src: "/logos/PowerApps_scalable.svg" },
-  dataverse: { label: "Dataverse", src: "/logos/Dataverse_scalable.svg" },
-  powerautomate: { label: "Power Automate", src: "/logos/PowerAutomate_scalable.svg" },
-  powerpages: { label: "Power Pages", src: "/logos/PowerPages_scalable.svg" },
-  aibuilder: { label: "AI Builder", src: "/logos/AIBuilder_scalable.svg" },
-  powerplatform: { label: "Power Platform", src: "/logos/PowerPlatform_scalable.svg" },
+  powerapps: { label: "Power Apps", src: powerAppsLogo },
+  dataverse: { label: "Dataverse", src: dataverseLogo },
+  powerautomate: { label: "Power Automate", src: powerAutomateLogo },
+  powerpages: { label: "Power Pages", src: powerPagesLogo },
+  aibuilder: { label: "AI Builder", src: aiBuilderLogo },
+  powerplatform: { label: "Power Platform", src: powerPlatformLogo },
 } as const;
 
 export type BucketIconId = keyof typeof BUCKET_ICONS;
+
+export const BUCKET_ICON_LOGOS = Object.values(BUCKET_ICONS).map((icon) => icon.src);
 
 export const DEFAULT_BUCKET_ICON_IDS: BucketIconId[] = [
   "powerapps",

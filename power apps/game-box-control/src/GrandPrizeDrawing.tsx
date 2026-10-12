@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { staffRequest } from "./apiConfig";
+import aiBuilderLogo from "./assets/logos/AIBuilder_scalable.svg";
+import dataverseLogo from "./assets/logos/Dataverse_scalable.svg";
+import powerAppsLogo from "./assets/logos/PowerApps_scalable.svg";
+import powerAutomateLogo from "./assets/logos/PowerAutomate_scalable.svg";
+import powerPagesLogo from "./assets/logos/PowerPages_scalable.svg";
+import powerPlatformLogo from "./assets/logos/PowerPlatform_scalable.svg";
 
 interface DrawingSlice {
   contactId: string;
@@ -46,14 +52,7 @@ const WHEEL_SIZE = 420;
 const SAMPLE_REGISTERED_COUNT = 200;
 const SAMPLE_CHECKED_IN_COUNT = 100;
 const SAMPLE_COLORS = ["#1f8a70", "#f2a541", "#3f6fb5", "#c4515c", "#7b61a8", "#2f9ca0", "#d96b3b", "#5c83c6"];
-const CONFETTI_LOGOS = [
-  "/logos/AIBuilder_scalable.svg",
-  "/logos/Dataverse_scalable.svg",
-  "/logos/PowerApps_scalable.svg",
-  "/logos/PowerAutomate_scalable.svg",
-  "/logos/PowerPages_scalable.svg",
-  "/logos/PowerPlatform_scalable.svg",
-];
+const CONFETTI_LOGOS = [aiBuilderLogo, dataverseLogo, powerAppsLogo, powerAutomateLogo, powerPagesLogo, powerPlatformLogo];
 const SAMPLE_SLICES: DrawingSlice[] = Array.from({ length: SAMPLE_CHECKED_IN_COUNT }, (_, index) => ({
   contactId: `sample-${index + 1}`,
   displayName: `Guest ${String(index + 1).padStart(3, "0")}`,

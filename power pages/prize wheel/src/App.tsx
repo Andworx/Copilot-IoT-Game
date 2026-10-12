@@ -5,6 +5,12 @@ import { PreferencePage } from "./components/PreferencePage";
 import { SolutionDiagram } from "./components/SolutionDiagram";
 import { PrizeWheel } from "./components/PrizeWheel";
 import { API_BASE_URL, PRIVACY_NOTICE_URL } from "./lib/apiConfig";
+import aiBuilderLogo from "./assets/logos/AIBuilder_scalable.svg";
+import dataverseLogo from "./assets/logos/Dataverse_scalable.svg";
+import powerAppsLogo from "./assets/logos/PowerApps_scalable.svg";
+import powerAutomateLogo from "./assets/logos/PowerAutomate_scalable.svg";
+import powerPagesLogo from "./assets/logos/PowerPages_scalable.svg";
+import powerPlatformLogo from "./assets/logos/PowerPlatform_scalable.svg";
 
 type Step = "share" | "wheel" | "result" | "error";
 
@@ -12,6 +18,15 @@ interface ClaimResult {
   prizeName: string;
   marketingConfirmation?: "sent" | "skipped" | "error";
 }
+
+const CONFETTI_LOGOS = [aiBuilderLogo, dataverseLogo, powerAppsLogo, powerAutomateLogo, powerPagesLogo, powerPlatformLogo];
+const CONFETTI = Array.from({ length: 24 }, (_, index) => ({
+  id: index,
+  left: `${(index * 41) % 100}%`,
+  delay: `${(index % 8) * 0.26}s`,
+  duration: `${4.6 + (index % 5) * 0.4}s`,
+  logo: CONFETTI_LOGOS[index % CONFETTI_LOGOS.length],
+}));
 
 /**
  * Standalone phone-facing spin page, reads `?token=` from the kiosk QR
@@ -190,15 +205,28 @@ function App() {
         )}
 
         {step === "result" && claimResult && (
-          <div className="phone-step">
-            <span className="eyebrow">Prize secured</span>
-            <h3>You won:</h3>
-            <div className="result-card">
-              <div className="prize-name">{claimResult.prizeName}</div>
+          <div className="phone-step result-step">
+            <div className="confetti-field" aria-hidden="true">
+              {CONFETTI.map((piece) => (
+                <span
+                  className="confetti-piece"
+                  key={piece.id}
+                  style={{ left: piece.left, animationDelay: piece.delay, animationDuration: piece.duration, backgroundImage: `url(${piece.logo})` }}
+                />
+              ))}
             </div>
-            <p>Show this screen to a staff member at the prize table to collect your prize.</p>
-            {claimResult.marketingConfirmation === "sent" && <p>We emailed you a link to confirm your subscription to news and offers.</p>}
-            <div className="phone-actions">{exploreButton}</div>
+            <div className="result-content">
+              <span className="eyebrow">Prize secured</span>
+              <h3>You won:</h3>
+              <div className="result-card">
+                <div className="prize-name">{claimResult.prizeName}</div>
+              </div>
+              <p className="staff-callout">
+                Come to staff with this screen. Your prize outcome is <strong>{claimResult.prizeName}</strong>.
+              </p>
+              {claimResult.marketingConfirmation === "sent" && <p>We emailed you a link to confirm your subscription to news and offers.</p>}
+              <div className="phone-actions">{exploreButton}</div>
+            </div>
           </div>
         )}
       </div>
