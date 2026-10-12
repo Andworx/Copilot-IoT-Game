@@ -223,4 +223,21 @@ export class IoTGameStaffAPIConnectorService {
       });
     return result;
   }
+
+  /**
+   * PlinkoGameMode
+   * Set the Game Mode of Plinko
+   */
+  public static async PlinkoGameMode(body?: Record<string, unknown>): Promise<IOperationResult<void>> {
+    const params: { body?: Record<string, unknown> } = { body };
+    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body?: Record<string, unknown> }, void>(
+      {
+        connectorOperation: {
+          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          operationName: 'PlinkoGameMode',
+          parameters: params
+        },
+      });
+    return result;
+  }
 }

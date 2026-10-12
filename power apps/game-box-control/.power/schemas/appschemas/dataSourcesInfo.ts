@@ -380,6 +380,29 @@ export const dataSourcesInfo = {
             "type": "void"
           }
         }
+      },
+      "PlinkoGameMode": {
+        "path": "/{connectionId}/plinko-game-mode",
+        "method": "POST",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": false,
+            "type": "object"
+          }
+        ],
+        "responseInfo": {
+          "default": {
+            "type": "object"
+          }
+        }
       }
     }
   }
