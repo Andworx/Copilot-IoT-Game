@@ -4,5 +4,5 @@
 # liblgpio-dev, neither present by default; the apt package already works.
 # See README.md's Setup section.
 gpiozero>=2.0.1.post3
-azure-iot-device>=2.13.0
+azure-iot-device>=2.14.0
 python-dotenv>=1.0.0
