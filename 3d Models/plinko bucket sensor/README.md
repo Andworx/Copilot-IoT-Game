@@ -138,7 +138,7 @@ Neither part needs supports.
 | `exports/stl/guide_slot1..6.stl` | Marking guide per bucket (below). Labelled `B<n>  <width> mm`, `FLOOR`, `M3`, `W`. |
 | `exports/stl/puck.stl` | Our puck: 48.9 x 16 mm, rounded edge, smooth faces, no decal. Two sealed magnet cavities. |
 | `exports/stl/magnet_test.stl` | Fit test: four open pockets with 0.1, 0.2, 0.3 and 0.4 mm of diameter play for the 6 x 1.74 mm magnets. Print this first and pick the pocket the magnet drops into with a little play, then set `mag_fit` to that number. |
-| `exports/stl/magnet_dispenser.stl`, `magnet_pusher.stl` | Keeps magnet polarity right: see "Magnets" below. |
+| `exports/stl/magnet_dispenser.stl`, `magnet_pusher.stl`, `magnet_cap_body.stl`, `magnet_cap_tile.stl` | Keeps magnet polarity right and the stack stored: see "Magnets" below. |
 | `exports/stl/plug.stl` | Retaining plug, **12 needed** (one per sensor, emitter and receiver alike). Pushes into the rear of the sensor pocket behind the housing so it cannot slide out; a slot along its underside lets the wires run out, and it is only lightly snug (0.1 mm crush ribs). Pull hole at the rear for a pick. Print with the slot facing up (the STL is already oriented). |
 | `exports/stl/fit_test.stl` | Receiver end only, to check the housing fit (passed). |
 | `exports/covers/<logo>/` | Magnetic tiles: **one size (78.58 x 38.2 mm) that fits every bucket**, so the 12 logos make up one shared set. Engraved with the logo name on the back. |
@@ -176,7 +176,7 @@ mark with a punch or brad nail instead. Wire exit dent only: choose your own hol
 
 The tile and the body each have six **sealed** cavities for 6 x 1.74 mm discs (two columns, three rows).
 The magnets are not glued: you drop them in at a pause and the print closes a 0.6 mm skin over them.
-The pockets have play (`mag_fit` 0.3 mm in diameter, `mag_play_t` 0.3 mm in depth), and the snap pins
+The pockets have play (`mag_fit` 0.3 mm in diameter, tested on the printer; `mag_play_t` 0.3 mm in depth), and the snap pins
 are gone, so the magnets alone hold the tile.
 
 | Part | Printed | Pause at Z | Notes |
@@ -201,3 +201,16 @@ must be consistent. Use the dispenser:
 3. For a **tile**: stand the tube on the cavity with the **TILE** end down, and push from the BODY end.
 4. The two ends give opposite faces, so every tile attracts every body. When you top up the stack, add
    magnets at the TILE end only and make sure they attract (do not force a magnet that repels).
+
+### Caps and the reference magnet
+
+Two caps (`magnet_cap_body.stl`, `magnet_cap_tile.stl`) slide over the tube ends and keep the stack in
+when you are not using it. Each has a pocket in its closed end for one **reference magnet**:
+
+1. Drop a magnet in each cap's pocket and bring the cap to the matching end of the stack. The
+   magnet must be **pulled in** and hold the cap on. If it repels, take the magnet out and flip it.
+   The two caps end up with opposite faces, as the stack ends do.
+2. Leave the caps on between sessions: the stack cannot spill, and a cap that repels or falls off
+   tells you a magnet at that end has been flipped or the stack has been moved.
+3. To check a loose magnet, touch it to the **TILE** cap's top. The face that clings is the face
+   that goes **up** (outward) in a tile cavity, and **down** in a body cavity.

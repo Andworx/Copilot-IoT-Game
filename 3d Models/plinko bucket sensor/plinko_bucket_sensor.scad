@@ -26,7 +26,7 @@
 // colour parts loaded as parts of the same object. Neither needs supports.
 
 /* [Part] */
-part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide, funnel_test, plug, magnet_test, dispenser, pusher]
+part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide, funnel_test, plug, magnet_test, dispenser, pusher, cap_body, cap_tile]
 
 /* [Bucket slot - board numbers 2026-09-30 (4 x 5 x 0.5 in); MEASURE] */
 slot_widths = [88.89, 80.21, 81.38, 79.38, 81.63, 86.54]; // measured 2026-10-10, buckets 1..6 left to right
@@ -80,7 +80,7 @@ cover_gap = 0.2;        // between cover back and body front
 cover_top_clear = 0.2;  // cover top sits this far below the top surface
 mag_d = 6.0;            // disc magnet diameter (6 x 1.74 mm)
 mag_h = 1.74;           // disc magnet thickness
-mag_fit = 0.3;          // added to the cavity diameter, so a magnet drops in with play
+mag_fit = 0.3;          // added to the cavity diameter, so a magnet drops in with play (0.3 tested: fits)
 mag_play_t = 0.3;       // added to the cavity depth
 mag_skin_body = 0.6;    // printed skin over a magnet in the body (3 layers at 0.2 mm), on the front face
 mag_skin_tile = 0.6;    // printed skin over a magnet in the tile, on the back face
@@ -423,6 +423,26 @@ module magnet_dispenser() {
       text("TILE", size = 3.4, halign = "center", valign = "center", font = "Liberation Sans:style=Bold");
   }
 }
+// End cap for the dispenser: slides over the tube end and keeps the stack in. A reference magnet sits in
+// a pocket in its closed end, facing the stack. It must ATTRACT the stack (it holds the cap on), so a
+// cap on the wrong end repels, and the cap top shows which face of a loose magnet goes up.
+cap_sleeve = 8;
+cap_wall = 1.6;
+module magnet_cap(txt) {
+  inner = disp_od + 0.3;
+  outer = inner + 2 * cap_wall;
+  floor_t = mag_depth + 1.0;
+  difference() {
+    translate([-outer / 2, -outer / 2, 0]) cube([outer, outer, floor_t + cap_sleeve]);
+    // Tube socket from the open end, down to the closed end.
+    translate([-inner / 2, -inner / 2, floor_t]) cube([inner, inner, cap_sleeve + eps]);
+    // Reference magnet pocket in the closed end, opening toward the tube.
+    translate([0, 0, floor_t - mag_depth]) cylinder(d = mag_d + mag_fit, h = mag_depth + eps, $fn = 48);
+    // Label on a side face.
+    translate([0, -outer / 2 + 0.4, floor_t + cap_sleeve / 2]) rotate([90, 0, 0]) linear_extrude(0.6)
+      text(txt, size = 3.4, halign = "center", valign = "center", font = "Liberation Sans:style=Bold");
+  }
+}
 module magnet_pusher() {
   cylinder(d = mag_d - 0.5, h = disp_len + 14, $fn = 32);
   translate([0, 0, -5]) cylinder(d = 14, h = 5, $fn = 48);
@@ -547,6 +567,8 @@ else if (part == "puck") puck();
 else if (part == "plug") print_flat_plug();
 else if (part == "magnet_test") magnet_test();
 else if (part == "dispenser") magnet_dispenser();
+else if (part == "cap_body") magnet_cap("BODY");
+else if (part == "cap_tile") magnet_cap("TILE");
 else if (part == "pusher") translate([0, 0, 5]) magnet_pusher();
 else if (part == "funnel_test") funnel_test();
 else if (part == "guide") print_flat_guide();

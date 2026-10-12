@@ -57,7 +57,7 @@ foreach ($Angle in 40, 47) {
     Write-Host "== funnel test $Angle"
     Invoke-OpenScad @("-o", (Join-Path $StlDir "funnel_test_$Angle.stl"), "-D", "part=`"funnel_test`"", "-D", "funnel_angle=$Angle", $Source)
 }
-foreach ($Tool in @(@("magnet_test", "magnet_test"), @("dispenser", "magnet_dispenser"), @("pusher", "magnet_pusher"))) {
+foreach ($Tool in @(@("magnet_test", "magnet_test"), @("dispenser", "magnet_dispenser"), @("pusher", "magnet_pusher"), @("cap_body", "magnet_cap_body"), @("cap_tile", "magnet_cap_tile"))) {
     Write-Host "== $($Tool[1])"
     Invoke-OpenScad @("-o", (Join-Path $StlDir "$($Tool[1]).stl"), "-D", "part=`"$($Tool[0])`"", $Source) -ShowEcho
 }
