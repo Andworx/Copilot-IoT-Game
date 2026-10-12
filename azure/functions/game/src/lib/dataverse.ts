@@ -22,9 +22,48 @@ function getMsalClient(): ConfidentialClientApplication {
   return msalClient;
 }
 
+type DataverseAuthMode = "client-secret" | "managed-identity";
+
+/**
+ * How the Function authenticates to Dataverse. "client-secret" (default) uses the Entra app
+ * registration in DATAVERSE_CLIENT_ID/DATAVERSE_CLIENT_SECRET. "managed-identity" uses the
+ * Function App's own identity, so no secret is stored or copied between apps. The identity
+ * needs a Dataverse application user with the game security role. Switching is one app setting,
+ * which makes rollback a setting change rather than a deployment.
+ */
+export function dataverseAuthMode(value = process.env.DATAVERSE_AUTH_MODE): DataverseAuthMode {
+  const mode = (value ?? "").trim().toLowerCase();
+  if (mode === "" || mode === "client-secret") return "client-secret";
+  if (mode === "managed-identity") return "managed-identity";
+  throw new Error("DATAVERSE_AUTH_MODE must be client-secret or managed-identity.");
+}
+
+/** App Service / Functions managed identity endpoint (api-version 2019-08-01). Never logs the token. */
+async function acquireManagedIdentityToken(now: number): Promise<{ value: string; expiresAt: number }> {
+  const endpoint = process.env.IDENTITY_ENDPOINT;
+  const header = process.env.IDENTITY_HEADER;
+  if (!endpoint || !header) {
+    throw new Error("Managed identity is not available: IDENTITY_ENDPOINT/IDENTITY_HEADER are not set.");
+  }
+  const url = `${endpoint}?resource=${encodeURIComponent(DATAVERSE_URL)}&api-version=2019-08-01`;
+  const response = await fetch(url, { headers: { "X-IDENTITY-HEADER": header } });
+  if (!response.ok) {
+    throw new Error(`Managed identity token request failed: ${response.status}`);
+  }
+  const body = (await response.json()) as { access_token?: string; expires_on?: string | number };
+  if (!body.access_token) throw new Error("Managed identity returned no access token");
+  const epochSeconds = Number(body.expires_on);
+  const expiresAt = Number.isFinite(epochSeconds) && epochSeconds > 0 ? epochSeconds * 1000 : now + 55 * 60 * 1000;
+  return { value: body.access_token, expiresAt };
+}
+
 async function getAccessToken(): Promise<string> {
   const now = Date.now();
   if (cachedToken && cachedToken.expiresAt - 60_000 > now) {
+    return cachedToken.value;
+  }
+  if (dataverseAuthMode() === "managed-identity") {
+    cachedToken = await acquireManagedIdentityToken(now);
     return cachedToken.value;
   }
   const result = await getMsalClient().acquireTokenByClientCredential({
@@ -38,6 +77,11 @@ async function getAccessToken(): Promise<string> {
     expiresAt: result.expiresOn ? result.expiresOn.getTime() : now + 60 * 60 * 1000,
   };
   return cachedToken.value;
+}
+
+/** Test seam: drop the cached token so the next call re-acquires. */
+export function resetDataverseTokenCache(): void {
+  cachedToken = null;
 }
 
 /** Doesn't throw on non-ok -- callers that need to inspect the status (e.g. a 412 from

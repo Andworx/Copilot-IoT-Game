@@ -321,3 +321,27 @@ classification flag. No new column or connector schema change is required.
 ## Daily consent job
 
 `consent-maintenance` (timer, 14:00 UTC, staff app only) sends the post-event follow-up emails (checked-in entries, from the campaign's `andy_followupsendtime` for 3 days) and erases game-created contacts with no confirmed marketing opt-in 90 days after the drawing. See `docs/PREFERENCE_CENTER_DESIGN.md`.
+
+## Dataverse authentication: managed identity cutover (issue #115)
+
+By default the Function authenticates to Dataverse with the Entra app registration in
+`DATAVERSE_CLIENT_ID` / `DATAVERSE_CLIENT_SECRET`. Setting `DATAVERSE_AUTH_MODE=managed-identity`
+makes it use the Function App's own system-assigned identity instead, so no secret is needed.
+
+| Setting | Purpose |
+|---|---|
+| `DATAVERSE_AUTH_MODE` | `client-secret` (default) or `managed-identity`. Anything else fails fast. |
+| `DATAVERSE_APP_USER_CLIENT_IDS` | Comma-separated application (client) IDs of the Function Apps' managed identities. Contact retention treats contacts created by these users, and by `DATAVERSE_CLIENT_ID`, as game-created. Keep `DATAVERSE_CLIENT_ID` set after cutover so legacy contacts are still recognised. |
+
+Prerequisites: a Dataverse application user for each managed identity with the
+`Copilot IoT Game Security Role` (business unit = root).
+
+Cutover order (each step is an app setting, so rollback is setting `DATAVERSE_AUTH_MODE` back):
+
+1. Deploy this code with the default mode (no behaviour change).
+2. Set `DATAVERSE_APP_USER_CLIENT_IDS` on both apps.
+3. Set `DATAVERSE_AUTH_MODE=managed-identity` on the **staff** app; verify a staff operation.
+4. Set it on the **game** app; verify a kiosk win, a prize claim and the retention job.
+5. After a soak period, remove `DATAVERSE_CLIENT_SECRET` from both apps (and from
+   `inheritedSettings` in `azure/infrastructure/modules/staff-resources.bicep`), then delete the
+   `azure-function` client secret on the app registration.
