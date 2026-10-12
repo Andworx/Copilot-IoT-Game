@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import esbuild from "esbuild";
-import ts from "typescript";
 
 // deviceProfiles.ts is bundled (not just transpiled) so its value-level import of
 // lib/lampLogic.ts resolves — a data: URL module has no base path to resolve a bare
@@ -28,7 +27,7 @@ const { outputFiles } = await esbuild.build({
 const profileUrl = `data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString("base64")}`;
 const { DEVICE_PROFILES, DEVICE_ORDER, CABLE_RECIPES, cablesMatch, cableActions, restoreActionsFrom } = await import(profileUrl);
 const promptSource = readFileSync(new URL("../src/lib/quickFixPrompt.ts", import.meta.url), "utf8");
-const promptJs = ts.transpileModule(promptSource, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replace('"../data/deviceProfiles"', JSON.stringify(profileUrl));
+const promptJs = (await esbuild.transform(promptSource, { loader: "ts", format: "esm", target: "es2022" })).code.replace('"../data/deviceProfiles"', JSON.stringify(profileUrl));
 const { buildQuickFixPrompt } = await import(`data:text/javascript;base64,${Buffer.from(promptJs).toString("base64")}`);
 
 // This is repository-owned Boolean syntax, not user input (win and every lamp's `when`
