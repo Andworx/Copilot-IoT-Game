@@ -55,6 +55,15 @@ interface CaseUi {
 
 const BLANK: CaseUi = { chosen: null, message: null, busy: null, error: null, report: null, testedDesign: null };
 
+const ROOM_SPOTS = [
+  { x: 24, y: 30 },
+  { x: 52, y: 24 },
+  { x: 78, y: 34 },
+  { x: 36, y: 58 },
+  { x: 66, y: 64 },
+  { x: 86, y: 72 },
+] as const;
+
 const TEST_LABEL: Record<DesignerKind, string> = {
   flow: "Test the flow",
   report: "Check the report",
@@ -72,6 +81,7 @@ function messageOf(error: unknown, fallback: string): string {
 export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabled, onDesignChange, onHint }: Props) {
   const cases = session.objectives.filter((o) => o.kind === "build");
   const [active, setActive] = useState(0);
+  const [started, setStarted] = useState<Record<string, boolean>>({});
   const [ui, setUi] = useState<Record<string, CaseUi>>({});
 
   const patch = (id: string, update: Partial<CaseUi>) =>
@@ -79,6 +89,8 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
 
   const current: Objective | undefined = cases[active];
   if (!current) return null;
+  const activeSpot = ROOM_SPOTS[active % ROOM_SPOTS.length] ?? ROOM_SPOTS[0];
+  const currentStarted = Boolean(started[current.id]);
   const designer: DesignerKind = current.designer ?? "flow";
   const state = ui[current.id] ?? BLANK;
   const designText = designs[current.id];
@@ -136,9 +148,53 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
   const criteria = state.report?.criteria;
 
   return (
-    <section className="card cases" aria-labelledby="cases-title">
+    <section className={currentStarted ? "card cases is-working" : "card cases"} aria-labelledby="cases-title">
       <h2 id="cases-title">Mission</h2>
       <p className="scenario">{session.scenario}</p>
+
+      <div className="mission-room">
+        <div
+          className="mission-room-map"
+          style={{ ["--room-avatar-x" as string]: `${activeSpot.x}%`, ["--room-avatar-y" as string]: `${activeSpot.y}%` }}
+        >
+          <div className="mission-room-exit" aria-hidden="true" />
+          <div className="mission-room-avatar" aria-hidden="true">
+            <span />
+          </div>
+          {cases.map((c, index) => {
+            const s = ui[c.id] ?? BLANK;
+            const done = s.report?.criteria.every((k) => k.ok) ?? false;
+            const spot = ROOM_SPOTS[index % ROOM_SPOTS.length] ?? ROOM_SPOTS[0];
+            return (
+              <button
+                key={c.id}
+                type="button"
+                aria-pressed={index === active}
+                className={index === active ? "mission-room-item is-active" : done ? "mission-room-item is-done" : "mission-room-item"}
+                style={{ ["--room-item-x" as string]: `${spot.x}%`, ["--room-item-y" as string]: `${spot.y}%` }}
+                onClick={() => setActive(index)}
+              >
+                <span>{done ? "OK" : index + 1}</span>
+                <strong>{c.label ?? c.caseTitle ?? c.id}</strong>
+              </button>
+            );
+          })}
+        </div>
+
+        <aside className="mission-room-panel" aria-live="polite">
+          <span>Work item</span>
+          <strong>{current.label ?? current.caseTitle ?? current.id}</strong>
+          <p>{current.prompt}</p>
+          <button
+            type="button"
+            className="primary"
+            disabled={disabled}
+            onClick={() => setStarted((prev) => ({ ...prev, [current.id]: true }))}
+          >
+            {currentStarted ? "Work open" : "Begin work"}
+          </button>
+        </aside>
+      </div>
 
       <div className="case-tabs" role="tablist" aria-label="Cases">
         {cases.map((c, index) => {
@@ -160,7 +216,8 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
         })}
       </div>
 
-      <div className="case-body">
+      {currentStarted ? (
+        <div className="case-body">
         <h3 className="case-title">{current.caseTitle}</h3>
         <p className="case-brief">{current.prompt}</p>
 
@@ -287,7 +344,13 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
             Need a hint? (−{session.hintPenalty} points)
           </button>
         )}
-      </div>
+        </div>
+      ) : (
+        <div className="mission-room-locked" role="status">
+          <strong>Move to a work item.</strong>
+          <span>Select a marker in the room, then press Begin work to open its tools.</span>
+        </div>
+      )}
     </section>
   );
 }

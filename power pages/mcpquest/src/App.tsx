@@ -23,6 +23,12 @@ import { CaseWorkspace } from "./components/CaseWorkspace";
 import { McpStatus } from "./components/McpStatus";
 import { BuildScreen } from "./components/BuildScreen";
 import { HowItsMade } from "./components/HowItsMade";
+import copilotStudioLogo from "./assets/logos/CopilotStudio_scalable.svg";
+import dataverseLogo from "./assets/logos/Dataverse_scalable.svg";
+import powerBiLogo from "./assets/logos/PowerBI.svg";
+import powerAppsLogo from "./assets/logos/PowerApps_scalable.svg";
+import powerAutomateLogo from "./assets/logos/PowerAutomate_scalable.svg";
+import powerPagesLogo from "./assets/logos/PowerPages_scalable.svg";
 
 type Phase = "idle" | "building" | "playing" | "submitting" | "result";
 
@@ -154,6 +160,8 @@ function Game({ apis }: { apis: Apis }) {
   const [selectedCall, setSelectedCall] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [entered, setEntered] = useState(false);
+  const [warping, setWarping] = useState(false);
   const [howOpen, setHowOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<SubmitResult | null>(null);
@@ -275,6 +283,14 @@ function Game({ apis }: { apis: Apis }) {
     setBuildStage(null);
   };
 
+  const beginBuiltMission = () => {
+    if (!built || warping) return;
+    setWarping(true);
+    window.setTimeout(() => {
+      void start(nickname, `spec:${built.specId}`).finally(() => setWarping(false));
+    }, 560);
+  };
+
   const runTool = async (tool: string, args: Record<string, unknown>) => {
     if (!session || running) return;
     setRunning(true);
@@ -346,10 +362,15 @@ function Game({ apis }: { apis: Apis }) {
   const answeredAll =
     session !== null && session.objectives.every((o) => (answers[o.id] ?? "").trim().length > 0);
   const timeLeft = session ? Math.max(0, session.maxSeconds - elapsed) : 0;
+  const missionHealth = session ? Math.max(0, Math.min(100, Math.round((timeLeft / session.maxSeconds) * 100))) : 0;
   const overPar = session !== null && elapsed > session.parSeconds;
 
+  if (!entered) {
+    return <TitleScreen onEnter={() => setEntered(true)} station={station} />;
+  }
+
   return (
-    <div className="quest">
+    <div className={warping ? "quest is-warping" : "quest"}>
       <header className="topbar">
         <div>
           <h1>MCP Quest</h1>
@@ -417,7 +438,7 @@ function Game({ apis }: { apis: Apis }) {
             error={buildError ?? (built ? error : null)}
             retryAfterSeconds={buildRetryAfter}
             starting={busy}
-            onBegin={() => built && void start(nickname, `spec:${built.specId}`)}
+            onBegin={beginBuiltMission}
             onBack={leaveCave}
             onRetry={() => void build(nickname)}
           />
@@ -468,6 +489,15 @@ function Game({ apis }: { apis: Apis }) {
               </div>
             )}
 
+            <div className="mission-hud" aria-label="Mission progress">
+              <span>Missions</span>
+              <strong>{session.modeTitle}</strong>
+              <span>{formatDuration(timeLeft)}</span>
+              <div className="mission-health" role="progressbar" aria-valuenow={missionHealth} aria-valuemin={0} aria-valuemax={100} aria-label={`${missionHealth}% time remaining`}>
+                <i style={{ width: `${missionHealth}%` }} />
+              </div>
+            </div>
+
             <div className="submit-bar">
               {error ? (
                 <p className="error" role="alert">
@@ -506,6 +536,57 @@ function Game({ apis }: { apis: Apis }) {
       </main>
 
       <footer className="footer muted">Station: {station}</footer>
+    </div>
+  );
+}
+
+function TitleScreen({ onEnter, station }: { onEnter: () => void; station: string }) {
+  const pickups = [
+    { name: "Dataverse", logo: dataverseLogo },
+    { name: "Power Automate", logo: powerAutomateLogo },
+    { name: "Power Apps", logo: powerAppsLogo },
+    { name: "Copilot Studio", logo: copilotStudioLogo },
+    { name: "Power BI", logo: powerBiLogo },
+    { name: "Power Pages", logo: powerPagesLogo },
+  ];
+
+  return (
+    <div className="quest title-quest">
+      <main className="title-screen" aria-labelledby="title-heading">
+        <div className="title-card">
+          <div className="title-vines" aria-hidden="true" />
+          <p className="title-kicker">Andworx presents</p>
+          <h1 id="title-heading">
+            <span>MCP</span>
+            <span>Quest</span>
+          </h1>
+          <p className="title-subtitle">The system holds the tools. The sage builds the mission.</p>
+          <div className="title-pickups" aria-hidden="true">
+            <div className="title-player">
+              <span />
+            </div>
+            {pickups.map((item, index) => (
+              <div className="title-pickup" key={item.name} style={{ ["--pickup-index" as string]: index }}>
+                <img src={item.logo} alt="" />
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="title-start"
+            onClick={onEnter}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onEnter();
+              }
+            }}
+          >
+            Push Start Button
+          </button>
+          <p className="title-station">Station: {station}</p>
+        </div>
+      </main>
     </div>
   );
 }

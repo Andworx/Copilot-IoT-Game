@@ -25,6 +25,24 @@ interface Props {
 
 const NICKNAME_PATTERN = /^[A-Za-z0-9 _.-]{3,12}$/;
 
+const MAP_SPOTS = [
+  { x: 12, y: 22 },
+  { x: 34, y: 14 },
+  { x: 56, y: 20 },
+  { x: 78, y: 16 },
+  { x: 20, y: 45 },
+  { x: 44, y: 42 },
+  { x: 68, y: 45 },
+  { x: 86, y: 40 },
+  { x: 14, y: 68 },
+  { x: 38, y: 66 },
+  { x: 60, y: 70 },
+  { x: 82, y: 64 },
+  { x: 28, y: 84 },
+  { x: 52, y: 84 },
+  { x: 74, y: 82 },
+] as const;
+
 export function StartScreen({
   isPreview,
   busy,
@@ -52,20 +70,16 @@ export function StartScreen({
   const buildOnly = Boolean(onSelectServer) && !showClassic && !serverError;
   const ready = valid && !busy && (!buildOnly || selectedServer !== null);
   const classic = !buildOnly;
+  const systemOptions = servers ?? [];
+  const selectedSystem = systemOptions.find((s) => s.slug === selectedServer) ?? null;
+  const selectedIndex = Math.max(0, systemOptions.findIndex((s) => s.slug === selectedServer));
+  const avatarSpot = selectedServer ? (MAP_SPOTS[selectedIndex % MAP_SPOTS.length] ?? MAP_SPOTS[0]) : { x: 5, y: 84 };
 
   return (
-    <div className="start-grid">
-      <section className="card hero">
+    <div className={buildOnly ? "start-grid start-grid-build" : "start-grid"}>
+      <section className={buildOnly ? "card hero quest-home" : "card hero"}>
         <p className="eyebrow">Single play · scored</p>
-        {buildOnly ? (
-          <>
-            <h2>Pick a system. We build you a mission.</h2>
-            <p>
-              Choose a system below. An agent reads what it can do and builds a Power Platform challenge just for it.
-              Then you solve it with the tools of the platform.
-            </p>
-          </>
-        ) : (
+        {buildOnly ? null : (
           <>
             <h2>Interrogate the system. Find the facts. Beat the clock.</h2>
             <p>
@@ -99,25 +113,113 @@ export function StartScreen({
           </fieldset>
         ) : null}
 
-        {onSelectServer ? (
+        {buildOnly && onSelectServer ? (
+          <form
+            className="quest-map-layout"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (ready) onStart(trimmed);
+            }}
+          >
+            <div className="quest-dialog">
+              <span>Sage</span>
+              <h2>Choose your mission. I will forge the quest.</h2>
+              <p>
+                Every marker hides a different set of tools. Pick one from the realm below, enter your player name,
+                and I will build a Power Platform quest from what that mission can actually do.
+              </p>
+            </div>
+            <fieldset className="quest-map-picker">
+              <legend>Mission map</legend>
+              {serverError ? (
+                <p className="muted" role="status">
+                  {serverError}
+                </p>
+              ) : !servers ? (
+                <p className="muted" role="status">
+                  Charting the realm...
+                </p>
+              ) : systemOptions.length === 0 ? (
+                <p className="muted">No missions are available right now.</p>
+              ) : (
+                <div
+                  className="quest-map-stage"
+                  style={{ ["--avatar-x" as string]: `${avatarSpot.x}%`, ["--avatar-y" as string]: `${avatarSpot.y}%` }}
+                >
+                  <div className="quest-map-paths" aria-hidden="true" />
+                  <div className="quest-map-avatar" aria-hidden="true">
+                    <span />
+                  </div>
+                  {systemOptions.map((s, index) => {
+                    const spot = MAP_SPOTS[index % MAP_SPOTS.length] ?? MAP_SPOTS[0];
+                    return (
+                      <label
+                        key={s.slug}
+                        className={s.slug === selectedServer ? "quest-map-node is-active" : "quest-map-node"}
+                        title={s.description}
+                        style={{ ["--node-x" as string]: `${spot.x}%`, ["--node-y" as string]: `${spot.y}%` }}
+                      >
+                        <input
+                          type="radio"
+                          name="server"
+                          checked={s.slug === selectedServer}
+                          onChange={() => onSelectServer(s.slug)}
+                          disabled={busy}
+                        />
+                        <span>{index + 1}</span>
+                        <strong>{s.name}</strong>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </fieldset>
+
+            <aside className="quest-map-panel" aria-live="polite">
+              <span>Selected mission</span>
+              <strong>{selectedSystem ? selectedSystem.name : "Choose a mission"}</strong>
+              <p>
+                {selectedSystem
+                  ? `${selectedSystem.toolCount || "Several"} tools will shape this mission. Press Start when your avatar reaches the marker.`
+                  : "Pick a numbered mission marker on the map. Your avatar will walk to it before the mission begins."}
+              </p>
+              <label htmlFor="nickname">Player name</label>
+              <input
+                id="nickname"
+                value={nickname}
+                onChange={(event) => setNickname(event.target.value)}
+                maxLength={12}
+                autoComplete="off"
+                autoCapitalize="characters"
+                placeholder="3–12 letters or numbers"
+                aria-describedby="nickname-help"
+              />
+              <p id="nickname-help" className="muted">
+                Use a nickname, not your real name or email.
+              </p>
+              {error ? (
+                <p className="error" role="alert">
+                  {error}
+                </p>
+              ) : null}
+              <button type="submit" className="primary" disabled={!ready}>
+                {busy ? "Starting…" : selectedServer ? "Start mission" : "Choose a mission"}
+              </button>
+            </aside>
+          </form>
+        ) : onSelectServer ? (
           <ServerPicker
             servers={servers ?? null}
             error={serverError ?? null}
             selected={selectedServer}
             disabled={busy}
             onSelect={onSelectServer}
-            heading={buildOnly ? "Choose a system" : "Or build a mission from a system"}
+            heading={buildOnly ? "Systems of the realm" : "Or build a mission from a system"}
           />
         ) : null}
 
-        <ul className="rules">
-          {buildOnly ? (
-            <>
-              <li>The mission is built for the system you choose, so no two are quite alike.</li>
-              <li>You can test your work as often as the limit allows. Hints cost points.</li>
-              <li>Everyone who finishes gets a prize code. A higher score earns more grand prize entries.</li>
-            </>
-          ) : (
+        {!buildOnly ? (
+          <ul className="rules">
             <>
               <li>
                 {mode.slug === "fixit"
@@ -135,47 +237,43 @@ export function StartScreen({
                   : "Answer everything correctly with a high enough score to win a prize."}
               </li>
             </>
-          )}
-        </ul>
+          </ul>
+        ) : null}
 
-        <form
-          className="start-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (ready) onStart(trimmed);
-          }}
-        >
-          <label htmlFor="nickname">Your player name (shown on the board)</label>
-          <div className="start-row">
-            <input
-              id="nickname"
-              value={nickname}
-              onChange={(event) => setNickname(event.target.value)}
-              maxLength={12}
-              autoComplete="off"
-              autoCapitalize="characters"
-              placeholder="3–12 letters or numbers"
-              aria-describedby="nickname-help"
-            />
-            <button type="submit" className="primary" disabled={!ready}>
-              {busy
-                ? "Starting…"
-                : selectedServer
-                  ? "Build my mission"
-                  : buildOnly
-                    ? "Choose a system"
-                    : "Start"}
-            </button>
-          </div>
-          <p id="nickname-help" className="muted">
-            Use a nickname, not your real name or email. Contact details are only asked for if you win.
-          </p>
-          {error ? (
-            <p className="error" role="alert">
-              {error}
+        {!buildOnly ? (
+          <form
+            className="start-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (ready) onStart(trimmed);
+            }}
+          >
+            <label htmlFor="nickname">Your player name (shown on the board)</label>
+            <div className="start-row">
+              <input
+                id="nickname"
+                value={nickname}
+                onChange={(event) => setNickname(event.target.value)}
+                maxLength={12}
+                autoComplete="off"
+                autoCapitalize="characters"
+                placeholder="3–12 letters or numbers"
+                aria-describedby="nickname-help"
+              />
+              <button type="submit" className="primary" disabled={!ready}>
+                {busy ? "Starting…" : selectedServer ? "Build my mission" : "Start"}
+              </button>
+            </div>
+            <p id="nickname-help" className="muted">
+              Use a nickname, not your real name or email. Contact details are only asked for if you win.
             </p>
-          ) : null}
-        </form>
+            {error ? (
+              <p className="error" role="alert">
+                {error}
+              </p>
+            ) : null}
+          </form>
+        ) : null}
         {isPreview ? (
           <p className="preview-note">
             Test mode: scoring runs in this browser and scores are not prize-eligible.
@@ -183,26 +281,7 @@ export function StartScreen({
         ) : null}
       </section>
 
-      {buildOnly ? (
-        <section className="card">
-          <h2>How it works</h2>
-          <ol className="how">
-            <li>
-              <strong>Choose a system.</strong> Any of the mock systems on the list.
-            </li>
-            <li>
-              <strong>Watch it come together.</strong> An agent reads the system and writes a mission that fits it.
-            </li>
-            <li>
-              <strong>Build the fix.</strong> Use Power Automate, Power Apps, Copilot Studio and more, then check your
-              work.
-            </li>
-            <li>
-              <strong>Score 90 or more</strong> for the most grand prize entries, 70 or more for one fewer.
-            </li>
-          </ol>
-        </section>
-      ) : (
+      {buildOnly ? null : (
         <section className="card">
           <h2>High scores</h2>
           <p className="muted">{mode.title}</p>
