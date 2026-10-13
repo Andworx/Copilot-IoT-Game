@@ -82,8 +82,12 @@ mag_d = 6.0;            // disc magnet diameter (6 x 1.74 mm)
 mag_h = 1.74;           // disc magnet thickness
 mag_fit = 0.3;          // added to the cavity diameter, so a magnet drops in with play (0.3 tested: fits)
 mag_play_t = 0.3;       // added to the cavity depth
-mag_skin_body = 0.6;    // printed skin over a magnet in the body (3 layers at 0.2 mm), on the front face
-mag_skin_tile = 0.6;    // printed skin over a magnet in the tile, on the back face
+mag_skin_body = 0.6;    // minimum printed skin over a magnet in the body, on the front face
+tile_front_skin = 0.8;  // minimum skin between the tile's front face (logo) and its magnets
+mag_play_min = 0.2;     // minimum depth play: the cavity is the next whole number of layers above magnet + this
+body_lh = 0.28;         // layer height you print the BODIES at; the cavity edges are snapped to this grid
+tile_lh = 0.2;          // layer height you print the TILES at
+first_lh = 0.2;         // first layer height (Bambu default)
 mag_x_inset = 4.25;     // magnet centre from each side
 mag_z_inset = 5.0;      // magnet centre from the tile bottom and top; a middle row sits halfway
 
@@ -173,9 +177,17 @@ race_y0 = shell_d - race_d;
 
 mag_xs = [mag_x_inset, tile_w - mag_x_inset];       // tile coordinates; add tile_off on the body
 mag_zs = [mag_z_inset, cover_top / 2, cover_top - mag_z_inset];
-mag_depth = mag_h + mag_play_t;                       // sealed cavity height along the pull direction
-mag_tile_y0 = cover_t - mag_skin_tile - mag_depth;    // tile cavity, from the front of the tile
-mag_body_y0 = body_y0 + mag_skin_body;                // body cavity, from the body's front face
+mag_depth = mag_h + mag_play_t;                       // used by the test plate only
+// The cavities are snapped to the slicer's layer grid so a cavity is always a whole number of layers
+// deep and its top edge is a layer boundary: pause there and nothing sits proud.
+function grid_down(z, lh) = first_lh + floor((z - first_lh) / lh + 0.0001) * lh;
+function grid_up(z, lh) = first_lh + ceil((z - first_lh) / lh - 0.0001) * lh;
+mag_depth_b = ceil((mag_h + mag_play_min) / body_lh - 0.0001) * body_lh;   // body cavity depth
+mag_depth_t = ceil((mag_h + mag_play_min) / tile_lh - 0.0001) * tile_lh;   // tile cavity depth
+body_cav_top_z = grid_down(shell_d - body_y0 - mag_skin_body, body_lh);    // print height of the open cavity top
+mag_body_y0 = shell_d - body_cav_top_z;                                    // cavity front edge, from the cover side
+mag_tile_y0 = grid_up(tile_front_skin, tile_lh);                           // tile cavity floor, from the logo face
+mag_tile_y1 = mag_tile_y0 + mag_depth_t;                                   // tile cavity top
 
 assert(slot_gap >= min_slot_gap - 0.001, str("Slot gap too small for the IR housings: need ", min_slot_gap, " mm"));
 assert(ir_lip_h <= ir_z, "Lip taller than the housing");
@@ -189,7 +201,7 @@ assert(pocket_z0 >= z_top - 0.01, str("Wire end of the housing sits ", z_top - p
 assert(beam_h < puck_d - 8, "Beam too high to be blocked reliably by a resting puck");
 assert(logo == "none" || logo_size < cover_top - 4, "Logo does not fit the cover");
 assert(mag_x_inset + (mag_d + mag_fit) / 2 < end_block_w - 0.5, "Magnets do not fit the end blocks");
-assert(mag_tile_y0 >= 0.8, str("Tile front skin only ", mag_tile_y0, " mm; raise cover_t"));
+assert(cover_t - mag_tile_y1 >= 0.4, str("Tile back skin only ", cover_t - mag_tile_y1, " mm; raise cover_t"));
 
 echo(str("Insert ", shell_w, " x ", shell_d, " x ", z_top, " mm (towers to ", tower_out_h, "); minimum slot gap ", min_slot_gap));
 echo(str("Towers ", tx_w, " (emitter) / ", rx_w, " (receiver) mm; puck area ", flat_w, " mm; beam ", beam_h, " mm above the top at Y ", beam_y));
@@ -310,7 +322,7 @@ module body() {
     // Tile magnets: sealed cavities, a thin skin behind the front face. Printed rear-face-down, the front
     // face is the top, so pause there and drop the magnets in before the skin bridges over them.
     for (x = mag_xs, z = mag_zs)
-      translate([x + tile_off, mag_body_y0, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth);
+      translate([x + tile_off, mag_body_y0, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth_b);
   }
 }
 
@@ -324,7 +336,7 @@ module cover() {
     else face_extrude(-eps, logo_inlay_depth + eps, logo_z) logo_2d();
     // Sealed magnet cavities. Printed face down, the back face is the top: pause just under the skin.
     for (x = mag_xs, z = mag_zs)
-      translate([x, mag_tile_y0, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth);
+      translate([x, mag_tile_y0, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth_t);
     label_src = cover_label_logo != "" ? cover_label_logo : logo;
     cover_text = label_src != "none" ? logo_entry(label_src)[1] : "";
     if (label && cover_text != "")  // back face: the logo name, readable from behind
@@ -361,8 +373,8 @@ module beam_mock() {
 
 module magnet_mocks() {
   color("gray") for (x = mag_xs, z = mag_zs) translate([tile_off, 0, 0]) {
-    translate([x, mag_body_y0 + mag_play_t / 2, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
-    translate([x, mag_tile_y0 + mag_play_t / 2, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
+    translate([x, mag_body_y0 + (mag_depth_b - mag_h) / 2, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
+    translate([x, mag_tile_y0 + (mag_depth_t - mag_h) / 2, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
   }
 }
 
@@ -386,10 +398,14 @@ module cover_set(columns = 3) {
       cover_coloured(LOGOS[i][0]);
 }
 
-// Where to pause the print to drop the magnets in (height above the bed, in the print orientation).
-echo(str("Body: pause at Z = ", shell_d - mag_body_y0, " mm (cavities are open from ", shell_d - mag_body_y0 - mag_depth, " up to here); ",
-         len(mag_xs) * len(mag_zs), " magnets"));
-echo(str("Tile: pause at Z = ", mag_tile_y0 + mag_depth, " mm (printed face down); ", len(mag_xs) * len(mag_zs), " magnets"));
+// Where to pause the print to drop the magnets in. A layer's top is first_lh + (n - 1) * lh; the cavity
+// edges are on that grid, so "pause after layer N" lands exactly where the open cavity ends.
+body_pause_layer = round((body_cav_top_z - first_lh) / body_lh) + 1;
+tile_pause_layer = round((mag_tile_y1 - first_lh) / tile_lh) + 1;
+echo(str("Body at ", body_lh, " mm layers: pause AFTER layer ", body_pause_layer, " (Z = ", body_cav_top_z,
+         " mm); cavity ", mag_depth_b, " mm deep, ", mag_body_y0 - body_y0, " mm skin; ", len(mag_xs) * len(mag_zs), " magnets"));
+echo(str("Tile at ", tile_lh, " mm layers: pause AFTER layer ", tile_pause_layer, " (Z = ", mag_tile_y1,
+         " mm); cavity ", mag_depth_t, " mm deep, ", cover_t - mag_tile_y1, " mm back skin; ", len(mag_xs) * len(mag_zs), " magnets"));
 
 // Magnet fit test: four open pockets with 0.1 .. 0.4 mm of diameter play; the engraved number is the play.
 module magnet_test() {

@@ -179,14 +179,19 @@ The magnets are not glued: you drop them in at a pause and the print closes a 0.
 The pockets have play (`mag_fit` 0.3 mm in diameter, tested on the printer; `mag_play_t` 0.3 mm in depth), and the snap pins
 are gone, so the magnets alone hold the tile.
 
-| Part | Printed | Pause at Z | Notes |
-|---|---|---|---|
-| Body | rear face down | **44.05 mm** (varies slightly with `cover_t`; the export prints it) | The cavities are open at the top of the print. Drop 6 magnets in, **flat and fully seated**, then resume. |
-| Tile | logo face down | **2.9 mm** | Drop 6 magnets in, then resume. |
-| Puck | flat | **13.07 mm** | Four magnets, two stacked per cavity. |
+| Part | Printed | Layer height | Pause **after** layer | Z | Notes |
+|---|---|---|---|---|---|
+| Body | rear face down | **0.28 mm** (first layer 0.2) | **157** | 43.88 mm | 6 magnets. The cavity is 1.96 mm deep (7 layers). |
+| Tile | logo face down | **0.2 mm** | **14** | 2.8 mm | 6 magnets. The cavity is 2.0 mm deep (10 layers). |
+| Puck | flat | 0.2 mm | at Z = 13.07 mm | 13.07 mm | Four magnets, two stacked per cavity. |
 
-In Bambu Studio, use *Add pause* at that layer (right-click the layer slider). Work out the layer from
-your layer height (for example 44.05 / 0.2 = layer 220). Check that each magnet lies flat on the cavity
+The cavity edges are **snapped to the slicer's layer grid** (`body_lh`, `tile_lh`, `first_lh` in the SCAD),
+so the open cavity is a whole number of layers and its top edge is a layer boundary. If you print at a
+different layer height, set `body_lh` or `tile_lh` to match and re-export; the export prints the new layer
+number. Magnets that sat proud before were from pausing on a layer that did not match the cavity.
+
+In Bambu Studio, use *Add pause* at that layer (right-click the layer slider, step to the layer number
+above, and the slider shows its Z). Check that each magnet lies flat on the cavity
 floor, with no magnet standing up, before you resume: a raised magnet will be hit by the nozzle.
 
 ### Getting the polarity right every time
