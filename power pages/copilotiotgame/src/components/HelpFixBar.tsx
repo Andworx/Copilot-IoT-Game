@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useAgentChat } from "../hooks/useAgentChat";
+import { isAgentActionDone, parseAgentActions, type PanelSnapshot } from "../lib/helpFixProgress";
 
 interface HelpFixBarProps {
   isAlert: boolean;
   /** Builds the quick-fix prompt from the panel state at the moment Help Fix is tapped. */
   getPrompt: () => string;
+  /** Live panel readings, used only to tick off the agent's steps as the player completes them. */
+  panel: PanelSnapshot;
 }
 
 /**
@@ -12,9 +15,11 @@ interface HelpFixBarProps {
  * shows the agent response or an explicit unreachable notice. See KIOSK_UI_SPEC.md §1.5.
  *
  * On open it sends one structured prompt (quickFixPrompt.ts) to the Copilot Studio
- * troubleshooting agent over Direct Line and shows the numbered list it returns.
+ * troubleshooting agent over Direct Line. The numbered list it returns is the only source of
+ * steps; the agent is not asked again. Each line is hidden once the live panel readings show
+ * that step is done (helpFixProgress.ts).
  */
-export function HelpFixBar({ isAlert, getPrompt }: HelpFixBarProps) {
+export function HelpFixBar({ isAlert, getPrompt, panel }: HelpFixBarProps) {
   const [open, setOpen] = useState(false);
   const { status, response, sendPrompt, reset } = useAgentChat();
 
@@ -30,6 +35,8 @@ export function HelpFixBar({ isAlert, getPrompt }: HelpFixBarProps) {
 
   const showAgentReply = status === "done" && response;
   const showUnavailable = status === "error";
+  const actions = response ? parseAgentActions(response) : [];
+  const remaining = actions.filter((line) => !isAgentActionDone(line, actions, panel));
 
   return (
     <>
@@ -55,7 +62,13 @@ export function HelpFixBar({ isAlert, getPrompt }: HelpFixBarProps) {
           </button>
         )}
         {status === "loading" && <div className="fix-note">Analysing panel state…</div>}
-        {showAgentReply && <div className="fix-response">{response}</div>}
+        {showAgentReply && (
+          <ol>
+            {remaining.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ol>
+        )}
         {showUnavailable && (
           <div className="fix-unavailable" role="alert">
             Help Fix is unreachable. Please ask staff to check the Copilot Studio connection.

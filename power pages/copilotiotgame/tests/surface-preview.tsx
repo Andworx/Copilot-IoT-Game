@@ -38,6 +38,6 @@ createRoot(document.getElementById("root")!).render(
     <div className="fault-line" data-mode={!connection.isLive ? "unavailable" : win ? "ok" : "fault"} dangerouslySetInnerHTML={{ __html: !connection.isLive ? "Panel readings unavailable. Waiting for a live connection." : win ? device.okText : device.faultText }} />
     <div className="panel-body"><PanelSurface device={device} state={state} lampColors={lamps} win={win} controls={device.restoreSequence} connection={connection} /></div>
     <DemoGearMenu currentSlug={device.slug} />
-    {!win && <HelpFixBar isAlert getPrompt={() => "fixture preview"} />}
+    {!win && <HelpFixBar isAlert getPrompt={() => "fixture preview"} panel={{ controls: device.restoreSequence, state, cables: undefined }} />}
   </div></BrowserRouter>,
 );

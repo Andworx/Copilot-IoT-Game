@@ -208,6 +208,7 @@ export function KioskDevicePage() {
         <HelpFixBar
           isAlert
           getPrompt={() => buildQuickFixPrompt(device, state, reading?.cables)}
+          panel={{ controls: device.restoreSequence, state, cables: reading?.cables }}
         />
       )}
 
