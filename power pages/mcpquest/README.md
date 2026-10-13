@@ -218,5 +218,8 @@ Things to check once it is live:
 
 ## Updating This README
 
+For the classic game UI, follow [PIXEL_ART_GUIDE.md](PIXEL_ART_GUIDE.md) and the
+area-specific [AGENTS.md](AGENTS.md). Visual iterations are tracked in issue #328.
+
 Update it when routes, query parameters, environment variables, scoring or the deployment
 flow change.

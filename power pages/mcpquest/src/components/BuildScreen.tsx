@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { BuildStage } from "@mcpquest/types";
+import copilotStudioLogo from "../assets/logos/CopilotStudio_scalable.svg";
+import dataverseLogo from "../assets/logos/Dataverse_scalable.svg";
+import powerBiLogo from "../assets/logos/PowerBI.svg";
+import powerAppsLogo from "../assets/logos/PowerApps_scalable.svg";
+import powerAutomateLogo from "../assets/logos/PowerAutomate_scalable.svg";
+import powerPagesLogo from "../assets/logos/PowerPages_scalable.svg";
 
 /**
  * The wait while a mission is built (about 25 seconds), told as a short scene: an old sage by a
@@ -35,12 +41,12 @@ const ORDER: Record<BuildStage, number> = {
 
 /** Each item lands when the build has moved past the stage it stands for. */
 const ITEMS = [
-  { id: "dataverse", name: "Dataverse", badge: "Dv", colour: "#7dd3fc", after: 1 },
-  { id: "power-automate", name: "Power Automate", badge: "PA", colour: "#a78bfa", after: 2 },
-  { id: "power-apps", name: "Power Apps", badge: "Ap", colour: "#86efac", after: 3 },
-  { id: "copilot-studio", name: "Copilot Studio", badge: "Cs", colour: "#f9a8d4", after: 4 },
-  { id: "power-bi", name: "Power BI", badge: "BI", colour: "#fcd34d", after: 5 },
-  { id: "power-pages", name: "Power Pages", badge: "Pg", colour: "#5eead4", after: 5 },
+  { id: "dataverse", name: "Dataverse", logo: dataverseLogo, colour: "#7dd3fc", after: 1 },
+  { id: "power-automate", name: "Power Automate", logo: powerAutomateLogo, colour: "#a78bfa", after: 2 },
+  { id: "power-apps", name: "Power Apps", logo: powerAppsLogo, colour: "#86efac", after: 3 },
+  { id: "copilot-studio", name: "Copilot Studio", logo: copilotStudioLogo, colour: "#f9a8d4", after: 4 },
+  { id: "power-bi", name: "Power BI", logo: powerBiLogo, colour: "#fcd34d", after: 5 },
+  { id: "power-pages", name: "Power Pages", logo: powerPagesLogo, colour: "#5eead4", after: 5 },
 ] as const;
 
 const LINES: Record<BuildStage, string> = {
@@ -204,7 +210,7 @@ export function BuildScreen({ serverName, stage, title, error, retryAfterSeconds
           return (
             <li key={item.id} className={have ? "cave-item is-have" : "cave-item"} style={{ ["--item" as string]: item.colour }}>
               <span className="cave-badge" aria-hidden="true">
-                {item.badge}
+                <img src={item.logo} alt="" />
               </span>
               <span className="cave-item-name">{item.name}</span>
               <span className="visually-hidden">{have ? " (received)" : " (not yet)"}</span>

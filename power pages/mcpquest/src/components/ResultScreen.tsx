@@ -3,7 +3,6 @@ import QRCode from "qrcode";
 import type { LeaderboardEntry, Objective, SessionInfo, SubmitResult } from "@mcpquest/types";
 import { PRIZE_WHEEL_URL } from "../config";
 import { formatDuration } from "../format";
-import { Leaderboard } from "./Leaderboard";
 
 interface Props {
   session: SessionInfo;
@@ -25,8 +24,6 @@ export function ResultScreen({
   nickname,
   result,
   isPreview,
-  leaderboard,
-  leaderboardError,
   onPlayAgain,
 }: Props) {
   const { score } = result;
@@ -55,7 +52,12 @@ export function ResultScreen({
   return (
     <div className="result-grid">
       <section className="card result-main" aria-labelledby="result-title">
-        <p className="eyebrow">{score.passed ? "Mission complete" : "Run finished"}</p>
+        <div className={score.passed ? "victory-scene is-win" : "victory-scene"}>
+          <div className="victory-chest" aria-hidden="true">
+            <span />
+          </div>
+          <div className="victory-copy">
+        <p className="eyebrow">{score.passed ? "Quest cleared" : "Run finished"}</p>
         <h2 id="result-title">
           {score.passed
             ? `Nice work, ${nickname}.`
@@ -75,6 +77,9 @@ export function ResultScreen({
           {formatDuration(score.durationSeconds)} · {generated ? "" : `${score.callCount} tool ${score.callCount === 1 ? "call" : "calls"} · `}{score.hintsUsed}{" "}
           {score.hintsUsed === 1 ? "hint" : "hints"}
         </p>
+
+          </div>
+        </div>
 
         <table className="breakdown">
           <caption className="visually-hidden">Score breakdown</caption>
@@ -188,14 +193,6 @@ export function ResultScreen({
         </button>
       </section>
 
-      <section className="card">
-        <h2>High scores</h2>
-        <Leaderboard
-          entries={leaderboard}
-          error={leaderboardError}
-          highlight={{ nickname, score: score.total }}
-        />
-      </section>
     </div>
   );
 }
