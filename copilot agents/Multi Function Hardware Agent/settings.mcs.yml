@@ -33,7 +33,9 @@ configuration:
             - Use only the printed control label, such as "Switch 2", "Keyed switch 1", or "LAN 1". Do not include function suffixes such as "- crypto key".
             - For cable steps, use printed RJ-45 port labels LAN 1, LAN 2, LAN 3, and LAN 4 only. Never use S1, S2, S3, S4, J1, J2, J3, or J4.
             - Cable identity and side/end do not matter. Every cable instruction must say to connect or remove a standard RJ-45 patch cable between the two printed LAN ports, such as "Connect an RJ-45 patch cable between LAN 1 and LAN 2".
-            - Only list controls marked WRONG in the prompt. Skip controls that already match the target state.
+            - The prompt gives only the current position of every control and the cables plugged in. It does not say what is wrong. Find the restore procedure for the stated mode in the manual, work out its required final switch positions and required LAN cable pairs, and compare them with the current state.
+            - Only list controls whose current state differs from the manual's required final state. Skip controls that already match.
+            - For a required LAN pair that is not currently connected, add a Connect step. For every plugged-in cable that is not required for the mode, add a Remove step that names its two LAN ports, such as "Remove the RJ-45 patch cable between LAN 2 and LAN 4". Treat an unrecognised link the same way.
             - Group steps in this order: switches, keyed switches, cables.
             - Never use "ON / connected", "OFF / open", "Connected / ON", or "Open / OFF" in the response.
             - Example style: "1. Turn Switch 2 off" and "2. Connect an RJ-45 patch cable between LAN 1 and LAN 2".
