@@ -5,8 +5,9 @@ Plinko board. It is parametric (`plinko_pi_case.scad`) and unverified: the value
 in the SCAD are placeholders until they are measured on the real parts.
 
 **Status: draft.** The wing test passed (2026-10-14): the 90.83 mm screw spacing and the slot size are
-confirmed on the board. Print `plinko_pi_fit_tray.stl` next; do not print the base and lid until it passes
-and the two breakout values below are measured.
+confirmed on the board. The first fit tray (2026-10-15) confirmed the Pi, the standoffs and the power and
+SD cut-outs; the breakout sticks out past its top wall, so the top overhang `bo_over_y` is being
+measured and the tray was enlarged to include the breakout's room.
 
 ## Parts
 
@@ -42,7 +43,7 @@ long in the direction between the screws, so the spacing need not be exact.
 | `bo_h` | 22.57 mm (measured) | Height of the breakout above the Pi's PCB, terminals included. |
 | `bo_left_over` | 9.96 mm (measured) | How far the breakout sticks out past the Pi's left (SD card side) edge. |
 | `bo_x1` | header end + 1.5 mm | Where the breakout ends on the right. Not measured yet. |
-| `bo_over_y` | 3 mm | How far the breakout overhangs the top PCB edge. Not measured yet. |
+| `bo_over_y` | 12 mm (estimate) | How far the breakout reaches past the top PCB edge, to its outer face. The first fit tray showed it is more than 4 mm. **Measure this.** |
 | `screw_spacing` | 90.83 mm (**confirmed**: wing test fits the board) | Centre-to-centre of the two peg screws to mount on. |
 | `screw_shank_d`, `screw_head_d` | 4.17, 8.1 mm (#8, **confirmed** with the wing test) | The screw the wing goes over. |
 

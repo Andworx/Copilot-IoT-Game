@@ -37,7 +37,7 @@ pi_overhang_right = 2.5;          // connectors stick out past the right PCB edg
 bo_left_over = 9.96;              // sticks out past the Pi's left PCB edge (measured)
 bo_x0 = -bo_left_over;
 bo_x1 = pi_gpio_x1 + 1.5;         // right end * (not measured yet; the header ends at 57.9)
-bo_over_y = 3.0;                  // how far the breakout overhangs the top PCB edge *
+bo_over_y = 12.0;                 // how far the breakout reaches past the top PCB edge * (est. from the tray test: >4 mm, MEASURE)
 bo_h = 22.57;                     // height above the PCB top, terminals included (measured)
 top_clear = 2.0;                  // headroom above the tallest part
 
@@ -78,7 +78,7 @@ left_margin = max(corner_margin, bo_left_over + 2.0);   // the breakout reaches 
 in_x0 = -left_margin;
 in_x1 = pi_l + corner_margin;
 in_y0 = -corner_margin;
-in_y1 = pi_w + corner_margin;
+in_y1 = pi_w + max(corner_margin, bo_over_y + 2.0);      // the breakout reaches past the top edge
 in_w = in_x1 - in_x0;
 in_d = in_y1 - in_y0;
 out_x0 = in_x0 - wall;
@@ -203,13 +203,19 @@ module lid() {
 // Pi footprint tray: floor, standoffs, low walls with the port cut-outs. Confirms the Pi, the ports and
 // the standoff holes. The breakout and lid are not part of this.
 module fit_tray() {
+  // Floor, standoffs and low walls over the whole footprint the case would use, including the room for
+  // the breakout (left overhang and top overhang), so the breakout can be seen to sit inside it.
+  x0 = -(bo_left_over + 2.0);
+  y1 = pi_w + max(4, bo_over_y + 2.0);
+  wall_h = floor_t + standoff_h + 5;
   difference() {
-    union() {
-      translate([-4, -4, 0]) cube([pi_l + 8 + 2, pi_w + 8, floor_t + standoff_h + 5]);
-    }
-    translate([-2, -2, floor_t]) cube([pi_l + 4 + 2, pi_w + 4, standoff_h + 6]);
-    translate([pi_usbc_x - pi_usbc_w / 2, -4 - eps, floor_t + standoff_h - 2]) cube([pi_usbc_w, 4 + 2 * eps, 8]);
-    translate([-4 - eps, pi_sd_y - 7, floor_t + 1]) cube([4 + 2 * eps, 14, 10]);
+    translate([x0 - 2, -6, 0]) cube([pi_l + 4 - x0 + 2 + 2, y1 + 6 + 2, wall_h]);
+    translate([x0, -4, floor_t]) cube([pi_l + 4 - x0 + 2, y1 + 4, wall_h]);
+    // Micro-USB power and SD card, as in the case.
+    translate([pi_usbc_x - pi_usbc_w / 2, -6 - eps, floor_t + standoff_h - 2]) cube([pi_usbc_w, 4 + 2 * eps, 8]);
+    translate([x0 - 2 - eps, pi_sd_y - 7, floor_t + 1]) cube([4 + 2 * eps, 14, 10]);
+    // USB / Ethernet end.
+    translate([pi_l + 4 - eps, pi_eth_usb_y0, floor_t + standoff_h]) cube([6, pi_eth_usb_y1 - pi_eth_usb_y0, 8]);
   }
   for (x = [pi_hole_off, pi_hole_off + pi_hole_x], y = [pi_hole_off, pi_hole_off + pi_hole_y])
     translate([x, y, floor_t - eps]) difference() {
