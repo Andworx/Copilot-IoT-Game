@@ -30,8 +30,8 @@ long in the direction between the screws, so the spacing need not be exact.
 
 ## Layout (Pi on its standoffs, GPIO header on the top edge)
 
-- **Top (+Y) wall:** wide cable entry (6 cables) with zip-tie slots on either side for strain relief.
-- **Bottom (-Y) wall:** micro-USB power.
+- **Cable exits (top +Y and bottom -Y walls):** the breakout has terminals on both long sides, so there is an exit in each long wall, open at the top with a matching notch in the lid, and zip-tie slits beside each. The +Y exit serves the row that faces out past the Pi's edge; the -Y exit serves the row that faces back over the Pi.
+- **Bottom (-Y) wall:** micro-USB power (and the second cable exit).
 - **Left (-X) wall:** SD card.
 - **Right (+X) wall:** window over the USB and Ethernet end (`open_usb_end`).
 - **Lid:** vents over the terminals; floor vents under the Pi.
@@ -43,7 +43,7 @@ long in the direction between the screws, so the spacing need not be exact.
 | `bo_h` | 22.57 mm (measured) | Height of the breakout above the Pi's PCB, terminals included. |
 | `bo_left_over` | 9.96 mm (measured) | How far the breakout sticks out past the Pi's left (SD card side) edge. |
 | `bo_x1` | header end + 1.5 mm | Where the breakout ends on the right. Not measured yet. |
-| `bo_over_y` | 12 mm (estimate) | How far the breakout reaches past the top PCB edge, to its outer face. The first fit tray showed it is more than 4 mm. **Measure this.** |
+| `bo_over_y` | 5.39 mm (measured) | How far the breakout reaches past the top PCB edge, to its outer face. |
 | `screw_spacing` | 90.83 mm (**confirmed**: wing test fits the board) | Centre-to-centre of the two peg screws to mount on. |
 | `screw_shank_d`, `screw_head_d` | 4.17, 8.1 mm (#8, **confirmed** with the wing test) | The screw the wing goes over. |
 

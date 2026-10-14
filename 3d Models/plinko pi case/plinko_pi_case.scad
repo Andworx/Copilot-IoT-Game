@@ -37,7 +37,8 @@ pi_overhang_right = 2.5;          // connectors stick out past the right PCB edg
 bo_left_over = 9.96;              // sticks out past the Pi's left PCB edge (measured)
 bo_x0 = -bo_left_over;
 bo_x1 = pi_gpio_x1 + 1.5;         // right end * (not measured yet; the header ends at 57.9)
-bo_over_y = 12.0;                 // how far the breakout reaches past the top PCB edge * (est. from the tray test: >4 mm, MEASURE)
+bo_over_y = 5.39;                 // how far the breakout reaches past the top PCB edge (measured)
+cable_gap = 8.0;                  // extra room beyond the breakout for the cables to bend and leave
 bo_h = 22.57;                     // height above the PCB top, terminals included (measured)
 top_clear = 2.0;                  // headroom above the tallest part
 
@@ -52,10 +53,10 @@ post_d = 7.5;
 insert_hole_d = 4.0;              // M3 heat-set insert (same as the sensor body)
 lid_screw_d = 3.4;
 vent_w = 1.6;
-cable_slot_x0 = -6;               // cable entry along the top wall, over the breakout
-cable_slot_x1 = 70;
-cable_slot_h = 9;                 // height of the cable slot, from the floor + standoffs
-tie_slot_w = 4.0;                 // zip-tie slots either side of the cable entry
+cable_slot_x0 = bo_x0 + 2;      // cable exits in both long walls, over the two terminal rows
+cable_slot_x1 = bo_x1 - 2;
+cable_z_above_pcb = 8.0;          // the exits start this far above the Pi's PCB (clear of the connectors)
+tie_slot_w = 4.0;                 // zip-tie slits beside the exits
 tie_slot_h = 1.8;
 open_usb_end = true;              // cut a window over the USB / Ethernet end
 
@@ -78,7 +79,7 @@ left_margin = max(corner_margin, bo_left_over + 2.0);   // the breakout reaches 
 in_x0 = -left_margin;
 in_x1 = pi_l + corner_margin;
 in_y0 = -corner_margin;
-in_y1 = pi_w + max(corner_margin, bo_over_y + 2.0);      // the breakout reaches past the top edge
+in_y1 = pi_w + max(corner_margin, bo_over_y + cable_gap);   // the breakout reaches past the top edge
 in_w = in_x1 - in_x0;
 in_d = in_y1 - in_y0;
 out_x0 = in_x0 - wall;
@@ -87,6 +88,7 @@ out_w = in_w + 2 * wall;
 out_d = in_d + 2 * wall;
 pcb_z = floor_t + standoff_h;                 // PCB underside
 inner_h = standoff_h + pi_t + max(bo_h, 17) + top_clear;
+cable_z = pcb_z + pi_t + cable_z_above_pcb;
 body_h = floor_t + inner_h;                   // wall top (lid sits on it)
 case_cx = (in_x0 + in_x1) / 2;
 case_cy = (in_y0 + in_y1) / 2;
@@ -146,12 +148,14 @@ module base() {
     // Interior.
     translate([in_x0, in_y0, floor_t]) cube([in_w, in_d, inner_h + eps]);
     // Wings were unioned with the shell: carve their slots again after the interior (they sit outside it).
-    // Cable entry: wide slot in the top (+Y) wall, above the standoff height.
-    translate([cable_slot_x0, in_y1 - eps, floor_t + standoff_h + 2])
-      cube([cable_slot_x1 - cable_slot_x0, wall + 2 * eps, cable_slot_h]);
-    // Zip-tie slots (vertical through the wall) either side of the entry.
-    for (x = [cable_slot_x0 - tie_slot_w - 3, cable_slot_x1 + 3])
-      translate([x, in_y1 - eps, floor_t + standoff_h + 4]) cube([tie_slot_w, wall + 2 * eps, tie_slot_h + 6]);
+    // Cable exits: one in each long wall, open at the top (the lid has a matching notch), so the cables
+    // can be laid in from above. The breakout has terminals on both long sides: one row faces out past
+    // the Pi's top edge (+Y exit), the other faces back over the Pi (-Y exit).
+    for (yy = [in_y1, out_y0])
+      translate([cable_slot_x0, yy - eps, cable_z]) cube([cable_slot_x1 - cable_slot_x0, wall + 2 * eps, body_h - cable_z + eps]);
+    // Zip-tie slits through the wall beside each exit.
+    for (yy = [in_y1, out_y0], x = [cable_slot_x1 + 3, cable_slot_x1 + 3 + tie_slot_w + 3])
+      translate([x, yy - eps, cable_z + 2]) cube([tie_slot_w, wall + 2 * eps, tie_slot_h + 6]);
     // Micro-USB power (bottom -Y wall).
     translate([pi_usbc_x - pi_usbc_w / 2, out_y0 - eps, pcb_z - 2])
       cube([pi_usbc_w, wall + 2 * eps, 7.5]);
@@ -190,6 +194,9 @@ module lid() {
     // Countersinks for the M3 heads.
     for (x = post_xs, y = post_ys)
       translate([x, y, lid_t - 1.6]) cylinder(d1 = lid_screw_d, d2 = 6.4, h = 1.6 + eps);
+    // Notches matching the two cable exits.
+    translate([cable_slot_x0, in_y1 - 4, -eps]) cube([cable_slot_x1 - cable_slot_x0, wall + 4 + eps, lid_t + 2 * eps]);
+    translate([cable_slot_x0, out_y0 - eps, -eps]) cube([cable_slot_x1 - cable_slot_x0, wall + 4 + eps, lid_t + 2 * eps]);
     // Vent slots over the terminals.
     for (i = [0 : 7])
       translate([bo_x0 + 4 + i * 7, pi_w - 6, -eps]) cube([vent_w, 12, lid_t + 2 * eps]);
