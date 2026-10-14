@@ -175,6 +175,21 @@ export function StartScreen({
               )}
             </fieldset>
 
+            <div className="quest-map-index" aria-label="Mission names">
+              {systemOptions.map((system, index) => (
+                <button
+                  key={system.slug}
+                  type="button"
+                  aria-pressed={system.slug === selectedServer}
+                  disabled={busy}
+                  onClick={() => onSelectServer(system.slug)}
+                >
+                  <span aria-hidden="true">{index + 1}</span>
+                  {system.name}
+                </button>
+              ))}
+            </div>
+
             <aside className="quest-map-panel" aria-live="polite">
               <span>Selected mission</span>
               <strong>{selectedSystem ? selectedSystem.name : "Choose a mission"}</strong>

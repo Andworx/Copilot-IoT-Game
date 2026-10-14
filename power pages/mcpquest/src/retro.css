@@ -1,0 +1,176 @@
+/* Shared pixel treatments. Keep long instructions in the readable body font. */
+:root {
+  --pixel: 4px;
+  --retro-font: "Press Start 2P", ui-monospace, monospace;
+  --pixel-leaves: url("./assets/pixel-foliage.svg") 0 0 / 48px 48px;
+}
+
+.primary {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  background: var(--accent);
+  letter-spacing: 0;
+  box-shadow: inset 0 var(--pixel) 0 #fff1a6, inset 0 calc(-1 * var(--pixel)) 0 #9b7a28,
+    var(--pixel) 0 0 #fff1a6, calc(-1 * var(--pixel)) 0 0 #fff1a6,
+    0 var(--pixel) 0 #9b7a28, 0 calc(-1 * var(--pixel)) 0 #fff1a6, 0 8px 0 #000;
+}
+
+.primary:hover:not(:disabled) { background: #ffe784; }
+.primary:active:not(:disabled) { transform: translateY(var(--pixel)); }
+.primary:focus-visible { outline-offset: 8px; }
+
+.card, .title-card, .quest-map-stage, .quest-map-node, .mission-room-map,
+.mission-room-item, .mission-hud, .cave-scene, .cave-item, .cave-badge,
+.victory-scene, input, select, .submit-bar, .banner {
+  border-radius: 0;
+}
+
+.quest-dialog, .cave-dialogue, .quest-map-panel, .mission-room-panel,
+.mission-room-locked, .victory-copy {
+  border: 0;
+  border-radius: 0;
+  background: #07150d;
+  box-shadow: inset 0 0 0 var(--pixel) #102017,
+    var(--pixel) 0 0 #fff8ca, calc(-1 * var(--pixel)) 0 0 #fff8ca,
+    0 var(--pixel) 0 #fff8ca, 0 calc(-1 * var(--pixel)) 0 #fff8ca, 0 8px 0 #000;
+}
+
+.quest-dialog, .cave-dialogue { margin: var(--pixel); }
+.title-pickup img, .cave-badge img { image-rendering: auto; }
+
+.title-card h1 {
+  font-family: var(--retro-font);
+  font-size: clamp(2.5rem, 8vw, 7rem);
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+.title-card h1 span:first-child { letter-spacing: 0; }
+.title-start, .quest-dialog > span, .cave-speaker, .quest-map-panel > span,
+.mission-room-panel > span, .mission-room-item > span, .quest-map-node > span,
+.mission-hud > span, .big-score {
+  font-family: var(--retro-font);
+  letter-spacing: 0;
+}
+.title-start { font-size: clamp(0.75rem, 2vw, 1.2rem); line-height: 1.8; }
+.quest-dialog > span, .cave-speaker, .quest-map-panel > span, .mission-room-panel > span,
+.mission-hud > span { font-size: 0.625rem; line-height: 1.8; }
+.quest-map-node > span, .mission-room-item > span { font-size: 0.625rem; }
+.big-score { font-size: clamp(1.8rem, 5vw, 3rem); line-height: 1.6; }
+
+.title-vines {
+  background:
+    repeating-linear-gradient(90deg, #0f4f1c 0 8px, transparent 8px 32px) top / 100% 8px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 16px, #67bc45 16px 24px, transparent 24px 32px) top 8px left / 100% 8px no-repeat,
+    repeating-linear-gradient(90deg, #0f4f1c 0 8px, transparent 8px 32px) bottom / 100% 8px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 16px, #67bc45 16px 24px, transparent 24px 32px) bottom 8px left / 100% 8px no-repeat,
+    repeating-linear-gradient(180deg, #0f4f1c 0 8px, transparent 8px 32px) left / 8px 100% no-repeat,
+    repeating-linear-gradient(180deg, #67bc45 0 8px, transparent 8px 32px) right / 8px 100% no-repeat;
+}
+
+.quest-map-stage, .victory-scene {
+  background: var(--pixel-leaves),
+    linear-gradient(90deg, rgba(121,82,32,.12) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(rgba(121,82,32,.12) 1px, transparent 1px) 0 0 / 48px 48px, #f4d7a0;
+}
+.quest-map-stage::after {
+  border-radius: 0;
+  clip-path: polygon(16px 0, calc(100% - 16px) 0, calc(100% - 16px) 8px, 100% 8px,
+    100% calc(100% - 8px), calc(100% - 16px) calc(100% - 8px), calc(100% - 16px) 100%,
+    16px 100%, 16px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 16px 8px);
+}
+.quest-map-paths {
+  background: var(--pixel-leaves);
+  width: 28%;
+  height: 24%;
+  inset: 8% 8% auto auto;
+}
+.mission-room-map {
+  background: var(--pixel-leaves),
+    linear-gradient(90deg, rgba(121,82,32,.12) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(rgba(121,82,32,.12) 1px, transparent 1px) 0 0 / 48px 48px, #f4d7a0;
+}
+.mission-room-map::after {
+  inset: 12% 8% auto;
+  height: 24px;
+  background: var(--pixel-leaves);
+}
+
+.mission-hud {
+  --timer-color: var(--good);
+  background: var(--panel);
+  grid-template-columns: 100px minmax(0, 1fr) 80px;
+}
+.mission-hud.is-warning { --timer-color: var(--warn); }
+.mission-hud.is-urgent { --timer-color: var(--bad); }
+.mission-health { border-color: var(--timer-color); background: #07100b; box-shadow: none; }
+.mission-health i {
+  min-width: 0;
+  background: repeating-linear-gradient(90deg, var(--timer-color) 0 8px, transparent 8px 12px);
+  box-shadow: none;
+  transition: none;
+}
+.timer-status { grid-column: 1 / -1; color: var(--timer-color); font-size: 0.8rem; }
+.mission-hud.is-urgent .timer-status { font-weight: 700; }
+
+.quest-map-index, .mission-room-index { display: none; }
+
+@media (max-width: 900px) {
+  .title-card { min-width: 0; width: 100%; }
+  .title-pickups { min-width: 0; width: 100%; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; padding: 24px 8px 40px; }
+  .title-pickup { width: min(100%, 56px); min-width: 0; }
+  .title-card h1 { font-size: clamp(2rem, 8vw, 4.5rem); }
+  .topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px; }
+  .topbar h1 { font-size: 1.25rem; }
+  .topbar-actions { min-width: 0; }
+  .how-open { max-width: 150px; }
+  .stats { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; }
+  .stats div { min-width: 0; text-align: left; }
+  .stats dd { font-size: 1.1rem; overflow-wrap: anywhere; }
+
+  .quest-map-node, .mission-room-item, .cases.is-working .mission-room-item {
+    width: 44px;
+    min-height: 44px;
+    padding: 4px;
+  }
+  .quest-map-node > strong, .mission-room-item > strong {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .quest-map-avatar { width: 24px; z-index: 1; }
+  .quest-map-stage { min-height: 420px; }
+  .quest-map-layout { grid-template-areas: "dialog" "map" "index" "panel"; }
+  .quest-map-index { grid-area: index; }
+  .quest-map-index, .mission-room-index { display: grid; gap: 8px; min-width: 0; }
+  .quest-map-index button, .mission-room-index button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 8px 12px;
+    border: 2px solid var(--line);
+    border-radius: 0;
+    background: var(--panel);
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+  .quest-map-index button > span:first-child, .mission-room-index button > span:first-child {
+    flex: 0 0 28px;
+    color: #8ee9d5;
+    font-family: var(--retro-font);
+    font-size: 0.625rem;
+  }
+  .quest-map-index button[aria-pressed="true"], .mission-room-index button[aria-pressed="true"] {
+    border-color: #8ee9d5;
+    background: #0b3027;
+    box-shadow: inset 4px 0 0 #8ee9d5;
+  }
+  .work-complete { margin-left: auto; color: var(--good); font-size: 0.75rem; }
+  .mission-hud { grid-template-columns: minmax(0, 1fr) auto; }
+  .mission-hud > strong { grid-column: 1 / -1; grid-row: 2; white-space: normal; text-align: left; }
+  .mission-hud > span:last-of-type { grid-column: 2; grid-row: 1; }
+}

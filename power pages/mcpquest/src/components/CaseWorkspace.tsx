@@ -55,6 +55,11 @@ interface CaseUi {
 
 const BLANK: CaseUi = { chosen: null, message: null, busy: null, error: null, report: null, testedDesign: null };
 
+function caseComplete(state: CaseUi, design: string | undefined): boolean {
+  return state.testedDesign === design && (state.report?.criteria.length ?? 0) > 0 &&
+    (state.report?.criteria.every((criterion) => criterion.ok) ?? false);
+}
+
 const ROOM_SPOTS = [
   { x: 24, y: 30 },
   { x: 52, y: 24 },
@@ -163,7 +168,7 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
           </div>
           {cases.map((c, index) => {
             const s = ui[c.id] ?? BLANK;
-            const done = s.report?.criteria.every((k) => k.ok) ?? false;
+            const done = caseComplete(s, designs[c.id]);
             const spot = ROOM_SPOTS[index % ROOM_SPOTS.length] ?? ROOM_SPOTS[0];
             return (
               <button
@@ -176,6 +181,19 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
               >
                 <span>{done ? "OK" : index + 1}</span>
                 <strong>{c.label ?? c.caseTitle ?? c.id}</strong>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mission-room-index" aria-label="Work items">
+          {cases.map((c, index) => {
+            const done = caseComplete(ui[c.id] ?? BLANK, designs[c.id]);
+            return (
+              <button key={c.id} type="button" aria-pressed={index === active} onClick={() => setActive(index)}>
+                <span aria-hidden="true">{index + 1}</span>
+                {c.label ?? c.caseTitle ?? c.id}
+                {done ? <span className="work-complete">Complete</span> : null}
               </button>
             );
           })}
@@ -199,7 +217,7 @@ export function CaseWorkspace({ session, api, designs, hints, hintBusyId, disabl
       <div className="case-tabs" role="tablist" aria-label="Cases">
         {cases.map((c, index) => {
           const s = ui[c.id] ?? BLANK;
-          const done = s.report?.criteria.every((k) => k.ok) ?? false;
+          const done = caseComplete(s, designs[c.id]);
           return (
             <button
               key={c.id}
