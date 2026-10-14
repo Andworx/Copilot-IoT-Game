@@ -221,5 +221,19 @@ Things to check once it is live:
 For the classic game UI, follow [PIXEL_ART_GUIDE.md](PIXEL_ART_GUIDE.md) and the
 area-specific [AGENTS.md](AGENTS.md). Visual iterations are tracked in issue #328.
 
+Shared pixel treatments live in `src/retro.css`, loaded after the main stylesheet.
+Press Start 2P is bundled locally for titles and short metrics; body instructions
+retain the readable system font. The font's OFL license ships in `public/fonts/`.
+At widths up to 900px, maps use compact numbered markers with full-name selectors
+below them. The timer shows green, amber (half time or less), and red (quarter time
+or less), using actual run time remaining. Completed work markers clear when the
+tested design changes.
+
+After starting `npm run dev`, run `node scripts/review-pixel-ui.mjs` for browser
+checks at 320, 390, 768, and 1440px, keyboard selection, cave completion, work
+navigation, timer thresholds, reduced motion, and expiry/results. It uses mocked
+system discovery and offline preview, creates no live sessions or prizes, and
+saves screenshots under the git-ignored root `refrences/` folder.
+
 Update it when routes, query parameters, environment variables, scoring or the deployment
 flow change.

@@ -23,6 +23,7 @@ import { CaseWorkspace } from "./components/CaseWorkspace";
 import { McpStatus } from "./components/McpStatus";
 import { BuildScreen } from "./components/BuildScreen";
 import { HowItsMade } from "./components/HowItsMade";
+import { MissionTimer } from "./components/MissionTimer";
 import copilotStudioLogo from "./assets/logos/CopilotStudio_scalable.svg";
 import dataverseLogo from "./assets/logos/Dataverse_scalable.svg";
 import powerBiLogo from "./assets/logos/PowerBI.svg";
@@ -362,7 +363,6 @@ function Game({ apis }: { apis: Apis }) {
   const answeredAll =
     session !== null && session.objectives.every((o) => (answers[o.id] ?? "").trim().length > 0);
   const timeLeft = session ? Math.max(0, session.maxSeconds - elapsed) : 0;
-  const missionHealth = session ? Math.max(0, Math.min(100, Math.round((timeLeft / session.maxSeconds) * 100))) : 0;
   const overPar = session !== null && elapsed > session.parSeconds;
 
   if (!entered) {
@@ -489,14 +489,7 @@ function Game({ apis }: { apis: Apis }) {
               </div>
             )}
 
-            <div className="mission-hud" aria-label="Mission progress">
-              <span>Missions</span>
-              <strong>{session.modeTitle}</strong>
-              <span>{formatDuration(timeLeft)}</span>
-              <div className="mission-health" role="progressbar" aria-valuenow={missionHealth} aria-valuemin={0} aria-valuemax={100} aria-label={`${missionHealth}% time remaining`}>
-                <i style={{ width: `${missionHealth}%` }} />
-              </div>
-            </div>
+            <MissionTimer title={session.modeTitle} secondsLeft={timeLeft} maxSeconds={session.maxSeconds} />
 
             <div className="submit-bar">
               {error ? (
