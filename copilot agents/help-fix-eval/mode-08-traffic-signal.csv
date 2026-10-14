@@ -1,0 +1,328 @@
+"# Traffic Signal Controller (traffic-signal), mode 8: 20 panel states, one conversation each."
+"# question = the exact prompt the kiosk sends. response = reference list of required steps (order may vary)."
+"conversationNumber","question","response"
+"1","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: OFF
+Switch 3: OFF
+Switch 4: ON
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 2 on
+3. Turn Switch 3 on
+4. Turn Switch 4 off
+5. Turn Keyed switch 1 on
+6. Turn Keyed switch 2 off
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+8. Connect an RJ-45 patch cable between LAN 4 and LAN 2"
+"2","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+2. Connect an RJ-45 patch cable between LAN 4 and LAN 2"
+"3","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: OFF
+Switch 3: OFF
+Switch 4: ON
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 2 on
+3. Turn Switch 3 on
+4. Turn Switch 4 off
+5. Turn Keyed switch 1 on
+6. Turn Keyed switch 2 off"
+"4","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2; RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Remove the RJ-45 patch cable between LAN 1 and LAN 2"
+"5","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+2. Connect an RJ-45 patch cable between LAN 4 and LAN 2
+3. Remove the RJ-45 patch cable between LAN 1 and LAN 2"
+"6","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: OPEN
+LAN 3: CONNECTED
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Connect an RJ-45 patch cable between LAN 4 and LAN 2"
+"7","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on"
+"8","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: OFF
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 2 on"
+"9","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: OFF
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 3 on"
+"10","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: ON
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 4 off"
+"11","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Keyed switch 1 on"
+"12","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Keyed switch 2 off"
+"13","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: OFF
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 2 on
+3. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+4. Connect an RJ-45 patch cable between LAN 4 and LAN 2"
+"14","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Keyed switch 1 on
+2. Turn Keyed switch 2 off
+3. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+4. Connect an RJ-45 patch cable between LAN 4 and LAN 2"
+"15","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: ON
+Switch 3: OFF
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 3 on
+3. Turn Keyed switch 1 on
+4. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+5. Connect an RJ-45 patch cable between LAN 4 and LAN 2
+6. Remove the RJ-45 patch cable between LAN 1 and LAN 2"
+"16","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: ON
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 4 off
+2. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+3. Connect an RJ-45 patch cable between LAN 4 and LAN 2"
+"17","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: an unrecognised link between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+2. Connect an RJ-45 patch cable between LAN 4 and LAN 2
+3. Remove the RJ-45 patch cable between LAN 1 and LAN 2"
+"18","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: OFF
+Switch 3: OFF
+Switch 4: ON
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 2 on
+3. Turn Switch 3 on
+4. Turn Switch 4 off
+5. Turn Keyed switch 1 on
+6. Turn Keyed switch 2 off
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 3
+8. Connect an RJ-45 patch cable between LAN 4 and LAN 2
+9. Remove the RJ-45 patch cable between LAN 1 and LAN 2"
+"19","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: OFF
+Switch 3: OFF
+Switch 4: ON
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 2 on
+2. Turn Switch 3 on
+3. Turn Switch 4 off
+4. Turn Keyed switch 1 on
+5. Turn Keyed switch 2 off"
+"20","CURRENT_MODE: Traffic Signal Controller (traffic-signal), mode 8.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: OFF
+Switch 3: ON
+Switch 4: ON
+Keyed switch 1: ON
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 3; RJ-45 patch cable between LAN 4 and LAN 2; RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 2 on
+2. Turn Switch 4 off
+3. Turn Keyed switch 2 off
+4. Remove the RJ-45 patch cable between LAN 1 and LAN 2"
