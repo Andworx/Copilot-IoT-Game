@@ -60,13 +60,13 @@ tie_slot_h = 1.8;
 open_usb_end = true;              // cut a window over the USB / Ethernet end
 
 /* [Wings *] */
-screw_spacing = 150.0;            // centre-to-centre of the two peg screws to mount on *
-screw_shank_d = 4.0;              // diameter of the screw the slot goes over *
-screw_head_d = 8.0;               // head, for the underside pocket *
-screw_head_h = 2.5;               // how high the head stands off the board *
-slot_extra = 8.0;                 // slot length beyond the shank, to forgive spacing errors
-wing_t = 3.6;
-wing_w = 24;
+screw_spacing = 90.83;            // centre-to-centre of the two peg screws (measured)
+screw_shank_d = 4.17;             // #8 screw, major diameter
+screw_head_d = 8.1;               // #8 flat (countersunk) head
+screw_clear = 0.5;                // clearance on the shank hole
+slot_extra = 6.0;                 // slot length beyond the shank, to forgive spacing errors
+wing_t = 3.6;                     // the countersink is about 2.1 mm deep, so the head sits flush
+wing_w = 20;                      // tab width
 
 $fn = 48;
 eps = 0.01;
@@ -88,38 +88,43 @@ out_d = in_d + 2 * wall;
 pcb_z = floor_t + standoff_h;                 // PCB underside
 inner_h = standoff_h + pi_t + max(bo_h, 17) + top_clear;
 body_h = floor_t + inner_h;                   // wall top (lid sits on it)
-wing_len = (screw_spacing - out_w) / 2 + wing_w / 2 + 2;
-wing_x_screw = screw_spacing / 2;             // from the case centre
 case_cx = (in_x0 + in_x1) / 2;
 case_cy = (in_y0 + in_y1) / 2;
 
 post_xs = [in_x0 + post_d / 2 - 0.2, in_x1 - post_d / 2 + 0.2];
 post_ys = [in_y0 + post_d / 2 - 0.2, in_y1 - post_d / 2 + 0.2];
 
-assert(out_w + 2 * wing_len <= 250, "Case plus wings exceeds the build plate");
-assert(screw_spacing > out_w, "Peg screws are closer together than the case is wide");
-echo(str("Case ", out_w, " x ", out_d, " x ", body_h + lid_t, " mm; wings to ", out_w + 2 * wing_len, " mm; PCB top at Z = ", pcb_z + pi_t));
+wing_reach = screw_spacing / 2 + screw_head_d / 2 + 4;   // from the case centre, along Y, to the tab end
+assert(2 * wing_reach <= 250, "Case plus wings exceeds the build plate");
+assert(screw_spacing / 2 + screw_head_d / 2 > out_d / 2 + 1, "Peg screws are inside the case outline: wings cannot reach them");
+echo(str("Case ", out_w, " x ", out_d, " x ", body_h + lid_t, " mm; wings to ", 2 * wing_reach, " mm; PCB top at Z = ", pcb_z + pi_t));
 
 module label_text(txt, size = 4) text(txt, size = size, halign = "center", valign = "center", font = "Liberation Sans:style=Bold");
 
 // ============================================================
 // BASE
 // ============================================================
+// Mounting slot: through the shank hole, with a countersink on the outer face so a #8 flat head sits
+// flush and clamps the tab to the board. Long in Y (along the line between the two screws).
+module screw_slot(y_screw, dx = 0) {
+  hull() for (dy = [-slot_extra / 2, slot_extra / 2]) {
+    translate([dx, y_screw + dy, -eps]) cylinder(d = screw_shank_d + screw_clear, h = wing_t + 2 * eps);
+    translate([dx, y_screw + dy, wing_t - (screw_head_d + 0.8 - screw_shank_d - screw_clear) / 2])
+      cylinder(d1 = screw_shank_d + screw_clear, d2 = screw_head_d + 0.8, h = (screw_head_d + 0.8 - screw_shank_d - screw_clear) / 2 + eps);
+  }
+}
+
 module wing(side) {
-  // side = -1 (left) or +1 (right); the slot is centred on the peg screw.
-  x_edge = side < 0 ? out_x0 : out_x0 + out_w;
-  x_screw = case_cx + side * wing_x_screw;
-  x_end = x_screw + side * (wing_w / 2 + 2);
-  x_a = min(x_edge, x_end);
-  w = abs(x_end - x_edge);
+  // side = -1 (below, -Y) or +1 (above, +Y); the slot is centred on the peg screw. The two wings sit
+  // either side of the case along its short axis, where the screws are far enough apart to reach.
+  y_edge = side < 0 ? out_y0 : out_y0 + out_d;
+  y_screw = case_cy + side * screw_spacing / 2;
+  y_end = case_cy + side * wing_reach;
+  y_a = min(y_edge, y_end);
+  h = abs(y_end - y_edge);
   difference() {
-    translate([x_a, case_cy - wing_w / 2, 0]) cube([w, wing_w, wing_t]);
-    // Slot over the screw (long in X so the spacing need not be exact).
-    hull() for (dx = [-slot_extra / 2, slot_extra / 2])
-      translate([x_screw + dx, case_cy, -eps]) cylinder(d = screw_shank_d + 0.6, h = wing_t + 2 * eps);
-    // Head pocket on the board side so the case sits flat against the board.
-    hull() for (dx = [-slot_extra / 2, slot_extra / 2])
-      translate([x_screw + dx, case_cy, -eps]) cylinder(d = screw_head_d + 0.8, h = screw_head_h + eps);
+    translate([case_cx - wing_w / 2, y_a, 0]) cube([wing_w, h, wing_t]);
+    screw_slot(y_screw, case_cx);
   }
 }
 
@@ -213,19 +218,16 @@ module fit_tray() {
     }
 }
 
-// Wing slot test: a plate with the two mounting slots at the real screw spacing and the head pockets.
-// Hold it to the board over the peg screws; adjust screw_spacing / screw_shank_d / screw_head_d until
-// it drops over them.
+// Wing slot test: a plate with the two mounting slots at the real screw spacing, countersunk on the
+// outer face. Hold it to the board over the peg screws; adjust screw_spacing and screw_shank_d until
+// it drops over them. (Print with the countersink side up.)
 module wing_test() {
+  len = screw_spacing + screw_head_d + 8;
   difference() {
-    translate([-screw_spacing / 2 - wing_w / 2 - 2, -wing_w / 2, 0]) cube([screw_spacing + wing_w + 4, wing_w, wing_t]);
-    for (side = [-1, 1]) {
-      hull() for (dx = [-slot_extra / 2, slot_extra / 2])
-        translate([side * screw_spacing / 2 + dx, 0, -eps]) cylinder(d = screw_shank_d + 0.6, h = wing_t + 2 * eps);
-      hull() for (dx = [-slot_extra / 2, slot_extra / 2])
-        translate([side * screw_spacing / 2 + dx, 0, -eps]) cylinder(d = screw_head_d + 0.8, h = screw_head_h + eps);
-    }
-    translate([0, 0, wing_t - 0.5]) linear_extrude(0.6) label_text(str("SPACING ", screw_spacing), 5);
+    translate([-wing_w / 2, -len / 2, 0]) cube([wing_w, len, wing_t]);
+    for (side = [-1, 1]) screw_slot(side * screw_spacing / 2, 0);
+    translate([0, 0, wing_t - 0.5]) rotate([0, 0, 90]) linear_extrude(0.6)
+      label_text(str("SPACING ", screw_spacing), 4.5);
   }
 }
 
