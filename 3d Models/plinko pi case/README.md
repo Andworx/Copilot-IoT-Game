@@ -35,8 +35,10 @@ board side of each slot clears the screw head.
 
 | Parameter | Now | Check |
 |---|---|---|
-| `bo_h` | 22 mm | Height of the breakout above the Pi's PCB, terminals included. |
-| `bo_over_y` | 3 mm | How far the breakout overhangs the top PCB edge. |
+| `bo_h` | 22.57 mm (measured) | Height of the breakout above the Pi's PCB, terminals included. |
+| `bo_left_over` | 9.96 mm (measured) | How far the breakout sticks out past the Pi's left (SD card side) edge. |
+| `bo_x1` | header end + 1.5 mm | Where the breakout ends on the right. Not measured yet. |
+| `bo_over_y` | 3 mm | How far the breakout overhangs the top PCB edge. Not measured yet. |
 | `screw_spacing` | 150 mm | Centre-to-centre of the two peg screws to mount on. |
 | `screw_shank_d`, `screw_head_d`, `screw_head_h` | 4, 8, 2.5 mm | The screw the wing goes over. |
 
