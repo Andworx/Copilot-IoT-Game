@@ -34,10 +34,11 @@ pi_eth_usb_y1 = 54.0;
 pi_overhang_right = 2.5;          // connectors stick out past the right PCB edge
 
 /* [Screw-terminal breakout *] */
-bo_x0 = pi_gpio_x0 - 1.5;         // footprint over the header
-bo_x1 = pi_gpio_x1 + 1.5;
-bo_over_y = 3.0;                  // how far the breakout overhangs the top PCB edge
-bo_h = 22.0;                      // height above the PCB top (header + terminals) *
+bo_left_over = 9.96;              // sticks out past the Pi's left PCB edge (measured)
+bo_x0 = -bo_left_over;
+bo_x1 = pi_gpio_x1 + 1.5;         // right end * (not measured yet; the header ends at 57.9)
+bo_over_y = 3.0;                  // how far the breakout overhangs the top PCB edge *
+bo_h = 22.57;                     // height above the PCB top, terminals included (measured)
 top_clear = 2.0;                  // headroom above the tallest part
 
 /* [Case] */
@@ -51,8 +52,8 @@ post_d = 7.5;
 insert_hole_d = 4.0;              // M3 heat-set insert (same as the sensor body)
 lid_screw_d = 3.4;
 vent_w = 1.6;
-cable_slot_x0 = 12;               // cable entry along the top wall
-cable_slot_x1 = 78;
+cable_slot_x0 = -6;               // cable entry along the top wall, over the breakout
+cable_slot_x1 = 70;
 cable_slot_h = 9;                 // height of the cable slot, from the floor + standoffs
 tie_slot_w = 4.0;                 // zip-tie slots either side of the cable entry
 tie_slot_h = 1.8;
@@ -73,7 +74,8 @@ eps = 0.01;
 // ============================================================
 // DERIVED
 // ============================================================
-in_x0 = -corner_margin;
+left_margin = max(corner_margin, bo_left_over + 2.0);   // the breakout reaches past the left edge
+in_x0 = -left_margin;
 in_x1 = pi_l + corner_margin;
 in_y0 = -corner_margin;
 in_y1 = pi_w + corner_margin;
