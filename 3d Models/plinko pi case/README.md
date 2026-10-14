@@ -4,8 +4,9 @@ A case for the Raspberry Pi 3 Model B and its screw-terminal breakout, mounted o
 Plinko board. It is parametric (`plinko_pi_case.scad`) and unverified: the values marked with `*`
 in the SCAD are placeholders until they are measured on the real parts.
 
-**Status: draft, not printed.** Print `plinko_pi_wing_test.stl` and `plinko_pi_fit_tray.stl` first;
-do not print the base and lid until both pass.
+**Status: draft.** The wing test passed (2026-10-14): the 90.83 mm screw spacing and the slot size are
+confirmed on the board. Print `plinko_pi_fit_tray.stl` next; do not print the base and lid until it passes
+and the two breakout values below are measured.
 
 ## Parts
 
@@ -42,8 +43,8 @@ long in the direction between the screws, so the spacing need not be exact.
 | `bo_left_over` | 9.96 mm (measured) | How far the breakout sticks out past the Pi's left (SD card side) edge. |
 | `bo_x1` | header end + 1.5 mm | Where the breakout ends on the right. Not measured yet. |
 | `bo_over_y` | 3 mm | How far the breakout overhangs the top PCB edge. Not measured yet. |
-| `screw_spacing` | 90.83 mm (measured) | Centre-to-centre of the two peg screws to mount on. |
-| `screw_shank_d`, `screw_head_d` | 4.17, 8.1 mm (#8) | The screw the wing goes over. |
+| `screw_spacing` | 90.83 mm (**confirmed**: wing test fits the board) | Centre-to-centre of the two peg screws to mount on. |
+| `screw_shank_d`, `screw_head_d` | 4.17, 8.1 mm (#8, **confirmed** with the wing test) | The screw the wing goes over. |
 
 ## Export
 
