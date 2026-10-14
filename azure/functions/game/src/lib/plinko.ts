@@ -5,10 +5,12 @@
  * See power pages/docs/PLINKO_GAME_PLAN.md §4.
  */
 
-import { litBucketAt } from "./plinkoChase";
+import { CHASE_DISPLAY_LAG_MS, CHASE_STEP_MS, litBucketAt } from "./plinkoChase";
 
 export const PLINKO_LANDING_TYPE = "plinkoLanding";
 export const PLINKO_RESULT_TARGET = "plinkoResult";
+/** Sent by the Pi every couple of minutes to keep the Event Hub trigger warm; carries nothing to act on. */
+export const PLINKO_HEARTBEAT_TYPE = "plinkoHeartbeat";
 export const PLINKO_CONTEST_SOURCE_KEY = "plinko";
 
 /** A landing older than this is treated as a replay, not a live drop. */
@@ -94,6 +96,10 @@ export function isPlinkoLanding(payload: unknown): boolean {
   return !!payload && typeof payload === "object" && (payload as { type?: unknown }).type === PLINKO_LANDING_TYPE;
 }
 
+export function isPlinkoHeartbeat(payload: unknown): boolean {
+  return !!payload && typeof payload === "object" && (payload as { type?: unknown }).type === PLINKO_HEARTBEAT_TYPE;
+}
+
 function positiveInt(value: unknown): number | null {
   return typeof value === "number" && Number.isInteger(value) && value >= 1 ? value : null;
 }
@@ -138,9 +144,17 @@ export function checkFreshness(landedAt: Date, now: Date = new Date()): string |
 /**
  * The lit bucket for scoring: where the display's chase light was when the puck landed. The Pi
  * has no lights and its `litBucket` is ignored; the chase is a function of time (plinkoChase.ts).
+ * Just after a step boundary the screen can still show the previous bucket lit, so a landing in
+ * that bucket within CHASE_DISPLAY_LAG_MS of the boundary counts as lit.
  */
 export function resolveLitBucket(landing: PlinkoLanding, bucketCount: number): number {
-  return litBucketAt(landing.landedAt.getTime(), bucketCount);
+  const at = landing.landedAt.getTime();
+  const lit = litBucketAt(at, bucketCount);
+  const sinceStep = ((at % CHASE_STEP_MS) + CHASE_STEP_MS) % CHASE_STEP_MS;
+  if (sinceStep < CHASE_DISPLAY_LAG_MS && landing.bucket === litBucketAt(at - CHASE_STEP_MS, bucketCount)) {
+    return landing.bucket;
+  }
+  return lit;
 }
 
 export function entriesFor(profile: PlinkoProfile, bucket: number, litBucket: number): number {
