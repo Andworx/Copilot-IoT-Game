@@ -26,7 +26,7 @@ therefore full depth (48 mm), one per bucket width (`body_slotN.stl`).
 | Part | Material | Notes |
 |---|---|---|
 | **Body** | PLA | Full depth (acrylic to backboard), one per bucket width. Sits on the bucket floor. Two M3 screws from behind the backboard go into heat-set inserts in the rear face. Each end has a tower holding one Adafruit 2167 housing **standing upright** (emitter left, receiver right), pushed in from the rear. The tower tops slope so a puck landing on one rolls into the bucket. |
-| **Cover** | PLA, multi-colour | Swappable, held by four pairs of 6 × 2 mm disc magnets and located by two pins. One cover per logo (below); the logo is a 0.6 mm colour inlay in the face. |
+| **Cover** | PLA, multi-colour | Swappable magnetic tile, held by six 6 × 1.74 mm disc magnets (no pins) that are sealed in during the print. One tile per logo (below); the logo is a 0.6 mm colour inlay in the face. |
 
 - **Sensor fit (measured and test-printed 2026-10-08):** housing 7.96 (along the beam) x 9.80 x
   19.97 mm. A 3.277 mm lens hole sits 4.22 mm from the lens end; the lens tip is 10.86 mm from the
@@ -38,7 +38,7 @@ therefore full depth (48 mm), one per bucket width (`body_slotN.stl`).
 - **Wire raceway:** each housing's wires drop from its bottom end into a 4 × 4 mm channel in the rear
   face. The channel runs the full width to the centre, where the backboard hole is, so all five
   conductors per bucket leave in one place. The backboard closes the channel.
-- **Magnets:** four pockets in the body's front face (and four in the cover) take the cover.
+- **Magnets:** six sealed cavities behind the body's front face (and six in the tile) hold the tile; see "Magnets" below.
 - **IR pockets:** they open to the rear face; slide the housings in from behind. The receiver looks
   through a 5 mm-long, 2.5 mm aperture that rejects IR reflected off the acrylic.
 - **No moving parts.** The beam is blocked while a puck is in the bucket and clears
@@ -137,6 +137,9 @@ Neither part needs supports.
 | `exports/stl/body_slot1..6.stl` | Body per bucket (insert widths 88.1, 79.4, 80.6, 78.6, 80.8 and 85.7 mm). Engraved `B<n>  <width> mm` on the underside. The tile magnets are measured from the body's centre, so a wider body just shows a bit of body each side of the tile. |
 | `exports/stl/guide_slot1..6.stl` | Marking guide per bucket (below). Labelled `B<n>  <width> mm`, `FLOOR`, `M3`, `W`. |
 | `exports/stl/puck.stl` | Our puck: 48.9 x 16 mm, rounded edge, smooth faces, no decal. Two sealed magnet cavities. |
+| `exports/stl/magnet_test.stl` | Fit test: four open pockets with 0.1, 0.2, 0.3 and 0.4 mm of diameter play for the 6 x 1.74 mm magnets. Print this first and pick the pocket the magnet drops into with a little play, then set `mag_fit` to that number. |
+| `exports/stl/magnet_dispenser.stl`, `magnet_pusher.stl`, `magnet_cap_body.stl`, `magnet_cap_tile.stl` | Keeps magnet polarity right and the stack stored: see "Magnets" below. |
+| `exports/stl/plug.stl` | Retaining plug, **12 needed** (one per sensor, emitter and receiver alike). Pushes into the rear of the sensor pocket behind the housing so it cannot slide out; 5.9 mm long (`plug_len`), with a slot along its underside for the wires, and it is only lightly snug (0.1 mm crush ribs). Pull hole through the middle for a pick. Print with the slot facing up (the STL is already oriented). |
 | `exports/stl/fit_test.stl` | Receiver end only, to check the housing fit (passed). |
 | `exports/covers/<logo>/` | Magnetic tiles: **one size (78.58 x 38.2 mm) that fits every bucket**, so the 12 logos make up one shared set. Engraved with the logo name on the back. |
 
@@ -167,3 +170,52 @@ mark with a punch or brad nail instead. Wire exit dent only: choose your own hol
 - Not yet tested on the board: whether pucks slide off the funnel faces at 40 degrees (lower
   `funnel_angle` loses the slide, higher makes it taller), and whether the 2 mm receiver aperture
   rejects enough reflected IR.
+
+
+## Magnets: sealed in during the print
+
+The tile and the body each have six **sealed** cavities for 6 x 1.74 mm discs (two columns, three rows).
+The magnets are not glued: you drop them in at a pause and the print closes a 0.6 mm skin over them.
+The pockets have play (`mag_fit` 0.3 mm in diameter, tested on the printer; `mag_play_t` 0.3 mm in depth), and the snap pins
+are gone, so the magnets alone hold the tile.
+
+| Part | Printed | Layer height | Pause **after** layer | Z | Notes |
+|---|---|---|---|---|---|
+| Body | rear face down | **0.28 mm** (first layer 0.2) | **157** | 43.88 mm | 6 magnets. The cavity is 1.96 mm deep (7 layers). |
+| Tile | logo face down | **0.2 mm** | **14** | 2.8 mm | 6 magnets. The cavity is 2.0 mm deep (10 layers). |
+| Puck | flat | 0.2 mm | at Z = 13.07 mm | 13.07 mm | Four magnets, two stacked per cavity. |
+
+The cavity edges are **snapped to the slicer's layer grid** (`body_lh`, `tile_lh`, `first_lh` in the SCAD),
+so the open cavity is a whole number of layers and its top edge is a layer boundary. If you print at a
+different layer height, set `body_lh` or `tile_lh` to match and re-export; the export prints the new layer
+number. Magnets that sat proud before were from pausing on a layer that did not match the cavity.
+
+In Bambu Studio, use *Add pause* at that layer (right-click the layer slider, step to the layer number
+above, and the slider shows its Z). Check that each magnet lies flat on the cavity
+floor, with no magnet standing up, before you resume: a raised magnet will be hit by the nozzle.
+
+### Getting the polarity right every time
+
+The body and tile magnets must present **opposite** faces to each other, and every body and every tile
+must be consistent. Use the dispenser:
+
+1. Stack all the magnets in the dispenser tube. They only stack one way, so a flipped magnet repels
+   and you notice. The stack fixes the polarity.
+2. For a **body**: stand the tube on the cavity with the **BODY** end down, and push a magnet out with
+   the pusher (from the TILE end).
+3. For a **tile**: stand the tube on the cavity with the **TILE** end down, and push from the BODY end.
+4. The two ends give opposite faces, so every tile attracts every body. When you top up the stack, add
+   magnets at the TILE end only and make sure they attract (do not force a magnet that repels).
+
+### Caps and the reference magnet
+
+Two caps (`magnet_cap_body.stl`, `magnet_cap_tile.stl`) slide over the tube ends and keep the stack in
+when you are not using it. Each has a pocket in its closed end for one **reference magnet**:
+
+1. Drop a magnet in each cap's pocket and bring the cap to the matching end of the stack. The
+   magnet must be **pulled in** and hold the cap on. If it repels, take the magnet out and flip it.
+   The two caps end up with opposite faces, as the stack ends do.
+2. Leave the caps on between sessions: the stack cannot spill, and a cap that repels or falls off
+   tells you a magnet at that end has been flipped or the stack has been moved.
+3. To check a loose magnet, touch it to the **TILE** cap's top. The face that clings is the face
+   that goes **up** (outward) in a tile cavity, and **down** in a body cavity.
