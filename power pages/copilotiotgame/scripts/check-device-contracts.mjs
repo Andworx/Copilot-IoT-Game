@@ -57,11 +57,15 @@ for (const slug of DEVICE_ORDER) {
     assert.equal(step.label, control.label, `${slug}: physical label`);
   }
   const prompt = buildQuickFixPrompt(device, device.fault, []);
-  assert.match(prompt, /restoration checks the final switch positions and cable connections/);
-  assert.match(prompt, /Actions can be completed in any order/);
-  assert.doesNotMatch(prompt, /restored in the listed order|change, in order/);
-  for (const action of cableActions(map.requiredCables).filter(action => action !== "Remove all other cables")) assert.ok(prompt.includes(action));
-  assert.ok(!prompt.includes("Remove all other cables"), `${slug}: no extras should not ask to remove cables`);
+  // The agent works the steps out from the manual: the prompt carries state only, never the answer.
+  assert.ok(prompt.includes(device.slug) && prompt.includes(`mode ${device.modeIndex}`), `${slug}: prompt names the mode`);
+  for (const [pin, name] of [["SW1", "Switch 1"], ["SW4", "Switch 4"], ["SW5", "Keyed switch 1"], ["SW6", "Keyed switch 2"], ["S1", "LAN 1"], ["S4", "LAN 4"]]) {
+    const step = device.restoreSequence.find(c => c.physicalPin === pin);
+    const word = pin.startsWith("SW") ? (device.fault[step.key] ? "ON" : "OFF") : (device.fault[step.key] ? "CONNECTED" : "OPEN");
+    assert.ok(prompt.includes(`${name}: ${word}`), `${slug}: prompt shows ${name} as ${word}`);
+  }
+  assert.doesNotMatch(prompt, /ACTIONS_TO_RETURN|WRONG|, OK|Remove all other cables|Connect an RJ-45/, `${slug}: prompt must not hand over the answer`);
+  assert.match(buildQuickFixPrompt(device, device.fault, [{ cable: 1, sockets: ["S1", "S3"] }]), /RJ-45 patch cable between LAN 1 and LAN 3/);
   const target = Object.fromEntries(device.restoreSequence.map(c => [c.key, c.target]));
   assert.deepEqual(restoreActionsFrom(device.restoreSequence, target, map.requiredCables), [], `${slug}: satisfied controls and cables should leave no actions`);
   assert.ok(

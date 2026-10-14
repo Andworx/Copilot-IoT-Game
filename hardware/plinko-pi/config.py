@@ -7,8 +7,8 @@ the multi-bucket board is finalized. PLINKO_BUCKET_PINS maps bucket 1..N to pins
 import os
 
 
-FIRMWARE_VERSION = "plinko-pi/v0.2"
-DEFAULT_STATION_SLUG = os.environ.get("PLINKO_STATION_SLUG", "plinko-1")
+FIRMWARE_VERSION = "plinko-pi/v0.3"
+DEFAULT_STATION_SLUG = os.environ.get("PLINKO_STATION_SLUG", "plinko-default")
 DEFAULT_BUCKET = int(os.environ.get("PLINKO_BUCKET", "1"))
 DEFAULT_LIT_BUCKET = int(os.environ.get("PLINKO_LIT_BUCKET", str(DEFAULT_BUCKET)))
 DEFAULT_BUCKET_COUNT = int(os.environ.get("PLINKO_BUCKET_COUNT", "5"))
@@ -20,3 +20,8 @@ DEFAULT_BUCKET_PINS = [
 DEFAULT_DEBOUNCE_MS = int(os.environ.get("PLINKO_DEBOUNCE_MS", "200"))
 DEFAULT_POLL_MS = int(os.environ.get("PLINKO_POLL_MS", "20"))
 DEFAULT_LOCKOUT_MS = int(os.environ.get("PLINKO_LOCKOUT_MS", "1000"))
+# Backend used to learn the server clock (GET /api/plinko-chase) so landings are stamped on it.
+DEFAULT_API_BASE_URL = os.environ.get("PLINKO_API_BASE_URL", "https://func-aw-iot-game-v2.azurewebsites.net")
+DEFAULT_CLOCK_RESYNC_S = int(os.environ.get("PLINKO_CLOCK_RESYNC_S", "300"))
+# A small message every N seconds keeps the Function App's Event Hub trigger warm; 0 turns it off.
+DEFAULT_HEARTBEAT_S = int(os.environ.get("PLINKO_HEARTBEAT_S", "120"))

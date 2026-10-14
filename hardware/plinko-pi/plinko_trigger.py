@@ -13,6 +13,7 @@ from typing import Callable, Optional
 from uuid import uuid4
 
 import config
+from server_clock import ServerClock
 from telemetry import TelemetryClient
 
 log = logging.getLogger("plinko.trigger")
@@ -152,6 +153,16 @@ class BoardMonitor:
         return landing
 
 
+def heartbeat_payload(station_slug: str, firmware: str, sent_at: datetime) -> dict:
+    """Ignored by the backend apart from waking the Event Hub trigger."""
+    return {
+        "type": "plinkoHeartbeat",
+        "stationSlug": station_slug,
+        "firmware": firmware,
+        "sentAt": sent_at.isoformat(),
+    }
+
+
 def run(
     input_device,
     telemetry: TelemetryClient,
@@ -161,8 +172,12 @@ def run(
     debounce_ms: int,
     lockout_ms: int,
     poll_ms: int,
+    clock: Optional[ServerClock] = None,
+    heartbeat_s: float = 0,
 ) -> None:
-    monitor = BoardMonitor(pins, debounce_ms=debounce_ms, lockout_ms=lockout_ms)
+    utcnow = clock.now if clock is not None else (lambda: datetime.now(timezone.utc))
+    monitor = BoardMonitor(pins, debounce_ms=debounce_ms, lockout_ms=lockout_ms, utcnow=utcnow)
+    next_heartbeat = time.monotonic()
     last_active = None
     log.info(
         "Watching %s Plinko buckets (GPIO %s) for station %s, %sms debounce, %sms lockout",
@@ -184,6 +199,9 @@ def run(
                 payload = event.to_payload()
                 log.info("Detected Plinko landing: %s", payload)
                 telemetry.publish(payload)
+            if heartbeat_s > 0 and time.monotonic() >= next_heartbeat:
+                telemetry.publish(heartbeat_payload(station_slug, config.FIRMWARE_VERSION, utcnow()))
+                next_heartbeat = time.monotonic() + heartbeat_s
             time.sleep(poll_ms / 1000.0)
     finally:
         input_device.close()
@@ -198,12 +216,23 @@ def parse_args():
     parser.add_argument("--debounce-ms", type=int, default=config.DEFAULT_DEBOUNCE_MS)
     parser.add_argument("--lockout-ms", type=int, default=config.DEFAULT_LOCKOUT_MS)
     parser.add_argument("--poll-ms", type=int, default=config.DEFAULT_POLL_MS)
+    parser.add_argument("--api-base-url", default=config.DEFAULT_API_BASE_URL, help="Backend for the server clock; empty disables sync")
+    parser.add_argument("--clock-resync-s", type=int, default=config.DEFAULT_CLOCK_RESYNC_S)
+    parser.add_argument("--heartbeat-s", type=int, default=config.DEFAULT_HEARTBEAT_S, help="0 disables the keep-warm heartbeat")
     return parser.parse_args()
 
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     args = parse_args()
+    clock = None
+    if args.api_base_url:
+        clock = ServerClock(args.api_base_url, args.station, resync_s=args.clock_resync_s)
+        if clock.sync_once():
+            log.info("Stamping landings on server time (offset %+.0f ms)", clock.offset_ms)
+        else:
+            log.warning("Could not reach %s yet; using the Pi clock until it can", args.api_base_url)
+        clock.start()
     run(
         input_device=GpioInput(args.pins),
         telemetry=TelemetryClient(),
@@ -213,6 +242,8 @@ def main() -> None:
         debounce_ms=args.debounce_ms,
         lockout_ms=args.lockout_ms,
         poll_ms=args.poll_ms,
+        clock=clock,
+        heartbeat_s=args.heartbeat_s,
     )
 
 

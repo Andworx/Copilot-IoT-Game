@@ -1,7 +1,7 @@
 import { apiSurface, backgroundWorkEnabled } from "../lib/apiSurface";
 import { app, output, InvocationContext, RetryOptions } from "@azure/functions";
 import { createTelemetryEvent } from "../lib/dataverse";
-import { isPlinkoLanding, PLINKO_RESULT_TARGET } from "../lib/plinko";
+import { isPlinkoHeartbeat, isPlinkoLanding, PLINKO_RESULT_TARGET } from "../lib/plinko";
 import { recordPlinkoLanding } from "../lib/plinkoLanding";
 import {
   buildSignalRMessages,
@@ -74,6 +74,9 @@ export async function iotTelemetry(events: unknown[], context: InvocationContext
       return;
     }
     const deviceId = resolveDeviceId(payload, systemProperties?.[index]);
+
+    // The Pi's keep-warm ping: receiving it is the whole point, so there is nothing to record or broadcast.
+    if (isPlinkoHeartbeat(payload)) return;
 
     if (isPlinkoLanding(payload)) {
       // One after another: two landings in a batch must not both pass the one-win-on-screen check.

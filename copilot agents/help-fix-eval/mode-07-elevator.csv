@@ -1,0 +1,319 @@
+"# Elevator Control Panel (elevator), mode 7: 20 panel states, one conversation each."
+"# question = the exact prompt the kiosk sends. response = reference list of required steps (order may vary)."
+"conversationNumber","question","response"
+"1","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: OFF
+Switch 3: OFF
+Switch 4: ON
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 2 on
+3. Turn Switch 3 on
+4. Turn Switch 4 off
+5. Turn Keyed switch 1 off
+6. Turn Keyed switch 2 on
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 2"
+"2","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Connect an RJ-45 patch cable between LAN 1 and LAN 2"
+"3","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: OFF
+Switch 3: OFF
+Switch 4: ON
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 2 on
+3. Turn Switch 3 on
+4. Turn Switch 4 off
+5. Turn Keyed switch 1 off
+6. Turn Keyed switch 2 on"
+"4","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2; RJ-45 patch cable between LAN 3 and LAN 4
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Remove the RJ-45 patch cable between LAN 3 and LAN 4"
+"5","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 3 and LAN 4
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Connect an RJ-45 patch cable between LAN 1 and LAN 2
+2. Remove the RJ-45 patch cable between LAN 3 and LAN 4"
+"6","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 2 and LAN 1
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on"
+"7","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on"
+"8","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: OFF
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 2 on"
+"9","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: OFF
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 3 on"
+"10","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: ON
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 4 off"
+"11","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: ON
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Keyed switch 1 off"
+"12","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Keyed switch 2 on"
+"13","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: OFF
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 2 on
+3. Connect an RJ-45 patch cable between LAN 1 and LAN 2"
+"14","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Keyed switch 1 off
+2. Turn Keyed switch 2 on
+3. Connect an RJ-45 patch cable between LAN 1 and LAN 2"
+"15","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: ON
+Switch 3: OFF
+Switch 4: OFF
+Keyed switch 1: ON
+Keyed switch 2: ON
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 3 and LAN 4
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 3 on
+3. Turn Keyed switch 1 off
+4. Connect an RJ-45 patch cable between LAN 1 and LAN 2
+5. Remove the RJ-45 patch cable between LAN 3 and LAN 4"
+"16","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: ON
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: none detected.
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 4 off
+2. Connect an RJ-45 patch cable between LAN 1 and LAN 2"
+"17","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: ON
+Switch 3: ON
+Switch 4: OFF
+Keyed switch 1: OFF
+Keyed switch 2: ON
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: an unrecognised link between LAN 3 and LAN 4
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Connect an RJ-45 patch cable between LAN 1 and LAN 2
+2. Remove the RJ-45 patch cable between LAN 3 and LAN 4"
+"18","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: OFF
+Switch 2: OFF
+Switch 3: OFF
+Switch 4: ON
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: OPEN
+LAN 2: OPEN
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 3 and LAN 4
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 1 on
+2. Turn Switch 2 on
+3. Turn Switch 3 on
+4. Turn Switch 4 off
+5. Turn Keyed switch 1 off
+6. Turn Keyed switch 2 on
+7. Connect an RJ-45 patch cable between LAN 1 and LAN 2
+8. Remove the RJ-45 patch cable between LAN 3 and LAN 4"
+"19","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: OFF
+Switch 3: OFF
+Switch 4: ON
+Keyed switch 1: ON
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: OPEN
+LAN 4: OPEN
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 2 on
+2. Turn Switch 3 on
+3. Turn Switch 4 off
+4. Turn Keyed switch 1 off
+5. Turn Keyed switch 2 on"
+"20","CURRENT_MODE: Elevator Control Panel (elevator), mode 7.
+CURRENT_STATE:
+Switch 1: ON
+Switch 2: OFF
+Switch 3: ON
+Switch 4: ON
+Keyed switch 1: OFF
+Keyed switch 2: OFF
+LAN 1: CONNECTED
+LAN 2: CONNECTED
+LAN 3: CONNECTED
+LAN 4: CONNECTED
+CABLES: RJ-45 patch cable between LAN 1 and LAN 2; RJ-45 patch cable between LAN 3 and LAN 4
+Using the restore manual for this mode, list what the player must change to restore this device. Reply with ONLY a numbered list. Each step must start with Turn, Connect, Disconnect, or Remove. No emojis, citations, markdown, preamble or explanation.","1. Turn Switch 2 on
+2. Turn Switch 4 off
+3. Turn Keyed switch 2 on
+4. Remove the RJ-45 patch cable between LAN 3 and LAN 4"

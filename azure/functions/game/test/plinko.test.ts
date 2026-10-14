@@ -4,6 +4,7 @@ import { litBucketAt } from "../src/lib/plinkoChase";
 import {
   MAX_LANDING_AGE_MS,
   checkFreshness,
+  isPlinkoHeartbeat,
   isPlinkoLanding,
   judgePlinkoLanding,
   lockHolds,
@@ -57,6 +58,13 @@ test("isPlinkoLanding only matches the plinkoLanding type", () => {
   assert.equal(isPlinkoLanding(null), false);
 });
 
+test("a heartbeat is recognised and is not a landing", () => {
+  const beat = { type: "plinkoHeartbeat", stationSlug: "plinko-default" };
+  assert.equal(isPlinkoHeartbeat(beat), true);
+  assert.equal(isPlinkoLanding(beat), false);
+  assert.equal(isPlinkoHeartbeat(wire()), false);
+});
+
 test("parsePlinkoLanding accepts the Pi payload, including microsecond timestamps", () => {
   const parsed = parsePlinkoLanding(wire());
   assert.ok("landing" in parsed);
@@ -94,6 +102,15 @@ test("the lit bucket is where the chase was when the puck landed, not what the P
   assert.ok(decision.accepted && decision.gameModeActive);
   assert.equal(decision.litBucket, LIT_AT_LANDING);
   assert.equal(resolveLitBucket(landing(), 6), LIT_AT_LANDING);
+});
+
+test("just after a step the previous bucket still counts as lit, then stops counting", () => {
+  const stepStart = Math.floor(LANDED_AT.getTime() / 1000) * 1000;
+  const previous = litBucketAt(stepStart - 1000, 6);
+  const current = litBucketAt(stepStart, 6);
+  assert.equal(resolveLitBucket(landing({ landedAt: new Date(stepStart + 100), bucket: previous }), 6), previous);
+  assert.equal(resolveLitBucket(landing({ landedAt: new Date(stepStart + 100), bucket: current }), 6), current);
+  assert.equal(resolveLitBucket(landing({ landedAt: new Date(stepStart + 600), bucket: previous }), 6), current);
 });
 
 test("a non-lit bucket earns the standard entries", () => {

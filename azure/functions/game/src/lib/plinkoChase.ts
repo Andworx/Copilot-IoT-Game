@@ -8,6 +8,13 @@
 /** How long the light rests on each bucket. */
 export const CHASE_STEP_MS = 1000;
 
+/**
+ * How long after a step boundary the screen may still be showing the previous bucket lit
+ * (clock offset estimate, redraw and network jitter). A landing in the previous lit bucket
+ * inside this window counts as lit, so the player is scored on what they saw.
+ */
+export const CHASE_DISPLAY_LAG_MS = 250;
+
 /** 1-based bucket that is lit at `timeMs` (epoch ms) on a board with `bucketCount` buckets. */
 export function litBucketAt(timeMs: number, bucketCount: number, stepMs: number = CHASE_STEP_MS): number {
   const count = Math.max(1, Math.floor(bucketCount));
