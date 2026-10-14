@@ -59,6 +59,9 @@ Settings (environment variables or CLI options; see `.env.example`):
 | `PLINKO_DEBOUNCE_MS` | `50` | Stable blocked time required before a landing. |
 | `PLINKO_LOCKOUT_MS` | `1000` | After a landing, other buckets are ignored this long (a puck passing a neighbouring beam). |
 | `PLINKO_POLL_MS` | `20` | Poll interval. |
+| `PLINKO_API_BASE_URL` | `https://func-aw-iot-game-v2.azurewebsites.net` | Backend used to learn the server clock (`/api/plinko-chase`). Landings are stamped on server time, the same clock the display and scoring use. Empty disables it. |
+| `PLINKO_CLOCK_RESYNC_S` | `300` | How often the server-clock offset is re-measured. |
+| `PLINKO_HEARTBEAT_S` | `120` | A `plinkoHeartbeat` message this often keeps the Function App's Event Hub trigger warm so the first drop after a quiet spell isn't slow. `0` turns it off. The backend ignores it. |
 
 ## Bench check
 
@@ -68,6 +71,41 @@ ssh pi@iotplinko "cd plinko-pi && python3 sensor_check.py"
 
 Block each beam in turn; it prints BLOCKED / CLEAR with the hold time. If it
 reports `GPIO busy`, another copy is running: `pkill -f '[s]ensor_check.py'`.
+
+## Six-bucket console check
+
+Use `sensor_check.py` with the full default pin map when you want the Pi console
+to show all six bucket inputs. With the full map, labels match the physical board:
+`b1/GPIO17`, `b2/GPIO27`, `b3/GPIO22`, `b4/GPIO23`, `b5/GPIO24`, and
+`b6/GPIO25`.
+
+Output meaning:
+
+| Output | Meaning |
+|---|---|
+| `BLOCKED` | The receiver pulled the GPIO low; the beam is broken. |
+| `CLEAR (was blocked N ms)` | The beam cleared; the line shows how long it was blocked. |
+| `b6/GPIO25=CLEAR(0)` | Periodic status row: bucket 6 on GPIO25 is clear, with 0 state flips so far. |
+
+Only one process can claim the GPIO lines at a time. For a full console test,
+stop the boot service, run the monitor, then stop the monitor and restart the
+service so landings go back to IoT Hub:
+
+```bash
+sudo systemctl stop plinko-pi.service
+pkill -f '[s]ensor_check.py'
+
+cd /home/pi/plinko-pi
+python3 -u sensor_check.py --table-s 1
+```
+
+When you are done testing, press `Ctrl+C` in the sensor check terminal, then
+start the reporter service again:
+
+```bash
+sudo systemctl start plinko-pi.service
+journalctl -u plinko-pi.service -f
+```
 
 ## Local tests
 

@@ -18,10 +18,11 @@ interface ChaseSchedule {
   offsetMs: number;
 }
 
-const RESYNC_MS = 5 * 60 * 1000;
-const TICK_MS = 100;
+const RESYNC_MS = 60 * 1000;
+/** Clock samples per sync; the quickest round trip has the least uncertainty about when the server stamped. */
+const SYNC_SAMPLES = 3;
 
-async function fetchSchedule(): Promise<ChaseSchedule> {
+async function fetchSample(): Promise<ChaseSchedule & { roundTripMs: number }> {
   const sentAt = Date.now();
   const response = await fetch(`${API_BASE_URL}/api/plinko-chase?station=${encodeURIComponent(STATION_SLUG)}`, { cache: "no-store" });
   if (!response.ok) throw new Error(`plinko-chase ${response.status}`);
@@ -40,7 +41,17 @@ async function fetchSchedule(): Promise<ChaseSchedule> {
     gameModeActive: body.gameModeActive !== false,
     bucketIcons: Array.isArray(body.bucketIcons) ? body.bucketIcons : [],
     offsetMs: body.serverTime - (sentAt + receivedAt) / 2,
+    roundTripMs: receivedAt - sentAt,
   };
+}
+
+async function fetchSchedule(): Promise<ChaseSchedule> {
+  let best: Awaited<ReturnType<typeof fetchSample>> | null = null;
+  for (let i = 0; i < SYNC_SAMPLES; i++) {
+    const sample = await fetchSample();
+    if (!best || sample.roundTripMs < best.roundTripMs) best = sample;
+  }
+  return best!;
 }
 
 /**
@@ -72,10 +83,20 @@ export function useChase(): { litBucket: number; bucketCount: number; gameModeAc
     };
   }, []);
 
+  // Redraw exactly when the server's clock crosses into the next step, so the light changes
+  // when the backend's scoring does rather than up to a poll interval later.
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), TICK_MS);
-    return () => clearInterval(id);
-  }, []);
+    if (!schedule) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      const serverNow = Date.now() + schedule.offsetMs;
+      setNow(Date.now());
+      const untilNextStep = schedule.stepMs - (serverNow % schedule.stepMs);
+      timer = setTimeout(tick, untilNextStep + 2);
+    };
+    tick();
+    return () => clearTimeout(timer);
+  }, [schedule]);
 
   if (!schedule) return null;
   return {
