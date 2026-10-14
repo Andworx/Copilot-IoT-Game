@@ -13,11 +13,11 @@ When the input stays active for the debounce window, `plinko_trigger.py` emits:
 ```json
 {
   "type": "plinkoLanding",
-  "stationSlug": "plinko-default",
+  "stationSlug": "plinko-1",
   "eventId": "<uuid>",
   "bucket": 1,
   "litBucket": 1,
-  "bucketCount": 6,
+  "bucketCount": 5,
   "landedAt": "2026-10-02T12:00:00+00:00",
   "firmware": "plinko-pi/v0.2"
 }
@@ -26,8 +26,9 @@ When the input stays active for the debounce window, `plinko_trigger.py` emits:
 If `AZURE_IOT_CONNECTION_STRING` is unset, the message is logged locally instead
 of sent to IoT Hub. That is the expected mode for the first wiring check.
 
-The board has no lights. The chase light runs on the booth display and the backend
-scores `landedAt` against it, so `litBucket` is informational only and is ignored.
+`litBucket` is configurable for smoke testing the planned backend envelope. The
+first single-input bench test does not drive chase lights; set `PLINKO_LIT_BUCKET`
+to the bucket value when you only need a known lit-bucket win payload.
 
 ## Wiring
 
@@ -53,10 +54,10 @@ Settings (environment variables or CLI options; see `.env.example`):
 
 | Setting | Default | Notes |
 |---|---:|---|
-| `PLINKO_STATION_SLUG` | `plinko-default` | Station identifier in telemetry. |
+| `PLINKO_STATION_SLUG` | `plinko-1` | Station identifier in telemetry. |
 | `PLINKO_BUCKET_PINS` | `17,27,22,23,24,25` | BCM pins for buckets 1..N; N is the bucket count. |
-| `PLINKO_LIT_BUCKET` | `1` | Informational only: the backend derives the lit bucket from the display's chase. |
-| `PLINKO_DEBOUNCE_MS` | `50` | Stable blocked time required before a landing. |
+| `PLINKO_LIT_BUCKET` | `1` | Lit bucket in the event. Placeholder until the display drives it. |
+| `PLINKO_DEBOUNCE_MS` | `200` | Stable blocked time required before a landing. |
 | `PLINKO_LOCKOUT_MS` | `1000` | After a landing, other buckets are ignored this long (a puck passing a neighbouring beam). |
 | `PLINKO_POLL_MS` | `20` | Poll interval. |
 
@@ -95,7 +96,7 @@ them:
 
 ```bash
 cd /home/pi/plinko-pi
-python3 -m venv --system-site-packages .venv   # keeps the apt lgpio visible
+python3 -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -104,7 +105,7 @@ Run the reporter by hand:
 
 ```bash
 cd /home/pi/plinko-pi
-.venv/bin/python plinko_trigger.py
+python3 plinko_trigger.py
 ```
 
 Each stable block prints `Detected Plinko landing` and `Telemetry (offline)`

@@ -8,7 +8,7 @@ import os
 
 
 FIRMWARE_VERSION = "plinko-pi/v0.2"
-DEFAULT_STATION_SLUG = os.environ.get("PLINKO_STATION_SLUG", "plinko-default")
+DEFAULT_STATION_SLUG = os.environ.get("PLINKO_STATION_SLUG", "plinko-1")
 DEFAULT_BUCKET = int(os.environ.get("PLINKO_BUCKET", "1"))
 DEFAULT_LIT_BUCKET = int(os.environ.get("PLINKO_LIT_BUCKET", str(DEFAULT_BUCKET)))
 DEFAULT_BUCKET_COUNT = int(os.environ.get("PLINKO_BUCKET_COUNT", "5"))
@@ -17,6 +17,6 @@ DEFAULT_INPUT_PIN = int(os.environ.get("PLINKO_INPUT_PIN", "17"))
 DEFAULT_BUCKET_PINS = [
     int(p) for p in os.environ.get("PLINKO_BUCKET_PINS", "17,27,22,23,24,25").split(",") if p.strip()
 ]
-DEFAULT_DEBOUNCE_MS = int(os.environ.get("PLINKO_DEBOUNCE_MS", "50"))
+DEFAULT_DEBOUNCE_MS = int(os.environ.get("PLINKO_DEBOUNCE_MS", "200"))
 DEFAULT_POLL_MS = int(os.environ.get("PLINKO_POLL_MS", "20"))
 DEFAULT_LOCKOUT_MS = int(os.environ.get("PLINKO_LOCKOUT_MS", "1000"))
