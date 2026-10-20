@@ -35,6 +35,8 @@ export interface PlinkoProfile {
   standardBucketEntries: number;
   gameModeActive: boolean;
   bucketIcons: string[];
+  /** The active Contest Campaign's max entries per contact; when set it is what a lit bucket awards. */
+  maxEntries?: number | null;
 }
 
 /** The `plinkoResult` the booth display receives. */
@@ -158,7 +160,8 @@ export function resolveLitBucket(landing: PlinkoLanding, bucketCount: number): n
 }
 
 export function entriesFor(profile: PlinkoProfile, bucket: number, litBucket: number): number {
-  return bucket === litBucket ? profile.litBucketEntries : profile.standardBucketEntries;
+  const lit = profile.maxEntries && profile.maxEntries > 0 ? profile.maxEntries : profile.litBucketEntries;
+  return bucket === litBucket ? lit : Math.min(profile.standardBucketEntries, lit);
 }
 
 export type PlinkoDecision =

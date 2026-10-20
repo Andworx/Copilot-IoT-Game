@@ -17,7 +17,7 @@ DEFAULT_INPUT_PIN = int(os.environ.get("PLINKO_INPUT_PIN", "17"))
 DEFAULT_BUCKET_PINS = [
     int(p) for p in os.environ.get("PLINKO_BUCKET_PINS", "23,24,25,22,27,17").split(",") if p.strip()
 ]
-DEFAULT_DEBOUNCE_MS = int(os.environ.get("PLINKO_DEBOUNCE_MS", "50"))
+DEFAULT_DEBOUNCE_MS = int(os.environ.get("PLINKO_DEBOUNCE_MS", "200"))
 DEFAULT_POLL_MS = int(os.environ.get("PLINKO_POLL_MS", "20"))
 DEFAULT_LOCKOUT_MS = int(os.environ.get("PLINKO_LOCKOUT_MS", "1000"))
 # Backend used to learn the server clock (GET /api/plinko-chase) so landings are stamped on it.

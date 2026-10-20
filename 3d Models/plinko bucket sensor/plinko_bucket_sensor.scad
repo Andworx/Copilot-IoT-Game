@@ -26,7 +26,7 @@
 // colour parts loaded as parts of the same object. Neither needs supports.
 
 /* [Part] */
-part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide, funnel_test]
+part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide, funnel_test, plug, magnet_test, dispenser, pusher, cap_body, cap_tile]
 
 /* [Bucket slot - board numbers 2026-09-30 (4 x 5 x 0.5 in); MEASURE] */
 slot_widths = [88.89, 80.21, 81.38, 79.38, 81.63, 86.54]; // measured 2026-10-10, buckets 1..6 left to right
@@ -75,20 +75,21 @@ race_d = 4.0;           // channel depth into the body from the rear face (Y)
 race_z = 3.0;           // channel top is this far below the top surface (wires drop in from the housing)
 
 /* [Cover] */
-cover_t = 3.1;          // magnet pocket + 1 mm skin
+cover_t = 3.5;          // front skin + magnet cavity + back skin (see the assert)
 cover_gap = 0.2;        // between cover back and body front
 cover_top_clear = 0.2;  // cover top sits this far below the top surface
 mag_d = 6.0;            // disc magnet diameter (6 x 1.74 mm)
 mag_h = 1.74;           // disc magnet thickness
-mag_fit = 0.15;         // added to magnet diameter for a glue-in pocket
-mag_depth = 1.9;        // pocket depth in body and cover: the magnet sits fully inside, 0.16 mm for glue
+mag_fit = 0.3;          // added to the cavity diameter, so a magnet drops in with play (0.3 tested: fits)
+mag_play_t = 0.3;       // added to the cavity depth
+mag_skin_body = 0.6;    // minimum printed skin over a magnet in the body, on the front face
+tile_front_skin = 0.8;  // minimum skin between the tile's front face (logo) and its magnets
+mag_play_min = 0.2;     // minimum depth play: the cavity is the next whole number of layers above magnet + this
+body_lh = 0.28;         // layer height you print the BODIES at; the cavity edges are snapped to this grid
+tile_lh = 0.2;          // layer height you print the TILES at
+first_lh = 0.2;         // first layer height (Bambu default)
 mag_x_inset = 4.25;     // magnet centre from each side
 mag_z_inset = 5.0;      // magnet centre from the tile bottom and top; a middle row sits halfway
-align_pin_d = 3.0;
-align_pin_h = 2.0;
-align_pin_clear = 0.3;
-align_pin_x_inset = 16.5;  // clear of both towers (the right one is 14.4 wide) so the upper pins sit in the front wedge
-align_pin_z = 4.0;
 
 /* [Logo - see logos/logos.json; run logos/build_logo_layers.py after changing it] */
 logo = "power-apps";    // [microsoft, power-platform, power-apps, power-automate, power-pages, dataverse, ai-builder, copilot, azure, azure-functions, azure-iot-hub, azure-signalr, none]
@@ -116,6 +117,14 @@ magnet_fit = 0.3;       // added to the diameter and thickness for the pocket
 magnet_x = 12.5;        // each cavity's centre from the puck centre (two cavities)
 magnet_stack = 2;       // magnets stacked in each cavity
 magnets = true;
+
+/* [Retaining plug - pushes into the rear of each sensor pocket behind the housing] */
+plug_len = 5.9;         // plug length (depth into the pocket), it sits just behind the housing
+plug_wire_h = 4.0;      // wire slot along the underside (Z), so the leads run out under the plug
+plug_wire_w = 5.0;      // wire slot width (X)
+plug_side_clear = 0.3;  // plug narrower than the pocket by this much in total
+plug_rib = 0.2;         // crush ribs on the sides; raise for a snugger fit, lower to loosen
+plug_pull_d = 2.5;      // hole through the rear of the plug for a pick or bent wire to pull it out
 
 /* [Heat-set inserts - M3 x 5.7 typical] */
 insert_hole_d = 4.0;
@@ -168,8 +177,17 @@ race_y0 = shell_d - race_d;
 
 mag_xs = [mag_x_inset, tile_w - mag_x_inset];       // tile coordinates; add tile_off on the body
 mag_zs = [mag_z_inset, cover_top / 2, cover_top - mag_z_inset];
-align_zs = [align_pin_z, cover_top - align_pin_z];
-align_xs = [align_pin_x_inset, tile_w - align_pin_x_inset];
+mag_depth = mag_h + mag_play_t;                       // used by the test plate only
+// The cavities are snapped to the slicer's layer grid so a cavity is always a whole number of layers
+// deep and its top edge is a layer boundary: pause there and nothing sits proud.
+function grid_down(z, lh) = first_lh + floor((z - first_lh) / lh + 0.0001) * lh;
+function grid_up(z, lh) = first_lh + ceil((z - first_lh) / lh - 0.0001) * lh;
+mag_depth_b = ceil((mag_h + mag_play_min) / body_lh - 0.0001) * body_lh;   // body cavity depth
+mag_depth_t = ceil((mag_h + mag_play_min) / tile_lh - 0.0001) * tile_lh;   // tile cavity depth
+body_cav_top_z = grid_down(shell_d - body_y0 - mag_skin_body, body_lh);    // print height of the open cavity top
+mag_body_y0 = shell_d - body_cav_top_z;                                    // cavity front edge, from the cover side
+mag_tile_y0 = grid_up(tile_front_skin, tile_lh);                           // tile cavity floor, from the logo face
+mag_tile_y1 = mag_tile_y0 + mag_depth_t;                                   // tile cavity top
 
 assert(slot_gap >= min_slot_gap - 0.001, str("Slot gap too small for the IR housings: need ", min_slot_gap, " mm"));
 assert(ir_lip_h <= ir_z, "Lip taller than the housing");
@@ -183,6 +201,7 @@ assert(pocket_z0 >= z_top - 0.01, str("Wire end of the housing sits ", z_top - p
 assert(beam_h < puck_d - 8, "Beam too high to be blocked reliably by a resting puck");
 assert(logo == "none" || logo_size < cover_top - 4, "Logo does not fit the cover");
 assert(mag_x_inset + (mag_d + mag_fit) / 2 < end_block_w - 0.5, "Magnets do not fit the end blocks");
+assert(cover_t - mag_tile_y1 >= 0.4, str("Tile back skin only ", cover_t - mag_tile_y1, " mm; raise cover_t"));
 
 echo(str("Insert ", shell_w, " x ", shell_d, " x ", z_top, " mm (towers to ", tower_out_h, "); minimum slot gap ", min_slot_gap));
 echo(str("Towers ", tx_w, " (emitter) / ", rx_w, " (receiver) mm; puck area ", flat_w, " mm; beam ", beam_h, " mm above the top at Y ", beam_y));
@@ -300,12 +319,10 @@ module body() {
       translate([x, shell_d + eps, insert_z]) rotate([90, 0, 0])
         cylinder(d = insert_hole_d, h = insert_depth + eps);
 
-    // Cover magnets and alignment-pin holes.
+    // Tile magnets: sealed cavities, a thin skin behind the front face. Printed rear-face-down, the front
+    // face is the top, so pause there and drop the magnets in before the skin bridges over them.
     for (x = mag_xs, z = mag_zs)
-      translate([x + tile_off, body_y0 - eps, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth + eps);
-    for (x = align_xs, z = align_zs)
-      translate([x + tile_off, body_y0 - eps, z]) rotate([-90, 0, 0])
-        cylinder(d = align_pin_d + align_pin_clear, h = align_pin_h + 0.5 + eps);
+      translate([x + tile_off, mag_body_y0, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth_b);
   }
 }
 
@@ -314,16 +331,12 @@ module body() {
 // ============================================================
 module cover() {
   difference() {
-    union() {
-      cube([tile_w, cover_t, cover_top]);
-      for (x = align_xs, z = align_zs)
-        translate([x, cover_t - eps, z]) rotate([-90, 0, 0])
-          cylinder(d = align_pin_d, h = cover_gap + align_pin_h + eps);
-    }
+    cube([tile_w, cover_t, cover_top]);
     if (logo_style == "cutout") face_extrude(-eps, cover_t + 2 * eps, logo_z) logo_2d();
     else face_extrude(-eps, logo_inlay_depth + eps, logo_z) logo_2d();
+    // Sealed magnet cavities. Printed face down, the back face is the top: pause just under the skin.
     for (x = mag_xs, z = mag_zs)
-      translate([x, cover_t - mag_depth, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth + eps);
+      translate([x, mag_tile_y0, z]) rotate([-90, 0, 0]) cylinder(d = mag_d + mag_fit, h = mag_depth_t);
     label_src = cover_label_logo != "" ? cover_label_logo : logo;
     cover_text = label_src != "none" ? logo_entry(label_src)[1] : "";
     if (label && cover_text != "")  // back face: the logo name, readable from behind
@@ -360,8 +373,8 @@ module beam_mock() {
 
 module magnet_mocks() {
   color("gray") for (x = mag_xs, z = mag_zs) translate([tile_off, 0, 0]) {
-    translate([x, body_y0, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
-    translate([x, cover_t - mag_h, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
+    translate([x, mag_body_y0 + (mag_depth_b - mag_h) / 2, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
+    translate([x, mag_tile_y0 + (mag_depth_t - mag_h) / 2, z]) rotate([-90, 0, 0]) cylinder(d = mag_d, h = mag_h);
   }
 }
 
@@ -384,6 +397,100 @@ module cover_set(columns = 3) {
     translate([(i % columns) * (tile_w + 10), 0, -floor(i / columns) * (cover_top + 10)])
       cover_coloured(LOGOS[i][0]);
 }
+
+// Where to pause the print to drop the magnets in. A layer's top is first_lh + (n - 1) * lh; the cavity
+// edges are on that grid, so "pause after layer N" lands exactly where the open cavity ends.
+body_pause_layer = round((body_cav_top_z - first_lh) / body_lh) + 1;
+tile_pause_layer = round((mag_tile_y1 - first_lh) / tile_lh) + 1;
+echo(str("Body at ", body_lh, " mm layers: pause AFTER layer ", body_pause_layer, " (Z = ", body_cav_top_z,
+         " mm); cavity ", mag_depth_b, " mm deep, ", mag_body_y0 - body_y0, " mm skin; ", len(mag_xs) * len(mag_zs), " magnets"));
+echo(str("Tile at ", tile_lh, " mm layers: pause AFTER layer ", tile_pause_layer, " (Z = ", mag_tile_y1,
+         " mm); cavity ", mag_depth_t, " mm deep, ", cover_t - mag_tile_y1, " mm back skin; ", len(mag_xs) * len(mag_zs), " magnets"));
+
+// Magnet fit test: four open pockets with 0.1 .. 0.4 mm of diameter play; the engraved number is the play.
+module magnet_test() {
+  fits = [0.1, 0.2, 0.3, 0.4];
+  pitch = 12;
+  difference() {
+    cube([pitch * len(fits) + 4, 16, mag_depth + 2]);
+    for (i = [0 : len(fits) - 1]) {
+      translate([2 + pitch * (i + 0.5), 10, 2]) cylinder(d = mag_d + fits[i], h = mag_depth + eps, $fn = 48);
+      translate([2 + pitch * (i + 0.5), 3.5, mag_depth + 2 - 0.4]) linear_extrude(0.4 + eps)
+        text(str("+", fits[i]), size = 3.2, halign = "center", valign = "center", font = "Liberation Sans:style=Bold");
+    }
+  }
+}
+
+// Magnet dispenser: a tube you stack the magnets in. Magnets stack with every face the same way
+// (a flipped one repels), so the stack fixes the polarity. Push the end magnet out with the pusher:
+// out of the BODY end for body pockets, out of the TILE end for tile pockets. The two parts then
+// always present opposite faces, so every tile attracts every body.
+disp_len = 40;
+disp_od = 14;
+module magnet_dispenser() {
+  difference() {
+    translate([-disp_od / 2, -disp_od / 2, 0]) cube([disp_od, disp_od, disp_len]);
+    translate([0, 0, -eps]) cylinder(d = mag_d + 0.5, h = disp_len + 2 * eps, $fn = 48);
+    // Side window to see the stack and nudge it with a pick.
+    translate([-1.2, 0, 8]) cube([2.4, disp_od, disp_len - 16]);
+    // Labels on the back, each reading upright when its own end is down.
+    translate([0, -disp_od / 2 + 0.4, 6.5]) rotate([90, 0, 0]) linear_extrude(0.6)
+      text("BODY", size = 3.4, halign = "center", valign = "center", font = "Liberation Sans:style=Bold");
+    translate([0, -disp_od / 2 + 0.4, disp_len - 6.5]) rotate([90, 0, 180]) linear_extrude(0.6)
+      text("TILE", size = 3.4, halign = "center", valign = "center", font = "Liberation Sans:style=Bold");
+  }
+}
+// End cap for the dispenser: slides over the tube end and keeps the stack in. A reference magnet sits in
+// a pocket in its closed end, facing the stack. It must ATTRACT the stack (it holds the cap on), so a
+// cap on the wrong end repels, and the cap top shows which face of a loose magnet goes up.
+cap_sleeve = 8;
+cap_wall = 1.6;
+module magnet_cap(txt) {
+  inner = disp_od + 0.3;
+  outer = inner + 2 * cap_wall;
+  floor_t = mag_depth + 1.0;
+  difference() {
+    translate([-outer / 2, -outer / 2, 0]) cube([outer, outer, floor_t + cap_sleeve]);
+    // Tube socket from the open end, down to the closed end.
+    translate([-inner / 2, -inner / 2, floor_t]) cube([inner, inner, cap_sleeve + eps]);
+    // Reference magnet pocket in the closed end, opening toward the tube.
+    translate([0, 0, floor_t - mag_depth]) cylinder(d = mag_d + mag_fit, h = mag_depth + eps, $fn = 48);
+    // Label on a side face.
+    translate([0, -outer / 2 + 0.4, floor_t + cap_sleeve / 2]) rotate([90, 0, 0]) linear_extrude(0.6)
+      text(txt, size = 3.4, halign = "center", valign = "center", font = "Liberation Sans:style=Bold");
+  }
+}
+module magnet_pusher() {
+  cylinder(d = mag_d - 0.5, h = disp_len + 14, $fn = 32);
+  translate([0, 0, -5]) cylinder(d = 14, h = 5, $fn = 48);
+}
+
+// Retaining plug: fills the pocket channel behind the sensor housing. The wire slot runs along its
+// underside, and the last race_d at the rear is left free so the leads can turn down into the
+// raceway. The same part serves emitter and receiver, 12 in total. Printed with the slot facing up.
+plug_w = ir_pocket_x - plug_side_clear;
+plug_h = ir_pocket_h - 0.3;
+plug_y_start = ir_pocket_y0 + ir_pocket_w;                 // just behind the housing
+plug_l = min(plug_len, (shell_d - race_d) - plug_y_start - 0.2);
+module plug() {
+  difference() {
+    union() {
+      cube([plug_w, plug_l, plug_h]);
+      // Four short crush ribs, two per side, along the length.
+      for (side = [0, 1], y = [plug_l * 0.15, plug_l * 0.6])
+        translate([side == 0 ? -plug_rib : plug_w - eps, y, 0]) cube([plug_rib + eps, min(2.0, plug_l * 0.25), plug_h]);
+    }
+    // Wire slot along the underside (z = 0 is the bottom, against the pocket floor).
+    translate([(plug_w - plug_wire_w) / 2, -eps, -eps]) cube([plug_wire_w, plug_l + 2 * eps, plug_wire_h + eps]);
+    // Pull hole through the middle, above the slot.
+    translate([-plug_rib - eps, plug_l / 2, plug_wire_h + (plug_h - plug_wire_h) / 2]) rotate([0, 90, 0])
+      cylinder(d = plug_pull_d, h = plug_w + 2 * plug_rib + 2 * eps, $fn = 24);
+  }
+}
+assert(plug_l > 5, "No room for a plug behind the housing");
+echo(str("Plug ", plug_w, " x ", plug_l, " x ", plug_h, " mm (+ ", plug_rib, " mm ribs each side)"));
+// Printed on its top face with the wire slot facing up.
+module print_flat_plug() translate([0, 0, plug_h]) mirror([0, 0, 1]) plug();
 
 // Our own puck: smooth faces on a low raised ring (the original decal backing sticks), rounded edge, solid so it blocks IR.
 puck_print_d = 48.9;
@@ -474,6 +581,12 @@ module print_flat_cover_colour(k) rotate([90, 0, 0]) cover_colour(k);
 if (part == "body") print_flat_body();
 else if (part == "fit_test") fit_test();
 else if (part == "puck") puck();
+else if (part == "plug") print_flat_plug();
+else if (part == "magnet_test") magnet_test();
+else if (part == "dispenser") magnet_dispenser();
+else if (part == "cap_body") magnet_cap("BODY");
+else if (part == "cap_tile") magnet_cap("TILE");
+else if (part == "pusher") translate([0, 0, 5]) magnet_pusher();
 else if (part == "funnel_test") funnel_test();
 else if (part == "guide") print_flat_guide();
 else if (part == "cover") print_flat_cover();
