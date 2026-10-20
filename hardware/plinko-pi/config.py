@@ -15,7 +15,7 @@ DEFAULT_BUCKET_COUNT = int(os.environ.get("PLINKO_BUCKET_COUNT", "5"))
 DEFAULT_INPUT_PIN = int(os.environ.get("PLINKO_INPUT_PIN", "17"))
 # BCM pins for buckets 1..N, left to right. Avoids I2C (2,3), UART (14,15) and SPI (7-11).
 DEFAULT_BUCKET_PINS = [
-    int(p) for p in os.environ.get("PLINKO_BUCKET_PINS", "17,27,22,23,24,25").split(",") if p.strip()
+    int(p) for p in os.environ.get("PLINKO_BUCKET_PINS", "23,24,25,22,27,17").split(",") if p.strip()
 ]
 DEFAULT_DEBOUNCE_MS = int(os.environ.get("PLINKO_DEBOUNCE_MS", "200"))
 DEFAULT_POLL_MS = int(os.environ.get("PLINKO_POLL_MS", "20"))
