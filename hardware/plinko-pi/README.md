@@ -38,12 +38,12 @@ line up to 5 V.**
 
 | Bucket | BCM GPIO | Header pin | Receiver wires |
 |---:|---:|---:|---|
-| 1 | 17 | 11 | white (signal) -> pin |
-| 2 | 27 | 13 | white (signal) -> pin |
-| 3 | 22 | 15 | white (signal) -> pin |
-| 4 | 23 | 16 | white (signal) -> pin |
-| 5 | 24 | 18 | white (signal) -> pin |
-| 6 | 25 | 22 | white (signal) -> pin |
+| 1 | 23 | 16 | white (signal) -> pin |
+| 2 | 24 | 18 | white (signal) -> pin |
+| 3 | 25 | 22 | white (signal) -> pin |
+| 4 | 22 | 15 | white (signal) -> pin |
+| 5 | 27 | 13 | white (signal) -> pin |
+| 6 | 17 | 11 | white (signal) -> pin |
 
 Power for every emitter and receiver (red/black): 5 V (header pin 2 or 4) and GND
 (pins 6, 9, 14, 20, 25, 30, 34, 39). Emitters have no signal wire. Bucket 1 is the
@@ -54,7 +54,7 @@ Settings (environment variables or CLI options; see `.env.example`):
 | Setting | Default | Notes |
 |---|---:|---|
 | `PLINKO_STATION_SLUG` | `plinko-default` | Station identifier in telemetry. |
-| `PLINKO_BUCKET_PINS` | `17,27,22,23,24,25` | BCM pins for buckets 1..N; N is the bucket count. |
+| `PLINKO_BUCKET_PINS` | `23,24,25,22,27,17` | BCM pins for buckets 1..N; N is the bucket count. |
 | `PLINKO_LIT_BUCKET` | `1` | Informational only: the backend derives the lit bucket from the display's chase. |
 | `PLINKO_DEBOUNCE_MS` | `50` | Stable blocked time required before a landing. |
 | `PLINKO_LOCKOUT_MS` | `1000` | After a landing, other buckets are ignored this long (a puck passing a neighbouring beam). |
@@ -76,8 +76,8 @@ reports `GPIO busy`, another copy is running: `pkill -f '[s]ensor_check.py'`.
 
 Use `sensor_check.py` with the full default pin map when you want the Pi console
 to show all six bucket inputs. With the full map, labels match the physical board:
-`b1/GPIO17`, `b2/GPIO27`, `b3/GPIO22`, `b4/GPIO23`, `b5/GPIO24`, and
-`b6/GPIO25`.
+`b1/GPIO23`, `b2/GPIO24`, `b3/GPIO25`, `b4/GPIO22`, `b5/GPIO27`, and
+`b6/GPIO17`.
 
 Output meaning:
 
@@ -85,7 +85,7 @@ Output meaning:
 |---|---|
 | `BLOCKED` | The receiver pulled the GPIO low; the beam is broken. |
 | `CLEAR (was blocked N ms)` | The beam cleared; the line shows how long it was blocked. |
-| `b6/GPIO25=CLEAR(0)` | Periodic status row: bucket 6 on GPIO25 is clear, with 0 state flips so far. |
+| `b6/GPIO17=CLEAR(0)` | Periodic status row: bucket 6 on GPIO17 is clear, with 0 state flips so far. |
 
 Only one process can claim the GPIO lines at a time. For a full console test,
 stop the boot service, run the monitor, then stop the monitor and restart the
