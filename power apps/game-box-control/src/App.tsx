@@ -34,6 +34,8 @@ interface PlinkoState {
   gameModeActive: boolean;
   bucketCount: number | null;
   bucketIcons: string[];
+  /** Active Contest Campaign max entries per contact: what a lit bucket awards. */
+  maxEntries: number | null;
 }
 
 type GameKey = "game-box" | "plinko";
@@ -170,10 +172,15 @@ export default function App() {
         body: JSON.stringify(gameModeActive === undefined ? { station: PLINKO_STATION } : { station: PLINKO_STATION, gameModeActive }),
       });
       if (!res.ok) throw new Error(`plinko-game-mode failed: ${res.status}`);
-      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[] } | null;
+      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[]; maxEntries?: number } | null;
       if (typeof body?.gameModeActive !== "boolean") throw new Error("Unexpected Plinko response");
       const bucketCount = typeof body.bucketCount === "number" ? body.bucketCount : null;
-      return { gameModeActive: body.gameModeActive, bucketCount, bucketIcons: normalizeBucketIcons(bucketCount, body.bucketIcons) };
+      return {
+        gameModeActive: body.gameModeActive,
+        bucketCount,
+        bucketIcons: normalizeBucketIcons(bucketCount, body.bucketIcons),
+        maxEntries: typeof body.maxEntries === "number" ? body.maxEntries : null,
+      };
     } catch (err) {
       setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : "Could not reach the Plinko station.");
       return null;
@@ -199,7 +206,7 @@ export default function App() {
     setPlinkoBusy(false);
   }
 
-  async function savePlinkoBucketIcons(bucketIcons: string[]) {
+  async function savePlinkoSettings(change: { bucketIcons?: string[]; maxEntries?: number }, failure: string) {
     if (!plinko) return;
     setPlinkoBusy(true);
     setPlinkoNote(null);
@@ -207,18 +214,32 @@ export default function App() {
       const res = await staffRequest("/api/plinko-game-mode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ station: PLINKO_STATION, bucketIcons }),
+        body: JSON.stringify({ station: PLINKO_STATION, ...change }),
       });
       if (!res.ok) throw new Error(`plinko-game-mode failed: ${res.status}`);
-      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[] } | null;
+      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[]; maxEntries?: number } | null;
       if (typeof body?.gameModeActive !== "boolean") throw new Error("Unexpected Plinko response");
       const bucketCount = typeof body.bucketCount === "number" ? body.bucketCount : plinko.bucketCount;
-      setPlinko({ gameModeActive: body.gameModeActive, bucketCount, bucketIcons: normalizeBucketIcons(bucketCount, body.bucketIcons) });
+      setPlinko({
+        gameModeActive: body.gameModeActive,
+        bucketCount,
+        bucketIcons: normalizeBucketIcons(bucketCount, body.bucketIcons),
+        maxEntries: typeof body.maxEntries === "number" ? body.maxEntries : plinko.maxEntries,
+      });
     } catch (err) {
-      setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : "Could not save the bucket icons.");
+      setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : failure);
     } finally {
       setPlinkoBusy(false);
     }
+  }
+
+  function savePlinkoBucketIcons(bucketIcons: string[]) {
+    return savePlinkoSettings({ bucketIcons }, "Could not save the bucket icons.");
+  }
+
+  function changePlinkoMaxEntries(maxEntries: number) {
+    if (!plinko || !Number.isInteger(maxEntries) || maxEntries < 1 || maxEntries > 100) return;
+    void savePlinkoSettings({ maxEntries }, "Could not save the max entries.");
   }
 
   function pickPlinkoBucketIcon(bucketIndex: number, icon: BucketIconId) {
@@ -443,6 +464,17 @@ export default function App() {
               {plinko?.bucketCount ? ` · ${plinko.bucketCount} buckets` : ""}. Drops are always shown on the booth display;
               Game Mode decides whether they are scored.
             </p>
+            {plinko && (
+              <div className="bucket-config-row" aria-label="Plinko max entries">
+                <div className="bucket-config-label">Max entries (lit bucket win)</div>
+                <div className="bucket-icon-options">
+                  <button type="button" className="refresh-button" disabled={plinkoBusy || (plinko.maxEntries ?? 1) <= 1} onClick={() => changePlinkoMaxEntries((plinko.maxEntries ?? 2) - 1)} aria-label="Decrease max entries">−</button>
+                  <strong aria-live="polite">{plinko.maxEntries ?? "–"}</strong>
+                  <button type="button" className="refresh-button" disabled={plinkoBusy || (plinko.maxEntries ?? 0) >= 100} onClick={() => changePlinkoMaxEntries((plinko.maxEntries ?? 1) + 1)} aria-label="Increase max entries">+</button>
+                </div>
+                <p className="section-description">Saved to the active Contest Campaign's Max Entries per Contact.</p>
+              </div>
+            )}
             {plinko && (
               <div className="bucket-config" aria-label="Plinko bucket icons">
                 {normalizeBucketIcons(plinko.bucketCount, plinko.bucketIcons).map((selectedIcon, bucketIndex) => (

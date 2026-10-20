@@ -3,7 +3,9 @@ import {
   dataverseFetch,
   dataverseFetchRaw,
   escapeODataString,
+  getActiveCampaignMaxEntries,
   isGuidLike,
+  setActiveCampaignMaxEntries,
 } from "./dataverse";
 import { blobJson } from "./mcpquestBlobJson";
 import { storageToken } from "./mcpquestSpecStore";
@@ -51,6 +53,10 @@ interface ProfileRow {
 export async function getProfile(slug: string): Promise<PlinkoProfile | null> {
   const baseSelect = "andy_plinkoprofileid,andy_profileslug,andy_numberofbuckets,andy_litbucketentries,andy_standardbucketentries,andy_gamemodeactive";
   const filter = `&$filter=statecode eq 0 and andy_profileslug eq '${escapeODataString(slug)}'&$top=1`;
+  const maxEntriesRead = getActiveCampaignMaxEntries().catch((error) => {
+    console.warn("Could not read the campaign max entries; using the profile's lit-bucket entries", error instanceof Error ? error.message : error);
+    return null;
+  });
   let response = await dataverseFetchRaw(`${PROFILES_SET}?$select=${baseSelect},andy_bucketiconsjson${filter}`);
   if (!response.ok) {
     const body = await response.text();
@@ -61,6 +67,7 @@ export async function getProfile(slug: string): Promise<PlinkoProfile | null> {
   }
   const row = ((await response.json()) as { value: ProfileRow[] }).value[0];
   const bucketCount = row?.andy_numberofbuckets ?? null;
+  const maxEntries = await maxEntriesRead;
   return row
     ? {
         id: row.andy_plinkoprofileid,
@@ -70,6 +77,7 @@ export async function getProfile(slug: string): Promise<PlinkoProfile | null> {
         standardBucketEntries: row.andy_standardbucketentries ?? 1,
         gameModeActive: row.andy_gamemodeactive !== false,
         bucketIcons: normalizeBucketIcons(row.andy_bucketiconsjson, bucketCount),
+        maxEntries,
       }
     : null;
 }
@@ -95,6 +103,15 @@ export async function setPlinkoBucketIcons(slug: string, icons: unknown): Promis
     body: JSON.stringify({ andy_bucketiconsjson: JSON.stringify(bucketIcons) }),
   });
   return { ...profile, bucketIcons };
+}
+
+/** Staff editor: sets the active Contest Campaign's max entries per contact, which a lit bucket awards. */
+export async function setPlinkoMaxEntries(slug: string, maxEntries: number): Promise<PlinkoProfile | null> {
+  const profile = await getProfile(slug);
+  if (!profile) return null;
+  const saved = await setActiveCampaignMaxEntries(maxEntries);
+  if (saved === null) throw new Error("No active Contest Campaign to store the max entries on");
+  return { ...profile, maxEntries: saved };
 }
 
 interface PlayRow {
