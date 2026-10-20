@@ -5,7 +5,7 @@
  */
 
 export const dataSourcesInfo = {
-  "iot_20game_20staff_20api_20connector_5f0ce8bdb1_5e21a452ca4389f9": {
+  "new_5fiot_20game_20staff_20api_5f0ce8bdb17140b23d": {
     "tableId": "",
     "version": "",
     "primaryKey": "",
@@ -130,6 +130,87 @@ export const dataSourcesInfo = {
             "in": "body",
             "required": true,
             "type": "object"
+          }
+        ],
+        "responseInfo": {
+          "200": {
+            "type": "object"
+          },
+          "401": {
+            "type": "void"
+          },
+          "403": {
+            "type": "void"
+          }
+        }
+      },
+      "PlinkoGameMode": {
+        "path": "/{connectionId}/plinko-game-mode",
+        "method": "POST",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "type": "object"
+          }
+        ],
+        "responseInfo": {
+          "200": {
+            "type": "object"
+          },
+          "401": {
+            "type": "void"
+          },
+          "403": {
+            "type": "void"
+          }
+        }
+      },
+      "UpdateCampaign": {
+        "path": "/{connectionId}/campaign-update",
+        "method": "POST",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "type": "object"
+          }
+        ],
+        "responseInfo": {
+          "200": {
+            "type": "object"
+          },
+          "401": {
+            "type": "void"
+          },
+          "403": {
+            "type": "void"
+          }
+        }
+      },
+      "GetCampaigns": {
+        "path": "/{connectionId}/campaigns",
+        "method": "GET",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
           }
         ],
         "responseInfo": {
@@ -378,29 +459,6 @@ export const dataSourcesInfo = {
           },
           "403": {
             "type": "void"
-          }
-        }
-      },
-      "PlinkoGameMode": {
-        "path": "/{connectionId}/plinko-game-mode",
-        "method": "POST",
-        "parameters": [
-          {
-            "name": "connectionId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": false,
-            "type": "object"
-          }
-        ],
-        "responseInfo": {
-          "default": {
-            "type": "object"
           }
         }
       }

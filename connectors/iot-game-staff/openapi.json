@@ -211,6 +211,62 @@
                                                                     }
                                                   }
                                      },
+                  "/campaign-update":  {
+                                         "post":  {
+                                                      "operationId":  "UpdateCampaign",
+                                                      "summary":  "UpdateCampaign",
+                                                      "parameters":  [
+                                                                         {
+                                                                             "name":  "body",
+                                                                             "in":  "body",
+                                                                             "schema":  {
+                                                                                            "type":  "object",
+                                                                                            "additionalProperties":  true
+                                                                                        },
+                                                                             "required":  true
+                                                                         }
+                                                                     ],
+                                                      "responses":  {
+                                                                        "401":  {
+                                                                                    "description":  "Missing or invalid token"
+                                                                                },
+                                                                        "403":  {
+                                                                                    "description":  "Staff permission required"
+                                                                                },
+                                                                        "200":  {
+                                                                                    "description":  "Operation result",
+                                                                                    "schema":  {
+                                                                                                   "type":  "object",
+                                                                                                   "additionalProperties":  true
+                                                                                               }
+                                                                                }
+                                                                    }
+                                                  }
+                                     },
+                  "/campaigns":  {
+                                       "get":  {
+                                                   "operationId":  "GetCampaigns",
+                                                   "summary":  "GetCampaigns",
+                                                   "parameters":  [
+
+                                                                  ],
+                                                   "responses":  {
+                                                                     "401":  {
+                                                                                 "description":  "Missing or invalid token"
+                                                                             },
+                                                                     "403":  {
+                                                                                 "description":  "Staff permission required"
+                                                                             },
+                                                                     "200":  {
+                                                                                 "description":  "Operation result",
+                                                                                 "schema":  {
+                                                                                                "type":  "object",
+                                                                                                "additionalProperties":  true
+                                                                                            }
+                                                                             }
+                                                                 }
+                                               }
+                                   },
                   "/prize-types":  {
                                        "get":  {
                                                    "operationId":  "GetPrizeTypes",

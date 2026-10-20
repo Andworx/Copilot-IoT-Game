@@ -806,3 +806,14 @@ The main-only preview uses the existing infra-deploy identity with ProviderNoRba
 it does not require write grants for the baseline-only resources and does not apply them. This
 action is separate from the main what-if/deploy, which now owns the VNet/subnets, private DNS
 zones/links, DNS resolver/inbound endpoint, and Point-to-Site VPN gateway/public IP. No whole-baseline apply action exists.
+
+### Staff custom connector
+
+`deploy-apps.yml` job `deploy-connector` creates or updates the `IoT Game Staff API` custom connector (in the
+`CopilotIoTGame` solution) whenever `connectors/iot-game-staff/**`, `Deploy-StaffConnector.ps1` or
+`staff-api.prod.json` change on `main`. It uses the same `production` environment and Power Platform deployment
+secret as the Code App push, and runs before the frontends. Optional secret `STAFF_CONNECTOR_CLIENT_SECRET`
+supplies the connector's OAuth client secret; without it the stored secret is kept. Per-user connections and the
+Code App binding (`.power/schemas`) are not touched by this job. See
+[connectors/iot-game-staff/README.md](../connectors/iot-game-staff/README.md).
+

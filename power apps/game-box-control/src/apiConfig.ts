@@ -24,6 +24,8 @@ export const staffOperations: Record<string, string> = {
  */
 export const optionalStaffOperations: Record<string, string> = {
   "POST /api/plinko-game-mode": "PlinkoGameMode",
+  "GET /api/campaigns": "GetCampaigns",
+  "POST /api/campaign-update": "UpdateCampaign",
 };
 
 export class StaffOperationUnavailableError extends Error {
