@@ -1,6 +1,6 @@
 import { registerHttp } from "../lib/apiSurface";
 import { output, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { getProfile, setPlinkoBucketIcons, setPlinkoGameMode } from "../lib/plinkoLanding";
+import { getProfile, setPlinkoBucketIcons, setPlinkoGameMode, setPlinkoMaxEntries } from "../lib/plinkoLanding";
 
 /**
  * POST /api/plinko-game-mode { station, gameModeActive? } -- the Game Box Control app's Plinko switch.
@@ -21,7 +21,7 @@ const signalROutput = output.generic({
 });
 
 export async function plinkoGameMode(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  let body: { station?: unknown; gameModeActive?: unknown; bucketIcons?: unknown };
+  let body: { station?: unknown; gameModeActive?: unknown; bucketIcons?: unknown; maxEntries?: unknown };
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -36,6 +36,12 @@ export async function plinkoGameMode(request: HttpRequest, context: InvocationCo
   if (body.bucketIcons !== undefined && !Array.isArray(body.bucketIcons)) {
     return { status: 400, jsonBody: { error: "bucketIcons must be an array" } };
   }
+  if (
+    body.maxEntries !== undefined &&
+    (typeof body.maxEntries !== "number" || !Number.isInteger(body.maxEntries) || body.maxEntries < 1 || body.maxEntries > 100)
+  ) {
+    return { status: 400, jsonBody: { error: "maxEntries must be a whole number between 1 and 100" } };
+  }
   const station = body.station.trim();
 
   try {
@@ -43,6 +49,7 @@ export async function plinkoGameMode(request: HttpRequest, context: InvocationCo
     if (!profile) return { status: 404, jsonBody: { error: "Unknown station" } };
     if (typeof body.gameModeActive === "boolean") profile = await setPlinkoGameMode(station, body.gameModeActive);
     if (body.bucketIcons !== undefined) profile = await setPlinkoBucketIcons(station, body.bucketIcons);
+    if (typeof body.maxEntries === "number") profile = await setPlinkoMaxEntries(station, body.maxEntries);
     if (!profile) return { status: 404, jsonBody: { error: "Unknown station" } };
 
     if (typeof body.gameModeActive === "boolean" || body.bucketIcons !== undefined) {
@@ -57,6 +64,7 @@ export async function plinkoGameMode(request: HttpRequest, context: InvocationCo
         gameModeActive: profile.gameModeActive,
         bucketCount: profile.bucketCount,
         bucketIcons: profile.bucketIcons,
+        maxEntries: profile.maxEntries ?? profile.litBucketEntries,
       },
     };
   } catch (error) {

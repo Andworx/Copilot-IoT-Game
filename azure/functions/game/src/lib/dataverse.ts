@@ -467,6 +467,17 @@ export async function getActiveCampaignMaxEntries(): Promise<number | null> {
   return typeof cap === "number" && cap > 0 ? cap : null;
 }
 
+/** Staff edit of the active campaign's per-contact entry cap. Returns null when there is no active campaign. */
+export async function setActiveCampaignMaxEntries(maxEntries: number): Promise<number | null> {
+  const campaignId = await getActiveContestCampaignId();
+  if (!campaignId) return null;
+  await dataverseFetch(`${CONTEST_CAMPAIGNS_SET}(${campaignId})`, {
+    method: "PATCH",
+    body: JSON.stringify({ andy_maxentriespercontact: maxEntries }),
+  });
+  return maxEntries;
+}
+
 /** The active Contest Campaign id, if there is one. Used to scope a game's leaderboard. */
 export async function getActiveContestCampaignId(): Promise<string | null> {
   return (await fetchActiveContestCampaign())?.id ?? null;
