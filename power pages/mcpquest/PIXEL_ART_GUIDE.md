@@ -14,6 +14,30 @@ another machine, run the skill-installer helper with:
 
 ## Applying The Skill
 
+Additional locally installed skills for future development:
+
+- [gaming-ui-state-management](https://github.com/TheOrcDev/8bitcn-ui/blob/main/.claude/skills/gaming-ui-state-management/SKILL.md):
+  state-driven progress bars, threshold feedback, and completion notifications.
+- [retro-css-architecture](https://github.com/TheOrcDev/8bitcn-ui/blob/main/.claude/skills/retro-css-architecture/SKILL.md):
+  shared retro styling, semantic colors, typography, and crisp sprite rendering.
+
+Install both with the skill-installer helper arguments:
+
+```text
+--repo TheOrcDev/8bitcn-ui --path .claude/skills/gaming-ui-state-management .claude/skills/retro-css-architecture
+```
+
+Adapt their library-specific examples to this project's React/plain CSS setup.
+Reuse the existing HUD/progress controls and actual session state. Do not invent
+health, XP, or rewards unrelated to the game's rules. Respect reduced motion for
+threshold and completion feedback. Keep sprite dimensions on integer pixel units
+and apply pixelated image rendering only to pixel sprites, not official logos.
+Use a shared retro stylesheet if styles are extracted; the example's `@/` import
+path is specific to its source repository. Keep body text readable and reserve
+pixel typography for short labels and metrics. Project typography uses zero
+letter spacing. Do not add Tailwind/shadcn or remote font imports solely to match
+the skill examples.
+
 - Use square corners and stepped border segments for framed controls and dialogue.
 - Use a consistent integer pixel unit for border segments and hard shadows.
 - Position decorative border segments inside a relative container. Keep them

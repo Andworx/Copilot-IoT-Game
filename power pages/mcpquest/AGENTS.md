@@ -8,6 +8,11 @@ installed `SKILL.md` before applying it. The source and installation command are
 documented in `PIXEL_ART_GUIDE.md`; the local skill installation is not a project
 dependency.
 
+For HUD metrics and state-driven feedback, use `gaming-ui-state-management` when
+available. For shared retro styles, typography, and sprite rendering, use
+`retro-css-architecture` when available. Read each skill before applying it and
+follow the project adaptations in `PIXEL_ART_GUIDE.md`.
+
 Adapt the patterns to the existing React and CSS implementation. Keep official
 Power Platform logos intact, retain accessible controls and focus indicators, and
 verify desktop/mobile screenshots before considering a visual change complete.
