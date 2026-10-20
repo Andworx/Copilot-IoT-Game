@@ -7,8 +7,8 @@ import type { IOperationResult } from '@microsoft/power-apps/data';
 import { dataSourcesInfo } from '../../../.power/schemas/appschemas/dataSourcesInfo';
 import { getClient } from '@microsoft/power-apps/data';
 
-export class IoTGameStaffAPIConnectorService {
-  private static readonly dataSourceName = 'iot_20game_20staff_20api_20connector_5f0ce8bdb1_5e21a452ca4389f9';
+export class IoTGameStaffAPIService {
+  private static readonly dataSourceName = 'new_5fiot_20game_20staff_20api_5f0ce8bdb17140b23d';
 
   private static readonly client = getClient(dataSourcesInfo);
 
@@ -16,10 +16,10 @@ export class IoTGameStaffAPIConnectorService {
    * GetDeviceProfiles
    */
   public static async GetDeviceProfiles(): Promise<IOperationResult<Record<string, unknown>>> {
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<void, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<void, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'GetDeviceProfiles',
         },
       });
@@ -30,10 +30,10 @@ export class IoTGameStaffAPIConnectorService {
    * GetKioskState
    */
   public static async GetKioskState(): Promise<IOperationResult<Record<string, unknown>>> {
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<void, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<void, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'GetKioskState',
         },
       });
@@ -45,10 +45,10 @@ export class IoTGameStaffAPIConnectorService {
    */
   public static async SetMode(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { body: Record<string, unknown> } = { body };
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'SetMode',
           parameters: params
         },
@@ -61,10 +61,10 @@ export class IoTGameStaffAPIConnectorService {
    */
   public static async ToggleDevice(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { body: Record<string, unknown> } = { body };
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'ToggleDevice',
           parameters: params
         },
@@ -77,12 +77,58 @@ export class IoTGameStaffAPIConnectorService {
    */
   public static async SetGameMode(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { body: Record<string, unknown> } = { body };
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'SetGameMode',
           parameters: params
+        },
+      });
+    return result;
+  }
+
+  /**
+   * PlinkoGameMode
+   */
+  public static async PlinkoGameMode(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
+    const params: { body: Record<string, unknown> } = { body };
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+      {
+        connectorOperation: {
+          tableName: IoTGameStaffAPIService.dataSourceName,
+          operationName: 'PlinkoGameMode',
+          parameters: params
+        },
+      });
+    return result;
+  }
+
+  /**
+   * UpdateCampaign
+   */
+  public static async UpdateCampaign(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
+    const params: { body: Record<string, unknown> } = { body };
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+      {
+        connectorOperation: {
+          tableName: IoTGameStaffAPIService.dataSourceName,
+          operationName: 'UpdateCampaign',
+          parameters: params
+        },
+      });
+    return result;
+  }
+
+  /**
+   * GetCampaigns
+   */
+  public static async GetCampaigns(): Promise<IOperationResult<Record<string, unknown>>> {
+    const result = await IoTGameStaffAPIService.client.executeAsync<void, Record<string, unknown>>(
+      {
+        connectorOperation: {
+          tableName: IoTGameStaffAPIService.dataSourceName,
+          operationName: 'GetCampaigns',
         },
       });
     return result;
@@ -92,10 +138,10 @@ export class IoTGameStaffAPIConnectorService {
    * GetPrizeTypes
    */
   public static async GetPrizeTypes(): Promise<IOperationResult<Record<string, unknown>>> {
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<void, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<void, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'GetPrizeTypes',
         },
       });
@@ -106,10 +152,10 @@ export class IoTGameStaffAPIConnectorService {
    * GetPrizeCount
    */
   public static async GetPrizeCount(): Promise<IOperationResult<Record<string, unknown>>> {
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<void, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<void, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'GetPrizeCount',
         },
       });
@@ -121,10 +167,10 @@ export class IoTGameStaffAPIConnectorService {
    */
   public static async BulkCreatePrizes(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { body: Record<string, unknown> } = { body };
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'BulkCreatePrizes',
           parameters: params
         },
@@ -137,10 +183,10 @@ export class IoTGameStaffAPIConnectorService {
    */
   public static async GrandPrizeCheckIn(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { body: Record<string, unknown> } = { body };
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'GrandPrizeCheckIn',
           parameters: params
         },
@@ -152,10 +198,10 @@ export class IoTGameStaffAPIConnectorService {
    * GetDrawingSlices
    */
   public static async GetDrawingSlices(): Promise<IOperationResult<Record<string, unknown>>> {
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<void, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<void, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'GetDrawingSlices',
         },
       });
@@ -166,10 +212,10 @@ export class IoTGameStaffAPIConnectorService {
    * GetDrawingState
    */
   public static async GetDrawingState(): Promise<IOperationResult<Record<string, unknown>>> {
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<void, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<void, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'GetDrawingState',
         },
       });
@@ -181,10 +227,10 @@ export class IoTGameStaffAPIConnectorService {
    */
   public static async DrawGrandPrize(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { body: Record<string, unknown> } = { body };
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'DrawGrandPrize',
           parameters: params
         },
@@ -197,10 +243,10 @@ export class IoTGameStaffAPIConnectorService {
    */
   public static async CreateTestWin(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { body: Record<string, unknown> } = { body };
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'CreateTestWin',
           parameters: params
         },
@@ -213,28 +259,11 @@ export class IoTGameStaffAPIConnectorService {
    */
   public static async ClaimTestPrize(body: Record<string, unknown>): Promise<IOperationResult<Record<string, unknown>>> {
     const params: { body: Record<string, unknown> } = { body };
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
+    const result = await IoTGameStaffAPIService.client.executeAsync<{ body: Record<string, unknown> }, Record<string, unknown>>(
       {
         connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
+          tableName: IoTGameStaffAPIService.dataSourceName,
           operationName: 'ClaimTestPrize',
-          parameters: params
-        },
-      });
-    return result;
-  }
-
-  /**
-   * PlinkoGameMode
-   * Set the Game Mode of Plinko
-   */
-  public static async PlinkoGameMode(body?: Record<string, unknown>): Promise<IOperationResult<void>> {
-    const params: { body?: Record<string, unknown> } = { body };
-    const result = await IoTGameStaffAPIConnectorService.client.executeAsync<{ body?: Record<string, unknown> }, void>(
-      {
-        connectorOperation: {
-          tableName: IoTGameStaffAPIConnectorService.dataSourceName,
-          operationName: 'PlinkoGameMode',
           parameters: params
         },
       });

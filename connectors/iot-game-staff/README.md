@@ -19,16 +19,30 @@ the publicly negotiable kiosk SignalR hub.
 
 Update this README and the operation definitions together when API contracts change.
 
-## Adding the Plinko Game Mode operation
+## Deployment (source of truth)
 
-`PlinkoGameMode` (`POST /api/plinko-game-mode`, body `{ station, gameModeActive?, bucketIcons? }`) powers
-the Plinko switch and bucket icon picker in Game Box Control. `bucketIcons` is an ordered array of
-supported icon ids and is stored on `andy_plinkoprofile.andy_bucketiconsjson`. It was added after the
-connector was first registered, so the Code App treats it as optional: until the connector has it,
-everything else works and the Plinko card says it needs an update. To enable it:
+The connector is solution-aware (in `CopilotIoTGame`) and is deployed from this folder:
 
-1. In the Power Platform maker portal, edit the existing custom connector and add the
-   `/plinko-game-mode` POST operation from `openapi.json` (or re-import the definition).
-2. Update the connector's operation list in the Code App binding (`pac code add-data-source`) and keep the
-   regenerated non-secret `.power/schemas` files in source.
-3. Deploy the staff Function App (it ships with the app release workflow).
+- `openapi.json`: operations. `apiProperties.json`: Entra OAuth settings. Both use placeholders.
+- `azure/infrastructure/scripts/Deploy-StaffConnector.ps1` fills in the staff host and the Entra IDs from
+  `azure/infrastructure/staff-api.prod.json`, then runs `pac connector create` (first run) or
+  `pac connector update` (finds the connector by display name, `IoT Game Staff API`).
+- `deploy-apps.yml` runs it as the `deploy-connector` job when anything here changes, after the backend and
+  before the Code App. Locally: `./azure/infrastructure/scripts/Deploy-StaffConnector.ps1` with an
+  authenticated PAC profile (`-RenderOnly` just writes the rendered files for inspection).
+- The OAuth client secret is never in source. Set the optional repository secret `STAFF_CONNECTOR_CLIENT_SECRET`
+  to have the workflow send it; otherwise the connector keeps the secret stored on it in Power Platform.
+
+Adding an operation is now: add it to `openapi.json`, add it to `staffOperations` or
+`optionalStaffOperations` in the Code App's `src/apiConfig.ts`, and merge. Then regenerate the Code App binding
+(`pac code add-data-source --apiId <shared_...> --connectionId <id>`) and commit `.power/schemas`.
+
+## Operations added after the first release
+
+- `PlinkoGameMode` (`POST /api/plinko-game-mode`): the Plinko switch and bucket icon picker.
+- `GetCampaigns` (`GET /api/campaigns`) and `UpdateCampaign` (`POST /api/campaign-update`): the Campaigns
+  screen, the staff view of the Prize Engine app's "Campaign to Source" connections (Source Cap rows) and each
+  campaign's Max Entries per Contact. `UpdateCampaign` takes `{ campaignId, maxEntries }` (1-100) or
+  `{ campaignId, sourceId, linked }`; unlinking deactivates the Source Cap so past Grand Prize Entries keep their rule.
+
+The Code App treats these as optional until the connector has them.

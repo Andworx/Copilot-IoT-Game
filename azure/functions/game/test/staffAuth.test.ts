@@ -59,7 +59,7 @@ test("configuration and route boundaries fail closed", () => {
   assert.throws(() => routeEnabled("unreviewed-operation", "public"));
   for (const name of ["set-mode", "toggle-device", "set-game-mode", "bulk-create-prizes",
     "prize-types", "prize-count", "grand-prize-check-in", "grand-prize-draw",
-    "grand-prize-drawing-state", "grand-prize-drawing-slices"]) {
+    "grand-prize-drawing-state", "grand-prize-drawing-slices", "campaigns", "campaign-update"]) {
     assert.equal(routeEnabled(name, "public"), false, name);
     assert.equal(routeEnabled(name, "staff"), true, name);
   }

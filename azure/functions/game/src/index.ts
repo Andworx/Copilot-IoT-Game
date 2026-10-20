@@ -19,6 +19,8 @@ import "./functions/telemetry";
 import "./functions/plinkoChase";
 import "./functions/plinkoLock";
 import "./functions/plinkoGameMode";
+import "./functions/campaigns";
+import "./functions/campaignUpdate";
 import "./functions/directlineToken";
 import "./functions/preferences";
 import "./functions/consentMaintenance";

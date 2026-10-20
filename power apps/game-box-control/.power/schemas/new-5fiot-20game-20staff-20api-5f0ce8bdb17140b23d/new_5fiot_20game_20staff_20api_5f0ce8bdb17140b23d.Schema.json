@@ -1,9 +1,10 @@
 {
-  "name": "shared_iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9",
-  "id": "/providers/Microsoft.PowerApps/apis/shared_iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9",
+  "name": "shared_new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d",
+  "id": "/providers/Microsoft.PowerApps/apis/shared_new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d",
   "type": "Microsoft.PowerApps/apis",
   "properties": {
-    "displayName": "IoT Game Staff API Connector",
+    "xrmConnectorId": "26a71965-c5cc-f111-a05a-3833c5e08f78",
+    "displayName": "IoT Game Staff API",
     "iconUri": "https://defaulticons.powerapps.com/defaulticons/api-dedicated.png",
     "iconBrandColor": "#007ee5",
     "contact": {},
@@ -21,7 +22,7 @@
             "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access"
           ],
           "redirectMode": "GlobalPerConnector",
-          "redirectUrl": "https://global.consent.azure-apim.net/redirect/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9",
+          "redirectUrl": "https://global.consent.azure-apim.net/redirect/new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d",
           "properties": {
             "IsFirstParty": "False",
             "AzureActiveDirectoryResourceId": "api://00754488-3e99-4b4f-b55d-66cf161182d7",
@@ -32,7 +33,7 @@
               "value": "https://login.microsoftonline.com"
             },
             "TenantId": {
-              "value": "7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8"
+              "value": "common"
             },
             "ResourceUri": {
               "value": "api://00754488-3e99-4b4f-b55d-66cf161182d7"
@@ -72,7 +73,7 @@
         "version": "1.0"
       },
       "host": "dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatform.com",
-      "basePath": "/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9/connections/",
+      "basePath": "/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d/connections/",
       "schemes": [
         "https",
         "http"
@@ -82,6 +83,24 @@
       ],
       "produces": [
         "application/json"
+      ],
+      "securityDefinitions": {
+        "entra": {
+          "type": "oauth2",
+          "flow": "accessCode",
+          "tokenUrl": "https://login.windows.net/common/oauth2/authorize",
+          "scopes": {
+            "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access": "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access"
+          },
+          "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize"
+        }
+      },
+      "security": [
+        {
+          "entra": [
+            "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access"
+          ]
+        }
       ],
       "paths": {
         "/{connectionId}/device-profiles": {
@@ -242,6 +261,114 @@
                   "additionalProperties": true
                 },
                 "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/plinko-game-mode": {
+          "post": {
+            "operationId": "PlinkoGameMode",
+            "summary": "PlinkoGameMode",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/campaign-update": {
+          "post": {
+            "operationId": "UpdateCampaign",
+            "summary": "UpdateCampaign",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
+              },
+              {
+                "name": "body",
+                "in": "body",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "required": true
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Operation result",
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "401": {
+                "description": "Missing or invalid token"
+              },
+              "403": {
+                "description": "Staff permission required"
+              }
+            }
+          }
+        },
+        "/{connectionId}/campaigns": {
+          "get": {
+            "operationId": "GetCampaigns",
+            "summary": "GetCampaigns",
+            "parameters": [
+              {
+                "name": "connectionId",
+                "in": "path",
+                "required": true,
+                "x-ms-visibility": "internal",
+                "type": "string"
               }
             ],
             "responses": {
@@ -575,88 +702,14 @@
               }
             }
           }
-        },
-        "/{connectionId}/plinko-game-mode": {
-          "post": {
-            "responses": {
-              "default": {
-                "description": "default",
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "station": {
-                      "type": "string",
-                      "description": "station"
-                    },
-                    "gameModeActive": {
-                      "type": "boolean",
-                      "description": "gameModeActive"
-                    }
-                  }
-                }
-              }
-            },
-            "summary": "PlinkoGameMode",
-            "operationId": "PlinkoGameMode",
-            "description": "Set the Game Mode of Plinko",
-            "parameters": [
-              {
-                "name": "connectionId",
-                "in": "path",
-                "required": true,
-                "x-ms-visibility": "internal",
-                "type": "string"
-              },
-              {
-                "name": "body",
-                "in": "body",
-                "required": false,
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "station": {
-                      "type": "string",
-                      "description": "station"
-                    },
-                    "gameModeActive": {
-                      "type": "boolean",
-                      "description": "gameModeActive"
-                    }
-                  }
-                }
-              }
-            ]
-          }
-        }
-      },
-      "definitions": {},
-      "parameters": {},
-      "responses": {},
-      "security": [
-        {
-          "entra": [
-            "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access"
-          ]
-        }
-      ],
-      "tags": [],
-      "securityDefinitions": {
-        "entra": {
-          "type": "oauth2",
-          "flow": "accessCode",
-          "tokenUrl": "https://login.windows.net/common/oauth2/authorize",
-          "scopes": {
-            "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access": "api://00754488-3e99-4b4f-b55d-66cf161182d7/Staff.Access"
-          },
-          "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize"
         }
       }
     },
     "runtimeUrls": [
-      "https://dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatform.com/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9/connections/"
+      "https://dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatform.com/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d/connections/"
     ],
-    "primaryRuntimeUrl": "https://dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatform.com/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9/connections/",
-    "doNotUseApiHubNetRuntimeUrl": "https://dd045fe3-6b47-e5bd-87e6-680b3cfd3a09.06.custom.usa002.azure-apihub.net/apim/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9",
+    "primaryRuntimeUrl": "https://dd045fe36b47e5bd87e6680b3cfd3a.09.environment.api.powerplatform.com/connectors/runtime/invoke/scalegroups/usa002/shards/06/apis/new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d/connections/",
+    "doNotUseApiHubNetRuntimeUrl": "https://dd045fe3-6b47-e5bd-87e6-680b3cfd3a09.06.custom.usa002.azure-apihub.net/apim/new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d",
     "metadata": {
       "source": "powerapps-user-defined",
       "brandColor": "#007ee5",
@@ -666,8 +719,8 @@
       "serviceUrl": null,
       "documentationUrl": null,
       "environmentName": "dd045fe3-6b47-e5bd-87e6-680b3cfd3a09",
-      "xrmConnectorId": null,
-      "almMode": "Environment",
+      "xrmConnectorId": "26a71965-c5cc-f111-a05a-3833c5e08f78",
+      "almMode": "Solution",
       "parameters": {},
       "useNewApimVersion": "True",
       "createdBy": "{\"id\":\"7fbf89d2-add9-4f92-b782-88e2d0dd7c15\",\"displayName\":\"Ed Williams Labs\",\"email\":\"ed.williams.labs@andworxlabs.com\",\"type\":\"User\",\"userType\":\"NotSpecified\",\"tenantId\":\"7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8\",\"userPrincipalName\":\"ed.williams.labs@andworxlabs.com\"}",
@@ -678,8 +731,8 @@
     "capabilities": [],
     "description": "Entra-authenticated staff operations. Configure the actual staff Function hostname and OAuth connection before use.",
     "apiDefinitions": {
-      "originalSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9.json_original?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-10-11T11%3A52%3A25Z&ske=2026-10-12T11%3A52%3A25Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-10-12T01%3A21%3A28Z&sr=b&sp=r&sig=NXe%2FSVBojn0Va9mEC8Dv7YTixrDjaFZu0Ui8KSqrKAw%3D",
-      "modifiedSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9.json?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-10-11T11%3A52%3A25Z&ske=2026-10-12T11%3A52%3A25Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-10-12T01%3A21%3A28Z&sr=b&sp=r&sig=So1dt8NeoJsoTGLGC4FcRwFAj4BZwdiA7FyryhIyHrg%3D"
+      "originalSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d.json_original?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-10-20T19%3A09%3A34Z&ske=2026-10-21T19%3A09%3A34Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-10-20T21%3A44%3A25Z&sr=b&sp=r&sig=kL1Y%2FP%2FW13xF2Jsw74kux2AaM5nhJ4H9XvrP3dfPGc4%3D",
+      "modifiedSwaggerUrl": "https://usa002l001eusext.blob.core.windows.net/api-swagger-files/new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d.json?skoid=bdc17f20-d9ae-4449-b32e-f416b40ee6f2&sktid=33e01921-4d64-4f8c-a055-5bdaffd5e33d&skt=2026-10-20T19%3A09%3A34Z&ske=2026-10-21T19%3A09%3A34Z&sks=b&skv=2025-01-05&sv=2025-01-05&spr=https&se=2026-10-20T21%3A44%3A25Z&sr=b&sp=r&sig=JMGZbOQ%2FfPXWY8s701pNiZBqng6aW6D5Te%2BrzflKjQw%3D"
     },
     "policyTemplateInstances": [],
     "backendService": {
@@ -703,15 +756,15 @@
       "tenantId": "7cea0515-a5e4-4e8a-8f2a-6d1ad5d6b9f8",
       "userPrincipalName": "ed.williams.labs@andworxlabs.com"
     },
-    "createdTime": "2026-09-29T21:31:09.2300848Z",
-    "changedTime": "2026-10-12T00:20:31.764371Z",
+    "createdTime": "2026-10-20T20:33:04.6345253Z",
+    "changedTime": "2026-10-20T20:44:07.2065528Z",
     "environment": {
       "id": "/providers/Microsoft.PowerApps/environments/dd045fe3-6b47-e5bd-87e6-680b3cfd3a09",
       "name": "dd045fe3-6b47-e5bd-87e6-680b3cfd3a09"
     },
     "tier": "Standard",
     "publisher": "Ed Williams Labs",
-    "almMode": "Environment",
+    "almMode": "Solution",
     "parameters": {},
     "rateLimit": 0,
     "apiVersion": "None"

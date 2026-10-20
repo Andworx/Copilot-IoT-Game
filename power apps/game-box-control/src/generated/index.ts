@@ -4,7 +4,7 @@
  */
 
 // Models
-export * as IoTGameStaffAPIConnectorModel from './models/IoTGameStaffAPIConnectorModel';
+export * as IoTGameStaffAPIModel from './models/IoTGameStaffAPIModel';
 
 // Services
-export * from './services/IoTGameStaffAPIConnectorService';
+export * from './services/IoTGameStaffAPIService';

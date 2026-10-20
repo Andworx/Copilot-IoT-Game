@@ -75,7 +75,9 @@ Node must support `require(esm)` (Node 22.12+; CI uses Node 22).
 
 ## 4. Custom connector and per-user connections
 
-In the same Power Platform environment as Game Box Control, create a custom
+The connector is created and updated by `deploy-apps.yml` (see
+[connectors/iot-game-staff/README.md](../connectors/iot-game-staff/README.md)); to create it by hand instead, in the same
+Power Platform environment as Game Box Control, create a custom
 connector from `connectors/iot-game-staff/openapi.json`. In a local copy replace
 the invalid example host and tenant/API placeholders with the actual values.
 Use OAuth 2.0 / Microsoft Entra ID security with the connector client registration,

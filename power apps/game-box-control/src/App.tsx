@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { StaffOperationUnavailableError, staffRequest } from "./apiConfig";
+import CampaignManagement from "./CampaignManagement";
 import GrandPrizeCheckIn from "./GrandPrizeCheckIn";
 import GrandPrizeDrawing from "./GrandPrizeDrawing";
 import PrizeManagement from "./PrizeManagement";
@@ -34,8 +35,6 @@ interface PlinkoState {
   gameModeActive: boolean;
   bucketCount: number | null;
   bucketIcons: string[];
-  /** Active Contest Campaign max entries per contact: what a lit bucket awards. */
-  maxEntries: number | null;
 }
 
 type GameKey = "game-box" | "plinko";
@@ -81,7 +80,7 @@ function normalizeBucketIcons(bucketCount: number | null, bucketIcons?: unknown)
  *   device completion and show a simple success popup instead (no
  *   andy_gamewin row created). ON restores today's flow exactly.
  */
-type Screen = "controls" | "prizes" | "smoke" | "checkIn" | "drawing";
+type Screen = "controls" | "campaigns" | "prizes" | "smoke" | "checkIn" | "drawing";
 
 export default function App() {
   const [profiles, setProfiles] = useState<DeviceProfile[]>([]);
@@ -172,14 +171,13 @@ export default function App() {
         body: JSON.stringify(gameModeActive === undefined ? { station: PLINKO_STATION } : { station: PLINKO_STATION, gameModeActive }),
       });
       if (!res.ok) throw new Error(`plinko-game-mode failed: ${res.status}`);
-      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[]; maxEntries?: number } | null;
+      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[] } | null;
       if (typeof body?.gameModeActive !== "boolean") throw new Error("Unexpected Plinko response");
       const bucketCount = typeof body.bucketCount === "number" ? body.bucketCount : null;
       return {
         gameModeActive: body.gameModeActive,
         bucketCount,
         bucketIcons: normalizeBucketIcons(bucketCount, body.bucketIcons),
-        maxEntries: typeof body.maxEntries === "number" ? body.maxEntries : null,
       };
     } catch (err) {
       setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : "Could not reach the Plinko station.");
@@ -206,7 +204,7 @@ export default function App() {
     setPlinkoBusy(false);
   }
 
-  async function savePlinkoSettings(change: { bucketIcons?: string[]; maxEntries?: number }, failure: string) {
+  async function savePlinkoBucketIcons(bucketIcons: string[]) {
     if (!plinko) return;
     setPlinkoBusy(true);
     setPlinkoNote(null);
@@ -214,32 +212,18 @@ export default function App() {
       const res = await staffRequest("/api/plinko-game-mode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ station: PLINKO_STATION, ...change }),
+        body: JSON.stringify({ station: PLINKO_STATION, bucketIcons }),
       });
       if (!res.ok) throw new Error(`plinko-game-mode failed: ${res.status}`);
-      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[]; maxEntries?: number } | null;
+      const body = (await res.json()) as { gameModeActive?: boolean; bucketCount?: number | null; bucketIcons?: string[] } | null;
       if (typeof body?.gameModeActive !== "boolean") throw new Error("Unexpected Plinko response");
       const bucketCount = typeof body.bucketCount === "number" ? body.bucketCount : plinko.bucketCount;
-      setPlinko({
-        gameModeActive: body.gameModeActive,
-        bucketCount,
-        bucketIcons: normalizeBucketIcons(bucketCount, body.bucketIcons),
-        maxEntries: typeof body.maxEntries === "number" ? body.maxEntries : plinko.maxEntries,
-      });
+      setPlinko({ gameModeActive: body.gameModeActive, bucketCount, bucketIcons: normalizeBucketIcons(bucketCount, body.bucketIcons) });
     } catch (err) {
-      setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : failure);
+      setPlinkoNote(err instanceof StaffOperationUnavailableError ? err.message : "Could not save the bucket icons.");
     } finally {
       setPlinkoBusy(false);
     }
-  }
-
-  function savePlinkoBucketIcons(bucketIcons: string[]) {
-    return savePlinkoSettings({ bucketIcons }, "Could not save the bucket icons.");
-  }
-
-  function changePlinkoMaxEntries(maxEntries: number) {
-    if (!plinko || !Number.isInteger(maxEntries) || maxEntries < 1 || maxEntries > 100) return;
-    void savePlinkoSettings({ maxEntries }, "Could not save the max entries.");
   }
 
   function pickPlinkoBucketIcon(bucketIndex: number, icon: BucketIconId) {
@@ -286,10 +270,11 @@ export default function App() {
         <nav aria-label="Main navigation">
           {([
             ["controls", "Games", "Select a game and its controls", "01"],
-            ["smoke", "Testing", "Run the prize claim smoke test", "02"],
-            ["prizes", "Prize control", "View inventory and add prizes", "03"],
-            ["checkIn", "Check in", "Validate final drawing codes", "04"],
-            ["drawing", "Grand prize", "Run the final drawing wheel", "05"],
+            ["campaigns", "Campaigns", "Connect sources to campaigns", "02"],
+            ["smoke", "Testing", "Run the prize claim smoke test", "03"],
+            ["prizes", "Prize control", "View inventory and add prizes", "04"],
+            ["checkIn", "Check in", "Validate final drawing codes", "05"],
+            ["drawing", "Grand prize", "Run the final drawing wheel", "06"],
           ] as const).map(([id, label, description, number]) => (
             <button key={id} className="nav-item" aria-current={screen === id ? "page" : undefined} onClick={() => navigate(id)}>
               <span className="nav-number" aria-hidden="true">{number}</span><span>{label}<small>{description}</small></span>
@@ -311,9 +296,9 @@ export default function App() {
           </button>
         )}
         <header className="page-header">
-          <p className="eyebrow">OPERATIONS / {screen === "controls" ? "GAMES" : screen === "smoke" ? "TESTING" : screen === "prizes" ? "PRIZES" : screen === "checkIn" ? "CHECK IN" : "GRAND PRIZE"}</p>
-          <h1>{screen === "controls" ? "Games" : screen === "smoke" ? "Testing" : screen === "prizes" ? "Prize control" : screen === "checkIn" ? "Check in" : "Grand prize"}</h1>
-          <p>{screen === "controls" ? "Choose a game, then manage its individual parts." : screen === "smoke" ? "Walk through the prize journey and inspect the results." : screen === "prizes" ? "Keep your prize inventory ready for the next player." : screen === "checkIn" ? "Validate emailed final-drawing codes as contestants arrive." : "Watch live registration counts, run the server-side draw, and reveal the committed winner."}</p>
+          <p className="eyebrow">OPERATIONS / {screen === "controls" ? "GAMES" : screen === "campaigns" ? "CAMPAIGNS" : screen === "smoke" ? "TESTING" : screen === "prizes" ? "PRIZES" : screen === "checkIn" ? "CHECK IN" : "GRAND PRIZE"}</p>
+          <h1>{screen === "controls" ? "Games" : screen === "campaigns" ? "Campaigns" : screen === "smoke" ? "Testing" : screen === "prizes" ? "Prize control" : screen === "checkIn" ? "Check in" : "Grand prize"}</h1>
+          <p>{screen === "controls" ? "Choose a game, then manage its individual parts." : screen === "campaigns" ? "Choose which sources can enter people into a campaign, and how many entries each contact can earn." : screen === "smoke" ? "Walk through the prize journey and inspect the results." : screen === "prizes" ? "Keep your prize inventory ready for the next player." : screen === "checkIn" ? "Validate emailed final-drawing codes as contestants arrive." : "Watch live registration counts, run the server-side draw, and reveal the committed winner."}</p>
         </header>
         <section hidden={screen !== "controls"} aria-label="Game controls">
           <div className="game-selector">
@@ -465,17 +450,6 @@ export default function App() {
               Game Mode decides whether they are scored.
             </p>
             {plinko && (
-              <div className="bucket-config-row" aria-label="Plinko max entries">
-                <div className="bucket-config-label">Max entries (lit bucket win)</div>
-                <div className="bucket-icon-options">
-                  <button type="button" className="refresh-button" disabled={plinkoBusy || (plinko.maxEntries ?? 1) <= 1} onClick={() => changePlinkoMaxEntries((plinko.maxEntries ?? 2) - 1)} aria-label="Decrease max entries">−</button>
-                  <strong aria-live="polite">{plinko.maxEntries ?? "–"}</strong>
-                  <button type="button" className="refresh-button" disabled={plinkoBusy || (plinko.maxEntries ?? 0) >= 100} onClick={() => changePlinkoMaxEntries((plinko.maxEntries ?? 1) + 1)} aria-label="Increase max entries">+</button>
-                </div>
-                <p className="section-description">Saved to the active Contest Campaign's Max Entries per Contact.</p>
-              </div>
-            )}
-            {plinko && (
               <div className="bucket-config" aria-label="Plinko bucket icons">
                 {normalizeBucketIcons(plinko.bucketCount, plinko.bucketIcons).map((selectedIcon, bucketIndex) => (
                   <div className="bucket-config-row" key={bucketIndex}>
@@ -502,6 +476,9 @@ export default function App() {
             )}
             </div>
           </div>
+        </section>
+        <section className="tool-panel" hidden={screen !== "campaigns"} aria-label="Campaign management">
+          {visited.has("campaigns") && <CampaignManagement />}
         </section>
         <section className="tool-panel" hidden={screen !== "smoke"} aria-label="Prize claim smoke test">
           {visited.has("smoke") && <SmokeTest profiles={profiles} />}

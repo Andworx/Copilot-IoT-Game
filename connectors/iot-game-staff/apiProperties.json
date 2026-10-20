@@ -1,0 +1,42 @@
+{
+  "properties": {
+    "connectionParameters": {
+      "token": {
+        "type": "oauthSetting",
+        "oAuthSettings": {
+          "identityProvider": "aad",
+          "clientId": "__CONNECTOR_CLIENT_ID__",
+          "scopes": [
+            "api://__API_CLIENT_ID__/Staff.Access"
+          ],
+          "redirectMode": "Global",
+          "redirectUrl": "",
+          "properties": {
+            "IsFirstParty": "False",
+            "IsOnbehalfofLoginSupported": "False"
+          },
+          "customParameters": {
+            "loginUri": {
+              "value": "https://login.microsoftonline.com"
+            },
+            "tenantId": {
+              "value": "__TENANT_ID__"
+            },
+            "resourceUri": {
+              "value": "api://__API_CLIENT_ID__"
+            },
+            "enableOnbehalfOfLogin": {
+              "value": "false"
+            }
+          }
+        }
+      }
+    },
+    "iconBrandColor": "#007ee5",
+    "capabilities": [],
+    "scriptOperations": [],
+    "publisher": "",
+    "stackOwner": "",
+    "policyTemplateInstances": []
+  }
+}

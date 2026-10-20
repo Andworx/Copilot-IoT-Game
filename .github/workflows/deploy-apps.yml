@@ -17,6 +17,8 @@ on:
       - 'power pages/mcpquest/**'
       - '!power pages/mcpquest/.powerpages-site/**'
       - '.github/workflows/deploy-apps.yml'
+      - 'connectors/iot-game-staff/**'
+      - 'azure/infrastructure/scripts/Deploy-StaffConnector.ps1'
       - 'azure/infrastructure/staff-api.bicep'
       - 'azure/infrastructure/modules/staff-resources.bicep'
       - 'azure/infrastructure/staff-api.prod.json'
@@ -37,6 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.decide.outputs.backend }}
+      connector: ${{ steps.decide.outputs.connector }}
       any_frontend: ${{ steps.decide.outputs.any_frontend }}
       frontend_matrix: ${{ steps.decide.outputs.frontend_matrix }}
     steps:
@@ -81,6 +84,12 @@ jobs:
             echo "backend=true" >> "$GITHUB_OUTPUT"
           else
             echo "backend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if want '^connectors/iot-game-staff/|^azure/infrastructure/(scripts/Deploy-StaffConnector\.ps1|staff-api\.prod\.json)$'; then
+            echo "connector=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "connector=false" >> "$GITHUB_OUTPUT"
           fi
 
           include=""
@@ -383,9 +392,63 @@ jobs:
           package: function-artifact/function-app.zip
           sku: flexconsumption
           remote-build: false
+  deploy-connector:
+    name: Deploy staff connector
+    needs: [build, changes, deploy-backends]
+    # always() so a skipped (unchanged) backend does not skip the connector; a failed backend still blocks it.
+    if: >-
+      always()
+      && github.event_name != 'pull_request'
+      && github.ref == 'refs/heads/main'
+      && vars.AZURE_MIGRATION_FREEZE != 'true'
+      && needs.build.result == 'success'
+      && needs.changes.result == 'success'
+      && needs.changes.outputs.connector == 'true'
+      && needs.deploy-backends.result != 'failure'
+      && needs.deploy-backends.result != 'cancelled'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    environment: production
+    env:
+      POWER_PLATFORM_ENVIRONMENT_URL: ${{ vars.POWER_PLATFORM_ENVIRONMENT_URL }}
+      POWER_PLATFORM_TENANT_ID: ${{ vars.POWER_PLATFORM_TENANT_ID }}
+      POWER_PLATFORM_CLIENT_ID: ${{ vars.POWER_PLATFORM_CLIENT_ID }}
+      POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.POWER_PLATFORM_CLIENT_SECRET }}
+      POWER_PLATFORM_SOLUTION_NAME: ${{ vars.POWER_PLATFORM_SOLUTION_NAME || 'CopilotIoTGame' }}
+      # Optional. When unset the connector keeps the secret already stored on it in Power Platform.
+      STAFF_CONNECTOR_CLIENT_SECRET: ${{ secrets.STAFF_CONNECTOR_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate Power Platform deployment configuration
+        shell: pwsh
+        run: |
+          foreach ($name in @('POWER_PLATFORM_ENVIRONMENT_URL', 'POWER_PLATFORM_TENANT_ID', 'POWER_PLATFORM_CLIENT_ID', 'POWER_PLATFORM_CLIENT_SECRET', 'POWER_PLATFORM_SOLUTION_NAME')) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) { throw "Missing GitHub deployment setting: $name. See docs/CI_CD.md." }
+          }
+      - name: Install Power Platform CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+        with:
+          add-tools-to-path: true
+      - name: Authenticate Power Platform
+        shell: pwsh
+        run: |
+          pac auth create --name "github-connector" --tenant "$env:POWER_PLATFORM_TENANT_ID" --applicationId "$env:POWER_PLATFORM_CLIENT_ID" --clientSecret "$env:POWER_PLATFORM_CLIENT_SECRET" --url "$env:POWER_PLATFORM_ENVIRONMENT_URL"
+          if ($LASTEXITCODE -ne 0) { throw 'Power Platform authentication failed.' }
+      - name: Create or update the staff custom connector
+        shell: pwsh
+        run: ./azure/infrastructure/scripts/Deploy-StaffConnector.ps1 -SolutionName "$env:POWER_PLATFORM_SOLUTION_NAME"
+      - name: Clear PAC credentials
+        if: always()
+        shell: pwsh
+        run: |
+          if (Get-Command pac -ErrorAction SilentlyContinue) {
+            pac auth clear
+            if ($LASTEXITCODE -ne 0) { throw 'PAC credential cleanup failed.' }
+          }
+
   deploy-frontends:
     name: Deploy ${{ matrix.label }}
-    needs: [build, changes, deploy-backends]
+    needs: [build, changes, deploy-backends, deploy-connector]
     # always() so a skipped (unchanged) backend does not skip the frontends; the
     # result guards still block a frontend deploy when a backend change failed.
     if: >-
@@ -399,6 +462,8 @@ jobs:
       && needs.changes.outputs.any_frontend == 'true'
       && needs.deploy-backends.result != 'failure'
       && needs.deploy-backends.result != 'cancelled'
+      && needs.deploy-connector.result != 'failure'
+      && needs.deploy-connector.result != 'cancelled'
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -468,7 +533,7 @@ jobs:
 
   deploy:
     name: Deploy production apps
-    needs: [deploy-backends, deploy-frontends]
+    needs: [deploy-backends, deploy-connector, deploy-frontends]
     if: always() && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.AZURE_MIGRATION_FREEZE != 'true'
     runs-on: ubuntu-latest
     environment: production
@@ -485,12 +550,14 @@ jobs:
       - name: Verify deployment fan-out
         env:
           BACKEND_RESULT: ${{ needs.deploy-backends.result }}
+          CONNECTOR_RESULT: ${{ needs.deploy-connector.result }}
           FRONTEND_RESULT: ${{ needs.deploy-frontends.result }}
           CUTOVER_READY: ${{ vars.STAFF_API_CUTOVER_READY || 'false' }}
         run: |
           # Unchanged components are skipped (selective deploy), which is a pass;
           # only a real failure/cancellation of a leg that ran should fail the run.
           case "$BACKEND_RESULT" in failure|cancelled) echo "::error::Backend deploy $BACKEND_RESULT"; exit 1 ;; esac
+          case "$CONNECTOR_RESULT" in failure|cancelled) echo "::error::Connector deploy $CONNECTOR_RESULT"; exit 1 ;; esac
           if test "$CUTOVER_READY" = true; then
             case "$FRONTEND_RESULT" in failure|cancelled) echo "::error::Frontend deploy $FRONTEND_RESULT"; exit 1 ;; esac
           fi
