@@ -1,0 +1,264 @@
+// Plinko Pi case (Raspberry Pi 3 Model B + screw-terminal breakout), mounted on the back of the board.
+//
+// - Base: the Pi screws down onto four standoffs. The base's flat back sits against the board and two
+//   wings (one each side) carry slots that go over the existing screws that hold down the pegs.
+// - Lid: sits on the open (outer) side and is held by four M3 screws into heat-set inserts in the corners.
+// - Cables enter through a wide slot in the top wall (the GPIO side, where the terminals are) and are
+//   strain-relieved with zip ties through slots next to it.
+// - Openings: micro-USB power, SD card, and (optional) the USB/Ethernet end.
+//
+// Coordinates: the Pi PCB's lower-left corner is the origin, X along the 85 mm side, Y along the 56 mm side
+// (the GPIO header is on the top, +Y, edge), Z up from the case floor. All dimensions in mm.
+//
+// MEASURE / CONFIRM (placeholders, marked with *): breakout board size and height, the spacing and size of
+// the peg screws the wings go over. Use `part = "wing_test"` to check the screws before anything else.
+
+/* [Part] */
+part = "assembly"; // [assembly, base, lid, fit_tray, wing_test]
+
+/* [Raspberry Pi 3 Model B - published mechanical drawing] */
+pi_l = 85.0;
+pi_w = 56.0;
+pi_t = 1.4;                       // PCB thickness
+pi_hole_x = 58.0;                 // mounting holes: 58 x 49 mm, 3.5 mm in from the left and bottom edges
+pi_hole_y = 49.0;
+pi_hole_off = 3.5;
+pi_screw_hole_d = 2.2;            // pilot hole for M2.5 into the standoffs (self-tapping)
+pi_gpio_x0 = 7.1;                 // 2 x 20 header, along the top edge
+pi_gpio_x1 = 57.9;
+pi_usbc_x = 10.6;                 // micro-USB power, bottom edge, centred here
+pi_usbc_w = 9.0;                  // cutout width
+pi_sd_y = 28.0;                   // SD card, left edge, centred here
+pi_eth_usb_y0 = 2.5;              // USB x2 + Ethernet block, right edge
+pi_eth_usb_y1 = 54.0;
+pi_overhang_right = 2.5;          // connectors stick out past the right PCB edge
+
+/* [Screw-terminal breakout *] */
+bo_left_over = 9.96;              // sticks out past the Pi's left PCB edge (measured)
+bo_x0 = -bo_left_over;
+bo_x1 = pi_gpio_x1 + 1.5;         // right end * (not measured yet; the header ends at 57.9)
+bo_over_y = 5.39;                 // how far the breakout reaches past the top PCB edge (measured)
+cable_gap = 8.0;                  // extra room beyond the breakout for the cables to bend and leave
+bo_h = 22.57;                     // height above the PCB top, terminals included (measured)
+top_clear = 2.0;                  // headroom above the tallest part
+
+/* [Case] */
+wall = 2.4;
+floor_t = 2.4;
+lid_t = 2.4;
+standoff_h = 5.0;                 // PCB underside clearance (solder joints, SD card)
+standoff_d = 6.0;
+corner_margin = 7.0;              // extra room all round, in which the lid-screw posts sit
+post_d = 7.5;
+insert_hole_d = 4.0;              // M3 heat-set insert (same as the sensor body)
+lid_screw_d = 3.4;
+vent_w = 1.6;
+cable_slot_x0 = bo_x0 + 2;      // cable exits in both long walls, over the two terminal rows
+cable_slot_x1 = bo_x1 - 2;
+cable_z_above_pcb = 8.0;          // the exits start this far above the Pi's PCB (clear of the connectors)
+tie_slot_w = 4.0;                 // zip-tie slits beside the exits
+tie_slot_h = 1.8;
+open_usb_end = true;              // cut a window over the USB / Ethernet end
+
+/* [Wings *] */
+screw_spacing = 90.83;            // centre-to-centre of the two peg screws (measured)
+screw_shank_d = 4.17;             // #8 screw, major diameter
+screw_head_d = 8.1;               // #8 flat (countersunk) head
+screw_clear = 0.5;                // clearance on the shank hole
+slot_extra = 6.0;                 // slot length beyond the shank, to forgive spacing errors
+wing_t = 3.6;                     // the countersink is about 2.1 mm deep, so the head sits flush
+wing_w = 20;                      // tab width
+
+$fn = 48;
+eps = 0.01;
+
+// ============================================================
+// DERIVED
+// ============================================================
+left_margin = max(corner_margin, bo_left_over + 2.0);   // the breakout reaches past the left edge
+in_x0 = -left_margin;
+in_x1 = pi_l + corner_margin;
+in_y0 = -corner_margin;
+in_y1 = pi_w + max(corner_margin, bo_over_y + cable_gap);   // the breakout reaches past the top edge
+in_w = in_x1 - in_x0;
+in_d = in_y1 - in_y0;
+out_x0 = in_x0 - wall;
+out_y0 = in_y0 - wall;
+out_w = in_w + 2 * wall;
+out_d = in_d + 2 * wall;
+pcb_z = floor_t + standoff_h;                 // PCB underside
+inner_h = standoff_h + pi_t + max(bo_h, 17) + top_clear;
+cable_z = pcb_z + pi_t + cable_z_above_pcb;
+body_h = floor_t + inner_h;                   // wall top (lid sits on it)
+case_cx = (in_x0 + in_x1) / 2;
+case_cy = (in_y0 + in_y1) / 2;
+
+post_xs = [in_x0 + post_d / 2 - 0.2, in_x1 - post_d / 2 + 0.2];
+post_ys = [in_y0 + post_d / 2 - 0.2, in_y1 - post_d / 2 + 0.2];
+
+wing_reach = screw_spacing / 2 + screw_head_d / 2 + 4;   // from the case centre, along Y, to the tab end
+assert(2 * wing_reach <= 250, "Case plus wings exceeds the build plate");
+assert(screw_spacing / 2 + screw_head_d / 2 > out_d / 2 + 1, "Peg screws are inside the case outline: wings cannot reach them");
+echo(str("Case ", out_w, " x ", out_d, " x ", body_h + lid_t, " mm; wings to ", 2 * wing_reach, " mm; PCB top at Z = ", pcb_z + pi_t));
+
+module label_text(txt, size = 4) text(txt, size = size, halign = "center", valign = "center", font = "Liberation Sans:style=Bold");
+
+// ============================================================
+// BASE
+// ============================================================
+// Mounting slot: through the shank hole, with a countersink on the outer face so a #8 flat head sits
+// flush and clamps the tab to the board. Long in Y (along the line between the two screws).
+module screw_slot(y_screw, dx = 0) {
+  hull() for (dy = [-slot_extra / 2, slot_extra / 2]) {
+    translate([dx, y_screw + dy, -eps]) cylinder(d = screw_shank_d + screw_clear, h = wing_t + 2 * eps);
+    translate([dx, y_screw + dy, wing_t - (screw_head_d + 0.8 - screw_shank_d - screw_clear) / 2])
+      cylinder(d1 = screw_shank_d + screw_clear, d2 = screw_head_d + 0.8, h = (screw_head_d + 0.8 - screw_shank_d - screw_clear) / 2 + eps);
+  }
+}
+
+module wing(side) {
+  // side = -1 (below, -Y) or +1 (above, +Y); the slot is centred on the peg screw. The two wings sit
+  // either side of the case along its short axis, where the screws are far enough apart to reach.
+  y_edge = side < 0 ? out_y0 : out_y0 + out_d;
+  y_screw = case_cy + side * screw_spacing / 2;
+  y_end = case_cy + side * wing_reach;
+  y_a = min(y_edge, y_end);
+  h = abs(y_end - y_edge);
+  difference() {
+    translate([case_cx - wing_w / 2, y_a, 0]) cube([wing_w, h, wing_t]);
+    screw_slot(y_screw, case_cx);
+  }
+}
+
+module standoffs() {
+  for (x = [pi_hole_off, pi_hole_off + pi_hole_x], y = [pi_hole_off, pi_hole_off + pi_hole_y])
+    translate([x, y, floor_t - eps]) difference() {
+      cylinder(d = standoff_d, h = standoff_h + eps);
+      translate([0, 0, 0.8]) cylinder(d = pi_screw_hole_d, h = standoff_h);
+    }
+}
+
+module base() {
+  difference() {
+    union() {
+      // Shell: floor and walls.
+      translate([out_x0, out_y0, 0]) cube([out_w, out_d, body_h]);
+      for (side = [-1, 1]) wing(side);
+    }
+    // Interior.
+    translate([in_x0, in_y0, floor_t]) cube([in_w, in_d, inner_h + eps]);
+    // Wings were unioned with the shell: carve their slots again after the interior (they sit outside it).
+    // Cable exits: one in each long wall, open at the top (the lid has a matching notch), so the cables
+    // can be laid in from above. The breakout has terminals on both long sides: one row faces out past
+    // the Pi's top edge (+Y exit), the other faces back over the Pi (-Y exit).
+    for (yy = [in_y1, out_y0])
+      translate([cable_slot_x0, yy - eps, cable_z]) cube([cable_slot_x1 - cable_slot_x0, wall + 2 * eps, body_h - cable_z + eps]);
+    // Zip-tie slits through the wall beside each exit.
+    for (yy = [in_y1, out_y0], x = [cable_slot_x1 + 3, cable_slot_x1 + 3 + tie_slot_w + 3])
+      translate([x, yy - eps, cable_z + 2]) cube([tie_slot_w, wall + 2 * eps, tie_slot_h + 6]);
+    // Micro-USB power (bottom -Y wall).
+    translate([pi_usbc_x - pi_usbc_w / 2, out_y0 - eps, pcb_z - 2])
+      cube([pi_usbc_w, wall + 2 * eps, 7.5]);
+    // SD card (left -X wall), below the board level.
+    translate([out_x0 - eps, pi_sd_y - 7, floor_t + 1]) cube([wall + 2 * eps, 14, standoff_h + pi_t + 1]);
+    // USB / Ethernet end window (right +X wall).
+    if (open_usb_end)
+      translate([in_x1 - eps, pi_eth_usb_y0, pcb_z]) cube([wall + 2 * eps, pi_eth_usb_y1 - pi_eth_usb_y0, 17]);
+    // Lid-screw holes: M3 heat-set inserts in the corner posts, from the top.
+    for (x = post_xs, y = post_ys)
+      translate([x, y, body_h - 9]) cylinder(d = insert_hole_d, h = 9 + eps);
+    // Vent slots in the floor under the Pi.
+    for (i = [0 : 5])
+      translate([20 + i * 8, 10, -eps]) cube([vent_w, 30, floor_t + 2 * eps]);
+    // Case name, recessed on the underside.
+    translate([case_cx, in_y1 - 8, 0.5]) mirror([1, 0, 0]) rotate([0, 0, 0]) linear_extrude(0.6)
+      label_text("PLINKO PI", 5);
+  }
+  standoffs();
+  // Corner posts for the lid screws.
+  for (x = post_xs, y = post_ys)
+    translate([x, y, floor_t - eps]) difference() {
+      cylinder(d = post_d, h = inner_h + eps);
+      translate([0, 0, inner_h - 9]) cylinder(d = insert_hole_d, h = 9 + 2 * eps);
+    }
+}
+
+// ============================================================
+// LID
+// ============================================================
+module lid() {
+  difference() {
+    translate([out_x0, out_y0, 0]) cube([out_w, out_d, lid_t]);
+    for (x = post_xs, y = post_ys)
+      translate([x, y, -eps]) cylinder(d = lid_screw_d, h = lid_t + 2 * eps);
+    // Countersinks for the M3 heads.
+    for (x = post_xs, y = post_ys)
+      translate([x, y, lid_t - 1.6]) cylinder(d1 = lid_screw_d, d2 = 6.4, h = 1.6 + eps);
+    // Notches matching the two cable exits.
+    translate([cable_slot_x0, in_y1 - 4, -eps]) cube([cable_slot_x1 - cable_slot_x0, wall + 4 + eps, lid_t + 2 * eps]);
+    translate([cable_slot_x0, out_y0 - eps, -eps]) cube([cable_slot_x1 - cable_slot_x0, wall + 4 + eps, lid_t + 2 * eps]);
+    // Vent slots over the terminals.
+    for (i = [0 : 7])
+      translate([bo_x0 + 4 + i * 7, pi_w - 6, -eps]) cube([vent_w, 12, lid_t + 2 * eps]);
+    translate([case_cx, case_cy - 14, 0.4]) mirror([1, 0, 0]) linear_extrude(0.6 + eps) label_text("Plinko Pi", 5);
+  }
+}
+
+// ============================================================
+// TESTS
+// ============================================================
+// Pi footprint tray: floor, standoffs, low walls with the port cut-outs. Confirms the Pi, the ports and
+// the standoff holes. The breakout and lid are not part of this.
+module fit_tray() {
+  // Floor, standoffs and low walls over the whole footprint the case would use, including the room for
+  // the breakout (left overhang and top overhang), so the breakout can be seen to sit inside it.
+  x0 = -(bo_left_over + 2.0);
+  y1 = pi_w + max(4, bo_over_y + 2.0);
+  wall_h = floor_t + standoff_h + 5;
+  difference() {
+    translate([x0 - 2, -6, 0]) cube([pi_l + 4 - x0 + 2 + 2, y1 + 6 + 2, wall_h]);
+    translate([x0, -4, floor_t]) cube([pi_l + 4 - x0 + 2, y1 + 4, wall_h]);
+    // Micro-USB power and SD card, as in the case.
+    translate([pi_usbc_x - pi_usbc_w / 2, -6 - eps, floor_t + standoff_h - 2]) cube([pi_usbc_w, 4 + 2 * eps, 8]);
+    translate([x0 - 2 - eps, pi_sd_y - 7, floor_t + 1]) cube([4 + 2 * eps, 14, 10]);
+    // USB / Ethernet end.
+    translate([pi_l + 4 - eps, pi_eth_usb_y0, floor_t + standoff_h]) cube([6, pi_eth_usb_y1 - pi_eth_usb_y0, 8]);
+  }
+  for (x = [pi_hole_off, pi_hole_off + pi_hole_x], y = [pi_hole_off, pi_hole_off + pi_hole_y])
+    translate([x, y, floor_t - eps]) difference() {
+      cylinder(d = standoff_d, h = standoff_h + eps);
+      translate([0, 0, 0.8]) cylinder(d = pi_screw_hole_d, h = standoff_h);
+    }
+}
+
+// Wing slot test: a plate with the two mounting slots at the real screw spacing, countersunk on the
+// outer face. Hold it to the board over the peg screws; adjust screw_spacing and screw_shank_d until
+// it drops over them. (Print with the countersink side up.)
+module wing_test() {
+  len = screw_spacing + screw_head_d + 8;
+  difference() {
+    translate([-wing_w / 2, -len / 2, 0]) cube([wing_w, len, wing_t]);
+    for (side = [-1, 1]) screw_slot(side * screw_spacing / 2, 0);
+    translate([0, 0, wing_t - 0.5]) rotate([0, 0, 90]) linear_extrude(0.6)
+      label_text(str("SPACING ", screw_spacing), 4.5);
+  }
+}
+
+// ============================================================
+// OUTPUT
+// ============================================================
+module pi_mock() {
+  color("seagreen") translate([0, 0, pcb_z]) cube([pi_l, pi_w, pi_t]);
+  color("silver") translate([pi_gpio_x0, pi_w - 5, pcb_z + pi_t]) cube([pi_gpio_x1 - pi_gpio_x0, 5, 8.5]);
+  color("orange", 0.7) translate([bo_x0, pi_w - 5, pcb_z + pi_t]) cube([bo_x1 - bo_x0, 5 + bo_over_y, bo_h]);
+}
+
+if (part == "base") base();
+else if (part == "lid") translate([0, 0, 0]) lid();
+else if (part == "fit_tray") fit_tray();
+else if (part == "wing_test") wing_test();
+else {
+  base();
+  pi_mock();
+  color("white", 0.5) translate([0, 0, body_h + 10]) lid();
+}
