@@ -19,11 +19,11 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Reports | 0 | 0 | 0 | 1 | 1 |
 | Hardware | 0 | 7 | 0 | 1 | 8 |
 | Integration (Azure Functions) | 12 | 7 | 4 | 0 | 23 |
-| Power Apps | 2 | 7 | 0 | 0 | 9 |
+| Power Apps | 4 | 7 | 0 | 0 | 11 |
 | Testing | 0 | 0 | 1 | 0 | 1 |
 | Network / browser API | 0 | 2 | 1 | 0 | 3 |
 | MCP Quest (new game) | 0 | 14 | 4 | 0 | 18 |
-| Totals | 26 | 61 | 17 | 2 | 106 |
+| Totals | 28 | 61 | 17 | 2 | 108 |
 
 ## Dataverse
 
@@ -42,8 +42,6 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Campaign-owned entry cap and Source Cap cleanup | Columns + form | ⬜ TODO | Issue #146 / epic #121 — keep `Max Entries Per Contact` as a global Campaign setting; remove Source Cap `Max Entries Per Contact` and `Max Entries Per Day`; add a Campaign quick view to the Source Cap form so makers can see the effective global cap without duplicating rule fields. |
 | Source catalog lookup for Contest Source Cap | Table + lookup | ⬜ TODO | Issue #147 / epic #121 — replace free-text `Source Identifier` entry with a source catalog lookup so makers select `IoT`, `Plinko`, etc.; backend should resolve the selected source's stable key such as `iot`. |
 | Contest Source Cap generated setting name | Form script | ⬜ TODO | Issue #148 / epic #121 — add model-driven form JavaScript that sets `Setting Name` from the selected Campaign and Source, using a format like `<Campaign Event Name> - <Source Name>`. |
-| Game Box Control Campaigns screen | Code App + staff API | ⬜ Verify | New `campaigns` / `campaign-update` staff routes and a Campaigns screen: connect/disconnect Contest Sources per campaign (Source Cap rows, as in the MDA) and set Max Entries per Contact, moved off the Plinko card. Needs the `GetCampaigns` / `UpdateCampaign` connector operations added and the Function App deployed; see connectors/iot-game-staff/README.md. |
-| Staff custom connector deployed from GitHub | Connector + workflow | ⬜ Verify | `connectors/iot-game-staff` is now the source of truth; `deploy-apps.yml` job `deploy-connector` runs `Deploy-StaffConnector.ps1` (pac connector create/update) on change. Solution-aware connector `IoT Game Staff API` created in Development; pending: Entra redirect URI, client secret, new connection, Code App rebind, first workflow run, then retire the old non-solution connector. |
 | Game Win form contestant-field cleanup | Model-driven form | ✅ Done | Issue #123 / epic #121 staged push 1 — superseded by the approved deletion of the legacy `andy_gamewin` table after Prize Claim and IoT Game Win took over the live flow. |
 | `andy_gamewin.andy_contact` Contact lookup | Lookup relationship | ✅ Done | Issue #123 / epic #121 staged push 2 — superseded by `andy_prizeclaim.andy_contact`; the old lookup was removed with the legacy `andy_gamewin` table after live deletion/export/unpack. |
 | Grand Prize Entry check-in fields | Columns + form | ⬜ Verify | Issue #145 / epic #121 — keep structured `andy_checkincode`, `andy_checkinstatus`, and `andy_checkintime`; use Dataverse notes/timeline for freeform check-in context instead of `andy_checkinnotes`. Activities are enabled on the table after the 2026-09-27 export, so #134 code and reminder emails can be Dataverse Email activities regarding the Grand Prize Entry. |
@@ -155,6 +153,8 @@ that document is the source of truth for scope/design; this file mirrors its sta
 | Game Box Control — issue #134 claim-flow email preview in Testing | Power Apps Code App (`power apps/game-box-control`, `SmokeTest.tsx`) | ⬜ Verify | The app does not expose code generation or email sending as an operator workflow. The Testing workspace now previews the check-in email only after the simulated player path reaches `claim-prize` with shared contact info, matching the real QR/info claim flow. Build passes locally; live verification depends on the Function returning `grandPrizeEntry.checkInCode`, `emailActivity`, and `reminderActivity` after deployment. |
 | Game Box Control — Grand Prize Check-in workspace | Power Apps Code App (`power apps/game-box-control`, `GrandPrizeCheckIn.tsx`) | ⬜ Verify | Issue #131 / epic #120 — staff can type or scan an emailed check-in code and submit it to the planned `POST /api/grand-prize/check-in` Function. The client normalizes entry, keeps PrizeEngine writes server-side, and renders success, already checked in, invalid, expired, invalidated, and ineligible outcomes. UI build passes with the planned endpoint contract; real validation remains pending the Azure Function endpoint and live Code App deployment. |
 | Game Box Control — Grand Prize Drawing workspace and weighted wheel shell | Power Apps Code App (`power apps/game-box-control`, `GrandPrizeDrawing.tsx`) | ⬜ Verify | Issue #130 / epic #120 — staff-operated grand-prize workspace added with a weighted canvas wheel, checked-in lineup loader targeting `GET /api/grand-prize/drawing-slices`, and final draw action targeting `POST /api/grand-prize/draw`. Presentation mode is now read-only: run/preview controls are hidden, the display connects to the existing `gamebox` SignalR hub, and it listens for the planned `grandPrizeDrawn` broadcast so an operator device can trigger the draw from a separate staff session. UI build passes with preview data; real draw remains pending the Azure Function endpoints, `GET /api/grand-prize/drawing-state` recovery endpoint, SignalR broadcast, and PrizeEngine draw-result audit storage. |
+| Game Box Control — Campaigns screen | Power Apps Code App + staff API | ✅ Done | PR #345 — `campaigns` / `campaign-update` staff routes and a Campaigns screen: connect or disconnect Contest Sources per campaign (the Source Cap rows behind the Game Backend app's "Campaign to Source") and set Max Entries per Contact, moved off the Plinko card. Verified live in Development. |
+| Staff custom connector deployed from GitHub | Custom connector + GitHub Actions | ✅ Done | PR #345 — `connectors/iot-game-staff` is the source of truth. The solution-aware `IoT Game Staff API` connector (in `CopilotIoTGame`) is created or updated by the `deploy-connector` job in `deploy-apps.yml` via `Deploy-StaffConnector.ps1`. The Code App is rebound to it, the old non-solution connector, its connection and its redirect URI are removed, and the client secret is updated. |
 
 ## Testing
 

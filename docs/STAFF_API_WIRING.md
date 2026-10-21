@@ -191,13 +191,14 @@ References: [setup runbook](STAFF_API_SETUP.md), [CI/CD](CI_CD.md),
 
 - Historical bootstrap release: commit `6110fffa7a994990b0a51c861c24b4395547577f`, [successful run](https://github.com/Andworx/Copilot-IoT-Game/actions/runs/36629295635). It used the now-retired source hostname `func-aw-azcom-iot-staff.azurewebsites.net`; destination releases target `func-aw-iot-staff-v2.azurewebsites.net`.
 - IAM bootstrap: owner reported successful grant to the production deployment identity.
-- Current connector: **IoT Game Staff API Connector**. The earlier connector was recreated; use the IDs below.
+- Current connector: **IoT Game Staff API**, solution-aware (in `CopilotIoTGame`), created and updated by the `deploy-connector` job in `deploy-apps.yml` from `connectors/iot-game-staff` (see [the connector README](../connectors/iot-game-staff/README.md)). It replaced the earlier non-solution **IoT Game Staff API Connector**, which `pac connector` could not see; that connector, its connection and its redirect URI have been removed.
 - Environment: `dd045fe3-6b47-e5bd-87e6-680b3cfd3a09`.
-- Connector API ID: `shared_iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9`.
-- Working connection ID: `f72491e31ed54c7ebe8a5c1ffe3a6310` (owner's setup/test connection; each operator still authenticates individually).
-- Current registered redirect URI: `https://global.consent.azure-apim.net/redirect/iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9`.
+- Connector API ID: `shared_new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d`. Dataverse connector ID in Development: `26a71965-c5cc-f111-a05a-3833c5e08f78`.
+- Registered redirect URI: `https://global.consent.azure-apim.net/redirect/new-5fiot-20game-20staff-20api-5f0ce8bdb17140b23d`.
+- Connections are per operator; create your own against this connector. No shared connection ID is recorded here.
+- Historical: the first connector's API ID was `shared_iot-20game-20staff-20api-20connector-5f0ce8bdb1-5e21a452ca4389f9`.
 - AADSTS700016 was resolved by correcting connector application identifiers and recreating the connector. A subsequent API 403 occurred while the API enterprise application had no role assignments; the owner subsequently reported HTTP 200 after the role-assignment instructions.
-- PAC 2.11.2 generated the actual schemas, service/model files and connection reference in `power apps/game-box-control`; all 14 operation IDs are present. Existing Code App ID `36533fcf-1ad1-4891-9e27-82cc3d2f794a` is preserved.
+- PAC 2.11.2 generated the actual schemas, service/model files and connection reference in `power apps/game-box-control`; all required operation IDs are present, plus the optional `PlinkoGameMode`, `GetCampaigns` and `UpdateCampaign`. Existing Code App ID `36533fcf-1ad1-4891-9e27-82cc3d2f794a` is preserved.
 - Adapter call shape matches the generated service: operation name/table name, POST body under `parameters.body`, and result data returned by the SDK. No browser token, secret or direct-fetch fallback is added.
 - Keep `STAFF_API_CUTOVER_READY=false` until the generated binding is reviewed and the hosted development flow has been checked. A connector-editor 200 proves API access, not the complete hosted Code App flow. Then enable the flag for the coordinated main release and perform the runbook's live acceptance checks.
 ## Repeat-deployment correction
