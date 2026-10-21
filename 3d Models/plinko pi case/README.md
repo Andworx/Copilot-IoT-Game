@@ -1,13 +1,13 @@
 # Plinko Pi case
 
 A case for the Raspberry Pi 3 Model B and its screw-terminal breakout, mounted on the back of the
-Plinko board. It is parametric (`plinko_pi_case.scad`) and unverified: the values marked with `*`
-in the SCAD are placeholders until they are measured on the real parts.
+Plinko board. It is parametric (`plinko_pi_case.scad`). A value marked with `*` in the SCAD was an
+assumption when the model was drawn; the printed case has since worked with all of them.
 
-**Status: draft.** The wing test passed (2026-10-14): the 90.83 mm screw spacing and the slot size are
-confirmed on the board. The first fit tray (2026-10-15) confirmed the Pi, the standoffs and the power and
-SD cut-outs; the breakout sticks out past its top wall, so the top overhang `bo_over_y` is being
-measured and the tray was enlarged to include the breakout's room.
+**Status: printed and working.** The wing test passed (2026-10-14): the 90.83 mm screw spacing and the slot
+size are confirmed on the board. The first fit tray confirmed the Pi, the standoffs and the power and SD
+cut-outs. The base and lid were then printed from this model and worked (reported 2026-10-21), with the Pi and
+breakout fitted. No change was needed after that print.
 
 ## Parts
 
@@ -42,7 +42,7 @@ long in the direction between the screws, so the spacing need not be exact.
 |---|---|---|
 | `bo_h` | 22.57 mm (measured) | Height of the breakout above the Pi's PCB, terminals included. |
 | `bo_left_over` | 9.96 mm (measured) | How far the breakout sticks out past the Pi's left (SD card side) edge. |
-| `bo_x1` | header end + 1.5 mm | Where the breakout ends on the right. Not measured yet. |
+| `bo_x1` | header end + 1.5 mm | Where the breakout ends on the right. Assumed; the printed case fits. |
 | `bo_over_y` | 5.39 mm (measured) | How far the breakout reaches past the top PCB edge, to its outer face. |
 | `screw_spacing` | 90.83 mm (**confirmed**: wing test fits the board) | Centre-to-centre of the two peg screws to mount on. |
 | `screw_shank_d`, `screw_head_d` | 4.17, 8.1 mm (#8, **confirmed** with the wing test) | The screw the wing goes over. |
