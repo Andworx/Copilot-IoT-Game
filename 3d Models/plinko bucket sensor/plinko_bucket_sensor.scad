@@ -26,7 +26,7 @@
 // colour parts loaded as parts of the same object. Neither needs supports.
 
 /* [Part] */
-part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide, funnel_test, plug, magnet_test, dispenser, pusher, cap_body, cap_tile]
+part = "assembly"; // [assembly, exploded, section, cover_set, body, cover, cover_colour, print_plate, fit_test, puck, guide, funnel_test, plug, magnet_test, dispenser, pusher, cap_body, cap_tile, puck_cloud]
 
 /* [Bucket slot - board numbers 2026-09-30 (4 x 5 x 0.5 in); MEASURE] */
 slot_widths = [88.89, 80.21, 81.38, 79.38, 81.63, 86.54]; // measured 2026-10-10, buckets 1..6 left to right
@@ -512,6 +512,60 @@ module puck() {
         cylinder(d = magnet_d + magnet_fit, h = magnet_stack * magnet_t + magnet_fit, $fn = 64);
   }
 }
+// ============================================================
+// CLOUD PUCK: same 16 mm thickness and magnet cutout as the round puck, but with a single stack of magnets
+// in the middle. Flat-bottomed so it stands in the groove; kept under the round puck's 49.56 mm width so it
+// passes the towers; at least 29 mm tall so a resting puck always crosses the beam, whichever way up.
+// ============================================================
+cloud_lobes = [[-16, 8.5, 8.5], [-7, 17, 12.5], [8, 15, 10.5], [16, 8.5, 8.0]];   // [x, y, radius]
+cloud_fill = 3.0;               // fills concave notches of up to 2x this, so the outline cannot wedge on a peg
+cloud_round = 2.0;              // rounds the convex corners
+cloud_edge = 1.6;               // rounded edge, as on the round puck
+cloud_cav_x = -0.9;             // magnet cavity at the cloud's centre of mass (3.2 mm of wall all round)
+cloud_cav_y = 12.7;
+puck_lh = 0.2;                  // layer height you print the puck at; the cavity edges are snapped to it
+cloud_skin_min = 2.6;           // minimum solid under and over the magnets
+
+module cloud_2d() {
+  offset(r = cloud_round) offset(delta = -cloud_round)
+  offset(delta = -cloud_fill) offset(r = cloud_fill)
+  intersection() {
+    union() {
+      for (l = cloud_lobes) translate([l[0], l[1]]) circle(r = l[2], $fn = 64);
+      translate([-16, 0]) square([32, 12]);
+    }
+    translate([-60, 0]) square([120, 60]);      // flat bottom
+  }
+}
+
+// Rounded top and bottom edge by stacking inset slices.
+module cloud_body(t = puck_print_t, r = cloud_edge, steps = 8) {
+  dz = r / steps;
+  for (i = [0 : steps - 1]) {
+    zm = i * dz + dz / 2;
+    inset = r - sqrt(max(r * r - (r - zm) * (r - zm), 0));
+    translate([0, 0, i * dz]) linear_extrude(dz + eps) offset(delta = -inset) cloud_2d();
+    translate([0, 0, t - (i + 1) * dz]) linear_extrude(dz + eps) offset(delta = -inset) cloud_2d();
+  }
+  translate([0, 0, r]) linear_extrude(t - 2 * r) cloud_2d();
+}
+
+cloud_cav_depth = ceil((magnet_stack * magnet_t + 0.2) / puck_lh - 0.0001) * puck_lh;
+cloud_cav_z0 = grid_up(cloud_skin_min, puck_lh);
+cloud_cav_z1 = cloud_cav_z0 + cloud_cav_depth;
+assert(puck_print_t - cloud_cav_z1 >= cloud_skin_min - 0.001, "Magnet stack leaves too little skin over the cloud puck");
+
+module puck_cloud() {
+  difference() {
+    cloud_body();
+    if (magnets) translate([cloud_cav_x, cloud_cav_y, cloud_cav_z0])
+      cylinder(d = magnet_d + magnet_fit, h = cloud_cav_depth, $fn = 64);
+  }
+}
+echo(str("Cloud puck at ", puck_lh, " mm layers: pause AFTER layer ", round((cloud_cav_z1 - first_lh) / puck_lh) + 1,
+         " (Z = ", cloud_cav_z1, " mm); cavity ", cloud_cav_depth, " mm deep for ", magnet_stack, " magnets, ",
+         puck_print_t - cloud_cav_z1, " mm of skin on top"));
+
 // Z at which to pause the print, from the bed (puck printed flat).
 echo(str("Puck: pause at Z = ", (puck_print_t + magnet_stack * magnet_t + magnet_fit) / 2, " mm to insert ", 2 * magnet_stack, " magnets"));
 
@@ -581,6 +635,7 @@ module print_flat_cover_colour(k) rotate([90, 0, 0]) cover_colour(k);
 if (part == "body") print_flat_body();
 else if (part == "fit_test") fit_test();
 else if (part == "puck") puck();
+else if (part == "puck_cloud") puck_cloud();
 else if (part == "plug") print_flat_plug();
 else if (part == "magnet_test") magnet_test();
 else if (part == "dispenser") magnet_dispenser();

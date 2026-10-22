@@ -137,6 +137,7 @@ Neither part needs supports.
 | `exports/stl/body_slot1..6.stl` | Body per bucket (insert widths 88.1, 79.4, 80.6, 78.6, 80.8 and 85.7 mm). Engraved `B<n>  <width> mm` on the underside. The tile magnets are measured from the body's centre, so a wider body just shows a bit of body each side of the tile. |
 | `exports/stl/guide_slot1..6.stl` | Marking guide per bucket (below). Labelled `B<n>  <width> mm`, `FLOOR`, `M3`, `W`. |
 | `exports/stl/puck.stl` | Our puck: 48.9 x 16 mm, rounded edge, smooth faces, no decal. Two sealed magnet cavities. |
+| `exports/stl/puck_cloud.stl` | Cloud-shaped puck: 48.5 x 29.5 x 16 mm, flat-bottomed, same 16 mm thickness and magnet cutout as the round puck but a **single** stack of magnets in the middle (centre of mass, 3.2 mm of wall all round). Print flat, pause **after layer 64** (Z = 12.8 mm) at 0.2 mm layers, drop the two stacked 17.89 x 4.92 magnets in (same polarity every time), resume. |
 | `exports/stl/magnet_test.stl` | Fit test: four open pockets with 0.1, 0.2, 0.3 and 0.4 mm of diameter play for the 6 x 1.74 mm magnets. Print this first and pick the pocket the magnet drops into with a little play, then set `mag_fit` to that number. |
 | `exports/stl/magnet_dispenser.stl`, `magnet_pusher.stl`, `magnet_cap_body.stl`, `magnet_cap_tile.stl` | Keeps magnet polarity right and the stack stored: see "Magnets" below. |
 | `exports/stl/plug.stl` | Retaining plug, **12 needed** (one per sensor, emitter and receiver alike). Pushes into the rear of the sensor pocket behind the housing so it cannot slide out; 5.9 mm long (`plug_len`), with a slot along its underside for the wires, and it is only lightly snug (0.1 mm crush ribs). Pull hole through the middle for a pick. Print with the slot facing up (the STL is already oriented). |
@@ -219,3 +220,16 @@ when you are not using it. Each has a pocket in its closed end for one **referen
    tells you a magnet at that end has been flipped or the stack has been moved.
 3. To check a loose magnet, touch it to the **TILE** cap's top. The face that clings is the face
    that goes **up** (outward) in a tile cavity, and **down** in a body cavity.
+
+
+### Cloud puck
+
+`puck_cloud` is a drop-in alternative to the round puck. It is 48.5 mm wide (under the round puck's 49.56, so it
+clears the towers), 29.5 mm tall, so a resting puck crosses the 16 mm beam whichever way up it lands, and it is
+flat on the bottom so it stands in the groove. The outline is four lobes with the concave notches filled
+(`cloud_fill`) and the corners rounded (`cloud_round`), so it should not wedge on a peg. The cavity edges are on the
+layer grid (`puck_lh`, default 0.2 mm). If you print at a different layer height, set `puck_lh` and re-export; the
+export prints the pause layer. Set `magnet_stack = 1` for half the weight.
+
+Untested on the board: how it behaves in the funnel (a flat bottom should slide), and whether the lobes catch the
+pegs. If they do, raise `cloud_fill` to round the notches off more.

@@ -63,6 +63,8 @@ foreach ($Tool in @(@("magnet_test", "magnet_test"), @("dispenser", "magnet_disp
 }
 Write-Host "== retaining plug"
 Invoke-OpenScad @("-o", (Join-Path $StlDir "plug.stl"), "-D", "part=`"plug`"", $Source) -ShowEcho
+Write-Host "== cloud puck"
+Invoke-OpenScad @("-o", (Join-Path $StlDir "puck_cloud.stl"), "-D", "part=`"puck_cloud`"", $Source) -ShowEcho
 Write-Host "== puck"
 Invoke-OpenScad @("-o", (Join-Path $StlDir "puck.stl"), "-D", "part=`"puck`"", $Source)
 Write-Host "== fit test (receiver end only)"
