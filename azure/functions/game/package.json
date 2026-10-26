@@ -12,9 +12,9 @@
     "test": "tsc -p . && node --test \"dist/test/**/*.test.js\""
   },
   "dependencies": {
-    "@azure/functions": "^4.16.5",
-    "@azure/msal-node": "^7.1.0",
-    "jose": "^6.2.12",
+    "@azure/functions": "^4.17.0",
+    "@azure/msal-node": "^7.1.1",
+    "jose": "^6.2.13",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
